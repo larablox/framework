@@ -1,0 +1,16 @@
+.DS_Store
+/.codex
+/.cursor/
+/.idea
+/.vscode
+/.zed
+/node_modules
+
+# roblox-ts
+/out
+/include
+*.tsbuildinfo
+
+# luau-lsp analyze (generated, fetch via `npm run types:roblox`)
+/sourcemap.json
+/globalTypes.None.d.luau

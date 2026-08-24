@@ -1,0 +1,22 @@
+{
+	"name": "larablox/framework",
+	"globIgnorePaths": ["**/package.json", "**/tsconfig.json"],
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"node_modules": {
+				"$className": "Folder",
+				"@rbxts": {
+					"$path": "node_modules/@rbxts"
+				}
+			},
+			"Illuminate": {
+				"$path": "out/Illuminate"
+			},
+			"Monolog": {
+				"$path": "out/Monolog"
+			}
+		}
+	}
+}

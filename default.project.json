@@ -9,13 +9,13 @@
 				"$className": "Folder",
 				"@rbxts": {
 					"$path": "node_modules/@rbxts"
+				},
+				"@larablox": {
+					"$path": "node_modules/@larablox"
 				}
 			},
 			"Illuminate": {
 				"$path": "out/Illuminate"
-			},
-			"Monolog": {
-				"$path": "out/Monolog"
 			}
 		}
 	}

@@ -17,16 +17,34 @@ Mirrors [`laravel/framework`](https://github.com/laravel/framework):
 
 - `src/Illuminate/` — the framework core, one directory per component, same
   names as upstream Laravel
-- `src/Monolog/` — the logging backend `Illuminate/Log` builds on. Laravel
-  depends on `monolog/monolog` as a separate Composer package; there is no
-  Luau port of Monolog to depend on the same way, so it is vendored here
-  instead — the one deliberate divergence from the reference layout, and it
-  stays only until a standalone port exists.
 - `out/` — generated Luau, a build artifact; never edit by hand
 
-There is no game here — no `server`/`client` split, no entry point. Anything
-under `src/Illuminate` or `src/Monolog` must not import from outside those
-two directories.
+There is no game here — no `server`/`client` split, no entry point.
+`Illuminate/Log` depends on Monolog the same way Laravel does — as an
+external package, [`@larablox/monolog`](https://github.com/larablox/monolog),
+not vendored code. It is currently pinned via `"file:../monolog"` in
+`package.json` (a sibling checkout at `../monolog`), because it has not been
+published yet — swap that for a real semver range once it is.
+
+## Depending on `@larablox/monolog`
+
+Two things a real npm range alone will not give you, both discovered getting
+this wired up, both load-bearing:
+
+- **Deep imports need the `out/` segment.** `@larablox/monolog`'s compiled
+  output lives at `out/Monolog/...` inside the package (its `outDir`), so the
+  import is `"@larablox/monolog/out/Monolog/Logger"`, not
+  `"@larablox/monolog/Monolog/Logger"`. Cosmetic, but get it wrong and you
+  get a plain "cannot find module".
+- **`node_modules/@larablox` must be in `tsconfig.json`'s `typeRoots`.**
+  roblox-ts refuses a scoped deep import unless the scope directory is listed
+  there (`createImportExpression.js`'s `validateModule`) — already done here.
+  That in turn makes TypeScript try to auto-load every package under
+  `node_modules/@larablox` as an implicit global type library, which fails
+  unless the package has a `types` entry. That's what `@larablox/monolog`'s
+  `src/index.ts` is — an otherwise-empty file that exists only to satisfy
+  that scan, not a real barrel. Any future `@larablox/*` dependency needs the
+  same shim, or the build breaks the same way.
 
 ## Commands
 

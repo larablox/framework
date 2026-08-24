@@ -16,8 +16,11 @@
     "publishConfig": {
         "access": "public"
     },
-    "files": ["out/Illuminate", "out/Monolog"],
+    "files": ["out/Illuminate"],
     "type": "module",
+    "dependencies": {
+        "@larablox/monolog": "file:../monolog"
+    },
     "scripts": {
         "build": "rbxtsc",
         "clean": "rimraf out include sourcemap.json tsconfig.tsbuildinfo",

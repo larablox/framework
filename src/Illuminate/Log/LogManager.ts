@@ -1,27 +1,27 @@
-import { ConsoleHandler } from "Monolog/Handler/ConsoleHandler";
+import { ConsoleHandler } from "@larablox/monolog/out/Monolog/Handler/ConsoleHandler";
 import { ContextLogProcessor as ContextLogProcessorContract } from "Illuminate/Contracts/Log/ContextLogProcessor";
-import { FingersCrossedHandler } from "Monolog/Handler/FingersCrossedHandler";
+import { FingersCrossedHandler } from "@larablox/monolog/out/Monolog/Handler/FingersCrossedHandler";
 import { InvalidArgumentException } from "Illuminate/Exception";
-import { Level, Levels } from "Monolog/Level";
-import { LineFormatter } from "Monolog/Formatter/LineFormatter";
+import { Level, Levels } from "@larablox/monolog/out/Monolog/Level";
+import { LineFormatter } from "@larablox/monolog/out/Monolog/Formatter/LineFormatter";
 import { Logger } from "Illuminate/Log/Logger";
-import { Logger as Monolog } from "Monolog/Logger";
-import { NullHandler } from "Monolog/Handler/NullHandler";
+import { Logger as Monolog } from "@larablox/monolog/out/Monolog/Logger";
+import { NullHandler } from "@larablox/monolog/out/Monolog/Handler/NullHandler";
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import { Str } from "Illuminate/Support/Str";
 import { Util } from "Illuminate/Container/Util";
-import { WhatFailureGroupHandler } from "Monolog/Handler/WhatFailureGroupHandler";
+import { WhatFailureGroupHandler } from "@larablox/monolog/out/Monolog/Handler/WhatFailureGroupHandler";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Application } from "Illuminate/Contracts/Foundation/Application";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { FormatterInterface } from "Monolog/Formatter/FormatterInterface";
-import type { HandlerInterface } from "Monolog/Handler/HandlerInterface";
+import type { FormatterInterface } from "@larablox/monolog/out/Monolog/Formatter/FormatterInterface";
+import type { HandlerInterface } from "@larablox/monolog/out/Monolog/Handler/HandlerInterface";
 import type {
     LogContext,
     LogLevel,
     Logger as LoggerContract,
 } from "Illuminate/Contracts/Log/Logger";
-import type { Processor } from "Monolog/Processor/ProcessorInterface";
+import type { Processor } from "@larablox/monolog/out/Monolog/Processor/ProcessorInterface";
 import type { Repository } from "Illuminate/Contracts/Config/Repository";
 
 /** A factory registered through `extend()`. */

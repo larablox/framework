@@ -47,9 +47,27 @@ import { MemoryStoreLock } from "Illuminate/Cache/MemoryStoreLock";
 
 const HttpService = game.GetService("HttpService");
 
+/**
+ * How long a value with no explicit TTL lives.
+ *
+ * Not `MAX_EXPIRATION`, which is what `MemoryStoreStore` defaults to: the
+ * universe's MemoryStore quota is 64 KB, it is shared with the running game,
+ * and every run here writes under a map name of its own -- so a 45-day
+ * default means each run's leavings hold their share of that quota for a
+ * month and a half. After enough runs `SetAsync` starts answering
+ * `TotalMemoryOverLimit` and every test below fails for a reason that has
+ * nothing to do with the code. Long enough for a test, short enough to be
+ * gone before the next run needs the room.
+ */
+const EXPIRATION = 30;
+
 /** A fresh store, isolated from every other test by a random map name. */
 function freshStore(prefix = ""): MemoryStoreStore {
-    return new MemoryStoreStore(HttpService.GenerateGUID(false), prefix);
+    return new MemoryStoreStore(
+        HttpService.GenerateGUID(false),
+        prefix,
+        EXPIRATION,
+    );
 }
 
 export = (): void => {
@@ -118,6 +136,11 @@ export = (): void => {
             expect(store.forever("foo", "foo")).to.equal(true);
             expect(store.get("foo")).to.equal("foo");
             expect(store.maxExpiration()).to.equal(MAX_EXPIRATION);
+
+            // The one write here that `EXPIRATION` cannot shorten -- 45 days
+            // is what `forever()` means and what the assertion above is
+            // about. Taken back by hand so it does not sit in the quota.
+            store.forget("foo");
         });
 
         // PHP: CacheRedisStoreTest::testTouchMethodProperlyCallsRedis

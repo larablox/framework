@@ -17,9 +17,8 @@ import { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
  * its own queue name (from `HttpService.GenerateGUID`) so tests never see
  * each other's items.
  *
- * Not ported, no equivalent in this port (`MemoryStoreQueue.ts`'s class
- * comment: "What Redis gives and this does not: no length... no cluster"):
- * every cluster/hash-tag case (`testGetQueueRemainsUnchangedForCluster`,
+ * Not ported, no equivalent in this port -- `MemoryStoreQueue` talks to one
+ * `MemoryStoreService`, never a cluster: every cluster/hash-tag case (`testGetQueueRemainsUnchangedForCluster`,
  * `testGetRedisKeyWrapsWithHashTagsForPhpRedisCluster`,
  * `testGetRedisKeyWrapsWithHashTagsForPredisCluster`,
  * `testGetRedisKeyDoesNotDoubleWrapExistingHashTags`,
@@ -38,10 +37,9 @@ import { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
  * *unchanged* queue name); it is ported below without the cluster angle.
  * `testGetQueueRemainsUnchangedForNonCluster`/`testGetRedisKeyReturnsPlainKeyForNonCluster`
  * collapse into the `getQueue()` case below (there being no Redis key to
- * separately expose). `clear()` is not implemented on `MemoryStoreQueue` --
- * `size()` and its siblings all read 0 (the class comment: MemoryStore
- * reports no length) -- so `testClearUsesGetRedisKeyOnCluster` has nothing to
- * port beyond that. `testBulkRespectsDelayAttributeWhenPushingOntoRedis` is
+ * separately expose). `clear()` is not implemented on `MemoryStoreQueue`, so
+ * `testClearUsesGetRedisKeyOnCluster` has nothing to port beyond the cluster
+ * point above. `testBulkRespectsDelayAttributeWhenPushingOntoRedis` is
  * covered by `Delay.spec.ts` instead, which exercises the `Delay` attribute
  * itself; `bulk()`'s mechanics (looping `push()`) are exercised generically
  * for every queue driver via `Queue.bulk()`.
@@ -212,18 +210,21 @@ export = (): void => {
             expect(err instanceof InvalidPayloadException).to.equal(true);
         });
 
-        // PHP: no direct equivalent -- MemoryStore reports no length, so every
-        // size accessor answers zero regardless of what is stored (see class
-        // comment); `QueueSizeTest.php`'s equivalent case is documented as
-        // skipped in `Size.spec.ts` for the same reason.
-        it("size() and its siblings always answer zero", () => {
+        // PHP: no direct equivalent -- `RedisQueue` can look at its list
+        // without consuming it (`lrange`); MemoryStore cannot, because
+        // `ReadAsync` is the only way to see a job and it reserves what it
+        // reads (see class comment). The sizes are real -- `Size.spec.ts`
+        // covers them -- and the listings are what the platform withholds.
+        it("the job listings answer empty even though the sizes count", () => {
             const queue = freshQueue();
             queue.push(new MyTestJob(), []);
 
-            expect(queue.size()).to.equal(0);
-            expect(queue.pendingSize()).to.equal(0);
-            expect(queue.delayedSize()).to.equal(0);
-            expect(queue.reservedSize()).to.equal(0);
+            expect(queue.size()).to.equal(1);
+
+            expect(queue.pendingJobs().isEmpty()).to.equal(true);
+            expect(queue.delayedJobs().isEmpty()).to.equal(true);
+            expect(queue.reservedJobs().isEmpty()).to.equal(true);
+            expect(queue.creationTimeOfOldestPendingJob()).to.equal(undefined);
         });
     });
 };

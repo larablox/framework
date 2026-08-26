@@ -45,8 +45,11 @@ const SORT_KEY_DIGITS = 10;
  * - `ReadAsync(count, allOrNothing, waitTimeout)` is `BLPOP`: the worker waits
  *   inside the call instead of polling.
  *
- * What Redis gives and this does not: no length. MemoryStore exposes no count,
- * so `size()` and its siblings answer zero rather than guess.
+ * What Redis gives and this does not: the jobs themselves. The four sizes are
+ * real -- `GetSizeAsync` counts a queue, and `excludeInvisible` separates
+ * pending from reserved the way the `:reserved` set does in PHP -- but nothing
+ * reads a job without also reserving it, so `pendingJobs()` and its siblings
+ * answer an empty collection rather than consume the queue to look.
  *
  * Two limits are the platform's, not Laravel's: an item may not exceed 32 KB,
  * and the game's whole memory quota is `64 KB + 1.2 KB * players`.
@@ -88,28 +91,52 @@ export class MemoryStoreQueue extends Queue implements QueueContract {
         );
     }
 
-    /* eslint-disable @typescript-eslint/no-unused-vars -- MemoryStore reports
-       no length, so there is nothing to count. */
-
-    /** Get the size of the queue. */
+    /**
+     * Get the size of the queue.
+     *
+     * PHP counts the list, the delayed set and the reserved set in one
+     * `EVAL`; there is no scripting here, so this adds up what the two
+     * structures report. `GetSizeAsync()` counts pending and reserved
+     * together -- an item that was read but not removed is still in the queue,
+     * only invisible -- which leaves the delayed map to add.
+     */
     public size(queue?: string): number {
-        return 0;
+        return (
+            this.queueFor(queue).GetSizeAsync(false) + this.delayedSize(queue)
+        );
     }
 
     /** Get the number of pending jobs. */
     public pendingSize(queue?: string): number {
-        return 0;
+        return this.queueFor(queue).GetSizeAsync(true);
     }
 
     /** Get the number of delayed jobs. */
     public delayedSize(queue?: string): number {
-        return 0;
+        return this.delayedFor(queue).GetSizeAsync();
     }
 
-    /** Get the number of reserved jobs. */
+    /**
+     * Get the number of reserved jobs.
+     *
+     * Reserved here is what `retry_after` and the `:reserved` sorted set are
+     * in PHP: a job `ReadAsync` handed out and nobody removed, held invisible
+     * until the invisibility timeout puts it back. `excludeInvisible` is the
+     * only place MemoryStore draws that line, so the count is what the two
+     * calls differ by.
+     */
     public reservedSize(queue?: string): number {
-        return 0;
+        const memoryStoreQueue = this.queueFor(queue);
+
+        return (
+            memoryStoreQueue.GetSizeAsync(false) -
+            memoryStoreQueue.GetSizeAsync(true)
+        );
     }
+
+    /* eslint-disable @typescript-eslint/no-unused-vars -- a queue reports its
+       length, but not its contents: `ReadAsync` is the only way to see a job
+       and it reserves what it reads. */
 
     /** Get the pending jobs for the given queue. */
     public pendingJobs(queue?: string): Collection<number, defined> {

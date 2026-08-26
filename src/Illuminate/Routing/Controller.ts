@@ -1,4 +1,4 @@
-import { Util } from "Illuminate/Container/Util";
+import { wrapPipes } from "Illuminate/Pipeline/Pipes";
 import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
 
 /**
@@ -13,7 +13,7 @@ export abstract class Controller {
 
     /** Register middleware on the controller. */
     public middleware(middleware: Pipe | Array<Pipe>): this {
-        for (const entry of Util.arrayWrap(middleware) as Array<Pipe>) {
+        for (const entry of wrapPipes(middleware)) {
             this.middlewareList.push(entry);
         }
 

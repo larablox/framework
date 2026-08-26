@@ -147,7 +147,7 @@ export abstract class Queue {
         job: object,
         queue: string | undefined,
     ): JobPayload {
-        return this.withCreatePayloadHooks(queue, {
+        const payload = this.withCreatePayloadHooks(queue, {
             uuid: Str.uuid(),
             displayName: this.getDisplayName(job),
             job: [CallQueuedHandler, "call"],
@@ -183,6 +183,27 @@ export abstract class Queue {
             },
             createdAt: InteractsWithTime.currentTime(),
         });
+
+        // PHP merges the command back into `data` *after* the hooks have run,
+        // so a `createPayloadUsing()` callback that hands back a whole new
+        // `data` table cannot take the job itself with it -- and the handler
+        // still has something to resolve.
+        const data: Record<string, unknown> = {};
+
+        if (typeIs(payload.data, "table")) {
+            for (const [key, value] of pairs(
+                payload.data as Record<string, defined>,
+            )) {
+                data[key as string] = value;
+            }
+        }
+
+        data.commandName = Reflector.classOf(job) ?? Reflector.className(job);
+        data.command = job;
+
+        payload.data = data;
+
+        return payload;
     }
 
     /** Get the display name for the given job. */

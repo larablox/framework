@@ -84,14 +84,13 @@ export class ArrayStore implements Store, LockProvider {
         return true;
     }
 
-    /** Store an item in the cache if the key does not exist. */
-    public add(key: string, value: unknown, seconds: number): boolean {
-        if (this.get(key) !== undefined) {
-            return false;
-        }
-
-        return this.put(key, value, seconds);
-    }
+    // No `add()`: PHP's `ArrayStore` does not define one either, and
+    // `Repository::add()` only reaches for a store's own `add()` when the
+    // store has one -- that shortcut skips the `get()`/`put()` pair, and with
+    // it the `RetrievingKey`/`CacheMissed`/`WritingKey`/`KeyWritten` events an
+    // in-memory store has no reason to suppress. The stores that do declare
+    // one here (`DataStoreStore`, `MemoryStoreStore`) stand in for the drivers
+    // upstream gives an atomic `add()` to.
 
     /** Increment the value of an item in the cache. */
     public increment(key: string, value = 1): number | false {

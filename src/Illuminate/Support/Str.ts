@@ -2,14 +2,55 @@ import { Collection } from "Illuminate/Support/Collection";
 import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
 import { Pluralizer } from "Illuminate/Support/Pluralizer";
 import { Tappable } from "Illuminate/Support/Traits/Tappable";
+import * as Unicode from "Illuminate/Support/Unicode";
 import { Util } from "Illuminate/Container/Util";
 import type { JsonSerializable } from "Illuminate/Contracts/Support/JsonSerializable";
 
 /** Characters Luau's pattern matcher treats as magic. */
 const MAGIC = "([%^%$%(%)%%%.%[%]%*%+%-%?])";
 
-/** The default characters `trim()` strips. */
-const TRIM_CHARACTERS = " \t\n\r\v\f";
+/**
+ * `tonumber()`, but only for spellings PHP also reads as numeric.
+ *
+ * Luau accepts `"nan"` and `"inf"` as numeric literals and returns the
+ * matching float. PHP's numeric casts recognise neither, so `(int) 'nan'` is
+ * `0` -- and letting the float through instead poisons every arithmetic
+ * downstream of it.
+ */
+function parseFinite(value: string, base?: number): number | undefined {
+    const parsed = base === undefined ? tonumber(value) : tonumber(value, base);
+
+    if (parsed === undefined) {
+        return undefined;
+    }
+
+    // `parsed !== parsed` is the NaN test -- NaN is the one value not equal
+    // to itself.
+    if (parsed !== parsed || parsed === math.huge || parsed === -math.huge) {
+        return undefined;
+    }
+
+    return parsed;
+}
+
+/**
+ * PHP: `Str::INVISIBLE_CHARACTERS`, plus the `" \n\r\t\v\0"` upstream appends
+ * to it in `trim()`/`ltrim()`/`rtrim()`.
+ *
+ * Upstream builds these into a PCRE character class. A Luau character class
+ * matches *bytes*, so a class holding U+3000 would match its three UTF-8 bytes
+ * separately and corrupt neighbouring characters; the trimmers below compare
+ * codepoints against this set instead.
+ */
+const INVISIBLE_CODEPOINTS = new Set<number>([
+    0x0000, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x00a0, 0x00ad,
+    0x034f, 0x061c, 0x115f, 0x1160, 0x17b4, 0x17b5, 0x180e, 0x2000, 0x2001,
+    0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a,
+    0x200b, 0x200c, 0x200d, 0x200e, 0x200f, 0x202f, 0x205f, 0x2060, 0x2061,
+    0x2062, 0x2063, 0x2064, 0x2065, 0x206a, 0x206b, 0x206c, 0x206d, 0x206e,
+    0x206f, 0x2800, 0x3000, 0x3164, 0xfeff, 0xffa0, 0x1d159, 0x1d173, 0x1d174,
+    0x1d175, 0x1d176, 0x1d177, 0x1d178, 0x1d179, 0x1d17a, 0xe0020,
+]);
 
 const LOWER_ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 const UPPER_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -202,15 +243,39 @@ export class Str {
     // Searching
     // -----------------------------------------------------------------
 
-    /** Find the position of the first occurrence, or undefined. */
+    /**
+     * Find the position of the first occurrence, or undefined.
+     *
+     * PHP: `mb_strpos()`, which counts characters -- in the offset it takes
+     * as well as in the position it answers. Luau's `string.find()` counts
+     * bytes, so both ends are converted; the two only agree on ASCII.
+     */
     public static position(
         haystack: string,
         needle: string,
         offset = 0,
     ): number | undefined {
-        const [found] = haystack.find(needle, offset + 1, true);
+        const total = Str.length(haystack);
+        const from = offset < 0 ? math.max(total + offset, 0) : offset;
 
-        return found !== undefined ? found - 1 : undefined;
+        if (from > total) {
+            return undefined;
+        }
+
+        const init = utf8.offset(haystack, from + 1) ?? haystack.size() + 1;
+        const [found] = haystack.find(needle, init, true);
+
+        if (found === undefined) {
+            return undefined;
+        }
+
+        if (found === 1) {
+            return 0;
+        }
+
+        const [characters] = utf8.len(haystack, 1, found - 1);
+
+        return typeIs(characters, "number") ? characters : found - 1;
     }
 
     /** Determine if a given string contains a given substring. */
@@ -219,10 +284,12 @@ export class Str {
         needles: string | Array<string>,
         ignoreCase = false,
     ): boolean {
-        const subject = ignoreCase ? haystack.lower() : haystack;
+        // PHP folds case with `mb_strtolower()`, not with the byte-wise
+        // `strtolower()`, so `Str.lower()` is the one to use here.
+        const subject = ignoreCase ? Str.lower(haystack) : haystack;
 
         for (const needle of Util.arrayWrap(needles)) {
-            const search = ignoreCase ? needle.lower() : needle;
+            const search = ignoreCase ? Str.lower(needle) : needle;
             const [found] = subject.find(search, 1, true);
 
             if (search !== "" && found !== undefined) {
@@ -239,13 +306,19 @@ export class Str {
         needles: Array<string>,
         ignoreCase = false,
     ): boolean {
+        // PHP returns the `$any` flag, so an empty needle list is `false` --
+        // "contains all of nothing" is not vacuously true here.
+        let any = false;
+
         for (const needle of needles) {
+            any = true;
+
             if (!Str.contains(haystack, needle, ignoreCase)) {
                 return false;
             }
         }
 
-        return true;
+        return any;
     }
 
     /** Determine if a given string doesn't contain a given substring. */
@@ -408,7 +481,13 @@ export class Str {
         omission = "...",
     ): string | undefined {
         const position =
-            phrase === "" ? 0 : Str.position(text.lower(), phrase.lower());
+            phrase === ""
+                ? 0
+                : // PHP matches with `/iu`, so the fold is the Unicode one.
+                  // Simple case mapping is 1:1 on codepoints, which keeps the
+                  // position of the match the same in the folded string as in
+                  // `text` itself.
+                  Str.position(Str.lower(text), Str.lower(phrase));
 
         if (position === undefined) {
             return undefined;
@@ -583,13 +662,53 @@ export class Str {
         let result = value;
 
         for (const character of Util.arrayWrap(characters)) {
-            const [quoted] = character.gsub(MAGIC, "%%%1");
-            const [deduplicated] = result.gsub(`${quoted}+`, character);
-
-            result = deduplicated;
+            if (character !== "") {
+                result = Str.collapseRuns(result, character);
+            }
         }
 
         return result;
+    }
+
+    /**
+     * Collapse the runs one `deduplicate()` needle produces into a single
+     * instance of it.
+     *
+     * PHP builds `/preg_quote($character)+/u` and lets the regex engine do
+     * this. Two details of that pattern carry over: `+` quantifies only the
+     * needle's *last character* (PHP never groups it), and under `/u` that is
+     * a whole codepoint rather than a byte. A Luau pattern class cannot hold
+     * a multi-byte character at all, so the run is walked by hand instead.
+     */
+    private static collapseRuns(value: string, character: string): string {
+        const lastOffset = utf8.offset(character, -1) ?? character.size();
+        const prefix = character.sub(1, lastOffset - 1);
+        const last = character.sub(lastOffset);
+        const pieces = new Array<string>();
+
+        let index = 1;
+
+        while (index <= value.size()) {
+            let cursor = index + prefix.size();
+            let repeats = 0;
+
+            if (prefix === "" || value.sub(index, cursor - 1) === prefix) {
+                while (value.sub(cursor, cursor + last.size() - 1) === last) {
+                    repeats += 1;
+                    cursor += last.size();
+                }
+            }
+
+            if (repeats > 0) {
+                pieces.push(character);
+                index = cursor;
+            } else {
+                pieces.push(value.sub(index, index));
+                index += 1;
+            }
+        }
+
+        return pieces.join("");
     }
 
     // -----------------------------------------------------------------
@@ -768,39 +887,130 @@ export class Str {
 
     /** Remove all whitespace, or the given characters, from the beginning. */
     public static ltrim(value: string, characters?: string): string {
-        const set = Str.characterClass(characters ?? TRIM_CHARACTERS);
-        const [result] = value.gsub(`^[${set}]+`, "");
+        if (characters === undefined) {
+            return Str.trimInvisible(value, true, false);
+        }
+
+        // PHP: `ltrim($value, '')` strips nothing. Letting an empty list reach
+        // the pattern would build `^[]+`, which Luau rejects outright.
+        if (characters === "") {
+            return value;
+        }
+
+        const [result] = value.gsub(
+            `^[${Str.characterClass(characters)}]+`,
+            "",
+        );
 
         return result;
     }
 
     /** Remove all whitespace, or the given characters, from the end. */
     public static rtrim(value: string, characters?: string): string {
-        const set = Str.characterClass(characters ?? TRIM_CHARACTERS);
-        const [result] = value.gsub(`[${set}]+$`, "");
+        if (characters === undefined) {
+            return Str.trimInvisible(value, false, true);
+        }
+
+        if (characters === "") {
+            return value;
+        }
+
+        const [result] = value.gsub(
+            `[${Str.characterClass(characters)}]+$`,
+            "",
+        );
 
         return result;
     }
 
+    /**
+     * Strip leading and/or trailing invisible characters.
+     *
+     * PHP: the `preg_replace('~^[\s...]+|[\s...]+$~u', '', $value)` branch
+     * `trim()`/`ltrim()`/`rtrim()` take when no character list is given, where
+     * `...` is `Str::INVISIBLE_CHARACTERS` plus `" \n\r\t\v\0"`.
+     */
+    private static trimInvisible(
+        value: string,
+        fromStart: boolean,
+        fromEnd: boolean,
+    ): string {
+        const offsets = new Array<number>();
+        const codepoints = new Array<number>();
+
+        for (const [offset, code] of utf8.codes(value)) {
+            offsets.push(offset);
+            codepoints.push(code);
+        }
+
+        let first = 0;
+        let last = codepoints.size() - 1;
+
+        if (fromStart) {
+            while (
+                first <= last &&
+                INVISIBLE_CODEPOINTS.has(codepoints[first])
+            ) {
+                first++;
+            }
+        }
+
+        if (fromEnd) {
+            while (
+                last >= first &&
+                INVISIBLE_CODEPOINTS.has(codepoints[last])
+            ) {
+                last--;
+            }
+        }
+
+        if (first > last) {
+            return "";
+        }
+
+        const from = offsets[first];
+        const to =
+            last + 1 < offsets.size() ? offsets[last + 1] - 1 : value.size();
+
+        return value.sub(from, to);
+    }
+
     /** Remove all extraneous whitespace, collapsing runs into one space. */
     public static squish(value: string): string {
-        const [collapsed] = Str.trim(value).gsub("%s+", " ");
+        // PHP collapses the same invisible set `trim()` strips, not just
+        // `%s` -- `laravel\u{3164}\u{3164}php` has to squish to `laravel php`.
+        const parts = new Array<string>();
+        let inRun = false;
 
-        return collapsed;
+        for (const [, code] of utf8.codes(Str.trim(value))) {
+            if (INVISIBLE_CODEPOINTS.has(code)) {
+                if (!inRun) {
+                    parts.push(" ");
+                    inRun = true;
+                }
+
+                continue;
+            }
+
+            parts.push(utf8.char(code));
+            inRun = false;
+        }
+
+        return parts.join("");
     }
 
     // -----------------------------------------------------------------
     // Case
     // -----------------------------------------------------------------
 
-    /** Convert the given string to lower case (ASCII). */
+    /** Convert the given string to lower case. */
     public static lower(value: string): string {
-        return value.lower();
+        return Unicode.lower(value);
     }
 
-    /** Convert the given string to upper case (ASCII). */
+    /** Convert the given string to upper case. */
     public static upper(value: string): string {
-        return value.upper();
+        return Unicode.upper(value);
     }
 
     /** Convert the given string to the given case. */
@@ -821,7 +1031,42 @@ export class Str {
 
     /** Convert the given string to title case. */
     public static title(value: string): string {
-        return Str.ucwords(Str.lower(value));
+        // PHP: `mb_convert_case($value, MB_CASE_TITLE, 'UTF-8')`, which upper
+        // cases the first *cased letter* of each word and lower cases the
+        // rest. `ucwords(lower($value))` is not the same thing: it only looks
+        // at the character right after a separator, so a word opening with
+        // punctuation or a symbol (`❤laravel`) would never be capitalised.
+        const parts = new Array<string>();
+        let seenLetter = false;
+
+        for (const [, code] of utf8.codes(value)) {
+            const isCased =
+                Unicode.isUpperCodepoint(code) ||
+                Unicode.isLowerCodepoint(code);
+
+            if (!isCased) {
+                // A separator ends the word; any other uncased character
+                // (punctuation, a symbol) simply carries through.
+                if (utf8.char(code).match("^[%s_-]$")[0] !== undefined) {
+                    seenLetter = false;
+                }
+
+                parts.push(utf8.char(code));
+
+                continue;
+            }
+
+            parts.push(
+                utf8.char(
+                    seenLetter
+                        ? Unicode.toLowerCodepoint(code)
+                        : Unicode.toUpperCodepoint(code),
+                ),
+            );
+            seenLetter = true;
+        }
+
+        return parts.join("");
     }
 
     /** Make a string's first character lower case. */
@@ -843,7 +1088,11 @@ export class Str {
         for (const [, code] of utf8.codes(value)) {
             const character = utf8.char(code);
 
-            characters.push(atBoundary ? character.upper() : character);
+            characters.push(
+                atBoundary
+                    ? utf8.char(Unicode.toUpperCodepoint(code))
+                    : character,
+            );
             atBoundary = character.match(`[${set}]`)[0] !== undefined;
         }
 
@@ -858,7 +1107,7 @@ export class Str {
         for (const [, code] of utf8.codes(value)) {
             const character = utf8.char(code);
 
-            if (character.match("%u")[0] !== undefined && current !== "") {
+            if (Unicode.isUpperCodepoint(code) && current !== "") {
                 parts.push(current);
                 current = "";
             }
@@ -916,6 +1165,71 @@ export class Str {
         return Str.studly(value);
     }
 
+    /**
+     * Insert `delimiter` before every ASCII upper case character that follows
+     * another character.
+     *
+     * PHP: `preg_replace('/(.)(?=[A-Z])/u', '$1'.$delimiter, $value)`, the
+     * second step of `Str::snake()`. Luau patterns cannot look ahead, so the
+     * walk is spelled out.
+     *
+     * Two details that look like bugs and are not:
+     *
+     * - it matches *any* preceding character, not just a lower case one --
+     *   that is what turns `LaravelPHPFramework` into
+     *   `laravel_p_h_p_framework` rather than `laravel_phpframework`;
+     * - the class is literally `[A-Z]`, so it is ASCII even in PHP. `Ł` is
+     *   not a boundary upstream and must not be one here, which is why this
+     *   walk does not go through `Unicode.isUpperCodepoint()` the way
+     *   `ucsplit()` does.
+     */
+    private static delimitBeforeUpperAscii(
+        value: string,
+        delimiter: string,
+    ): string {
+        const parts = new Array<string>();
+        let previous: string | undefined;
+
+        for (const [, code] of utf8.codes(value)) {
+            const character = utf8.char(code);
+
+            if (
+                previous !== undefined &&
+                character.match("^[A-Z]$")[0] !== undefined
+            ) {
+                parts.push(delimiter);
+            }
+
+            previous = character;
+            parts.push(character);
+        }
+
+        return parts.join("");
+    }
+
+    /**
+     * Upper case the first character of each whitespace-delimited word, ASCII
+     * only.
+     *
+     * PHP: the *global* `ucwords()`, which `Str::snake()` calls -- not
+     * `Str::ucwords()`, which is Unicode-aware. Keeping them apart matters:
+     * routing `snake()` through the Unicode version would make `żółtaŁódka`
+     * snake into `żółta_łódka`, where upstream leaves it `żółtałódka`.
+     */
+    private static asciiUcwords(value: string): string {
+        const parts = new Array<string>();
+        let atBoundary = true;
+
+        for (const [, code] of utf8.codes(value)) {
+            const character = utf8.char(code);
+
+            parts.push(atBoundary ? character.upper() : character);
+            atBoundary = character.match("^[ \t\r\n\f\v]$")[0] !== undefined;
+        }
+
+        return parts.join("");
+    }
+
     /** Convert a string to snake case. */
     public static snake(value: string, delimiter = "_"): string {
         const key = `${value} ${delimiter}`;
@@ -927,11 +1241,14 @@ export class Str {
 
         let result = value;
 
-        if (value.lower() !== value) {
-            const [collapsed] = Str.ucwords(value).gsub("%s+", "");
-            const [delimited] = collapsed.gsub("(%l)(%u)", `%1${delimiter}%2`);
+        // PHP: `! ctype_lower($value)` -- false for an empty string, and for
+        // anything holding a character that is not an ASCII lower case letter.
+        if (value.match("^[a-z]+$")[0] === undefined) {
+            const [collapsed] = Str.asciiUcwords(value).gsub("%s+", "");
 
-            result = Str.lower(delimited);
+            result = Str.lower(
+                Str.delimitBeforeUpperAscii(collapsed, delimiter),
+            );
         }
 
         Str.snakeCache.set(key, result);
@@ -1052,48 +1369,163 @@ export class Str {
     // Words and limits
     // -----------------------------------------------------------------
 
-    /** Limit the number of characters in a string. */
+    /**
+     * Limit the number of characters in a string.
+     *
+     * PHP measures with `mb_strwidth()`/`mb_strimwidth()`, not with
+     * `mb_strlen()`: the budget is display *width*, so a full-width CJK
+     * character spends two of it. `Str::limit('这是一段中文', 6)` therefore cuts
+     * after three characters, not six.
+     *
+     * `strip_tags()` off the front of the `$preserveWords` branch is not
+     * ported -- there is no HTML on this runtime -- but the newline collapsing
+     * and the outer trim beside it are.
+     */
     public static limit(
         value: string,
         limit = 100,
         last = "...",
         preserveWords = false,
     ): string {
-        if (Str.length(value) <= limit) {
+        if (Str.width(value) <= limit) {
             return value;
         }
-
-        const trimmed = Str.rtrim(Str.substr(value, 0, limit));
 
         if (!preserveWords) {
+            return `${Str.rtrim(Str.strimwidth(value, limit))}${last}`;
+        }
+
+        const [collapsed] = value.gsub("[\n\r]+", " ");
+        const subject = Str.trim(collapsed);
+        const trimmed = Str.rtrim(Str.strimwidth(subject, limit));
+
+        // PHP indexes with `mb_substr()` here even though the cut above was by
+        // width, so this reads a character offset, not a width offset.
+        if (Str.substr(subject, limit, 1) === " ") {
             return `${trimmed}${last}`;
         }
 
-        if (Str.substr(value, limit, 1) === " ") {
-            return `${trimmed}${last}`;
+        // PHP: `preg_replace("/(.*)\s.*/", '$1', $trimmed)` -- everything
+        // before the last whitespace, or the string untouched when it holds
+        // none, since then the pattern simply does not match.
+        let cut: number | undefined;
+        let from = 1;
+
+        while (true) {
+            const [found] = trimmed.find("%s", from);
+
+            if (found === undefined) {
+                break;
+            }
+
+            cut = found;
+            from = found + 1;
         }
 
-        return `${Str.rtrim(Str.beforeLast(trimmed, " "))}${last}`;
+        return `${cut === undefined ? trimmed : trimmed.sub(1, cut - 1)}${last}`;
     }
 
-    /** Limit the number of words in a string. */
-    public static words(value: string, words = 100, last = "..."): string {
-        const collected = new Array<string>();
+    /**
+     * The display width of a string.
+     *
+     * PHP: `mb_strwidth()`. The wide ranges are the ones `mbfl_charwidth()`
+     * lists; everything else counts as one.
+     */
+    private static width(value: string): number {
         let total = 0;
 
-        for (const [word] of value.gmatch("%S+")) {
-            total += 1;
-
-            if (total <= words) {
-                collected.push(word as string);
-            }
+        for (const [, code] of utf8.codes(value)) {
+            total += Str.isWideCodepoint(code) ? 2 : 1;
         }
 
-        if (total <= words) {
+        return total;
+    }
+
+    /** Whether a codepoint spends two columns of `mb_strwidth()`'s budget. */
+    private static isWideCodepoint(code: number): boolean {
+        return (
+            (code >= 0x1100 && code <= 0x115f) ||
+            code === 0x2329 ||
+            code === 0x232a ||
+            (code >= 0x2e80 && code <= 0xa4cf && code !== 0x303f) ||
+            (code >= 0xac00 && code <= 0xd7a3) ||
+            (code >= 0xf900 && code <= 0xfaff) ||
+            (code >= 0xfe30 && code <= 0xfe6f) ||
+            (code >= 0xff00 && code <= 0xff60) ||
+            (code >= 0xffe0 && code <= 0xffe6) ||
+            (code >= 0x20000 && code <= 0x2fffd) ||
+            (code >= 0x30000 && code <= 0x3fffd)
+        );
+    }
+
+    /**
+     * Take the leading characters of a string that fit in a width budget.
+     *
+     * PHP: `mb_strimwidth($value, 0, $width, '', 'UTF-8')`. A character that
+     * would overrun the budget is left out whole.
+     */
+    private static strimwidth(value: string, width: number): string {
+        let taken = 0;
+
+        for (const [offset, code] of utf8.codes(value)) {
+            const cost = Str.isWideCodepoint(code) ? 2 : 1;
+
+            if (taken + cost > width) {
+                return value.sub(1, offset - 1);
+            }
+
+            taken += cost;
+        }
+
+        return value;
+    }
+
+    /**
+     * Limit the number of words in a string.
+     *
+     * PHP matches `/^\s*+(?:\S++\s*+){1,$words}/u` and hands back the subject
+     * untouched whenever that fails to match -- which covers a string with no
+     * words in it at all, and also a `$words` below one, where `{1,0}` and
+     * `{1,-1}` are not quantifiers PCRE will run. The leading whitespace the
+     * match keeps is why `words(' Taylor Otwell ', 1)` answers `' Taylor...'`
+     * rather than trimming both ends.
+     */
+    public static words(value: string, words = 100, last = "..."): string {
+        if (words < 1) {
             return value;
         }
 
-        return `${collected.join(" ")}${last}`;
+        // `^\s*+`
+        const [, leading] = value.find("^%s*");
+        let cursor = (leading as number) + 1;
+        let taken = 0;
+
+        // `(?:\S++\s*+){1,$words}`
+        while (taken < words) {
+            const [wordStart, wordEnd] = value.find("^%S+", cursor);
+
+            if (wordStart === undefined) {
+                break;
+            }
+
+            const [, spaceEnd] = value.find("^%s*", (wordEnd as number) + 1);
+
+            cursor = (spaceEnd as number) + 1;
+            taken += 1;
+        }
+
+        // The quantifier's lower bound is one, so no word at all is no match.
+        if (taken === 0) {
+            return value;
+        }
+
+        const matched = value.sub(1, cursor - 1);
+
+        if (Str.length(value) === Str.length(matched)) {
+            return value;
+        }
+
+        return `${Str.rtrim(matched)}${last}`;
     }
 
     /** Get the number of words a string contains. */
@@ -1171,7 +1603,14 @@ export class Str {
     ): boolean {
         const subject = ignoreCase ? value.lower() : value;
 
-        for (const raw of Util.arrayWrap(patterns)) {
+        // Not `Util.arrayWrap()`: it leans on `Util.isArray()`, which treats an
+        // empty table as a single value because Luau cannot tell an empty array
+        // from an empty object. That turns `is([], $value)` into a search for
+        // one pattern that is itself a table. The parameter type already says
+        // which of the two shapes this is, so ask it instead.
+        const list = typeIs(patterns, "string") ? [patterns] : patterns;
+
+        for (const raw of list) {
             const pattern = ignoreCase ? raw.lower() : raw;
 
             // If the given value is an exact match we can of course return true right
@@ -1613,14 +2052,18 @@ export class Str {
         let from = 1;
 
         while (true) {
-            const [found, last] = haystack.find(needle, from, true);
+            const [found] = haystack.find(needle, from, true);
 
             if (found === undefined) {
                 break;
             }
 
             position = found;
-            from = (last as number) + 1;
+
+            // Step one byte, not past the whole match: PHP's `strrpos()`
+            // counts overlapping occurrences, so `afterLast('----foo', '---')`
+            // has to find the match at offset 2, not stop at the one at 1.
+            from = found + 1;
         }
 
         return position;
@@ -2564,10 +3007,10 @@ export class Stringable
      * PHP says `12`.
      */
     public toInteger(base = 10): number {
-        const parsed =
-            base === 10
-                ? tonumber(this.stringValue)
-                : tonumber(this.stringValue, base);
+        const parsed = parseFinite(
+            this.stringValue,
+            base === 10 ? undefined : base,
+        );
 
         if (parsed === undefined) {
             return 0;
@@ -2578,7 +3021,7 @@ export class Stringable
 
     /** Get the underlying string value as a float. */
     public toFloat(): number {
-        return tonumber(this.stringValue) ?? 0;
+        return parseFinite(this.stringValue) ?? 0;
     }
 
     /**

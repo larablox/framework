@@ -427,17 +427,11 @@ export class Kernel implements KernelContract {
                 }
             }
 
-            if (index === 0 && !after) {
-                this.middlewarePriority.unshift(middleware);
-            } else if (
-                (after && index === 0) ||
-                index === this.middlewarePriority.size()
-            ) {
-                this.middlewarePriority.push(middleware);
-            } else {
-                // PHP: `array_splice($priority, $index, 0, $middleware)`.
-                this.middlewarePriority.insert(index, middleware);
-            }
+            // PHP: `array_splice($priority, $index, 0, $middleware)`.
+            // `insert()` takes the same 0-based position, so index 0 puts the
+            // entry at the front and `size()` appends -- there is nothing here
+            // for the ends to special-case.
+            this.middlewarePriority.insert(index, middleware);
         }
 
         this.syncMiddlewareToRouter();

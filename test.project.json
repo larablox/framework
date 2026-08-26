@@ -1,0 +1,43 @@
+{
+	"name": "larablox/framework (tests)",
+	"globIgnorePaths": [
+		"**/package.json",
+		"**/tsconfig.json"
+	],
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"rbxts_include": {
+				"$path": "node_modules/roblox-ts/include",
+				"node_modules": {
+					"$className": "Folder",
+					"@rbxts": {
+						"$path": "node_modules/@rbxts"
+					}
+				}
+			},
+			"node_modules": {
+				"$className": "Folder",
+				"@rbxts": {
+					"$path": "node_modules/@rbxts"
+				},
+				"@larablox": {
+					"$path": "node_modules/@larablox"
+				}
+			},
+			"Illuminate": {
+				"$path": "out-tests/src/Illuminate"
+			},
+			"IlluminateTests": {
+				"$path": "out-tests/tests/Illuminate"
+			}
+		},
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"RunTests": {
+				"$path": "scripts/RunTests.server.luau"
+			}
+		}
+	}
+}

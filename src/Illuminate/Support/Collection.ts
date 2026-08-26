@@ -6,6 +6,7 @@ import {
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import { Reflector } from "Illuminate/Support/Reflector";
 import { Util } from "Illuminate/Container/Util";
+import { VarDumper } from "Illuminate/Support/VarDumper";
 
 /** What a collection can be built from. */
 export type ArrayableItems<TKey extends defined, TValue extends defined> =
@@ -669,8 +670,11 @@ export class Collection<TKey extends defined, TValue extends defined> {
                 ).all()) {
                     result.push(item);
                 }
-            } else if (Util.isArray(value)) {
-                for (const item of value as Array<defined>) {
+            } else if (Util.isArray(value) || Util.isEmptyArray(value)) {
+                // An empty nested list contributes nothing, so it has to be
+                // recognized as a list rather than fall through to the
+                // single-value branch below.
+                for (const item of value as unknown as Array<defined>) {
                     result.push(item);
                 }
             } else {
@@ -769,15 +773,46 @@ export class Collection<TKey extends defined, TValue extends defined> {
         return this;
     }
 
-    /** Push an item onto the beginning of the collection. */
+    /**
+     * Push an item onto the beginning of the collection.
+     *
+     * PHP: `Arr::prepend()`, which branches on whether a key was given --
+     * `array_unshift()` without one, `[$key => $value] + $array` with one.
+     * Those are two different things: `array_unshift()` renumbers the integer
+     * keys (so the collection's own 0-based numbering shifts along), while
+     * `+` keeps every existing key exactly as it is.
+     */
     public prepend(value: TValue, key?: TKey): this {
         const entries = this.items.entries();
 
         this.items = new OrderedMap<TKey, TValue>();
-        this.items.set(key ?? (0 as unknown as TKey), value);
+
+        if (key !== undefined) {
+            this.items.set(key, value);
+
+            // `+` keeps the left operand's entry where both sides carry the
+            // same key, so an existing one under `key` does not come back.
+            for (const [existingKey, existingValue] of entries) {
+                if (!this.items.has(existingKey)) {
+                    this.items.set(existingKey, existingValue);
+                }
+            }
+
+            return this;
+        }
+
+        let nextIndex = 0;
+
+        this.items.set(nextIndex as unknown as TKey, value);
+        nextIndex += 1;
 
         for (const [existingKey, existingValue] of entries) {
-            this.items.set(existingKey, existingValue);
+            if (typeIs(existingKey, "number")) {
+                this.items.set(nextIndex as unknown as TKey, existingValue);
+                nextIndex += 1;
+            } else {
+                this.items.set(existingKey, existingValue);
+            }
         }
 
         return this;
@@ -1189,9 +1224,21 @@ export class Collection<TKey extends defined, TValue extends defined> {
         return new Collection(this.items);
     }
 
-    /** Print the contents of the collection. */
-    public dump(): this {
-        print(this.items.entries());
+    /**
+     * Dump the items, and anything else handed along with them.
+     *
+     * PHP is `dump($this->all(), ...$args)`, and this is the same call: the
+     * items first, then each extra argument, each one its own dump. It goes
+     * through `VarDumper` rather than straight to `print` for the reason
+     * that class documents -- so a caller (upstream's own `testDump` among
+     * them) can read what was dumped instead of watching it go past.
+     */
+    public dump(...args: Array<unknown>): this {
+        VarDumper.dump(this.all());
+
+        for (const value of args) {
+            VarDumper.dump(value);
+        }
 
         return this;
     }

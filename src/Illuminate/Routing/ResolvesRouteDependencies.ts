@@ -89,7 +89,7 @@ export function ResolvesRouteDependencies<TBase extends Constructor>(
                     resolved = this.container.make(dependency.abstract);
                 } else {
                     throw new BindingResolutionException(
-                        `Unresolvable dependency: parameter #${index} of [${method}] declares no binding.`,
+                        `Unresolvable dependency: parameter #${index + 1} of [${method}] declares no binding.`,
                     );
                 }
 

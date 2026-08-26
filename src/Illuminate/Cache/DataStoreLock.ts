@@ -1,3 +1,4 @@
+import { DataStoreRequest } from "Illuminate/Support/DataStoreRequest";
 import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
 import { Lock } from "Illuminate/Cache/Lock";
 import type { DataStoreStore } from "Illuminate/Cache/DataStoreStore";
@@ -53,12 +54,16 @@ export class DataStoreLock extends Lock {
             return alive ? undefined : { owner: this.ownerId, expiresAt };
         };
 
-        const [written] = this.store
-            .store()
-            .UpdateAsync<LockRecord, LockRecord>(
-                this.key(),
-                transform as never,
-            );
+        const written = DataStoreRequest.run(() => {
+            const [value] = this.store
+                .store()
+                .UpdateAsync<LockRecord, LockRecord>(
+                    this.key(),
+                    transform as never,
+                );
+
+            return value;
+        });
 
         return written !== undefined;
     }
@@ -76,13 +81,17 @@ export class DataStoreLock extends Lock {
 
     /** Returns the owner value written into the driver for this lock. */
     protected getCurrentOwner(): string | undefined {
-        const [held] = this.store.store().GetAsync<LockRecord>(this.key());
+        const held = DataStoreRequest.run(() => {
+            const [value] = this.store.store().GetAsync<LockRecord>(this.key());
+
+            return value;
+        });
 
         return held?.owner;
     }
 
     /** Releases this lock in disregard of ownership. */
     public forceRelease(): void {
-        this.store.store().RemoveAsync(this.key());
+        DataStoreRequest.run(() => this.store.store().RemoveAsync(this.key()));
     }
 }

@@ -142,7 +142,14 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
               )
             : this.status() === status;
 
-        return met ? this.throw() : this;
+        // PHP raises the exception here itself rather than going through
+        // `throw()`, so a status that matches raises even when it is not a
+        // failure -- `throwIfStatus(201)` on a 201 response throws.
+        if (met) {
+            throw new RequestException(this);
+        }
+
+        return this;
     }
 
     /** Throw an exception unless the response status code matches the given code. */
@@ -156,7 +163,12 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
               )
             : this.status() === status;
 
-        return met ? this : this.throw();
+        // Raised directly, for the same reason as in `throwIfStatus()`.
+        if (!met) {
+            throw new RequestException(this);
+        }
+
+        return this;
     }
 
     /** Throw an exception if the response status code is a 4xx level code. */

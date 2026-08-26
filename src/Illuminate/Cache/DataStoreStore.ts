@@ -1,4 +1,6 @@
 import { DataStoreLock } from "Illuminate/Cache/DataStoreLock";
+import { Concurrency } from "Illuminate/Support/Concurrency";
+import { DataStoreRequest } from "Illuminate/Support/DataStoreRequest";
 import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
 import { InvalidArgumentException } from "Illuminate/Exception";
 import { Serializer } from "Illuminate/Support/Serializer";
@@ -80,7 +82,13 @@ export class DataStoreStore implements Store, LockProvider {
 
     /** Retrieve an item from the cache by key. */
     public get(key: string): unknown {
-        const [held] = this.store().GetAsync<DataStoreItem>(this.itemKey(key));
+        const held = DataStoreRequest.run(() => {
+            const [value] = this.store().GetAsync<DataStoreItem>(
+                this.itemKey(key),
+            );
+
+            return value;
+        });
 
         if (held === undefined) {
             return undefined;
@@ -108,10 +116,12 @@ export class DataStoreStore implements Store, LockProvider {
 
     /** Store an item in the cache for a given number of seconds. */
     public put(key: string, value: unknown, seconds: number): boolean {
-        this.store().SetAsync(this.itemKey(key), {
-            v: this.encode(value),
-            e: this.expiresAt(seconds),
-        });
+        DataStoreRequest.run(() =>
+            this.store().SetAsync(this.itemKey(key), {
+                v: this.encode(value),
+                e: this.expiresAt(seconds),
+            }),
+        );
 
         return true;
     }
@@ -139,10 +149,14 @@ export class DataStoreStore implements Store, LockProvider {
             return alive ? undefined : { v: encoded, e: expiresAt };
         };
 
-        const [written] = this.store().UpdateAsync<
-            DataStoreItem,
-            DataStoreItem
-        >(this.itemKey(key), transform as never);
+        const written = DataStoreRequest.run(() => {
+            const [value] = this.store().UpdateAsync<
+                DataStoreItem,
+                DataStoreItem
+            >(this.itemKey(key), transform as never);
+
+            return value;
+        });
 
         return written !== undefined;
     }
@@ -154,10 +168,14 @@ export class DataStoreStore implements Store, LockProvider {
             e: held?.e ?? 0,
         });
 
-        const [updated] = this.store().UpdateAsync<
-            DataStoreItem,
-            DataStoreItem
-        >(this.itemKey(key), transform as never);
+        const updated = DataStoreRequest.run(() => {
+            const [value] = this.store().UpdateAsync<
+                DataStoreItem,
+                DataStoreItem
+            >(this.itemKey(key), transform as never);
+
+            return value;
+        });
 
         return tonumber(updated?.v) ?? false;
     }
@@ -179,17 +197,21 @@ export class DataStoreStore implements Store, LockProvider {
         const transform: Transform = (held) =>
             held === undefined ? undefined : { v: held.v, e: expiresAt };
 
-        const [updated] = this.store().UpdateAsync<
-            DataStoreItem,
-            DataStoreItem
-        >(this.itemKey(key), transform as never);
+        const updated = DataStoreRequest.run(() => {
+            const [value] = this.store().UpdateAsync<
+                DataStoreItem,
+                DataStoreItem
+            >(this.itemKey(key), transform as never);
+
+            return value;
+        });
 
         return updated !== undefined;
     }
 
     /** Remove an item from the cache. */
     public forget(key: string): boolean {
-        this.store().RemoveAsync(this.itemKey(key));
+        DataStoreRequest.run(() => this.store().RemoveAsync(this.itemKey(key)));
 
         return true;
     }
@@ -205,23 +227,30 @@ export class DataStoreStore implements Store, LockProvider {
 
         // A removed key stays in the listing unless it is excluded, so
         // flushing twice would spend a read on every tombstone.
-        const pages = store.ListKeysAsync(
-            this.prefix,
-            undefined,
-            undefined,
-            true,
+        const pages = DataStoreRequest.run(() =>
+            store.ListKeysAsync(this.prefix, undefined, undefined, true),
         );
 
         while (true) {
-            for (const entry of pages.GetCurrentPage() as Array<DataStoreKey>) {
-                store.RemoveAsync(entry.KeyName);
-            }
+            const page = pages.GetCurrentPage() as Array<DataStoreKey>;
+
+            // A removal costs about as long to wait for as a read, so a page
+            // of them is overlapped rather than queued.
+            Concurrency.run(
+                page.map((entry) => () => {
+                    DataStoreRequest.run(() =>
+                        store.RemoveAsync(entry.KeyName),
+                    );
+
+                    return true;
+                }),
+            );
 
             if (pages.IsFinished) {
                 break;
             }
 
-            pages.AdvanceToNextPageAsync();
+            DataStoreRequest.run(() => pages.AdvanceToNextPageAsync());
         }
 
         return true;

@@ -1052,9 +1052,9 @@ export class Container implements ContainerContract {
             // If the dependency has an override for this particular build we will use
             // that instead as the value. Otherwise, we will continue with this run
             // of resolutions and let the annotation determine the result.
-            if (this.hasParameterOverride(dependency, index)) {
+            if (this.hasParameterOverride(dependency, index + 1)) {
                 results.push(
-                    this.getParameterOverride(dependency, index) as defined,
+                    this.getParameterOverride(dependency, index + 1) as defined,
                 );
 
                 continue;
@@ -1070,7 +1070,7 @@ export class Container implements ContainerContract {
             }
 
             if (result === undefined) {
-                result = this.resolveDeclaredDependency(dependency, index);
+                result = this.resolveDeclaredDependency(dependency, index + 1);
             }
 
             this.fireAfterResolvingAttributeCallbacks(
@@ -1079,8 +1079,14 @@ export class Container implements ContainerContract {
             );
 
             // A variadic parameter contributes its elements, not the list.
+            // PHP: `array_merge($results, is_array($result) ? $result : [$result])`
+            // -- the resolver hands back a list for a variadic that resolved
+            // several dependencies and a bare instance for one, and both have
+            // to end up spread.
             if (dependency.variadic === true) {
-                for (const value of (result ?? []) as Array<defined>) {
+                for (const value of Util.arrayWrap(
+                    result as defined | Array<defined> | undefined,
+                )) {
                     results.push(value);
                 }
 
@@ -1096,13 +1102,13 @@ export class Container implements ContainerContract {
     /** Resolve the abstract a parameter named, once the attributes had their say. */
     protected resolveDeclaredDependency(
         dependency: ParameterDependency,
-        index: number,
+        position: number,
     ): unknown {
         const abstract = dependency.abstract;
 
         if (abstract === undefined) {
             throw new BindingResolutionException(
-                `Unresolvable dependency: parameter #${index} declares no binding. ` +
+                `Unresolvable dependency: parameter #${position} declares no binding. ` +
                     `Annotate it with Inject or a contextual attribute.`,
             );
         }
@@ -1235,12 +1241,18 @@ export class Container implements ContainerContract {
     }
 
     /** Resolve a class based variadic dependency from the container. */
-    protected resolveVariadicClass(parameter: Abstract): Array<defined> {
+    protected resolveVariadicClass(parameter: Abstract): unknown {
         const abstract = this.getAlias(parameter);
         const concrete = this.getContextualConcrete(abstract);
 
         if (!Util.isArray(concrete)) {
-            return [this.make(parameter) as defined];
+            // PHP returns `$this->make($className)` as-is, and deliberately:
+            // a contextual binding registered through `giveTagged()` is a
+            // closure, not a list, so this branch is the one it takes, and
+            // `make()` running that closure is what yields the whole tagged
+            // list. Wrapping it here would hand the variadic a single
+            // dependency that happens to be an array.
+            return this.make(parameter);
         }
 
         const resolved = new Array<defined>();
@@ -1594,8 +1606,14 @@ export class Container implements ContainerContract {
     /**
      * Normalize the public `$parameters` argument into the override map.
      *
-     * A plain list is read as index-keyed overrides, which is the closest thing
-     * to PHP's positional-by-name matching that survives compilation.
+     * A plain list is read as position-keyed overrides, which is the closest
+     * thing to PHP's positional-by-name matching that survives compilation.
+     * The positions are numbered from one, like a Luau list's own indices --
+     * which is what keeps the two forms from colliding. A `Map` holding only
+     * the key `1` *is* the one-element list `[value]` as far as Luau is
+     * concerned, and there is no telling them apart; numbering from one at
+     * least makes them mean the same thing. Numbered from zero they would
+     * not, and overriding the second parameter alone would be unsayable.
      */
     protected normalizeParameters(
         parameters?: ParameterList,
@@ -1612,7 +1630,7 @@ export class Container implements ContainerContract {
         const list = parameters as Array<unknown>;
 
         for (let index = 0; index < list.size(); index++) {
-            overrides.set(index, list[index]);
+            overrides.set(index + 1, list[index]);
         }
 
         return overrides;

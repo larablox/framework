@@ -1,3 +1,4 @@
+import { wrapPipes } from "Illuminate/Pipeline/Pipes";
 import { CallableDispatcher } from "Illuminate/Routing/CallableDispatcher";
 import { CompiledRoute } from "Illuminate/Routing/CompiledRoute";
 import { Container } from "Illuminate/Container/Container";
@@ -18,6 +19,7 @@ import type {
     ControllerAction,
 } from "Illuminate/Routing/RouteAction";
 import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
+import type { CallableDispatcher as CallableDispatcherContract } from "Illuminate/Routing/Contracts/CallableDispatcher";
 import type { ControllerDispatcher as ControllerDispatcherContract } from "Illuminate/Routing/Contracts/ControllerDispatcher";
 import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
 import type { Request } from "Illuminate/Http/Request";
@@ -103,13 +105,27 @@ export class Route {
         this.httpMethods = Util.arrayWrap(methods);
         this.action = action ?? {};
 
+        // PHP: a route that answers GET answers HEAD too, whether or not the
+        // caller listed it -- `Router::get()` passes both, but
+        // `Router::match(['GET'], ...)` passes only GET.
+        if (
+            this.httpMethods.includes("GET") &&
+            !this.httpMethods.includes("HEAD")
+        ) {
+            this.httpMethods.push("HEAD");
+        }
+
         // PHP drops the prefix off the action here and applies it through
         // `prefix()` below, so that the URI and the action agree.
         const prefix = this.action.prefix;
 
         this.action.prefix = undefined;
 
-        this.setUri(uri);
+        // The URI is stored raw and parsed by the `prefix()` call below, which
+        // is the only place PHP parses it too. Running `setUri()` here as well
+        // would parse `foo/{bar:slug}` into `foo/{bar}` first, and `prefix()`
+        // would then re-parse that -- losing every binding field.
+        this.uriPattern = uri;
         this.prefix(prefix ?? "");
     }
 
@@ -143,9 +159,32 @@ export class Route {
 
     /** Run the route action and return the response. */
     protected runCallable(): unknown {
-        return this.container!.make<CallableDispatcher>(
-            CallableDispatcher,
-        ).dispatch(this, this.action.uses as Callback);
+        return this.callableDispatcher().dispatch(
+            this,
+            this.action.uses as Callback,
+        );
+    }
+
+    /**
+     * Get the dispatcher for the route's callable.
+     *
+     * Same shape as `controllerDispatcher()` below, and for the same reason:
+     * `run()` falls back to a bare `Container` when the route was never given
+     * one, and a bare container has no `RoutingServiceProvider` bindings. PHP
+     * still resolves `CallableDispatcher` there because it autowires the
+     * constructor's `Container` type hint; nothing reads type hints here (see
+     * `agent_docs/roblox-ts-constraints.md`), so the dispatcher has to be
+     * constructed by hand when it is not bound.
+     */
+    public callableDispatcher(): CallableDispatcherContract {
+        if (
+            this.container !== undefined &&
+            this.container.bound(CallableDispatcher)
+        ) {
+            return this.container.make<CallableDispatcher>(CallableDispatcher);
+        }
+
+        return new CallableDispatcher(this.container ?? new Container());
     }
 
     /** Run the route action and return the response. */
@@ -261,7 +300,16 @@ export class Route {
             request,
         );
 
-        this.originalParameterValues = this.parameterValues;
+        // PHP assigns a *copy* -- an array is a value there -- which is the
+        // whole point of keeping the originals: `SubstituteBindings` writes
+        // over `parameters` and these have to survive it.
+        const originals = new OrderedMap<string, defined>();
+
+        for (const [name, value] of this.parameterValues.entries()) {
+            originals.set(name, value);
+        }
+
+        this.originalParameterValues = originals;
 
         return this;
     }
@@ -439,11 +487,17 @@ export class Route {
         );
     }
 
-    /** Specify that the given route parameters must be ULIDs. */
+    /**
+     * Specify that the given route parameters must be ULIDs.
+     *
+     * PHP: `[0-7][0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]{25}` -- the first character
+     * is the top of the timestamp and cannot go past 7, and the remaining 25
+     * are Crockford base32 in either case.
+     */
     public whereUlid(parameters: string | Array<string>): this {
         return this.assignExpressionToParameters(
             parameters,
-            "[0-9A-HJKMNP-TV-Z]".rep(26),
+            `[0-7]${"[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]".rep(25)}`,
         );
     }
 
@@ -656,7 +710,7 @@ export class Route {
 
         const merged = table.clone(this.action.middleware ?? new Array<Pipe>());
 
-        for (const entry of Util.arrayWrap(middleware) as Array<Pipe>) {
+        for (const entry of wrapPipes(middleware)) {
             merged.push(entry);
         }
 

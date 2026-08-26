@@ -1,6 +1,8 @@
 import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
 import { InvalidArgumentException } from "Illuminate/Exception";
 import { Serializer } from "Illuminate/Support/Serializer";
+import { Concurrency } from "Illuminate/Support/Concurrency";
+import { DataStoreRequest } from "Illuminate/Support/DataStoreRequest";
 import { Str } from "Illuminate/Support/Str";
 import type {
     JobPayload,
@@ -82,16 +84,31 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
             failed_at: InteractsWithTime.currentTime(),
         };
 
-        this.store().SetAsync(this.prefix + id, record);
+        DataStoreRequest.run(() =>
+            this.store().SetAsync(this.prefix + id, record),
+        );
 
         return id;
     }
 
-    /** Get the IDs of all of the failed jobs. */
+    /**
+     * Get the IDs of all of the failed jobs.
+     *
+     * PHP does not order this query at all, so the rows come back in
+     * insertion order -- unlike `all()`, which is explicitly newest-first.
+     * `all()` is the only listing here, so it is walked backwards.
+     */
     public ids(queue?: string): Array<string | number> {
-        return this.all()
-            .filter((record) => queue === undefined || record.queue === queue)
-            .map((record) => record.id);
+        const listed = this.all().filter(
+            (record) => queue === undefined || record.queue === queue,
+        );
+        const ids = new Array<string | number>();
+
+        for (let index = listed.size() - 1; index >= 0; index--) {
+            ids.push(listed[index].id);
+        }
+
+        return ids;
     }
 
     /** Get a list of all of the failed jobs, newest first. */
@@ -102,19 +119,32 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
 
         // A forgotten job stays in the listing unless it is excluded, and
         // reading a tombstone costs as much as reading a failure.
-        const pages = store.ListKeysAsync(
-            this.prefix,
-            undefined,
-            undefined,
-            true,
+        const pages = DataStoreRequest.run(() =>
+            store.ListKeysAsync(this.prefix, undefined, undefined, true),
         );
 
         while (true) {
-            for (const entry of pages.GetCurrentPage() as Array<DataStoreKey>) {
-                const [held] = store.GetAsync<StoredFailure>(entry.KeyName);
+            const page = pages.GetCurrentPage() as Array<DataStoreKey>;
 
-                const record = this.toRecord(held);
+            // One read per key, and a read costs about 300ms of waiting --
+            // so a page of them is worth overlapping rather than queueing.
+            // Wrapped in a table because a task has to answer something and a
+            // key may well hold nothing; see `Concurrency.run()`.
+            const read = Concurrency.run(
+                page.map((entry) => () => {
+                    const held = DataStoreRequest.run(() => {
+                        const [value] = store.GetAsync<StoredFailure>(
+                            entry.KeyName,
+                        );
 
+                        return value;
+                    });
+
+                    return { record: this.toRecord(held) };
+                }),
+            );
+
+            for (const { record } of read) {
                 if (record !== undefined) {
                     found.push(record);
                 }
@@ -124,63 +154,84 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
                 break;
             }
 
-            pages.AdvanceToNextPageAsync();
+            DataStoreRequest.run(() => pages.AdvanceToNextPageAsync());
         }
 
-        found.sort((first, second) => first.failed_at > second.failed_at);
+        // `failed_at` has a one-second resolution, so two failures logged in
+        // the same second would otherwise come back in whatever order
+        // `table.sort` happened to leave them. The id breaks the tie: it is an
+        // ordered UUID, which is the order they were logged in.
+        found.sort((first, second) =>
+            first.failed_at === second.failed_at
+                ? tostring(first.id) > tostring(second.id)
+                : first.failed_at > second.failed_at,
+        );
 
         return found;
     }
 
     /** Get a single failed job. */
     public find(id: string | number): FailedJobRecord | undefined {
-        const [held] = this.store().GetAsync<StoredFailure>(
-            this.prefix + tostring(id),
-        );
+        const held = DataStoreRequest.run(() => {
+            const [value] = this.store().GetAsync<StoredFailure>(
+                this.prefix + tostring(id),
+            );
+
+            return value;
+        });
 
         return this.toRecord(held);
     }
 
     /** Delete a single failed job from storage. */
     public forget(id: string | number): boolean {
-        const [held] = this.store().RemoveAsync<StoredFailure>(
-            this.prefix + tostring(id),
-        );
+        const held = DataStoreRequest.run(() => {
+            const [value] = this.store().RemoveAsync<StoredFailure>(
+                this.prefix + tostring(id),
+            );
+
+            return value;
+        });
 
         return held !== undefined;
     }
 
     /** Flush all of the failed jobs from storage. */
     public flush(hours?: number): void {
-        const store = this.store();
-
         const cutoff =
             hours === undefined
                 ? undefined
                 : InteractsWithTime.currentTime() - hours * 3600;
 
-        for (const record of this.all()) {
-            if (cutoff === undefined || record.failed_at <= cutoff) {
-                store.RemoveAsync(this.prefix + tostring(record.id));
-            }
-        }
+        this.remove(
+            this.all().filter(
+                (record) => cutoff === undefined || record.failed_at <= cutoff,
+            ),
+        );
     }
 
     /** Prune all of the entries older than the given time. */
     public prune(before: number): number {
+        return this.remove(
+            this.all().filter((record) => record.failed_at < before),
+        );
+    }
+
+    /** Remove the given failures, and answer how many went. */
+    protected remove(records: Array<FailedJobRecord>): number {
         const store = this.store();
 
-        let pruned = 0;
+        Concurrency.run(
+            records.map((record) => () => {
+                DataStoreRequest.run(() =>
+                    store.RemoveAsync(this.prefix + tostring(record.id)),
+                );
 
-        for (const record of this.all()) {
-            if (record.failed_at < before) {
-                store.RemoveAsync(this.prefix + tostring(record.id));
+                return true;
+            }),
+        );
 
-                pruned += 1;
-            }
-        }
-
-        return pruned;
+        return records.size();
     }
 
     /** Count the failed jobs. */

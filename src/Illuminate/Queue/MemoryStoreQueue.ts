@@ -14,6 +14,7 @@ import type {
     JobPayload,
     JobPayloadData,
 } from "Illuminate/Contracts/Queue/Job";
+import type { ClearableQueue } from "Illuminate/Contracts/Queue/ClearableQueue";
 import type {
     JobTarget,
     Queue as QueueContract,
@@ -26,6 +27,9 @@ const MAX_ITEM_BYTES = 32 * 1024;
 
 /** Widest timestamp the delayed key pads to, good until the year 2286. */
 const SORT_KEY_DIGITS = 10;
+
+/** The most items one `ReadAsync`/`GetRangeAsync` call may ask for. */
+const MAX_PAGE = 100;
 
 /**
  * PHP: `Illuminate\Queue\RedisQueue`, over `MemoryStoreService`.
@@ -45,13 +49,19 @@ const SORT_KEY_DIGITS = 10;
  * - `ReadAsync(count, allOrNothing, waitTimeout)` is `BLPOP`: the worker waits
  *   inside the call instead of polling.
  *
- * What Redis gives and this does not: no length. MemoryStore exposes no count,
- * so `size()` and its siblings answer zero rather than guess.
+ * What Redis gives and this does not: the jobs themselves. The four sizes are
+ * real -- `GetSizeAsync` counts a queue, and `excludeInvisible` separates
+ * pending from reserved the way the `:reserved` set does in PHP -- but nothing
+ * reads a job without also reserving it, so `pendingJobs()` and its siblings
+ * answer an empty collection rather than consume the queue to look.
  *
  * Two limits are the platform's, not Laravel's: an item may not exceed 32 KB,
  * and the game's whole memory quota is `64 KB + 1.2 KB * players`.
  */
-export class MemoryStoreQueue extends Queue implements QueueContract {
+export class MemoryStoreQueue
+    extends Queue
+    implements QueueContract, ClearableQueue
+{
     /** Create a new MemoryStore queue instance. */
     public constructor(
         protected readonly defaultQueue = "default",
@@ -88,28 +98,120 @@ export class MemoryStoreQueue extends Queue implements QueueContract {
         );
     }
 
-    /* eslint-disable @typescript-eslint/no-unused-vars -- MemoryStore reports
-       no length, so there is nothing to count. */
-
-    /** Get the size of the queue. */
+    /**
+     * Get the size of the queue.
+     *
+     * PHP counts the list, the delayed set and the reserved set in one
+     * `EVAL`; there is no scripting here, so this adds up what the two
+     * structures report. `GetSizeAsync()` counts pending and reserved
+     * together -- an item that was read but not removed is still in the queue,
+     * only invisible -- which leaves the delayed map to add.
+     */
     public size(queue?: string): number {
-        return 0;
+        return (
+            this.queueFor(queue).GetSizeAsync(false) + this.delayedSize(queue)
+        );
     }
 
     /** Get the number of pending jobs. */
     public pendingSize(queue?: string): number {
-        return 0;
+        return this.queueFor(queue).GetSizeAsync(true);
     }
 
     /** Get the number of delayed jobs. */
     public delayedSize(queue?: string): number {
-        return 0;
+        return this.delayedFor(queue).GetSizeAsync();
     }
 
-    /** Get the number of reserved jobs. */
+    /**
+     * Get the number of reserved jobs.
+     *
+     * Reserved here is what `retry_after` and the `:reserved` sorted set are
+     * in PHP: a job `ReadAsync` handed out and nobody removed, held invisible
+     * until the invisibility timeout puts it back. `excludeInvisible` is the
+     * only place MemoryStore draws that line, so the count is what the two
+     * calls differ by.
+     */
     public reservedSize(queue?: string): number {
-        return 0;
+        const memoryStoreQueue = this.queueFor(queue);
+
+        return (
+            memoryStoreQueue.GetSizeAsync(false) -
+            memoryStoreQueue.GetSizeAsync(true)
+        );
     }
+
+    /**
+     * Delete all of the jobs from the queue.
+     *
+     * PHP does the whole thing in one `EVAL` -- `del` on the list, the
+     * delayed set and the reserved set -- and answers how many jobs went. Two
+     * structures here, so two passes, and the count is what they removed
+     * between them.
+     *
+     * One job this cannot reach: a reserved one. `ReadAsync` only hands back
+     * what is visible, and there is no call that removes an item somebody else
+     * is holding -- so a job that was popped and neither deleted nor released
+     * outlives `clear()` until its invisibility timeout puts it back. PHP has
+     * no such gap, its `:reserved` set being an ordinary key.
+     */
+    public clear(queue?: string): number {
+        const name = this.getQueue(queue);
+
+        return this.clearQueue(name) + this.clearDelayed(name);
+    }
+
+    /** Remove every visible item from the queue itself. */
+    protected clearQueue(queue: string): number {
+        const memoryStoreQueue = this.queueFor(queue);
+        let removed = 0;
+
+        for (;;) {
+            // Zero, and not the default: left out, `ReadAsync` waits for an
+            // item forever, which on an empty queue is the whole point of the
+            // call being wrong.
+            const [read, id] = memoryStoreQueue.ReadAsync(MAX_PAGE, false, 0);
+
+            const items = read as Array<unknown> | undefined;
+
+            if (items === undefined || items.size() === 0) {
+                return removed;
+            }
+
+            memoryStoreQueue.RemoveAsync(id);
+
+            removed += items.size();
+        }
+    }
+
+    /** Remove every job that is not due yet. */
+    protected clearDelayed(queue: string): number {
+        const delayed = this.delayedFor(queue);
+        let removed = 0;
+
+        for (;;) {
+            // Read from the start every time rather than paging: the previous
+            // pass removed what it saw, so the start is where the rest is.
+            const page = delayed.GetRangeAsync(
+                Enum.SortDirection.Ascending,
+                MAX_PAGE,
+            );
+
+            if (page.size() === 0) {
+                return removed;
+            }
+
+            for (const item of page) {
+                delayed.RemoveAsync(item.key);
+            }
+
+            removed += page.size();
+        }
+    }
+
+    /* eslint-disable @typescript-eslint/no-unused-vars -- a queue reports its
+       length, but not its contents: `ReadAsync` is the only way to see a job
+       and it reserves what it reads. */
 
     /** Get the pending jobs for the given queue. */
     public pendingJobs(queue?: string): Collection<number, defined> {

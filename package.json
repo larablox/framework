@@ -4,7 +4,12 @@
     "version": "0.1.0",
     "description": "The Larablox Framework.",
     "license": "MIT",
-    "keywords": ["framework", "larablox", "roblox-ts", "laravel"],
+    "keywords": [
+        "framework",
+        "larablox",
+        "roblox-ts",
+        "laravel"
+    ],
     "homepage": "https://github.com/larablox/framework",
     "repository": {
         "type": "git",
@@ -16,14 +21,16 @@
     "publishConfig": {
         "access": "public"
     },
-    "files": ["out/Illuminate"],
+    "files": [
+        "out/Illuminate"
+    ],
     "type": "module",
-    "dependencies": {
-        "@larablox/monolog": "file:../monolog"
-    },
     "scripts": {
         "build": "rbxtsc",
-        "clean": "rimraf out include sourcemap.json tsconfig.tsbuildinfo",
+        "test:build": "rbxtsc -p tsconfig.tests.json --rojo test.project.json",
+        "test:watch": "npm run test:build -- -w",
+        "test:serve": "rojo serve test.project.json",
+        "clean": "rimraf out out-tests include sourcemap.json tsconfig.tsbuildinfo",
         "watch": "rbxtsc -w",
         "dev": "npm run watch",
         "lint": "eslint .",
@@ -33,6 +40,7 @@
         "analyze": "npm run build && npm run sourcemap && luau-lsp analyze --platform=roblox --sourcemap=sourcemap.json --definitions=globalTypes.None.d.luau --base-luaurc=.luaurc --settings=luau-lsp.settings.json --ignore=\"**/include/**\" --ignore=\"**/node_modules/**\" out"
     },
     "devDependencies": {
+        "@larablox/monolog": "^0.2.0",
         "@rbxts/compiler-types": "^3.0.0-types.0",
         "@rbxts/testez": "^0.4.2-ts.0",
         "@rbxts/types": "^1.0.943",

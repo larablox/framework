@@ -1,4 +1,4 @@
-import { ConsoleHandler } from "@larablox/monolog/out/Monolog/Handler/ConsoleHandler";
+import { RobloxConsoleHandler } from "@larablox/monolog/out/Monolog/Handler/RobloxConsoleHandler";
 import { ContextLogProcessor as ContextLogProcessorContract } from "Illuminate/Contracts/Log/ContextLogProcessor";
 import { FingersCrossedHandler } from "@larablox/monolog/out/Monolog/Handler/FingersCrossedHandler";
 import { InvalidArgumentException } from "Illuminate/Exception";
@@ -36,10 +36,11 @@ export type LogTap = (logger: Logger, ...args: Array<string>) => void;
 /**
  * PHP: `Illuminate\Log\LogManager`.
  *
- * The Monolog layer it builds on lives in `src/Monolog`. The drivers that wrote
- * to a file, a socket or syslog -- `single`, `daily`, `slack`, `syslog`,
- * `errorlog` -- have no counterpart on this platform; `console` takes their
- * place and writes to the Roblox output through `ConsoleHandler`. `stack`,
+ * The Monolog layer it builds on is the `@larablox/monolog` package. The
+ * drivers that wrote to a file, a socket or syslog -- `single`, `daily`,
+ * `slack`, `syslog`, `errorlog` -- have no counterpart on this platform;
+ * `console` takes their place and writes to the Roblox output through
+ * `RobloxConsoleHandler`. `stack`,
  * `monolog`, `null` and `custom` are ported as they are.
  *
  * `ParsesLogConfiguration` is a trait in PHP; its `level()`, `actionLevel()`
@@ -71,9 +72,12 @@ export class LogManager implements LoggerContract {
     /** Create a new, on-demand aggregate logger instance. */
     public stack(channels: Array<string>, channel?: string): Logger {
         return new Logger(
+            // PHP passes the channel name under `name`, which is the key
+            // `parseChannel()` reads; under `channel` it would never be seen
+            // and the stack would fall back to the default channel name.
             this.createStackDriver({
                 channels,
-                channel,
+                name: channel,
             } as unknown as ArrayAccessible),
             this.events(),
         ).withContext(this.sharedContextValues);
@@ -191,7 +195,7 @@ export class LogManager implements LoggerContract {
 
     /** Create an emergency log handler to avoid white screens of death. */
     protected createEmergencyLogger(): Logger {
-        const handler = new ConsoleHandler(Level.Debug);
+        const handler = new RobloxConsoleHandler(Level.Debug);
 
         return new Logger(
             new Monolog("larablox", this.prepareHandlers([handler])),
@@ -279,7 +283,7 @@ export class LogManager implements LoggerContract {
      * to a file or the platform log, and the output window is what a place has.
      */
     protected createConsoleDriver(config: ArrayAccessible): LoggerContract {
-        const handler = new ConsoleHandler(
+        const handler = new RobloxConsoleHandler(
             this.level(config),
             (config.bubble ?? true) === true,
         );
@@ -512,7 +516,10 @@ export class LogManager implements LoggerContract {
             );
         }
 
-        return resolved;
+        // PHP trims here, which is what lets a stack spell its members as
+        // `'single, daily, stderr'`: `createStackDriver()` splits that on the
+        // comma and hands the pieces straight to `channel()`, spaces and all.
+        return Str.trim(resolved);
     }
 
     /** Get all of the resolved log channels. */

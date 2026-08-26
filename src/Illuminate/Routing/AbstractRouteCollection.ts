@@ -85,7 +85,7 @@ export abstract class AbstractRouteCollection {
     protected checkForAlternateVerbs(request: Request): Array<string> {
         const others = new Array<string>();
 
-        for (const method of this.registeredMethods()) {
+        for (const method of this.alternateVerbOrder()) {
             if (method === request.method()) {
                 continue;
             }
@@ -99,6 +99,33 @@ export abstract class AbstractRouteCollection {
         }
 
         return others;
+    }
+
+    /**
+     * The order `checkForAlternateVerbs()` walks the registered methods in.
+     *
+     * PHP walks `Router::$verbs`, which is what puts the `Allow` header's
+     * methods in that order rather than in registration order -- a URI
+     * registered for `['GET', 'POST']` answers `GET,HEAD,POST`, not
+     * `GET,POST,HEAD`. Spelled out here rather than imported: `Router`
+     * imports the collection back.
+     */
+    protected alternateVerbOrder(): Array<string> {
+        const verbs = [
+            "GET",
+            "HEAD",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS",
+        ];
+        const registered = this.registeredMethods();
+
+        return [
+            ...verbs.filter((verb) => registered.includes(verb)),
+            ...registered.filter((verb) => !verbs.includes(verb)),
+        ];
     }
 
     /** Get a route (if necessary) that responds when other available methods are present. */

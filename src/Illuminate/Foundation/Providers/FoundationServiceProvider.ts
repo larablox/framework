@@ -10,7 +10,9 @@ import type { Abstract, Concrete } from "Illuminate/Container/Types";
  * registered exactly as PHP registers it -- through the `$singletons`
  * property.
  *
- * Not ported: `Vite`, the console schedule, the dumper, request validation and
+ * Not ported: `Vite`, the console schedule, the dumper bindings (Symfony's
+ * HTML and CLI dumpers; `Support/VarDumper` is a seam, not a service),
+ * request validation and
  * signature validation (they wait for `Illuminate\Validation`), URI URL
  * generation, the deferred-callback handler, exception tracking and rendering,
  * the maintenance-mode manager, and the aggregated `FormRequestServiceProvider`

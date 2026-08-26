@@ -88,6 +88,23 @@ export class Response {
         return this.getContent();
     }
 
+    /**
+     * Prepare the response for the given request.
+     *
+     * PHP: `Symfony\Component\HttpFoundation\Response::prepare()`, which
+     * `Router::toResponse()` calls on its way out. Almost all of it is about
+     * HTTP headers, charsets and protocol versions that a remote call has no
+     * use for; the one rule that carries over is that a HEAD request answers
+     * with the headers of a GET and no body at all.
+     */
+    public prepare(request: { method(): string }): this {
+        if (request.method() === "HEAD") {
+            this.setContent(undefined);
+        }
+
+        return this;
+    }
+
     /** Get the status code for the response. */
     public getStatusCode(): number {
         return this.statusCode;

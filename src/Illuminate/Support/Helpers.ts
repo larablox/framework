@@ -286,7 +286,10 @@ export function retry<TReturn>(
             return callback(attempts);
         } catch (exception) {
             if (remaining < 1 || (when !== undefined && !when(exception))) {
-                throw exception;
+                // Level 0, and so not `throw`: that compiles to `error(x)`,
+                // which stamps this line's position onto a string error --
+                // and this line is not where it went wrong.
+                error(exception, 0);
             }
 
             const configured = backoff[attempts - 1] ?? sleepMilliseconds;

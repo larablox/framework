@@ -38,7 +38,7 @@ export class Batchable extends Queueable {
     public batching(): boolean {
         const batch = this.batch();
 
-        return batch !== undefined && !batch.cancelled();
+        return batch !== undefined && !batch.finished() && !batch.cancelled();
     }
 
     /** Set the batch ID on the job. */

@@ -1,3 +1,4 @@
+import { wrapPipes } from "Illuminate/Pipeline/Pipes";
 import { RuntimeException } from "Illuminate/Exception";
 import { Util } from "Illuminate/Container/Util";
 import type { Abstract } from "Illuminate/Container/Types";
@@ -62,20 +63,12 @@ export class Pipeline implements PipelineContract {
     /**
      * PHP: `is_array($pipes) ? $pipes : func_get_args()`.
      *
-     * `Util.isArray()` answers for a *non-empty* list, so it cannot tell an
-     * empty array from anything else -- and an empty pipe list is the common
-     * case. A plain table carries no metatable, while a class and an instance
-     * both do, which is the distinction that actually holds here.
+     * Harder here than there: a parameterized pipe is itself a list, so
+     * `wrapPipes()` has to tell `[Throttle, "60"]` -- one pipe -- from
+     * `[Throttle, Substitute]` -- two.
      */
     protected asList(pipes: Pipe | Array<Pipe>): Array<Pipe> {
-        if (
-            typeIs(pipes, "table") &&
-            getmetatable(pipes as object) === undefined
-        ) {
-            return pipes as Array<Pipe>;
-        }
-
-        return [pipes as Pipe];
+        return wrapPipes(pipes);
     }
 
     /** Set the method to call on the pipes. */

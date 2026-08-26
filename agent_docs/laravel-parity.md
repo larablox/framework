@@ -54,7 +54,7 @@
 | `Illuminate\Queue\Connectors\*` | `Queue/Connectors/*.ts` | sync, null, deferred, memory, memorystore |
 | `Illuminate\Queue\Attributes\DeleteWhenMissingModels` | `Queue/Attributes/*.ts` | «модель» — это `Instance` |
 | `Illuminate\Queue\Failed\{FailedJobProviderInterface,NullFailedJobProvider}` | `Queue/Failed/*.ts` | остальные пишут в БД или файл |
-| `Illuminate\Queue\Failed\DatabaseFailedJobProvider` | `Queue/Failed/DataStoreFailedJobProvider.ts` | `DataStoreService`; порядок по `failed_at`, а не по `id` |
+| `Illuminate\Queue\Failed\DatabaseFailedJobProvider` | `Queue/Failed/DataStoreFailedJobProvider.ts` | `DataStoreService`; порядок по `failed_at`, ничью решает `id` |
 | `Illuminate\Queue\Events\*` | `Queue/Events/*.ts` | пятнадцать событий: очередь, джоб, воркер |
 | `Illuminate\Queue\Attributes\{Tries,Timeout,Backoff,MaxExceptions,FailOnTimeout}` | `Queue/Attributes/*.ts` | декораторы + реестр |
 | `Illuminate\Contracts\Queue\{Queue,Job,Factory,Monitor,ShouldQueue}` | `Contracts/Queue/*.ts` | `ShouldQueue` — декоратор-маркер |
@@ -301,8 +301,16 @@ Luau не умеет носить строковые ключи. Пары дос
 
 Портировано ядро (~70 методов). Не портируемо в принципе:
 `HigherOrderCollectionProxy` (`$c->map->name` требует `__get`), `Macroable`,
-`dd`/`dump` в PHP-смысле, `LazyCollection`. Остальные методы PHP-класса просто
-ещё не написаны.
+`dd` (нечего прерывать — нет ни ответа, ни процесса), `LazyCollection`.
+Остальные методы PHP-класса просто ещё не написаны.
+
+`dump()` есть и повторяет PHP (`dump($this->all(), ...$args)`): сначала
+элементы, потом каждый лишний аргумент. Идёт он через `Support/VarDumper` —
+обрезанный порт symfony'евского: ни клонера, ни кастеров, значение уходит в
+`print`. Портирован там ровно шов `setHandler()`, потому что без него дамп
+можно только исполнить ради побочного эффекта — а тест на него (upstream'овский
+`testDump` делает именно так) подменяет обработчик, читает надампленное и
+возвращает умолчание на место.
 
 Тип, описывающий «из чего строится коллекция» (`Arrayable|iterable|null` в
 докблоке PHP), зовётся `ArrayableItems` — по методу `getArrayableItems()`,
@@ -604,6 +612,15 @@ PHP рассылает событие ещё и слушателям его **и
   локи живут на `memorystore`. `DataStoreLock` есть, потому что он есть в
   Laravel, а не потому, что им стоит пользоваться.
 - **`flush()` перебирает ключи и удаляет по одному** — PHP делает `TRUNCATE`.
+- **Вызов, упёршийся в бюджет, отвергается, а не встаёт в очередь** — и тот же
+  вызов секундой позже проходит. Поэтому каждое обращение к DataStore идёт
+  через `Support/DataStoreRequest`: по форме это `Connection::run()` с
+  `DetectsLostConnections` — одно место, знающее, какие отказы стоит
+  повторить. Повторяются `502`, `503` и throttling, с паузами 1/2/4 секунды,
+  потому что бюджет восстанавливается поминутно. **`504` намеренно не
+  повторяется:** запрос, у которого истекло время, мог успеть примениться, а
+  повторять безопасно только то, что точно не применилось. Ошибка вызывающего
+  (длинный ключ, несохранимое значение) не повторяется никогда.
 
 Две вещи проверены в Studio и стоят того, чтобы их знать:
 
@@ -802,8 +819,22 @@ InteractsWithQueue`, а сериализация делается сама. Дж
 ключом-таймстампом — это `:delayed`, а `ReadAsync(count, allOrNothing,
 waitTimeout)` — это `BLPOP`: воркер ждёт внутри вызова, а не опрашивает.
 
-Отличия платформы: длины у очереди нет, поэтому `size()` и соседи отвечают
-нулём; предмет — не больше 32 КБ (иначе `InvalidPayloadException`); квота
+Считать очередь можно: `GetSizeAsync()` даёт длину, а `excludeInvisible`
+проводит ту же границу, что `:reserved` в PHP, — отсюда все четыре размера.
+`size()` = длина очереди (видимые плюс невидимые) плюс размер `:delayed`,
+`pendingSize()` = `GetSizeAsync(true)`, `reservedSize()` = разница между
+двумя вызовами, `delayedSize()` = размер отсортированной карты.
+
+`clear()` (контракт `ClearableQueue`, как у `RedisQueue` и `MemoryQueue`)
+чистит обе структуры и возвращает, сколько удалил. Одного джоба он достать не
+может — зарезервированного: `ReadAsync` отдаёт только видимое, а вызова,
+который заберёт предмет из-под другого читателя, нет. В PHP такой дыры нет,
+`:reserved` там обычный ключ.
+
+Отличия платформы: сами джобы не видны — `ReadAsync` единственный способ
+прочитать джоб, и он же его резервирует, поэтому `pendingJobs()` и соседи
+отвечают пустой коллекцией, а `creationTimeOfOldestPendingJob()` — ничем;
+предмет — не больше 32 КБ (иначе `InvalidPayloadException`); квота
 вселенной — `64 КБ + 1.2 КБ × игроков`, бюджет — `1000 + 120 × игроков` юнитов
 в минуту, и ожидание в `ReadAsync` стоит юнит за каждые две секунды. Доставка
 — at-least-once, как и у Laravel: `retry_after` обязан быть больше `timeout`
@@ -965,9 +996,18 @@ PHP сопоставляет `$parameters` по **имени** параметр�
 override задаётся либо самим abstract, либо позицией:
 
 ```ts
-app.make(Report, [logger]);              // по индексу
+app.make(Report, [logger]);               // по позиции
 app.make(Report, new Map([[Logger, x]])); // по abstract
+app.make(Report, new Map([[2, x]]));      // по позиции, второй параметр
 ```
+
+Позиции нумеруются **с единицы**, как индексы списка в Luau, а не с нуля.
+Это не стиль, а вынужденное: `new Map([[1, x]])` компилируется в `{[1] = x}`
+— ту же самую таблицу, что и список `[x]`, и различить их нельзя. При
+нумерации с единицы обе формы хотя бы значат одно и то же (первый параметр);
+при нумерации с нуля они значили бы разное, и переопределить *второй*
+параметр в одиночку было бы нечем — `Map([[1, x]])` прочиталось бы как
+список из одного элемента и попало в первый.
 
 ### Не портировано
 

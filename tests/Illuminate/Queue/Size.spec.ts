@@ -17,6 +17,15 @@ import { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
  */
 
 const HttpService = game.GetService("HttpService");
+/** Every queue this run made -- see `MemoryStoreQueue.spec.ts`'s `drain()`. */
+const made: Array<MemoryStoreQueue> = [];
+
+/** Give back what this run pushed rather than waiting the expiration out. */
+function drain(): void {
+    for (const queue of made) {
+        queue.clear();
+    }
+}
 
 /**
  * A queue of this run's own, gone half a minute later.
@@ -28,17 +37,22 @@ const HttpService = game.GetService("HttpService");
  * reasoning at length.
  */
 function memoryStoreQueue(): MemoryStoreQueue {
-    return new MemoryStoreQueue(
+    const queue = new MemoryStoreQueue(
         HttpService.GenerateGUID(false),
         60,
         0,
         30,
         "queue-test:",
     );
+    made.push(queue);
+
+    return queue;
 }
 
 export = (): void => {
     describe("Size", () => {
+        afterAll(drain);
+
         // PHP: QueueSizeTest::test_queue_size
         it("size() counts jobs per queue on MemoryQueue", () => {
             const queue = new MemoryQueue();

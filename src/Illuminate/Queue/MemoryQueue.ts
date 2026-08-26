@@ -3,6 +3,7 @@ import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
 import { MemoryJob } from "Illuminate/Queue/Jobs/MemoryJob";
 import { Queue } from "Illuminate/Queue/Queue";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
+import type { ClearableQueue } from "Illuminate/Contracts/Queue/ClearableQueue";
 import type { Delay } from "Illuminate/Support/InteractsWithTime";
 import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
 import type {
@@ -45,7 +46,10 @@ export interface MemoryJobRecord {
  * `blpop` on a `:notify` list; there is no list to wait on inside one VM, so a
  * push resumes the coroutines parked in `pop()` directly.
  */
-export class MemoryQueue extends Queue implements QueueContract {
+export class MemoryQueue
+    extends Queue
+    implements QueueContract, ClearableQueue
+{
     /** The table, in the order rows were inserted. */
     protected jobs = new Array<MemoryJobRecord>();
 

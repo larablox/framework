@@ -37,9 +37,9 @@ import { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
  * *unchanged* queue name); it is ported below without the cluster angle.
  * `testGetQueueRemainsUnchangedForNonCluster`/`testGetRedisKeyReturnsPlainKeyForNonCluster`
  * collapse into the `getQueue()` case below (there being no Redis key to
- * separately expose). `clear()` is not implemented on `MemoryStoreQueue`, so
- * `testClearUsesGetRedisKeyOnCluster` has nothing to port beyond the cluster
- * point above. `testBulkRespectsDelayAttributeWhenPushingOntoRedis` is
+ * separately expose). `testClearUsesGetRedisKeyOnCluster` keeps only its
+ * cluster point, which is the one above; `clear()` itself is exercised below
+ * against the real thing. `testBulkRespectsDelayAttributeWhenPushingOntoRedis` is
  * covered by `Delay.spec.ts` instead, which exercises the `Delay` attribute
  * itself; `bulk()`'s mechanics (looping `push()`) are exercised generically
  * for every queue driver via `Queue.bulk()`.
@@ -75,12 +75,32 @@ function freshQueue(): MemoryStoreQueue {
         "queue-test:",
     );
     queue.setContainer(new Container());
+    made.push(queue);
 
     return queue;
 }
 
+/**
+ * Every queue this run made, so `afterAll` can hand the quota back.
+ *
+ * `EXPIRATION` alone would get there in half a minute, but a run that pushes
+ * under a dozen names still holds all of it at once, and the universe's
+ * MemoryStore quota is 64 KB shared with the game. `clear()` is the same call
+ * Laravel's `queue:clear` makes, so the teardown is the driver's own.
+ */
+const made: Array<MemoryStoreQueue> = [];
+
+/** Give back what this run pushed rather than waiting `EXPIRATION` out. */
+function drain(): void {
+    for (const queue of made) {
+        queue.clear();
+    }
+}
+
 export = (): void => {
     describe("MemoryStoreQueue", () => {
+        afterAll(drain);
+
         // PHP: QueueRedisQueueTest::testGetQueueRemainsUnchangedForNonCluster /
         // testGetRedisKeyReturnsPlainKeyForNonCluster (collapsed, no cluster key
         // to separately expose -- see class comment)
@@ -208,6 +228,33 @@ export = (): void => {
 
             expect(ok).to.equal(false);
             expect(err instanceof InvalidPayloadException).to.equal(true);
+        });
+
+        // PHP: QueueRedisQueueTest asserts the Lua script `clear()` issues;
+        // there is no script layer here, so this asserts the round trip.
+        it("clear() removes every pending and delayed job and reports how many", () => {
+            const queue = freshQueue();
+            queue.push("foo", ["data"]);
+            queue.push("bar", ["data"]);
+            queue.later(60, "baz", ["data"]);
+
+            expect(queue.clear()).to.equal(3);
+
+            expect(queue.size()).to.equal(0);
+            expect(queue.pop()).to.equal(undefined);
+        });
+
+        // PHP: no direct equivalent -- `RedisQueue` deletes the `:reserved`
+        // sorted set outright; MemoryStore has no call that takes an item
+        // another reader is holding, so a popped job outlives `clear()` until
+        // its invisibility timeout puts it back (see `clear()`'s comment).
+        it("clear() cannot reach a job that is reserved (divergence from upstream)", () => {
+            const queue = freshQueue();
+            queue.push("foo", ["data"]);
+            queue.pop();
+
+            expect(queue.clear()).to.equal(0);
+            expect(queue.reservedSize()).to.equal(1);
         });
 
         // PHP: no direct equivalent -- `RedisQueue` can look at its list

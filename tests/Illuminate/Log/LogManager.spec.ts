@@ -425,7 +425,7 @@ export = (): void => {
 
         it("shares context with an already-resolved channel", () => {
             // PHP: LogManagerTest::testItSharesContextWithAlreadyResolvedChannels
-            const app = makeApp({ single: { driver: "console" } });
+            const app = makeApp({ single: { driver: "null" } });
             const manager = new LogManager(app);
             const channel = manager.channel("single");
 
@@ -444,7 +444,7 @@ export = (): void => {
 
         it("shares context with a freshly-resolved channel", () => {
             // PHP: LogManagerTest::testItSharesContextWithFreshlyResolvedChannels
-            const app = makeApp({ single: { driver: "console" } });
+            const app = makeApp({ single: { driver: "null" } });
             const manager = new LogManager(app);
 
             let context: Record<string, unknown> | undefined;
@@ -478,7 +478,7 @@ export = (): void => {
 
         it("shares context with a stack once it is resolved", () => {
             // PHP: LogManagerTest::testItSharesContextWithStacksWhenTheyAreResolved
-            const app = makeApp({ single: { driver: "console" } });
+            const app = makeApp({ single: { driver: "null" } });
             const manager = new LogManager(app);
 
             let context: Record<string, unknown> | undefined;
@@ -496,7 +496,7 @@ export = (): void => {
 
         it("merges shared context across multiple shareContext() calls rather than replacing it", () => {
             // PHP: LogManagerTest::testItMergesSharedContextRatherThanReplacing
-            const app = makeApp({ single: { driver: "console" } });
+            const app = makeApp({ single: { driver: "null" } });
             const manager = new LogManager(app);
 
             let context: Record<string, unknown> | undefined;

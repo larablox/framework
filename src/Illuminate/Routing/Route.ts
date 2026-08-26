@@ -18,6 +18,7 @@ import type {
     ControllerAction,
 } from "Illuminate/Routing/RouteAction";
 import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
+import type { CallableDispatcher as CallableDispatcherContract } from "Illuminate/Routing/Contracts/CallableDispatcher";
 import type { ControllerDispatcher as ControllerDispatcherContract } from "Illuminate/Routing/Contracts/ControllerDispatcher";
 import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
 import type { Request } from "Illuminate/Http/Request";
@@ -143,9 +144,32 @@ export class Route {
 
     /** Run the route action and return the response. */
     protected runCallable(): unknown {
-        return this.container!.make<CallableDispatcher>(
-            CallableDispatcher,
-        ).dispatch(this, this.action.uses as Callback);
+        return this.callableDispatcher().dispatch(
+            this,
+            this.action.uses as Callback,
+        );
+    }
+
+    /**
+     * Get the dispatcher for the route's callable.
+     *
+     * Same shape as `controllerDispatcher()` below, and for the same reason:
+     * `run()` falls back to a bare `Container` when the route was never given
+     * one, and a bare container has no `RoutingServiceProvider` bindings. PHP
+     * still resolves `CallableDispatcher` there because it autowires the
+     * constructor's `Container` type hint; nothing reads type hints here (see
+     * `agent_docs/roblox-ts-constraints.md`), so the dispatcher has to be
+     * constructed by hand when it is not bound.
+     */
+    public callableDispatcher(): CallableDispatcherContract {
+        if (
+            this.container !== undefined &&
+            this.container.bound(CallableDispatcher)
+        ) {
+            return this.container.make<CallableDispatcher>(CallableDispatcher);
+        }
+
+        return new CallableDispatcher(this.container ?? new Container());
     }
 
     /** Run the route action and return the response. */

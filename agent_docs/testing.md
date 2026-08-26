@@ -81,10 +81,10 @@ PHPUnit's instead — a progress row per 63 tests while it runs, then a
 numbered list of failures, then the totals:
 
 ```
-Running 1137 tests
+Running 1141 tests
 
-...............................................................  63 / 1137 (  5%)
-...............................................................  126 / 1137 ( 11%)
+...............................................................  63 / 1141 (  5%)
+...............................................................  126 / 1141 ( 11%)
 ...
 
 Time: 77.6s
@@ -96,7 +96,7 @@ There were 2 failures:
    IlluminateTests.Support.Str.Searching.spec:29
 
 FAILURES!
-Tests: 1137, Failures: 2.
+Tests: 1141, Failures: 2.
 ```
 
 Two details are load-bearing. Progress needs a per-test hook, and TestEZ
@@ -137,7 +137,7 @@ repos build and lint clean as of this fix.
 
 ## Real bugs this suite has caught
 
-The suite reached green at **1137 passing** on 2026-08-26. Getting there
+The suite reached green at **1141 passing** on 2026-08-26. Getting there
 turned up around thirty genuine framework defects — every one of them
 compiled clean, type-checked clean, and was invisible to `npm run analyze`.
 They fall into recognisable families, and the families are worth knowing
@@ -164,6 +164,24 @@ because the next component ported will hit the same ones:
 - **`nil` is not `null`.** A table cannot hold one, so *absent* and
   *present-but-null* are one state — which is why several ported cases are
   marked dropped rather than adapted.
+- **A platform limit asserted instead of checked.** `MemoryStoreQueue`'s
+  `size()` and its three siblings answered `0`, and `clear()` was missing,
+  both on the written grounds that MemoryStore reports no length. It does:
+  `GetSizeAsync` counts a queue, and `excludeInvisible` draws exactly the
+  line PHP gets from a separate `:reserved` key. Worse, a *test* asserted the
+  zero, so the gap was pinned in place rather than found. When a port
+  diverges "because the platform cannot", check the API before writing the
+  test that freezes it — and write the test against what the platform really
+  withholds (here: the jobs, not the count).
+
+Two of these specs also leaked into the universe's 64 KB MemoryStore quota,
+which is shared with the running game, until a run failed with
+`TotalMemoryOverLimit` for reasons that had nothing to do with the code.
+Both fixes are worth copying when a spec touches MemoryStore: put the random
+part in the **key**, never in the structure's name (`ListItemsAsync`
+enumerates a map you can name; nothing enumerates the maps), and give the
+quota back in an `afterAll` through the driver's own `clear()` rather than
+leaving it to the expiration.
 
 Test-side, three defects in the harness accounted for roughly 240 of the
 original failures on their own: TestEZ's `equal()` is Luau `==` (reference

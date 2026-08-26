@@ -1,18 +1,14 @@
 name: Release
 
 on:
-    # Both, because a tag can arrive two ways and only one of them is a push.
-    # Creating a release through GitHub's own interface makes the tag as part
-    # of publishing, and emits `release` alone -- no `push` for the tag it
-    # just created, so a workflow listening for one waits forever.
-    #
-    # Pushing a tag from a terminal and then making a release from that same
-    # tag would fire this twice; the second run stops at `npm publish` with
-    # "version already exists", which is noisy but harmless.
+    # A tag pushed from a terminal and a tag made by publishing a release
+    # through GitHub's own interface both arrive as a push, so this is the one
+    # trigger a release needs. Adding `release: types: [published]` alongside
+    # it -- which this briefly did -- means a release made in the interface
+    # fires twice, and the second run stops at `npm publish` with "version
+    # already exists".
     push:
         tags: ["v*"]
-    release:
-        types: [published]
     # For re-running a release that failed on something since fixed, without
     # having to invent a version number to carry a new tag.
     workflow_dispatch:

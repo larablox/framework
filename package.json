@@ -22,8 +22,10 @@
         "access": "public"
     },
     "files": [
+        "index.d.ts",
         "out/Illuminate"
     ],
+    "types": "index.d.ts",
     "type": "module",
     "scripts": {
         "build": "rbxtsc",
@@ -39,8 +41,10 @@
         "sourcemap": "rojo sourcemap default.project.json --output sourcemap.json",
         "analyze": "npm run build && npm run sourcemap && luau-lsp analyze --platform=roblox --sourcemap=sourcemap.json --definitions=globalTypes.None.d.luau --base-luaurc=.luaurc --settings=luau-lsp.settings.json --ignore=\"**/include/**\" --ignore=\"**/node_modules/**\" out"
     },
+    "dependencies": {
+        "@larablox/monolog": "^0.2.0"
+    },
     "devDependencies": {
-        "@larablox/monolog": "^0.2.0",
         "@rbxts/compiler-types": "^3.0.0-types.0",
         "@rbxts/testez": "^0.4.2-ts.0",
         "@rbxts/types": "^1.0.943",

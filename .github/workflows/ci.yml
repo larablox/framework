@@ -1,0 +1,33 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - run: npm ci
+
+            - run: npm run lint
+
+            # `npm run analyze` compiles to Luau, refreshes the sourcemap and runs
+            # luau-lsp over `out/`, so it needs the Rokit toolchain and the Roblox
+            # global type definitions the analyze script expects on disk.
+            - uses: CompeyDev/setup-rokit@v0.1.2
+
+            - run: npm run types:roblox
+
+            - run: npm run analyze

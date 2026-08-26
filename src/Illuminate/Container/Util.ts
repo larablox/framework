@@ -32,7 +32,29 @@ export class Util {
             return [];
         }
 
-        return Util.isArray(value) ? (value as Array<T>) : [value as T];
+        if (!typeIs(value, "table")) {
+            return [value as T];
+        }
+
+        if (Util.isArray(value)) {
+            return value as Array<T>;
+        }
+
+        // `isArray()` reports false for an empty table, which is right for a
+        // class instance and wrong for an empty list -- and `Arr::wrap([])` is
+        // `[]` upstream, not `[[]]`. A compiled class always carries a
+        // metatable and an object literal always carries entries, so a table
+        // with neither is the empty list.
+        let hasEntries = false;
+
+        for (const [] of pairs(value as unknown as Record<string, unknown>)) {
+            hasEntries = true;
+            break;
+        }
+
+        return !hasEntries && getmetatable(value as object) === undefined
+            ? []
+            : [value as T];
     }
 
     /**

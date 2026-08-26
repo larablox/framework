@@ -9,8 +9,24 @@ import type { JsonSerializable } from "Illuminate/Contracts/Support/JsonSerializ
 /** Characters Luau's pattern matcher treats as magic. */
 const MAGIC = "([%^%$%(%)%%%.%[%]%*%+%-%?])";
 
-/** The default characters `trim()` strips. */
-const TRIM_CHARACTERS = " \t\n\r\v\f";
+/**
+ * PHP: `Str::INVISIBLE_CHARACTERS`, plus the `" \n\r\t\v\0"` upstream appends
+ * to it in `trim()`/`ltrim()`/`rtrim()`.
+ *
+ * Upstream builds these into a PCRE character class. A Luau character class
+ * matches *bytes*, so a class holding U+3000 would match its three UTF-8 bytes
+ * separately and corrupt neighbouring characters; the trimmers below compare
+ * codepoints against this set instead.
+ */
+const INVISIBLE_CODEPOINTS = new Set<number>([
+    0x0000, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x00a0, 0x00ad,
+    0x034f, 0x061c, 0x115f, 0x1160, 0x17b4, 0x17b5, 0x180e, 0x2000, 0x2001,
+    0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a,
+    0x200b, 0x200c, 0x200d, 0x200e, 0x200f, 0x202f, 0x205f, 0x2060, 0x2061,
+    0x2062, 0x2063, 0x2064, 0x2065, 0x206a, 0x206b, 0x206c, 0x206d, 0x206e,
+    0x206f, 0x2800, 0x3000, 0x3164, 0xfeff, 0xffa0, 0x1d159, 0x1d173, 0x1d174,
+    0x1d175, 0x1d176, 0x1d177, 0x1d178, 0x1d179, 0x1d17a, 0xe0020,
+]);
 
 const LOWER_ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 const UPPER_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -209,7 +225,15 @@ export class Str {
         needle: string,
         offset = 0,
     ): number | undefined {
-        const [found] = haystack.find(needle, offset + 1, true);
+        // A negative offset already means "this far from the end" to both PHP
+        // and Luau, so only a non-negative one needs the 0-based-to-1-based
+        // shift. Adding 1 to a negative offset moves the search a character
+        // past where `mb_strpos()` would start it.
+        const [found] = haystack.find(
+            needle,
+            offset < 0 ? offset : offset + 1,
+            true,
+        );
 
         return found !== undefined ? found - 1 : undefined;
     }
@@ -769,25 +793,116 @@ export class Str {
 
     /** Remove all whitespace, or the given characters, from the beginning. */
     public static ltrim(value: string, characters?: string): string {
-        const set = Str.characterClass(characters ?? TRIM_CHARACTERS);
-        const [result] = value.gsub(`^[${set}]+`, "");
+        if (characters === undefined) {
+            return Str.trimInvisible(value, true, false);
+        }
+
+        // PHP: `ltrim($value, '')` strips nothing. Letting an empty list reach
+        // the pattern would build `^[]+`, which Luau rejects outright.
+        if (characters === "") {
+            return value;
+        }
+
+        const [result] = value.gsub(
+            `^[${Str.characterClass(characters)}]+`,
+            "",
+        );
 
         return result;
     }
 
     /** Remove all whitespace, or the given characters, from the end. */
     public static rtrim(value: string, characters?: string): string {
-        const set = Str.characterClass(characters ?? TRIM_CHARACTERS);
-        const [result] = value.gsub(`[${set}]+$`, "");
+        if (characters === undefined) {
+            return Str.trimInvisible(value, false, true);
+        }
+
+        if (characters === "") {
+            return value;
+        }
+
+        const [result] = value.gsub(
+            `[${Str.characterClass(characters)}]+$`,
+            "",
+        );
 
         return result;
     }
 
+    /**
+     * Strip leading and/or trailing invisible characters.
+     *
+     * PHP: the `preg_replace('~^[\s...]+|[\s...]+$~u', '', $value)` branch
+     * `trim()`/`ltrim()`/`rtrim()` take when no character list is given, where
+     * `...` is `Str::INVISIBLE_CHARACTERS` plus `" \n\r\t\v\0"`.
+     */
+    private static trimInvisible(
+        value: string,
+        fromStart: boolean,
+        fromEnd: boolean,
+    ): string {
+        const offsets = new Array<number>();
+        const codepoints = new Array<number>();
+
+        for (const [offset, code] of utf8.codes(value)) {
+            offsets.push(offset);
+            codepoints.push(code);
+        }
+
+        let first = 0;
+        let last = codepoints.size() - 1;
+
+        if (fromStart) {
+            while (
+                first <= last &&
+                INVISIBLE_CODEPOINTS.has(codepoints[first])
+            ) {
+                first++;
+            }
+        }
+
+        if (fromEnd) {
+            while (
+                last >= first &&
+                INVISIBLE_CODEPOINTS.has(codepoints[last])
+            ) {
+                last--;
+            }
+        }
+
+        if (first > last) {
+            return "";
+        }
+
+        const from = offsets[first];
+        const to =
+            last + 1 < offsets.size() ? offsets[last + 1] - 1 : value.size();
+
+        return value.sub(from, to);
+    }
+
     /** Remove all extraneous whitespace, collapsing runs into one space. */
     public static squish(value: string): string {
-        const [collapsed] = Str.trim(value).gsub("%s+", " ");
+        // PHP collapses the same invisible set `trim()` strips, not just
+        // `%s` -- `laravel\u{3164}\u{3164}php` has to squish to `laravel php`.
+        const parts = new Array<string>();
+        let inRun = false;
 
-        return collapsed;
+        for (const [, code] of utf8.codes(Str.trim(value))) {
+            if (INVISIBLE_CODEPOINTS.has(code)) {
+                if (!inRun) {
+                    parts.push(" ");
+                    inRun = true;
+                }
+
+                continue;
+            }
+
+            parts.push(utf8.char(code));
+            inRun = false;
+        }
+
+        return parts.join("");
     }
 
     // -----------------------------------------------------------------
@@ -1279,7 +1394,14 @@ export class Str {
     ): boolean {
         const subject = ignoreCase ? value.lower() : value;
 
-        for (const raw of Util.arrayWrap(patterns)) {
+        // Not `Util.arrayWrap()`: it leans on `Util.isArray()`, which treats an
+        // empty table as a single value because Luau cannot tell an empty array
+        // from an empty object. That turns `is([], $value)` into a search for
+        // one pattern that is itself a table. The parameter type already says
+        // which of the two shapes this is, so ask it instead.
+        const list = typeIs(patterns, "string") ? [patterns] : patterns;
+
+        for (const raw of list) {
             const pattern = ignoreCase ? raw.lower() : raw;
 
             // If the given value is an exact match we can of course return true right
@@ -1721,14 +1843,18 @@ export class Str {
         let from = 1;
 
         while (true) {
-            const [found, last] = haystack.find(needle, from, true);
+            const [found] = haystack.find(needle, from, true);
 
             if (found === undefined) {
                 break;
             }
 
             position = found;
-            from = (last as number) + 1;
+
+            // Step one byte, not past the whole match: PHP's `strrpos()`
+            // counts overlapping occurrences, so `afterLast('----foo', '---')`
+            // has to find the match at offset 2, not stop at the one at 1.
+            from = found + 1;
         }
 
         return position;

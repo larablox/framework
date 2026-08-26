@@ -486,7 +486,7 @@ export = (): void => {
             r.get("/api/{bar}/{foo}").whereNumber(["bar", "foo"]);
 
             for (const route of r.getRoutes().getRoutes()) {
-                expect(route.wheres).to.equal(wheres);
+                expectDeepEqual(route.wheres, wheres);
             }
         });
 
@@ -499,7 +499,7 @@ export = (): void => {
             r.get("/api/{bar}/{foo}").whereAlpha(["bar", "foo"]);
 
             for (const route of r.getRoutes().getRoutes()) {
-                expect(route.wheres).to.equal(wheres);
+                expectDeepEqual(route.wheres, wheres);
             }
         });
 
@@ -511,7 +511,7 @@ export = (): void => {
             r.get("/{foo}").whereAlphaNumeric(["1a2b3c"]);
 
             for (const route of r.getRoutes().getRoutes()) {
-                expect(route.wheres).to.equal(wheres);
+                expectDeepEqual(route.wheres, wheres);
             }
         });
 

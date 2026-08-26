@@ -94,10 +94,13 @@ export = (): void => {
                 data.reduce((carry, element) => carry + element, 0),
             ).to.equal(6);
 
-            const keyed = new Collection<string, string>({
-                foo: "bar",
-                baz: "qux",
-            });
+            // Built entry by entry rather than from an object literal: the
+            // fold reads keys in iteration order, and `pairs()` does not
+            // define the order of a literal's keys (laravel-parity.md,
+            // "Collection: ключи и объём").
+            const keyed = new Collection<string, string>()
+                .put("foo", "bar")
+                .put("baz", "qux");
             expect(
                 keyed.reduce(
                     (carry, element, key) => carry + key + element,

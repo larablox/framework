@@ -60,10 +60,13 @@ export = (): void => {
         it("exists() checks a key or index", () => {
             // PHP: SupportArrTest::testExists (Collection-with-null and
             // ArrayAccess-object cases dropped, see class comment)
-            expect(Arr.exists([1], 0)).to.equal(true);
+            // A Luau list starts at 1, so PHP's index 0/1 pair becomes 1/2 --
+            // the case under test ("an index that is there" against "one that
+            // is not") is what carries over, not the number itself.
+            expect(Arr.exists([1], 1)).to.equal(true);
             expect(Arr.exists({ a: 1 }, "a")).to.equal(true);
 
-            expect(Arr.exists([1], 1)).to.equal(false);
+            expect(Arr.exists([1], 2)).to.equal(false);
             expect(Arr.exists({ a: 1 }, "b")).to.equal(false);
         });
 
@@ -179,7 +182,10 @@ export = (): void => {
                 Arr.has(products, ["products.desk", "products.price"]),
             ).to.equal(false);
 
-            const nested = { products: [{ name: "desk" }] };
+            // Numeric path segment, spelled the way the class comment
+            // describes -- a quoted key, since a path segment is a string and
+            // a real list is keyed by numbers.
+            const nested = { products: { "0": { name: "desk" } } };
             expect(Arr.has(nested, "products.0.name")).to.equal(true);
             expect(Arr.has(nested, "products.0.price")).to.equal(false);
 
@@ -479,8 +485,10 @@ export = (): void => {
                 {
                     "user.name": "Taylor",
                     "user.age": 25,
-                    "user.languages.0": "PHP",
-                    "user.languages.1": "C#",
+                    // A Luau list is keyed from 1, so the flattened indices
+                    // shift by one against PHP's.
+                    "user.languages.1": "PHP",
+                    "user.languages.2": "C#",
                 },
             );
 

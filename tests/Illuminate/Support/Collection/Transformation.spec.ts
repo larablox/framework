@@ -77,7 +77,7 @@ export = (): void => {
             c.each((item) => {
                 result.push(item);
             });
-            expect(result).to.equal(original);
+            expectDeepEqual(result, original);
 
             const partial: Array<number> = [];
             c.each((item) => {

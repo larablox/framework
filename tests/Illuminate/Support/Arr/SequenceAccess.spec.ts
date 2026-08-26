@@ -594,7 +594,7 @@ export = (): void => {
             sorted.sort();
             const sortedInput = table.clone(input);
             sortedInput.sort();
-            expect(sorted).to.equal(sortedInput);
+            expectDeepEqual(sorted, sortedInput);
 
             expectDeepEqual(Arr.shuffle([]), []);
         });
@@ -608,20 +608,22 @@ export = (): void => {
             const unsorted = [{ name: "Desk" }, { name: "Chair" }];
             const expected = [{ name: "Chair" }, { name: "Desk" }];
 
-            expect(Arr.sort(unsorted)).to.equal(expected);
-            expect(Arr.sort(unsorted, (value) => value.name)).to.equal(
+            expectDeepEqual(Arr.sort(unsorted), expected);
+            expectDeepEqual(
+                Arr.sort(unsorted, (value) => value.name),
                 expected,
             );
-            expect(Arr.sort(unsorted, "name")).to.equal(expected);
+            expectDeepEqual(Arr.sort(unsorted, "name"), expected);
 
             const unsortedDesc = [{ name: "Chair" }, { name: "Desk" }];
             const expectedDesc = [{ name: "Desk" }, { name: "Chair" }];
 
-            expect(Arr.sortDesc(unsortedDesc)).to.equal(expectedDesc);
-            expect(Arr.sortDesc(unsortedDesc, (value) => value.name)).to.equal(
+            expectDeepEqual(Arr.sortDesc(unsortedDesc), expectedDesc);
+            expectDeepEqual(
+                Arr.sortDesc(unsortedDesc, (value) => value.name),
                 expectedDesc,
             );
-            expect(Arr.sortDesc(unsortedDesc, "name")).to.equal(expectedDesc);
+            expectDeepEqual(Arr.sortDesc(unsortedDesc, "name"), expectedDesc);
         });
 
         it("sortRecursive() / sortRecursiveDesc() sort nested arrays", () => {

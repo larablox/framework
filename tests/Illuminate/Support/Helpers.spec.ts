@@ -85,7 +85,9 @@ export = (): void => {
             expect(when("1", () => undefined)).to.equal(undefined);
             expect(when(0, () => undefined)).to.equal(undefined);
             expect(when([1, 2, 3, 4], "True")).to.equal("True");
-            expect(when([], "True")).to.equal(undefined);
+            // PHP's `when([], 'True')` (null, an empty array being falsy) has
+            // no counterpart: `[]` and `{}` are the same Luau value, and the
+            // `new stdClass` case just below pins it as truthy.
             expect(when({}, () => "True")).to.equal("True");
             expect(when(false, "Hello", "World")).to.equal("World");
             expect(when(false, "Hello", "World")).to.equal("World"); // 1 === 0
@@ -104,7 +106,7 @@ export = (): void => {
                     () => undefined,
                 ),
             ).to.equal(undefined);
-            expect(when([], "True", "False")).to.equal("False");
+            // Dropped for the same reason as `when([], 'True')` above.
             expect(
                 when(
                     true,

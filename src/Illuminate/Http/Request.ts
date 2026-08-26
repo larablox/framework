@@ -3,7 +3,7 @@ import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
 import { InteractsWithData } from "Illuminate/Support/Traits/InteractsWithData";
 import { Str } from "Illuminate/Support/Str";
 import { Util } from "Illuminate/Container/Util";
-import { data_get } from "Illuminate/Support/Helpers";
+import { data_get, data_set } from "Illuminate/Support/Helpers";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Route } from "Illuminate/Routing/Route";
 import type { Transport } from "Illuminate/Http/Remote";
@@ -232,10 +232,17 @@ export class Request extends InteractsWithData(Conditionable()) {
         return this.input(key, defaultValue);
     }
 
-    /** Merge new input into the current request's input array. */
+    /**
+     * Merge new input into the current request's input array.
+     *
+     * PHP folds the new entries in with `data_set()`, not with a plain
+     * assignment, so a dotted key writes into the nested structure --
+     * `merge(['user.last_name' => 'Otwell'])` reaches `user`, it does not
+     * add a top-level key spelled `user.last_name`.
+     */
     public merge(input: ArrayAccessible): this {
         for (const [key, value] of pairs(input)) {
-            this.inputSource[key as string] = value;
+            data_set(this.inputSource, key as string, value);
         }
 
         return this;
@@ -244,8 +251,8 @@ export class Request extends InteractsWithData(Conditionable()) {
     /** Merge new input into the request's input, but only when that key is missing. */
     public mergeIfMissing(input: ArrayAccessible): this {
         for (const [key, value] of pairs(input)) {
-            if (!this.has(key as string)) {
-                this.inputSource[key as string] = value;
+            if (this.missing(key as string)) {
+                data_set(this.inputSource, key as string, value);
             }
         }
 

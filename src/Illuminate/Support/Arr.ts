@@ -284,9 +284,41 @@ export class Arr {
             }
         }
 
+        // PHP takes `$array` by value, so the `Arr::forget()` below cannot
+        // reach the caller's data at any depth. The copy above is shallow and
+        // a Luau table is a reference, so every table a dotted key descends
+        // through is copied too -- the same branch PHP's copy-on-write would
+        // have separated.
+        for (const key of unwanted) {
+            Arr.detachPath(result, key);
+        }
+
         Arr.forget(result, unwanted);
 
         return result;
+    }
+
+    /**
+     * Replace each table a dotted key descends through with a shallow copy of
+     * itself, so that removing the key cannot touch the original.
+     */
+    private static detachPath(target: ArrayAccessible, key: string): void {
+        const segments = key.split(".");
+        let current = target;
+
+        for (let index = 0; index < segments.size() - 1; index++) {
+            const segment = segments[index];
+            const nested = current[segment];
+
+            if (!Arr.accessible(nested)) {
+                return;
+            }
+
+            const copy = table.clone(nested as ArrayAccessible);
+
+            current[segment] = copy;
+            current = copy;
+        }
     }
 
     /** Prepend the key names of an associative array. */
@@ -988,6 +1020,15 @@ export class Arr {
             return first - second;
         }
 
+        // PHP orders two arrays by size first and then entry by entry, which
+        // is what `sort()` with no callback leans on. Falling through to
+        // `tostring()` here would compare table *addresses* instead, and put
+        // `Arr::sort([['name' => 'Desk'], ['name' => 'Chair']])` in whatever
+        // order the allocator happened to produce.
+        if (typeIs(first, "table") && typeIs(second, "table")) {
+            return Arr.compareTables(first, second);
+        }
+
         const firstText = tostring(first);
         const secondText = tostring(second);
 
@@ -996,5 +1037,49 @@ export class Arr {
         }
 
         return firstText < secondText ? -1 : 1;
+    }
+
+    /**
+     * Order two tables the way PHP orders two arrays: the shorter one first,
+     * then entry by entry.
+     *
+     * `pairs()` does not define an order, so the walk below only settles a
+     * pair whose keys line up -- which is the same ground PHP's own
+     * element-wise comparison covers, since it looks the left operand's keys
+     * up in the right one rather than pairing them off positionally.
+     */
+    private static compareTables(first: object, second: object): number {
+        let firstCount = 0;
+        let secondCount = 0;
+
+        for (const [] of pairs(first)) {
+            firstCount += 1;
+        }
+
+        for (const [] of pairs(second)) {
+            secondCount += 1;
+        }
+
+        if (firstCount !== secondCount) {
+            return firstCount < secondCount ? -1 : 1;
+        }
+
+        for (const [key, value] of pairs(first)) {
+            const other = (second as Record<string, unknown>)[key as string];
+
+            // PHP calls a pair whose keys do not line up "uncomparable" and
+            // leaves the left one after the right.
+            if (other === undefined) {
+                return 1;
+            }
+
+            const order = Arr.compare(value, other);
+
+            if (order !== 0) {
+                return order;
+            }
+        }
+
+        return 0;
     }
 }

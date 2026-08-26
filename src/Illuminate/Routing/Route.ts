@@ -104,6 +104,16 @@ export class Route {
         this.httpMethods = Util.arrayWrap(methods);
         this.action = action ?? {};
 
+        // PHP: a route that answers GET answers HEAD too, whether or not the
+        // caller listed it -- `Router::get()` passes both, but
+        // `Router::match(['GET'], ...)` passes only GET.
+        if (
+            this.httpMethods.includes("GET") &&
+            !this.httpMethods.includes("HEAD")
+        ) {
+            this.httpMethods.push("HEAD");
+        }
+
         // PHP drops the prefix off the action here and applies it through
         // `prefix()` below, so that the URI and the action agree.
         const prefix = this.action.prefix;
@@ -463,11 +473,17 @@ export class Route {
         );
     }
 
-    /** Specify that the given route parameters must be ULIDs. */
+    /**
+     * Specify that the given route parameters must be ULIDs.
+     *
+     * PHP: `[0-7][0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]{25}` -- the first character
+     * is the top of the timestamp and cannot go past 7, and the remaining 25
+     * are Crockford base32 in either case.
+     */
     public whereUlid(parameters: string | Array<string>): this {
         return this.assignExpressionToParameters(
             parameters,
-            "[0-9A-HJKMNP-TV-Z]".rep(26),
+            `[0-7]${"[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]".rep(25)}`,
         );
     }
 

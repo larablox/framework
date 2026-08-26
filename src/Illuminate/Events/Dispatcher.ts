@@ -173,7 +173,10 @@ export class Dispatcher implements DispatcherContract {
         const events = (subscribe as Callback)(resolved, this) as
             Array<[EventName, Listener | Array<Listener>]> | undefined;
 
-        if (events === undefined) {
+        // PHP wraps the loop below in `if (is_array($events))`, so a
+        // `subscribe()` that registers its listeners itself and hands back
+        // something else -- or nothing -- is not an error.
+        if (!typeIs(events, "table")) {
             return;
         }
 

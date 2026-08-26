@@ -69,7 +69,10 @@ export = (): void => {
             // PHP: SupportStrTest::testUuid (adapted -- see class comment)
             expect(Str.isUuid(Str.uuid())).to.equal(true);
             expect(Str.isUuid(Str.orderedUuid())).to.equal(true);
-            expect(Str.uuid()).to.equal(Str.lower(Str.uuid()));
+
+            const uuid = Str.uuid();
+
+            expect(uuid).to.equal(Str.lower(uuid));
         });
 
         it("ulid() produces a 26-character Crockford base32 string", () => {

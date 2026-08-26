@@ -21,7 +21,7 @@ import { Str } from "Illuminate/Support/Str";
  */
 export = (): void => {
     describe("Str searching", () => {
-        it("position() finds the first byte offset of a substring", () => {
+        it("position() finds the first character offset of a substring", () => {
             // PHP: SupportStrTest::testPosition (encoding argument dropped, see Slicing.spec.ts)
             expect(Str.position("Hello, World!", "W")).to.equal(7);
             expect(Str.position("This is a test string.", "test")).to.equal(10);

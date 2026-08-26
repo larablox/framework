@@ -42,19 +42,31 @@ export class Util {
 
         // `isArray()` reports false for an empty table, which is right for a
         // class instance and wrong for an empty list -- and `Arr::wrap([])` is
-        // `[]` upstream, not `[[]]`. A compiled class always carries a
-        // metatable and an object literal always carries entries, so a table
-        // with neither is the empty list.
-        let hasEntries = false;
+        // `[]` upstream, not `[[]]`.
+        return Util.isEmptyArray(value) ? [] : [value as T];
+    }
 
-        for (const [] of pairs(value as unknown as Record<string, unknown>)) {
-            hasEntries = true;
-            break;
+    /**
+     * Whether a value is the empty list.
+     *
+     * `isArray()` cannot answer this: it tells a list from a single value by
+     * length, so an empty list and a class instance both report zero. A
+     * compiled class always carries a metatable and an object literal always
+     * carries entries, so a table with neither is the empty list.
+     */
+    public static isEmptyArray(value: unknown): boolean {
+        if (
+            !typeIs(value, "table") ||
+            getmetatable(value as object) !== undefined
+        ) {
+            return false;
         }
 
-        return !hasEntries && getmetatable(value as object) === undefined
-            ? []
-            : [value as T];
+        for (const [] of pairs(value as unknown as Record<string, unknown>)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

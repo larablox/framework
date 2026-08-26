@@ -243,23 +243,39 @@ export class Str {
     // Searching
     // -----------------------------------------------------------------
 
-    /** Find the position of the first occurrence, or undefined. */
+    /**
+     * Find the position of the first occurrence, or undefined.
+     *
+     * PHP: `mb_strpos()`, which counts characters -- in the offset it takes
+     * as well as in the position it answers. Luau's `string.find()` counts
+     * bytes, so both ends are converted; the two only agree on ASCII.
+     */
     public static position(
         haystack: string,
         needle: string,
         offset = 0,
     ): number | undefined {
-        // A negative offset already means "this far from the end" to both PHP
-        // and Luau, so only a non-negative one needs the 0-based-to-1-based
-        // shift. Adding 1 to a negative offset moves the search a character
-        // past where `mb_strpos()` would start it.
-        const [found] = haystack.find(
-            needle,
-            offset < 0 ? offset : offset + 1,
-            true,
-        );
+        const total = Str.length(haystack);
+        const from = offset < 0 ? math.max(total + offset, 0) : offset;
 
-        return found !== undefined ? found - 1 : undefined;
+        if (from > total) {
+            return undefined;
+        }
+
+        const init = utf8.offset(haystack, from + 1) ?? haystack.size() + 1;
+        const [found] = haystack.find(needle, init, true);
+
+        if (found === undefined) {
+            return undefined;
+        }
+
+        if (found === 1) {
+            return 0;
+        }
+
+        const [characters] = utf8.len(haystack, 1, found - 1);
+
+        return typeIs(characters, "number") ? characters : found - 1;
     }
 
     /** Determine if a given string contains a given substring. */
@@ -268,10 +284,12 @@ export class Str {
         needles: string | Array<string>,
         ignoreCase = false,
     ): boolean {
-        const subject = ignoreCase ? haystack.lower() : haystack;
+        // PHP folds case with `mb_strtolower()`, not with the byte-wise
+        // `strtolower()`, so `Str.lower()` is the one to use here.
+        const subject = ignoreCase ? Str.lower(haystack) : haystack;
 
         for (const needle of Util.arrayWrap(needles)) {
-            const search = ignoreCase ? needle.lower() : needle;
+            const search = ignoreCase ? Str.lower(needle) : needle;
             const [found] = subject.find(search, 1, true);
 
             if (search !== "" && found !== undefined) {
@@ -288,13 +306,19 @@ export class Str {
         needles: Array<string>,
         ignoreCase = false,
     ): boolean {
+        // PHP returns the `$any` flag, so an empty needle list is `false` --
+        // "contains all of nothing" is not vacuously true here.
+        let any = false;
+
         for (const needle of needles) {
+            any = true;
+
             if (!Str.contains(haystack, needle, ignoreCase)) {
                 return false;
             }
         }
 
-        return true;
+        return any;
     }
 
     /** Determine if a given string doesn't contain a given substring. */
@@ -457,7 +481,13 @@ export class Str {
         omission = "...",
     ): string | undefined {
         const position =
-            phrase === "" ? 0 : Str.position(text.lower(), phrase.lower());
+            phrase === ""
+                ? 0
+                : // PHP matches with `/iu`, so the fold is the Unicode one.
+                  // Simple case mapping is 1:1 on codepoints, which keeps the
+                  // position of the match the same in the folded string as in
+                  // `text` itself.
+                  Str.position(Str.lower(text), Str.lower(phrase));
 
         if (position === undefined) {
             return undefined;
@@ -632,13 +662,53 @@ export class Str {
         let result = value;
 
         for (const character of Util.arrayWrap(characters)) {
-            const [quoted] = character.gsub(MAGIC, "%%%1");
-            const [deduplicated] = result.gsub(`${quoted}+`, character);
-
-            result = deduplicated;
+            if (character !== "") {
+                result = Str.collapseRuns(result, character);
+            }
         }
 
         return result;
+    }
+
+    /**
+     * Collapse the runs one `deduplicate()` needle produces into a single
+     * instance of it.
+     *
+     * PHP builds `/preg_quote($character)+/u` and lets the regex engine do
+     * this. Two details of that pattern carry over: `+` quantifies only the
+     * needle's *last character* (PHP never groups it), and under `/u` that is
+     * a whole codepoint rather than a byte. A Luau pattern class cannot hold
+     * a multi-byte character at all, so the run is walked by hand instead.
+     */
+    private static collapseRuns(value: string, character: string): string {
+        const lastOffset = utf8.offset(character, -1) ?? character.size();
+        const prefix = character.sub(1, lastOffset - 1);
+        const last = character.sub(lastOffset);
+        const pieces = new Array<string>();
+
+        let index = 1;
+
+        while (index <= value.size()) {
+            let cursor = index + prefix.size();
+            let repeats = 0;
+
+            if (prefix === "" || value.sub(index, cursor - 1) === prefix) {
+                while (value.sub(cursor, cursor + last.size() - 1) === last) {
+                    repeats += 1;
+                    cursor += last.size();
+                }
+            }
+
+            if (repeats > 0) {
+                pieces.push(character);
+                index = cursor;
+            } else {
+                pieces.push(value.sub(index, index));
+                index += 1;
+            }
+        }
+
+        return pieces.join("");
     }
 
     // -----------------------------------------------------------------
@@ -1299,48 +1369,163 @@ export class Str {
     // Words and limits
     // -----------------------------------------------------------------
 
-    /** Limit the number of characters in a string. */
+    /**
+     * Limit the number of characters in a string.
+     *
+     * PHP measures with `mb_strwidth()`/`mb_strimwidth()`, not with
+     * `mb_strlen()`: the budget is display *width*, so a full-width CJK
+     * character spends two of it. `Str::limit('这是一段中文', 6)` therefore cuts
+     * after three characters, not six.
+     *
+     * `strip_tags()` off the front of the `$preserveWords` branch is not
+     * ported -- there is no HTML on this runtime -- but the newline collapsing
+     * and the outer trim beside it are.
+     */
     public static limit(
         value: string,
         limit = 100,
         last = "...",
         preserveWords = false,
     ): string {
-        if (Str.length(value) <= limit) {
+        if (Str.width(value) <= limit) {
             return value;
         }
-
-        const trimmed = Str.rtrim(Str.substr(value, 0, limit));
 
         if (!preserveWords) {
+            return `${Str.rtrim(Str.strimwidth(value, limit))}${last}`;
+        }
+
+        const [collapsed] = value.gsub("[\n\r]+", " ");
+        const subject = Str.trim(collapsed);
+        const trimmed = Str.rtrim(Str.strimwidth(subject, limit));
+
+        // PHP indexes with `mb_substr()` here even though the cut above was by
+        // width, so this reads a character offset, not a width offset.
+        if (Str.substr(subject, limit, 1) === " ") {
             return `${trimmed}${last}`;
         }
 
-        if (Str.substr(value, limit, 1) === " ") {
-            return `${trimmed}${last}`;
+        // PHP: `preg_replace("/(.*)\s.*/", '$1', $trimmed)` -- everything
+        // before the last whitespace, or the string untouched when it holds
+        // none, since then the pattern simply does not match.
+        let cut: number | undefined;
+        let from = 1;
+
+        while (true) {
+            const [found] = trimmed.find("%s", from);
+
+            if (found === undefined) {
+                break;
+            }
+
+            cut = found;
+            from = found + 1;
         }
 
-        return `${Str.rtrim(Str.beforeLast(trimmed, " "))}${last}`;
+        return `${cut === undefined ? trimmed : trimmed.sub(1, cut - 1)}${last}`;
     }
 
-    /** Limit the number of words in a string. */
-    public static words(value: string, words = 100, last = "..."): string {
-        const collected = new Array<string>();
+    /**
+     * The display width of a string.
+     *
+     * PHP: `mb_strwidth()`. The wide ranges are the ones `mbfl_charwidth()`
+     * lists; everything else counts as one.
+     */
+    private static width(value: string): number {
         let total = 0;
 
-        for (const [word] of value.gmatch("%S+")) {
-            total += 1;
-
-            if (total <= words) {
-                collected.push(word as string);
-            }
+        for (const [, code] of utf8.codes(value)) {
+            total += Str.isWideCodepoint(code) ? 2 : 1;
         }
 
-        if (total <= words) {
+        return total;
+    }
+
+    /** Whether a codepoint spends two columns of `mb_strwidth()`'s budget. */
+    private static isWideCodepoint(code: number): boolean {
+        return (
+            (code >= 0x1100 && code <= 0x115f) ||
+            code === 0x2329 ||
+            code === 0x232a ||
+            (code >= 0x2e80 && code <= 0xa4cf && code !== 0x303f) ||
+            (code >= 0xac00 && code <= 0xd7a3) ||
+            (code >= 0xf900 && code <= 0xfaff) ||
+            (code >= 0xfe30 && code <= 0xfe6f) ||
+            (code >= 0xff00 && code <= 0xff60) ||
+            (code >= 0xffe0 && code <= 0xffe6) ||
+            (code >= 0x20000 && code <= 0x2fffd) ||
+            (code >= 0x30000 && code <= 0x3fffd)
+        );
+    }
+
+    /**
+     * Take the leading characters of a string that fit in a width budget.
+     *
+     * PHP: `mb_strimwidth($value, 0, $width, '', 'UTF-8')`. A character that
+     * would overrun the budget is left out whole.
+     */
+    private static strimwidth(value: string, width: number): string {
+        let taken = 0;
+
+        for (const [offset, code] of utf8.codes(value)) {
+            const cost = Str.isWideCodepoint(code) ? 2 : 1;
+
+            if (taken + cost > width) {
+                return value.sub(1, offset - 1);
+            }
+
+            taken += cost;
+        }
+
+        return value;
+    }
+
+    /**
+     * Limit the number of words in a string.
+     *
+     * PHP matches `/^\s*+(?:\S++\s*+){1,$words}/u` and hands back the subject
+     * untouched whenever that fails to match -- which covers a string with no
+     * words in it at all, and also a `$words` below one, where `{1,0}` and
+     * `{1,-1}` are not quantifiers PCRE will run. The leading whitespace the
+     * match keeps is why `words(' Taylor Otwell ', 1)` answers `' Taylor...'`
+     * rather than trimming both ends.
+     */
+    public static words(value: string, words = 100, last = "..."): string {
+        if (words < 1) {
             return value;
         }
 
-        return `${collected.join(" ")}${last}`;
+        // `^\s*+`
+        const [, leading] = value.find("^%s*");
+        let cursor = (leading as number) + 1;
+        let taken = 0;
+
+        // `(?:\S++\s*+){1,$words}`
+        while (taken < words) {
+            const [wordStart, wordEnd] = value.find("^%S+", cursor);
+
+            if (wordStart === undefined) {
+                break;
+            }
+
+            const [, spaceEnd] = value.find("^%s*", (wordEnd as number) + 1);
+
+            cursor = (spaceEnd as number) + 1;
+            taken += 1;
+        }
+
+        // The quantifier's lower bound is one, so no word at all is no match.
+        if (taken === 0) {
+            return value;
+        }
+
+        const matched = value.sub(1, cursor - 1);
+
+        if (Str.length(value) === Str.length(matched)) {
+            return value;
+        }
+
+        return `${Str.rtrim(matched)}${last}`;
     }
 
     /** Get the number of words a string contains. */

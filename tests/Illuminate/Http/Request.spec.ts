@@ -68,6 +68,14 @@ import { Route } from "Illuminate/Routing/Route";
  * - `testHttpRequestFlashCallsSessionFlashInputWithInputData` and its
  *   `Only`/`Except` variants -- flash data, no session.
  * - `testItClampsValues` -- `clamp()` waits for `Illuminate\Support\Number`.
+ *
+ * One systematic adaptation runs through the input-reading tests: **a Luau
+ * table cannot hold `nil`**, so an input spelled `{name: undefined}` never
+ * gets a `name` key at all -- PHP's *present but null* and *absent* are the
+ * same state here. Sub-cases that turn on telling those two apart
+ * (`has('foo.bar')` over `['foo' => ['bar' => null]]`, `whenMissing('bar')`
+ * over `['bar' => null]`, `offsetExists('name')` over `['name' => null]`) have
+ * no counterpart and are dropped; each is marked where it was.
  */
 
 const player = {} as Player;
@@ -214,10 +222,12 @@ export = (): void => {
             request = new Request(player, "GET", "/", { foo: ["bar", "bar"] });
             expect(request.has("foo")).to.equal(true);
 
+            // PHP's fixture is `['foo' => ['bar' => null, 'baz' => '']]`; the
+            // `bar` key cannot exist here, so its sub-case is dropped -- see
+            // the class comment.
             request = new Request(player, "GET", "/", {
-                foo: { bar: undefined, baz: "" },
+                foo: { baz: "" },
             });
-            expect(request.has("foo.bar")).to.equal(true);
             expect(request.has("foo.baz")).to.equal(true);
         });
 
@@ -303,7 +313,10 @@ export = (): void => {
 
         // PHP: HttpRequestTest::testWhenMissingMethod
         it("whenMissing() runs the callback only when the key is absent", () => {
-            const request = new Request(player, "GET", "/", { bar: undefined });
+            // PHP builds the request from `['bar' => null]` and asserts that
+            // `bar` is *not* missing. That distinction does not exist here
+            // (class comment), so the input carries a real value instead.
+            const request = new Request(player, "GET", "/", { bar: "baz" });
 
             let name: unknown = true;
             let bar: unknown = true;
@@ -478,19 +491,16 @@ export = (): void => {
 
         // PHP: HttpRequestTest::testArrayAccess, testArrayAccessWithoutRouteResolver
         it("supports table-index access through the ArrayAccessible offset methods", () => {
+            // PHP's fixture is `['name' => null, 'foo' => ['bar' => null,
+            // 'baz' => '']]`; the two null-valued keys cannot exist here, so
+            // their sub-cases are dropped -- see the class comment.
             const request = new Request(player, "GET", "/", {
-                name: undefined,
-                foo: { bar: undefined, baz: "" },
+                foo: { baz: "" },
             });
 
             expect(request.offsetExists("non-existent")).to.equal(false);
             expect(request.offsetGet("non-existent")).to.equal(undefined);
 
-            expect(request.offsetExists("name")).to.equal(true);
-            expect(request.offsetGet("name")).to.equal(undefined);
-
-            expect(request.offsetExists("foo.bar")).to.equal(true);
-            expect(request.offsetGet("foo.bar")).to.equal(undefined);
             expect(request.offsetExists("foo.baz")).to.equal(true);
             expect(request.offsetGet("foo.baz")).to.equal("");
 
@@ -526,9 +536,12 @@ export = (): void => {
 
         // PHP: HttpRequestTest::testKeysMethod
         it("keys() lists the input keys", () => {
+            // PHP's fixture is `['name' => 'Taylor', 'age' => null]`; `age`
+            // cannot be a key at all here (class comment), so it carries a
+            // value -- what is under test is that both names come back.
             const request = new Request(player, "GET", "/", {
                 name: "Taylor",
-                age: undefined,
+                age: "",
             });
             const keys = request.keys();
 

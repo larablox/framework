@@ -67,12 +67,50 @@ too.
 
 ## Running them
 
-`test.project.json`'s place has a `ServerScriptService.RunTests` `Script`
-that warms up every module in both `Illuminate` and `IlluminateTests`
-through `TS.import`, then runs TestEZ against `IlluminateTests`, printing a
-pass/fail summary — identical mechanism to monolog's `RunTests` script (see
-that repo's `agent_docs/testing.md` for why the warm-up step is required,
-not decorative).
+The runner is `scripts/RunTests.server.luau`, mounted by
+`test.project.json` as `ServerScriptService.RunTests`. It warms up every
+module in both `Illuminate` and `IlluminateTests` through `TS.import` — see
+monolog's `agent_docs/testing.md` for why that step is required and not
+decorative — and then runs TestEZ against `IlluminateTests`.
+
+It drives TestEZ through the four steps `TestBootstrap:run()` documents
+(locate, plan, run, report) rather than calling it, because `TestBootstrap`
+hands its reporter the *finished* tree: a run says nothing at all until it
+is over, and a slow one is indistinguishable from a hung one. The output is
+PHPUnit's instead — a progress row per 63 tests while it runs, then a
+numbered list of failures, then the totals:
+
+```
+Running 1137 tests
+
+...............................................................  63 / 1137 (  5%)
+...............................................................  126 / 1137 ( 11%)
+...
+
+Time: 77.6s
+
+There were 2 failures:
+
+1) IlluminateTests > Support > Str > Searching > position() finds ...
+   Expected value "999" (number), got "7" (number) instead
+   IlluminateTests.Support.Str.Searching.spec:29
+
+FAILURES!
+Tests: 1137, Failures: 2.
+```
+
+Two details are load-bearing. Progress needs a per-test hook, and TestEZ
+has none, so the three `TestSession` methods that write a leaf's outcome are
+wrapped for the duration of the run — every session reaches them through
+`TestSession.__index`, and the originals go back afterwards. And the failure
+line carries the first spec frame of the traceback: an `expect` failure
+names TestRunner, not the assertion that tripped, so without it the report
+says only *what* differed and never *where*.
+
+`TextReporter`, TestEZ's own, prints the whole plan tree one line per test.
+At this suite's size that overflows Studio's log buffer and scrolls the
+failures out of reach before anyone can read them — which is why the format
+above exists rather than a per-test listing.
 
 To run: `npm run test:build`, `npm run test:serve` (or `rojo serve
 test.project.json`), connect Studio's Rojo plugin to it, press Play. Output

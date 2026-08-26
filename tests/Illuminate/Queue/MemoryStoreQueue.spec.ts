@@ -55,12 +55,25 @@ class MyTestJob {
     }
 }
 
+/**
+ * How long a pushed item lives.
+ *
+ * Not the framework's week-long default: MemoryStore's quota is per-universe
+ * and every run here pushes under a name of its own, so a week-long
+ * expiration means each run's leavings sit in the quota until the next
+ * Tuesday -- and after enough of them `Queue.Add` starts answering
+ * `TotalMemoryOverLimit` and the tests below fail for reasons that have
+ * nothing to do with the code. Long enough for a test, short enough to be
+ * gone before the next run needs the room.
+ */
+const EXPIRATION = 30;
+
 function freshQueue(): MemoryStoreQueue {
     const queue = new MemoryStoreQueue(
         HttpService.GenerateGUID(false),
         60,
         0,
-        604800,
+        EXPIRATION,
         "queue-test:",
     );
     queue.setContainer(new Container());

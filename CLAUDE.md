@@ -22,9 +22,11 @@ Mirrors [`laravel/framework`](https://github.com/laravel/framework):
 There is no game here — no `server`/`client` split, no entry point.
 `Illuminate/Log` depends on Monolog the same way Laravel does — as an
 external package, [`@larablox/monolog`](https://github.com/larablox/monolog),
-not vendored code. It is currently pinned via `"file:../monolog"` in
-`package.json` (a sibling checkout at `../monolog`), because it has not been
-published yet — swap that for a real semver range once it is.
+not vendored code, and depended on by a real semver range (`^0.2.0`) now
+that it is published. It is a **dependency**, not a devDependency: the
+compiled `out/Illuminate/Log/LogManager.luau` reaches for it at runtime
+through `TS.getModule`, so a consumer that did not get it installed would
+fail there.
 
 ## Depending on `@larablox/monolog`
 
@@ -95,9 +97,23 @@ this repo's own test suite once it exists — it is not a game.
 
 ## Publishing
 
-`npm publish --access public` requires an npm login this environment does
-not have — that step is run by hand, not by an agent. See
-`agent_docs/porting-plan.md` for the current state of the release workflow.
+Pushing a `v*` tag runs `.github/workflows/release.yml`, which checks the
+tag against `package.json`'s version, builds, and publishes through npm
+trusted publishing (OIDC — no token in the repository, and npm attaches a
+provenance attestation on its own). Nothing about it needs an agent, and an
+agent has no npm login to do it by hand with.
+
+Two things the package needs that are easy to break:
+
+- **`index.d.ts` is checked in, not generated.** A consumer must list
+  `node_modules/@larablox` in `typeRoots` to deep-import, and that makes
+  TypeScript try to load `@larablox/framework` as an implicit type library,
+  which needs a `types` entry to point somewhere. `@larablox/monolog`
+  generates its own from `src/index.ts` because it has `declaration` on;
+  this one cannot (see the TS4094 note above), so the file is committed.
+- **`files` lists only `index.d.ts` and `out/Illuminate`.** The specs
+  compile to `out-tests/` for exactly this reason — `npm pack --dry-run` is
+  the way to check nothing else crept in.
 
 ## Topic details
 

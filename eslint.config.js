@@ -6,7 +6,9 @@ import prettierConfig from "eslint-config-prettier";
 
 export default [
 	{
-		ignores: ["out/**", "out-tests/**"],
+		// `index.d.ts` is hand-written and belongs to no tsconfig project --
+		// it exists only to satisfy a consumer's implicit type-library scan.
+		ignores: ["out/**", "out-tests/**", "index.d.ts"],
 	},
 	{
 		files: ["**/*.ts", "**/*.tsx"],

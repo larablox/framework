@@ -1,0 +1,47 @@
+name: Release
+
+on:
+    push:
+        tags: ["v*"]
+
+permissions:
+    contents: read
+    # Required for npm trusted publishing (OIDC); it also makes npm attach a
+    # provenance attestation to the published version automatically.
+    id-token: write
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 22
+                  cache: npm
+                  registry-url: https://registry.npmjs.org
+
+            # A release is named after its tag, but `npm publish` sends whatever
+            # `package.json` says; stop here if the two disagree.
+            - name: Verify the tag matches package.json
+              run: |
+                  tag="${GITHUB_REF_NAME#v}"
+                  version="$(node -p "require('./package.json').version")"
+                  if [ "$tag" != "$version" ]; then
+                      echo "Tag $GITHUB_REF_NAME does not match package.json version $version" >&2
+                      exit 1
+                  fi
+
+            # Trusted publishing requires npm >= 11.5.1; Node 22 still bundles npm 10.
+            - run: npm install -g npm@latest
+
+            - run: npm ci
+
+            - run: npm run lint
+
+            # `out/` is gitignored, so the package contents listed under `files`
+            # only exist after this build.
+            - run: npm run build
+
+            - run: npm publish

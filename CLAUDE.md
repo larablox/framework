@@ -9,7 +9,7 @@ package `@larablox/framework`.
 
 - TypeScript 5.x → Luau via roblox-ts (`rbxtsc`); not Node, not a browser
 - Package manager: npm
-- Tests: none yet (see `agent_docs/porting-plan.md`, item 3)
+- Tests: TestEZ (`@rbxts/testez`) -- see `agent_docs/testing.md`
 
 ## Layout
 
@@ -114,3 +114,5 @@ Read the relevant file when a task touches it:
   Request/Response, route registration, client side. A consuming game must
   declare the `Call`/`Send`/`Stream`/`Push` remotes this depends on in its
   own `default.project.json`.
+- `agent_docs/testing.md` — how the TestEZ suite under `tests/` is set up,
+  the two-`tsconfig` build split, and how to run it in Studio.

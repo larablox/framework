@@ -8,6 +8,7 @@
 
 # roblox-ts
 /out
+/out-tests
 /include
 *.tsbuildinfo
 

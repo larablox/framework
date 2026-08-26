@@ -6,7 +6,7 @@ import prettierConfig from "eslint-config-prettier";
 
 export default [
 	{
-		ignores: ["out/**"],
+		ignores: ["out/**", "out-tests/**"],
 	},
 	{
 		files: ["**/*.ts", "**/*.tsx"],
@@ -15,7 +15,7 @@ export default [
 			parserOptions: {
 				ecmaVersion: 2018,
 				sourceType: "module",
-				project: "./tsconfig.json",
+				project: ["./tsconfig.json", "./tsconfig.tests.json"],
 			},
 		},
 		plugins: {

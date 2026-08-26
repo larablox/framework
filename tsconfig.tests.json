@@ -1,0 +1,40 @@
+{
+	"compilerOptions": {
+		// required (mirrors tsconfig.json)
+		"allowSyntheticDefaultImports": true,
+		"downlevelIteration": true,
+		"jsx": "react",
+		"jsxFactory": "React.createElement",
+		"jsxFragmentFactory": "React.Fragment",
+		"module": "commonjs",
+		"moduleResolution": "Node",
+		"noLib": true,
+		"resolveJsonModule": true,
+		"experimentalDecorators": true,
+		"forceConsistentCasingInFileNames": true,
+		"moduleDetection": "force",
+		"strict": true,
+		"target": "ESNext",
+		"typeRoots": ["node_modules/@rbxts", "node_modules/@larablox"],
+
+		// `src` and `tests` are merged into one virtual directory instead of
+		// `rootDir`, for the same reason `@larablox/monolog`'s
+		// `tsconfig.tests.json` does it -- see that file's comment. `rootDirs`
+		// lets TypeScript treat `src/Illuminate/X.ts` and
+		// `tests/Illuminate/X.spec.ts` as if both lived under one
+		// `Illuminate/...` directory, so every spec lands right next to the
+		// class it covers in `out-tests/Illuminate/...`.
+		"rootDirs": ["src", "tests"],
+		"outDir": "out-tests",
+		"baseUrl": "src",
+		// NOT `"declaration": true` -- unlike monolog, this repo's own
+		// `tsconfig.json` keeps it off on purpose (see "## Rules" in
+		// CLAUDE.md): turning it on fails with TS4094 on every mixin
+		// (`Conditionable`, `ForwardsCalls`, `InteractsWithData`, `Request`,
+		// `Stringable`, `Response`, `PendingRequest`, ...). The test build
+		// recompiles the same `src/`, so it would hit the identical error.
+		"incremental": true,
+		"tsBuildInfoFile": "out-tests/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts", "tests/**/*.ts"]
+}

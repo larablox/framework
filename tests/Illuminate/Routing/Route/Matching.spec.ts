@@ -11,6 +11,7 @@ import { Response } from "Illuminate/Http/Response";
 import { Route } from "Illuminate/Routing/Route";
 import { Router } from "Illuminate/Routing/Router";
 import { Str } from "Illuminate/Support/Str";
+import { SubstituteBindings } from "Illuminate/Routing/Middleware/SubstituteBindings";
 
 /**
  * PHP: `Illuminate\Tests\Routing\RoutingRouteTest`, the dispatch- and
@@ -780,13 +781,12 @@ export = (): void => {
             const r = router();
             r.bind("bar", (value: string) => Str.length(value));
             r.get("foo/{bar}", {
-                middleware: ["substitute"],
-                uses: (bar: number) => bar,
-            });
-            r.aliasMiddleware(
-                "substitute",
-                (request: Request, _next: (request: Request) => unknown) => {
+                middleware: [SubstituteBindings],
+                uses: (bar: number) => {
+                    // The binder above has already rewritten `bar` by the time
+                    // the action runs; the original is what the route kept.
                     const route = r.getCurrentRoute()!;
+
                     expect(route.originalParameter("bar")).to.equal("taylor");
                     expect(
                         route.originalParameter("unexisting", "default"),
@@ -795,9 +795,9 @@ export = (): void => {
                         "taylor",
                     );
 
-                    return _next(request);
+                    return bar;
                 },
-            );
+            });
 
             expect(
                 r

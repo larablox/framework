@@ -228,7 +228,12 @@ export = (): void => {
                 new RuntimeException(),
             );
 
-            const before = provider.all()[0].failed_at;
+            // `all()` is newest-first, so the *last* entry is the oldest.
+            // Upstream freezes the clock; without one, the two failures can
+            // straddle a second boundary, and a cutoff taken from the newer
+            // one would prune the older.
+            const logged = provider.all();
+            const before = logged[logged.size() - 1].failed_at;
 
             expect(provider.prune(before)).to.equal(0);
             expect(provider.all().size()).to.equal(2);

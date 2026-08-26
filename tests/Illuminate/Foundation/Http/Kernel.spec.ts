@@ -65,15 +65,20 @@ export = (): void => {
             // PHP: KernelTest::testAddToMiddlewarePriorityAfter
             const kernel = new Kernel(application(), router());
 
+            // Anchored on the *last* entry of this port's shortened priority
+            // list. Upstream anchors mid-list; anchoring on the first entry
+            // instead would land on PHP's own corner, where `$index` never
+            // moves off its initial `0` and `array_splice()` puts the new
+            // entry in front of the anchor rather than after it.
             kernel.addToMiddlewarePriorityAfter(
-                [ThrottleRequests],
+                [SubstituteBindings],
                 ValidateSignatureStub,
             );
 
             expectDeepEqual(kernel.getMiddlewarePriority(), [
                 ThrottleRequests,
-                ValidateSignatureStub,
                 SubstituteBindings,
+                ValidateSignatureStub,
             ] as Array<Pipe>);
         });
 

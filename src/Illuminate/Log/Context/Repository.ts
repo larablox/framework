@@ -352,15 +352,21 @@ export class Repository {
     }
 
     /** Register a callback to run when the context is dehydrating. */
-    public dehydrating(callback: Callback): this {
-        this.events.listen(ContextDehydrating, callback);
+    public dehydrating(callback: (context: Repository) => void): this {
+        // PHP unwraps the event and hands the callback the repository itself,
+        // not the event carrying it.
+        this.events.listen(ContextDehydrating, (event: ContextDehydrating) =>
+            callback(event.context),
+        );
 
         return this;
     }
 
     /** Register a callback to run when the context has been hydrated. */
-    public hydrated(callback: Callback): this {
-        this.events.listen(ContextHydrated, callback);
+    public hydrated(callback: (context: Repository) => void): this {
+        this.events.listen(ContextHydrated, (event: ContextHydrated) =>
+            callback(event.context),
+        );
 
         return this;
     }
@@ -380,15 +386,24 @@ export class Repository {
      * payload -- hand it to another coroutine or across a remote yourself.
      */
     public dehydrate(): ContextSnapshot | undefined {
-        this.events.dispatch(new ContextDehydrating(this));
+        // PHP dispatches with a *fresh* repository carrying a copy of this
+        // one's values, so a listener that writes to it changes the snapshot
+        // and leaves the live repository alone.
+        const instance = new Repository(this.events);
 
-        if (this.isEmpty()) {
+        instance
+            .add(Repository.copy(this.data))
+            .addHidden(Repository.copy(this.hidden));
+
+        this.events.dispatch(new ContextDehydrating(instance));
+
+        if (instance.isEmpty()) {
             return undefined;
         }
 
         return {
-            data: Repository.copy(this.data),
-            hidden: Repository.copy(this.hidden),
+            data: Repository.copy(instance.data),
+            hidden: Repository.copy(instance.hidden),
         };
     }
 

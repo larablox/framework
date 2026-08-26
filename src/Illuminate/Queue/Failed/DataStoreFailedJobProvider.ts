@@ -87,11 +87,24 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
         return id;
     }
 
-    /** Get the IDs of all of the failed jobs. */
+    /**
+     * Get the IDs of all of the failed jobs.
+     *
+     * PHP does not order this query at all, so the rows come back in
+     * insertion order -- unlike `all()`, which is explicitly newest-first.
+     * `all()` is the only listing here, so it is walked backwards.
+     */
     public ids(queue?: string): Array<string | number> {
-        return this.all()
-            .filter((record) => queue === undefined || record.queue === queue)
-            .map((record) => record.id);
+        const listed = this.all().filter(
+            (record) => queue === undefined || record.queue === queue,
+        );
+        const ids = new Array<string | number>();
+
+        for (let index = listed.size() - 1; index >= 0; index--) {
+            ids.push(listed[index].id);
+        }
+
+        return ids;
     }
 
     /** Get a list of all of the failed jobs, newest first. */
@@ -127,7 +140,15 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
             pages.AdvanceToNextPageAsync();
         }
 
-        found.sort((first, second) => first.failed_at > second.failed_at);
+        // `failed_at` has a one-second resolution, so two failures logged in
+        // the same second would otherwise come back in whatever order
+        // `table.sort` happened to leave them. The id breaks the tie: it is an
+        // ordered UUID, which is the order they were logged in.
+        found.sort((first, second) =>
+            first.failed_at === second.failed_at
+                ? tostring(first.id) > tostring(second.id)
+                : first.failed_at > second.failed_at,
+        );
 
         return found;
     }

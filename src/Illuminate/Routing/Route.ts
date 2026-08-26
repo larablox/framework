@@ -1,3 +1,4 @@
+import { wrapPipes } from "Illuminate/Pipeline/Pipes";
 import { CallableDispatcher } from "Illuminate/Routing/CallableDispatcher";
 import { CompiledRoute } from "Illuminate/Routing/CompiledRoute";
 import { Container } from "Illuminate/Container/Container";
@@ -700,7 +701,7 @@ export class Route {
 
         const merged = table.clone(this.action.middleware ?? new Array<Pipe>());
 
-        for (const entry of Util.arrayWrap(middleware) as Array<Pipe>) {
+        for (const entry of wrapPipes(middleware)) {
             merged.push(entry);
         }
 

@@ -1,6 +1,7 @@
 import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
 import { InvalidArgumentException } from "Illuminate/Exception";
 import { Serializer } from "Illuminate/Support/Serializer";
+import { Concurrency } from "Illuminate/Support/Concurrency";
 import { Str } from "Illuminate/Support/Str";
 import type {
     JobPayload,
@@ -123,11 +124,21 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
         );
 
         while (true) {
-            for (const entry of pages.GetCurrentPage() as Array<DataStoreKey>) {
-                const [held] = store.GetAsync<StoredFailure>(entry.KeyName);
+            const page = pages.GetCurrentPage() as Array<DataStoreKey>;
 
-                const record = this.toRecord(held);
+            // One read per key, and a read costs about 300ms of waiting --
+            // so a page of them is worth overlapping rather than queueing.
+            // Wrapped in a table because a task has to answer something and a
+            // key may well hold nothing; see `Concurrency.run()`.
+            const read = Concurrency.run(
+                page.map((entry) => () => {
+                    const [held] = store.GetAsync<StoredFailure>(entry.KeyName);
 
+                    return { record: this.toRecord(held) };
+                }),
+            );
+
+            for (const { record } of read) {
                 if (record !== undefined) {
                     found.push(record);
                 }
@@ -173,35 +184,38 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
 
     /** Flush all of the failed jobs from storage. */
     public flush(hours?: number): void {
-        const store = this.store();
-
         const cutoff =
             hours === undefined
                 ? undefined
                 : InteractsWithTime.currentTime() - hours * 3600;
 
-        for (const record of this.all()) {
-            if (cutoff === undefined || record.failed_at <= cutoff) {
-                store.RemoveAsync(this.prefix + tostring(record.id));
-            }
-        }
+        this.remove(
+            this.all().filter(
+                (record) => cutoff === undefined || record.failed_at <= cutoff,
+            ),
+        );
     }
 
     /** Prune all of the entries older than the given time. */
     public prune(before: number): number {
+        return this.remove(
+            this.all().filter((record) => record.failed_at < before),
+        );
+    }
+
+    /** Remove the given failures, and answer how many went. */
+    protected remove(records: Array<FailedJobRecord>): number {
         const store = this.store();
 
-        let pruned = 0;
-
-        for (const record of this.all()) {
-            if (record.failed_at < before) {
+        Concurrency.run(
+            records.map((record) => () => {
                 store.RemoveAsync(this.prefix + tostring(record.id));
 
-                pruned += 1;
-            }
-        }
+                return true;
+            }),
+        );
 
-        return pruned;
+        return records.size();
     }
 
     /** Count the failed jobs. */

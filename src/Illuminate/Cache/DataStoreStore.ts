@@ -1,4 +1,5 @@
 import { DataStoreLock } from "Illuminate/Cache/DataStoreLock";
+import { Concurrency } from "Illuminate/Support/Concurrency";
 import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
 import { InvalidArgumentException } from "Illuminate/Exception";
 import { Serializer } from "Illuminate/Support/Serializer";
@@ -213,9 +214,17 @@ export class DataStoreStore implements Store, LockProvider {
         );
 
         while (true) {
-            for (const entry of pages.GetCurrentPage() as Array<DataStoreKey>) {
-                store.RemoveAsync(entry.KeyName);
-            }
+            const page = pages.GetCurrentPage() as Array<DataStoreKey>;
+
+            // A removal costs about as long to wait for as a read, so a page
+            // of them is overlapped rather than queued.
+            Concurrency.run(
+                page.map((entry) => () => {
+                    store.RemoveAsync(entry.KeyName);
+
+                    return true;
+                }),
+            );
 
             if (pages.IsFinished) {
                 break;

@@ -30,10 +30,6 @@ local TestSession = require(testez.TestSession)
 --[[ How many progress marks go on one row. ]]
 local COLUMNS = 63
 
---[[ A test slower than this is worth naming; how many of them to name. ]]
-local SLOW_SECONDS = 0.1
-local SLOW_SHOWN = 10
-
 --[[
 	Spec files that wait on a Roblox service, run overlapping each other.
 
@@ -166,17 +162,12 @@ end
 	`TestBootstrap` only takes an end-of-run reporter -- and the originals go
 	back the moment the run is over.
 ]]
-local function watch(progress, durations)
+local function watch(progress)
 	local original = {
-		pushNode = TestSession.pushNode,
 		setSuccess = TestSession.setSuccess,
 		setError = TestSession.setError,
 		setSkipped = TestSession.setSkipped,
 	}
-
-	-- Keyed by session and not one variable: the overlapped plans each run a
-	-- session of their own, and two of them are commonly mid-test at once.
-	local startedAt = {}
 
 	-- `setError()` is written on a `Describe` as well, to roll its children
 	-- up; only a leaf is a test.
@@ -188,41 +179,10 @@ local function watch(progress, durations)
 			and node.planNode.type == TestEnum.NodeType.It
 	end
 
-	--[[
-		The clock has to start somewhere, and `pushNode` is the only call
-		TestEZ makes on the way *into* a test. Keyed by the plan node rather
-		than by phrase: two tests may read the same, and the reporter walks
-		result nodes that carry their plan node anyway.
-	]]
-	function TestSession:pushNode(planNode)
-		original.pushNode(self, planNode)
-
-		if planNode.type == TestEnum.NodeType.It then
-			startedAt[self] = os.clock()
-		end
-	end
-
-	local function finish(session)
-		if not isLeaf(session) then
-			return false
-		end
-
-		local began = startedAt[session]
-
-		if began ~= nil then
-			local node = session.nodeStack[#session.nodeStack]
-
-			durations[node.planNode] = os.clock() - began
-			startedAt[session] = nil
-		end
-
-		return true
-	end
-
 	function TestSession:setSuccess()
 		original.setSuccess(self)
 
-		if finish(self) then
+		if isLeaf(self) then
 			progress:mark(".")
 		end
 	end
@@ -230,7 +190,7 @@ local function watch(progress, durations)
 	function TestSession:setError(message)
 		original.setError(self, message)
 
-		if finish(self) then
+		if isLeaf(self) then
 			progress:mark("F")
 		end
 	end
@@ -238,13 +198,12 @@ local function watch(progress, durations)
 	function TestSession:setSkipped()
 		original.setSkipped(self)
 
-		if finish(self) then
+		if isLeaf(self) then
 			progress:mark("S")
 		end
 	end
 
 	return function()
-		TestSession.pushNode = original.pushNode
 		TestSession.setSuccess = original.setSuccess
 		TestSession.setError = original.setError
 		TestSession.setSkipped = original.setSkipped
@@ -332,93 +291,7 @@ local function collectFailures(collected)
 	return failures
 end
 
---[[
-	Name the tests the run is actually spent in.
-
-	1141 tests at an average of 96 ms is not 1141 slow tests, it is a handful
-	of very slow ones -- and which ones decides what is worth doing about it.
-	Nothing is printed when there are none, so a fast run stays quiet.
-]]
-local function reportSlowest(collected, durations, overlap, elapsed)
-	local ranked = {}
-	local spentAlone = 0
-	local anyOverlapped = false
-
-	for _, results in ipairs(collected) do
-		results:visitAllNodes(function(node)
-			if node.planNode.type ~= TestEnum.NodeType.It then
-				return
-			end
-
-			local seconds = durations[node.planNode]
-
-			if seconds ~= nil and seconds >= SLOW_SECONDS then
-				local wasOverlapped = overlap.nodes[node.planNode] == true
-
-				anyOverlapped = anyOverlapped or wasOverlapped
-
-				table.insert(ranked, {
-					phrase = fullPhrase(node),
-					seconds = seconds,
-					overlapped = wasOverlapped,
-				})
-
-				-- Only the ones that ran alone add up to anything: a wall
-				-- time counts the waiting its neighbours did too, so summing
-				-- overlapped ones counts the same seconds several times over.
-				if not wasOverlapped then
-					spentAlone += seconds
-				end
-			end
-		end)
-	end
-
-	if #ranked == 0 then
-		return
-	end
-
-	table.sort(ranked, function(first, second)
-		return first.seconds > second.seconds
-	end)
-
-	local shown = math.min(#ranked, SLOW_SHOWN)
-
-	print("")
-	print(("Slowest tests (%d of %d over %dms):"):format(
-		shown,
-		#ranked,
-		SLOW_SECONDS * 1000
-	))
-	print("")
-
-	for index = 1, shown do
-		print(("  %s%6.2fs  %s"):format(
-			if ranked[index].overlapped then "~" else " ",
-			ranked[index].seconds,
-			ranked[index].phrase
-		))
-	end
-
-	print("")
-
-	if anyOverlapped then
-		print(("  ~ ran overlapped: %d tests, done in %.1fs of the %.1fs run."):format(
-			overlap.count,
-			overlap.elapsed,
-			elapsed
-		))
-		print("    Each is wall time and counts the waiting its neighbours did,")
-		print("    so these do not add up to that.")
-		print("")
-	end
-
-	print(("  The rest ran alone, and the slow ones cost %.1fs of the %.1fs."):format(
-		spentAlone,
-		elapsed
-	))
-end
-
-local function report(collected, durations, overlap, elapsed)
+local function report(collected, elapsed)
 	local failures = collectFailures(collected)
 
 	local total = 0
@@ -433,9 +306,6 @@ local function report(collected, durations, overlap, elapsed)
 
 	print("")
 	print(("Time: %.1fs"):format(elapsed))
-
-	reportSlowest(collected, durations, overlap, elapsed)
-
 	print("")
 
 	if #failures == 0 then
@@ -552,7 +422,6 @@ end
 
 local testCount = 0
 local overlappedCount = 0
-local overlapped = {}
 
 for index, plan in ipairs(plans) do
 	local tests = plan:findNodes(isTest)
@@ -561,10 +430,6 @@ for index, plan in ipairs(plans) do
 
 	if index > 1 then
 		overlappedCount += #tests
-
-		for _, node in ipairs(tests) do
-			overlapped[node] = true
-		end
 	end
 end
 
@@ -577,11 +442,9 @@ print(("Running %d tests, %d of them overlapped across %d files"):format(
 print("")
 
 local progress = Progress.new(testCount)
-local durations = {}
-local restore = watch(progress, durations)
+local restore = watch(progress)
 
 local startedAt = os.clock()
-local overlappedElapsed = 0
 
 -- The first plan alone, then the rest together: nothing that leans on global
 -- state is ever mid-test while something else runs.
@@ -593,10 +456,7 @@ local ok, collected = pcall(function()
 		table.insert(rest, plans[index])
 	end
 
-	local began = os.clock()
 	local results = runTogether(rest)
-
-	overlappedElapsed = os.clock() - began
 
 	table.insert(results, 1, first)
 
@@ -612,8 +472,4 @@ if not ok then
 	error(collected, 0)
 end
 
-report(collected, durations, {
-	nodes = overlapped,
-	count = overlappedCount,
-	elapsed = overlappedElapsed,
-}, elapsed)
+report(collected, elapsed)

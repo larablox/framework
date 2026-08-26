@@ -146,11 +146,14 @@ them all and they would simply take turns. Actors — real parallelism — canno
 help either, because a parallel-phase script may not make the yielding service
 calls these tests are made of.
 
-In the slow list, `~` marks a test that ran overlapped: its number is wall
-time and counts the waiting it did on the tests beside it. Those numbers are
-therefore not addable — the first version of this report summed them and
-announced "93.8s of 46.3s". What the report gives instead is the overlapped
-group's own elapsed time, and a separate sum for the tests that ran alone.
+The runner timed each test and named the slowest while this was being worked
+out; that reporting is gone now the answer is known. Should the question come
+back — a run that is suddenly slower, a new file worth adding to `CONCURRENT`
+— the way to get it back is to time each leaf between `TestSession:pushNode`
+and its outcome, keyed by session, since two sessions are commonly mid-test at
+once. Beware of adding those times up: a wall time counts the waiting its
+neighbours did, so the first version of that report summed them and announced
+"93.8s of 46.3s".
 
 ## Formerly a known blocker (fixed 2026-08-26)
 

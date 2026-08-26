@@ -10,12 +10,12 @@ import { Queueable } from "Illuminate/Bus/Queueable";
  * that configuring the pending dispatch inside a test never actually sends
  * the job -- `PendingDispatch::__destruct()` is what fires it there. This
  * port replaces the destructor with `task.defer(() => this.send())`
- * (`Foundation/Bus/PendingDispatch.ts`'s doc comment): the send is scheduled
- * for the end of the current resumption cycle rather than for object
- * destruction, and a TestEZ `it()` body runs to completion, makes its
- * assertions, and returns well before that deferred callback ever runs --
- * there is nothing to override here, and no destructor-suppressing fixture
- * is needed.
+ * (`Foundation/Bus/PendingDispatch.ts`'s doc comment), and the same fixture
+ * is needed for the same reason: returning from the `it()` body does not
+ * escape a deferred callback, it only outruns it. The send fires a moment
+ * later, hands `FakeJob` to the real bus, and raises inside a thread no test
+ * is watching -- the suite stays green and the console fills with
+ * `Method [__invoke] does not exist on [FakeJob]`.
  *
  * `FakeJob` stands in for the `Mockery`-mocked `stdClass` job: it extends the
  * real `Queueable` (`Bus/Queueable.ts`, the class every job in this port
@@ -93,12 +93,19 @@ class FakeJob extends Queueable {
     }
 }
 
+/** PHP: `PendingDispatchWithoutDestructor` -- configured, never sent. */
+class PendingDispatchWithoutSend extends PendingDispatch {
+    public send(): unknown {
+        return undefined;
+    }
+}
+
 export = (): void => {
     describe("PendingDispatch", () => {
         it("onConnection() forwards to the job", () => {
             // PHP: BusPendingDispatchTest::testOnConnection
             const job = new FakeJob();
-            const pendingDispatch = new PendingDispatch(job);
+            const pendingDispatch = new PendingDispatchWithoutSend(job);
 
             pendingDispatch.onConnection("test-connection");
 
@@ -108,7 +115,7 @@ export = (): void => {
         it("onQueue() forwards to the job", () => {
             // PHP: BusPendingDispatchTest::testOnQueue
             const job = new FakeJob();
-            const pendingDispatch = new PendingDispatch(job);
+            const pendingDispatch = new PendingDispatchWithoutSend(job);
 
             pendingDispatch.onQueue("test-queue");
 
@@ -118,7 +125,7 @@ export = (): void => {
         it("allOnConnection() forwards to the job", () => {
             // PHP: BusPendingDispatchTest::testAllOnConnection
             const job = new FakeJob();
-            const pendingDispatch = new PendingDispatch(job);
+            const pendingDispatch = new PendingDispatchWithoutSend(job);
 
             pendingDispatch.allOnConnection("test-connection");
 
@@ -128,7 +135,7 @@ export = (): void => {
         it("allOnQueue() forwards to the job", () => {
             // PHP: BusPendingDispatchTest::testAllOnQueue
             const job = new FakeJob();
-            const pendingDispatch = new PendingDispatch(job);
+            const pendingDispatch = new PendingDispatchWithoutSend(job);
 
             pendingDispatch.allOnQueue("test-queue");
 
@@ -138,7 +145,7 @@ export = (): void => {
         it("delay() forwards to the job", () => {
             // PHP: BusPendingDispatchTest::testDelay
             const job = new FakeJob();
-            const pendingDispatch = new PendingDispatch(job);
+            const pendingDispatch = new PendingDispatchWithoutSend(job);
 
             pendingDispatch.delay(60);
 
@@ -148,7 +155,7 @@ export = (): void => {
         it("withoutDelay() forwards to the job", () => {
             // PHP: BusPendingDispatchTest::testWithoutDelay
             const job = new FakeJob();
-            const pendingDispatch = new PendingDispatch(job);
+            const pendingDispatch = new PendingDispatchWithoutSend(job);
 
             pendingDispatch.withoutDelay();
 
@@ -158,7 +165,7 @@ export = (): void => {
         it("chain() forwards to the job", () => {
             // PHP: BusPendingDispatchTest::testChain
             const job = new FakeJob();
-            const pendingDispatch = new PendingDispatch(job);
+            const pendingDispatch = new PendingDispatchWithoutSend(job);
 
             const chain = [{}];
             pendingDispatch.chain(chain);
@@ -170,7 +177,7 @@ export = (): void => {
         it("getJob() returns the underlying job instance", () => {
             // PHP: BusPendingDispatchTest::testGetJob
             const job = new FakeJob();
-            const pendingDispatch = new PendingDispatch(job);
+            const pendingDispatch = new PendingDispatchWithoutSend(job);
 
             expect(pendingDispatch.getJob()).to.equal(job);
         });

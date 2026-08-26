@@ -2,6 +2,7 @@ import { Collection } from "Illuminate/Support/Collection";
 import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
 import { Pluralizer } from "Illuminate/Support/Pluralizer";
 import { Tappable } from "Illuminate/Support/Traits/Tappable";
+import * as Unicode from "Illuminate/Support/Unicode";
 import { Util } from "Illuminate/Container/Util";
 import type { JsonSerializable } from "Illuminate/Contracts/Support/JsonSerializable";
 
@@ -793,14 +794,14 @@ export class Str {
     // Case
     // -----------------------------------------------------------------
 
-    /** Convert the given string to lower case (ASCII). */
+    /** Convert the given string to lower case. */
     public static lower(value: string): string {
-        return value.lower();
+        return Unicode.lower(value);
     }
 
-    /** Convert the given string to upper case (ASCII). */
+    /** Convert the given string to upper case. */
     public static upper(value: string): string {
-        return value.upper();
+        return Unicode.upper(value);
     }
 
     /** Convert the given string to the given case. */
@@ -821,7 +822,42 @@ export class Str {
 
     /** Convert the given string to title case. */
     public static title(value: string): string {
-        return Str.ucwords(Str.lower(value));
+        // PHP: `mb_convert_case($value, MB_CASE_TITLE, 'UTF-8')`, which upper
+        // cases the first *cased letter* of each word and lower cases the
+        // rest. `ucwords(lower($value))` is not the same thing: it only looks
+        // at the character right after a separator, so a word opening with
+        // punctuation or a symbol (`❤laravel`) would never be capitalised.
+        const parts = new Array<string>();
+        let seenLetter = false;
+
+        for (const [, code] of utf8.codes(value)) {
+            const isCased =
+                Unicode.isUpperCodepoint(code) ||
+                Unicode.isLowerCodepoint(code);
+
+            if (!isCased) {
+                // A separator ends the word; any other uncased character
+                // (punctuation, a symbol) simply carries through.
+                if (utf8.char(code).match("^[%s_-]$")[0] !== undefined) {
+                    seenLetter = false;
+                }
+
+                parts.push(utf8.char(code));
+
+                continue;
+            }
+
+            parts.push(
+                utf8.char(
+                    seenLetter
+                        ? Unicode.toLowerCodepoint(code)
+                        : Unicode.toUpperCodepoint(code),
+                ),
+            );
+            seenLetter = true;
+        }
+
+        return parts.join("");
     }
 
     /** Make a string's first character lower case. */
@@ -843,7 +879,11 @@ export class Str {
         for (const [, code] of utf8.codes(value)) {
             const character = utf8.char(code);
 
-            characters.push(atBoundary ? character.upper() : character);
+            characters.push(
+                atBoundary
+                    ? utf8.char(Unicode.toUpperCodepoint(code))
+                    : character,
+            );
             atBoundary = character.match(`[${set}]`)[0] !== undefined;
         }
 
@@ -858,7 +898,7 @@ export class Str {
         for (const [, code] of utf8.codes(value)) {
             const character = utf8.char(code);
 
-            if (character.match("%u")[0] !== undefined && current !== "") {
+            if (Unicode.isUpperCodepoint(code) && current !== "") {
                 parts.push(current);
                 current = "";
             }
@@ -916,6 +956,71 @@ export class Str {
         return Str.studly(value);
     }
 
+    /**
+     * Insert `delimiter` before every ASCII upper case character that follows
+     * another character.
+     *
+     * PHP: `preg_replace('/(.)(?=[A-Z])/u', '$1'.$delimiter, $value)`, the
+     * second step of `Str::snake()`. Luau patterns cannot look ahead, so the
+     * walk is spelled out.
+     *
+     * Two details that look like bugs and are not:
+     *
+     * - it matches *any* preceding character, not just a lower case one --
+     *   that is what turns `LaravelPHPFramework` into
+     *   `laravel_p_h_p_framework` rather than `laravel_phpframework`;
+     * - the class is literally `[A-Z]`, so it is ASCII even in PHP. `Ł` is
+     *   not a boundary upstream and must not be one here, which is why this
+     *   walk does not go through `Unicode.isUpperCodepoint()` the way
+     *   `ucsplit()` does.
+     */
+    private static delimitBeforeUpperAscii(
+        value: string,
+        delimiter: string,
+    ): string {
+        const parts = new Array<string>();
+        let previous: string | undefined;
+
+        for (const [, code] of utf8.codes(value)) {
+            const character = utf8.char(code);
+
+            if (
+                previous !== undefined &&
+                character.match("^[A-Z]$")[0] !== undefined
+            ) {
+                parts.push(delimiter);
+            }
+
+            previous = character;
+            parts.push(character);
+        }
+
+        return parts.join("");
+    }
+
+    /**
+     * Upper case the first character of each whitespace-delimited word, ASCII
+     * only.
+     *
+     * PHP: the *global* `ucwords()`, which `Str::snake()` calls -- not
+     * `Str::ucwords()`, which is Unicode-aware. Keeping them apart matters:
+     * routing `snake()` through the Unicode version would make `żółtaŁódka`
+     * snake into `żółta_łódka`, where upstream leaves it `żółtałódka`.
+     */
+    private static asciiUcwords(value: string): string {
+        const parts = new Array<string>();
+        let atBoundary = true;
+
+        for (const [, code] of utf8.codes(value)) {
+            const character = utf8.char(code);
+
+            parts.push(atBoundary ? character.upper() : character);
+            atBoundary = character.match("^[ \t\r\n\f\v]$")[0] !== undefined;
+        }
+
+        return parts.join("");
+    }
+
     /** Convert a string to snake case. */
     public static snake(value: string, delimiter = "_"): string {
         const key = `${value} ${delimiter}`;
@@ -927,11 +1032,14 @@ export class Str {
 
         let result = value;
 
-        if (value.lower() !== value) {
-            const [collapsed] = Str.ucwords(value).gsub("%s+", "");
-            const [delimited] = collapsed.gsub("(%l)(%u)", `%1${delimiter}%2`);
+        // PHP: `! ctype_lower($value)` -- false for an empty string, and for
+        // anything holding a character that is not an ASCII lower case letter.
+        if (value.match("^[a-z]+$")[0] === undefined) {
+            const [collapsed] = Str.asciiUcwords(value).gsub("%s+", "");
 
-            result = Str.lower(delimited);
+            result = Str.lower(
+                Str.delimitBeforeUpperAscii(collapsed, delimiter),
+            );
         }
 
         Str.snakeCache.set(key, result);

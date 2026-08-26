@@ -1,6 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
 import { expectDeepEqual } from "../../TestHelpers";
 import { Collection } from "Illuminate/Support/Collection";
+import { VarDumper } from "Illuminate/Support/VarDumper";
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportCollectionTest` -- `tap`, `pipe`,
@@ -99,14 +100,27 @@ export = (): void => {
             expectDeepEqual(stillEmpty.toArray(), []);
         });
 
-        it("dump() prints the items and returns the collection unchanged", () => {
-            // PHP: SupportCollectionTest::testDump (adapted: PHP asserts on
-            // `VarDumper`'s captured output, which this port's `dump()` --
-            // a plain `print()` -- has no hook for; only the "returns
-            // itself, unchanged" contract is asserted)
-            const data = new Collection([1, 2, 3]);
+        it("dump() dumps the items, then each extra argument, and returns the collection unchanged", () => {
+            // PHP: SupportCollectionTest::testDump
+            // `defined`, not `unknown`: a Luau table cannot hold a nil,
+            // so an array is typed as never holding one either.
+            const log: Array<defined> = [];
 
-            expect(data.dump()).to.equal(data);
+            // Swapped and put back around the call and nothing else: an
+            // assertion failing in between would leave every later `dump()`
+            // in the run writing into this array instead of the console.
+            // Upstream restores at the end of the test and has the same hole.
+            VarDumper.setHandler((value) => {
+                log.push(value as defined);
+            });
+
+            const data = new Collection([1, 2, 3]);
+            const returned = data.dump("one", "two");
+
+            VarDumper.setHandler();
+
+            expect(returned).to.equal(data);
+            expectDeepEqual(log, [[1, 2, 3], "one", "two"]);
             expectDeepEqual(data.toArray(), [1, 2, 3]);
         });
     });

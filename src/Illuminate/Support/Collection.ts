@@ -6,6 +6,7 @@ import {
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import { Reflector } from "Illuminate/Support/Reflector";
 import { Util } from "Illuminate/Container/Util";
+import { VarDumper } from "Illuminate/Support/VarDumper";
 
 /** What a collection can be built from. */
 export type ArrayableItems<TKey extends defined, TValue extends defined> =
@@ -1223,9 +1224,21 @@ export class Collection<TKey extends defined, TValue extends defined> {
         return new Collection(this.items);
     }
 
-    /** Print the contents of the collection. */
-    public dump(): this {
-        print(this.items.entries());
+    /**
+     * Dump the items, and anything else handed along with them.
+     *
+     * PHP is `dump($this->all(), ...$args)`, and this is the same call: the
+     * items first, then each extra argument, each one its own dump. It goes
+     * through `VarDumper` rather than straight to `print` for the reason
+     * that class documents -- so a caller (upstream's own `testDump` among
+     * them) can read what was dumped instead of watching it go past.
+     */
+    public dump(...args: Array<unknown>): this {
+        VarDumper.dump(this.all());
+
+        for (const value of args) {
+            VarDumper.dump(value);
+        }
 
         return this;
     }

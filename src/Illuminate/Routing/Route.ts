@@ -120,7 +120,11 @@ export class Route {
 
         this.action.prefix = undefined;
 
-        this.setUri(uri);
+        // The URI is stored raw and parsed by the `prefix()` call below, which
+        // is the only place PHP parses it too. Running `setUri()` here as well
+        // would parse `foo/{bar:slug}` into `foo/{bar}` first, and `prefix()`
+        // would then re-parse that -- losing every binding field.
+        this.uriPattern = uri;
         this.prefix(prefix ?? "");
     }
 

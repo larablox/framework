@@ -887,13 +887,24 @@ export = (): void => {
                 ["alias", "lumen"],
             ]);
 
+            // A class rather than an object literal: `giveConfig()` reaches
+            // the repository through the `Repository` contract, where `get` is
+            // a *method*, so the call compiles to `config:get(key)` and a
+            // literal's function-valued property would be handed the table
+            // itself as its first argument.
+            class FakeConfigSection {
+                public constructor(
+                    private readonly section: Map<string, unknown>,
+                ) {}
+
+                public get(key: string): unknown {
+                    return key === "test" ? this.section : undefined;
+                }
+            }
+
             container.singleton(
                 "config",
-                () =>
-                    ({
-                        get: (key: string) =>
-                            key === "test" ? settings : undefined,
-                    }) as never,
+                () => new FakeConfigSection(settings) as never,
             );
 
             container

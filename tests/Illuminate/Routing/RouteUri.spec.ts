@@ -1,4 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
+import { expectDeepEqual } from "../TestHelpers";
 import { RouteUri } from "Illuminate/Routing/RouteUri";
 
 /**
@@ -37,7 +38,7 @@ export = (): void => {
             for (const [uri, expectedUri, expectedBindingFields] of cases) {
                 const parsed = RouteUri.parse(uri);
                 expect(parsed.uri).to.equal(expectedUri);
-                expect(parsed.bindingFields).to.equal(expectedBindingFields);
+                expectDeepEqual(parsed.bindingFields, expectedBindingFields);
             }
         });
     });

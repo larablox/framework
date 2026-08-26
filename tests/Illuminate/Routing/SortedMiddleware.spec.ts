@@ -42,7 +42,8 @@ export = (): void => {
                 "Third",
             ];
 
-            expect(new SortedMiddleware(priority, middleware).all()).to.equal(
+            expectDeepEqual(
+                new SortedMiddleware(priority, middleware).all(),
                 expected,
             );
 
@@ -157,7 +158,8 @@ export = (): void => {
                 "Third",
             ];
 
-            expect(new SortedMiddleware(priority, middleware).all()).to.equal(
+            expectDeepEqual(
+                new SortedMiddleware(priority, middleware).all(),
                 expected,
             );
         });

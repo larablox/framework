@@ -94,13 +94,17 @@ export class SortedMiddleware extends Collection<number, Pipe> {
             ? (middleware as Array<Pipe>)[0]
             : middleware;
 
-        if (typeIs(target, "function")) {
-            return names;
-        }
-
         if (typeIs(target, "string")) {
             names.push(Str.before(target, ":"));
 
+            return names;
+        }
+
+        // PHP skips anything that is not a string, since a middleware is a
+        // class *name* there. Here a class is a table, so that check becomes
+        // "is it a class": a closure -- or any other bare value -- names
+        // nothing and stays where it is.
+        if (!typeIs(target, "table")) {
             return names;
         }
 

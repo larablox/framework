@@ -3,6 +3,7 @@ import { expectDeepEqual } from "../TestHelpers";
 import { Application } from "Illuminate/Foundation/Application";
 import type { Container } from "Illuminate/Contracts/Container/Container";
 import { Dispatcher } from "Illuminate/Events/Dispatcher";
+import { Inject } from "Illuminate/Container/Attributes/Inject";
 import { LogManager } from "Illuminate/Log/LogManager";
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import { QueueManager } from "Illuminate/Queue/QueueManager";
@@ -92,7 +93,11 @@ export = (): void => {
 
             public register(): void {
                 ApplicationDeferredServiceProviderStub.initialized = true;
-                this.app.instance("foo", "foo");
+
+                // PHP writes `$this->app['foo'] = 'foo'`, and
+                // `Container::offsetSet()` is a `bind()`, not an `instance()`
+                // -- which is what lets `extend()` reach the value.
+                this.app.bind("foo", () => "foo");
             }
 
             public provides(): Array<Abstract> {
@@ -158,7 +163,12 @@ export = (): void => {
         }
 
         class SampleImplementation extends SampleInterface {
-            public constructor(private readonly primitive: unknown) {
+            // PHP reads the parameter's *name* off its reflection, which is
+            // what `needs('$primitive')` matches; roblox-ts erases it, so the
+            // dependency is declared with `@Inject` instead.
+            public constructor(
+                @Inject("$primitive") private readonly primitive: unknown,
+            ) {
                 super();
             }
 

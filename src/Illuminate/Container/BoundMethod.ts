@@ -250,7 +250,11 @@ export class BoundMethod {
 
         if (!typeIs(fn, "function")) {
             throw new BindingResolutionException(
-                `Method [${method}] does not exist on the given target.`,
+                `Method [${method}] does not exist on [${Reflector.className(
+                    Reflector.isInstance(target)
+                        ? Reflector.classOf(target)
+                        : target,
+                )}].`,
             );
         }
 

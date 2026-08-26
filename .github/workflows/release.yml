@@ -1,8 +1,21 @@
 name: Release
 
 on:
+    # Both, because a tag can arrive two ways and only one of them is a push.
+    # Creating a release through GitHub's own interface makes the tag as part
+    # of publishing, and emits `release` alone -- no `push` for the tag it
+    # just created, so a workflow listening for one waits forever.
+    #
+    # Pushing a tag from a terminal and then making a release from that same
+    # tag would fire this twice; the second run stops at `npm publish` with
+    # "version already exists", which is noisy but harmless.
     push:
         tags: ["v*"]
+    release:
+        types: [published]
+    # For re-running a release that failed on something since fixed, without
+    # having to invent a version number to carry a new tag.
+    workflow_dispatch:
 
 permissions:
     contents: read
@@ -24,8 +37,17 @@ jobs:
 
             # A release is named after its tag, but `npm publish` sends whatever
             # `package.json` says; stop here if the two disagree.
+            #
+            # The ref is checked first because `workflow_dispatch` will happily
+            # run against a branch, where the version this is meant to publish
+            # is not written down anywhere.
             - name: Verify the tag matches package.json
               run: |
+                  if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+                      echo "Run this against a v* tag, not $GITHUB_REF_NAME: a branch does not say which version to publish" >&2
+                      exit 1
+                  fi
+
                   tag="${GITHUB_REF_NAME#v}"
                   version="$(node -p "require('./package.json').version")"
                   if [ "$tag" != "$version" ]; then

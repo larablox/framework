@@ -177,10 +177,15 @@ export = (): void => {
 
             const job = new TestJob();
             const pendingBatch = new PendingBatch(container, [job]);
-            const stored = repo.store(pendingBatch);
 
             expectThrows(() => pendingBatch.dispatch());
-            expect(repo.find(stored.id)).to.equal(undefined);
+
+            // PHP mocks the repository and asserts `delete()` was called with
+            // the batch's id. Without a mocking library the repository is
+            // asked directly -- and it has to be the batch `dispatch()` stored
+            // itself, not one stored here beforehand, which `dispatch()` would
+            // never have touched.
+            expect(repo.get(10).size()).to.equal(0);
         });
 
         it("dispatchIf(true) dispatches and returns the batch", () => {

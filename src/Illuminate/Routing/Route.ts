@@ -300,7 +300,16 @@ export class Route {
             request,
         );
 
-        this.originalParameterValues = this.parameterValues;
+        // PHP assigns a *copy* -- an array is a value there -- which is the
+        // whole point of keeping the originals: `SubstituteBindings` writes
+        // over `parameters` and these have to survive it.
+        const originals = new OrderedMap<string, defined>();
+
+        for (const [name, value] of this.parameterValues.entries()) {
+            originals.set(name, value);
+        }
+
+        this.originalParameterValues = originals;
 
         return this;
     }

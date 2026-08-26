@@ -1,4 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
+import { RuntimeException } from "Illuminate/Exception";
 import { Dispatcher } from "Illuminate/Events/Dispatcher";
 import { JobPopped } from "Illuminate/Queue/Events/JobPopped";
 import { JobPopping } from "Illuminate/Queue/Events/JobPopping";
@@ -340,8 +341,13 @@ export = (): void => {
         it("a job that throws is released, when it has attempts left", () => {
             let reported: unknown;
             const events = new Dispatcher();
+            // An exception object, not a bare string: Luau prefixes a string
+            // error with the position it was raised at, and every rethrow on
+            // the way out prefixes it again -- so the value the reporter sees
+            // would never compare equal to what was thrown.
+            const thrown = new RuntimeException("boom");
             const job = new FakeJob(() => {
-                throw "boom";
+                throw thrown;
             });
             job.maxTriesValue = 5;
             const connection = new FakeConnection("default", { queue: [job] });
@@ -352,7 +358,7 @@ export = (): void => {
 
             worker.runNextJob("default", "queue", new WorkerOptions());
 
-            expect(reported).to.equal("boom");
+            expect(reported).to.equal(thrown);
             expect(job.isReleased()).to.equal(true);
             expect(job.hasFailed()).to.equal(false);
         });

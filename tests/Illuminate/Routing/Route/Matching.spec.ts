@@ -64,7 +64,14 @@ import { SubstituteBindings } from "Illuminate/Routing/Middleware/SubstituteBind
  */
 
 function router(): Router {
-    return new Router(new Dispatcher(), new Container());
+    // `"router"` is bound so that middleware asking for it -- `SubstituteBindings`
+    // does -- can be resolved, the same binding upstream's `getRouter()` makes.
+    const container = new Container();
+    const built = new Router(new Dispatcher(), container);
+
+    container.instance("router", built);
+
+    return built;
 }
 
 export = (): void => {

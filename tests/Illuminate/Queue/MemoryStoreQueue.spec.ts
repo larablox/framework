@@ -142,9 +142,14 @@ export = (): void => {
         it("later() holds the job until its delay has passed", () => {
             const queue = freshQueue();
 
-            queue.later(1, "foo", ["data"]);
+            // Held with a delay long enough to be certain: `currentTime()`
+            // counts whole seconds, so a one-second delay can come due purely
+            // because a second boundary fell between `later()` and `pop()`.
+            queue.later(60, "held", ["data"]);
 
             expect(queue.pop()).to.equal(undefined);
+
+            queue.later(1, "foo", ["data"]);
 
             task.wait(1.2);
 

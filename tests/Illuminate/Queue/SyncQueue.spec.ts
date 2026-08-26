@@ -1,5 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
 import { Container } from "Illuminate/Container/Container";
+import { Dispatcher as BusDispatcher } from "Illuminate/Bus/Dispatcher";
 import { Dispatcher } from "Illuminate/Events/Dispatcher";
 import { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
 import { LogicException, RuntimeException } from "Illuminate/Exception";
@@ -103,6 +104,18 @@ export = (): void => {
         it("failed() has access to the payload the job carried", () => {
             const sync = new SyncQueue();
             const container = new Container();
+
+            // An object job travels through `CallQueuedHandler`, which the
+            // container builds -- and which asks for the bus dispatcher, the
+            // event dispatcher and the container itself. Upstream binds the
+            // same three contracts before pushing.
+            container.instance("app", container);
+            container.instance("events", new Dispatcher(container));
+            container.singleton(
+                BusDispatcher,
+                () => new BusDispatcher(container),
+            );
+
             sync.setContainer(container);
 
             SyncQueue.createPayloadUsing(() => ({

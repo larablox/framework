@@ -125,9 +125,11 @@ export = (): void => {
 
             const all = provider.all();
 
+            // `all()` is newest-first (PHP: `orderBy('id', 'desc')`), so the
+            // second failure logged comes back first.
             expect(all.size()).to.equal(2);
-            expect(all[0].queue).to.equal("default");
-            expect(all[1].queue).to.equal("emails");
+            expect(all[0].queue).to.equal("emails");
+            expect(all[1].queue).to.equal("default");
         });
 
         // PHP: DatabaseFailedJobProviderTest::testCanRetrieveFailedJobsById /

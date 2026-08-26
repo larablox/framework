@@ -1,7 +1,10 @@
 import { Container } from "Illuminate/Container/Container";
 import { ContextLogProcessor as ContextLogProcessorContract } from "Illuminate/Contracts/Log/ContextLogProcessor";
 import { Repository as ContextRepository } from "Illuminate/Log/Context/Repository";
-import type { LogRecord, RecordBag } from "@larablox/monolog/out/Monolog/LogRecord";
+import type {
+    LogRecord,
+    RecordBag,
+} from "@larablox/monolog/out/Monolog/LogRecord";
 
 /** PHP: `Illuminate\Log\Context\ContextLogProcessor`. */
 export class ContextLogProcessor extends ContextLogProcessorContract {

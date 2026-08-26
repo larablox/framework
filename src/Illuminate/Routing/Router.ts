@@ -492,7 +492,7 @@ export class Router {
         }
 
         if (value instanceof Response) {
-            return value;
+            return value.prepare(request);
         }
 
         if (isArrayable(value)) {
@@ -511,7 +511,7 @@ export class Router {
             value = plain;
         }
 
-        return new Response(value);
+        return new Response(value).prepare(request);
     }
 
     // -----------------------------------------------------------------

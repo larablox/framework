@@ -274,7 +274,15 @@ export function InteractsWithData<TBase extends Constructor>(
                   ? tonumber(value)
                   : undefined;
 
-            if (asNumber === undefined) {
+            // Luau reads `"nan"` and `"inf"` as numeric literals where PHP
+            // does not, so both have to fall back to `0` like any other
+            // unreadable value -- see `parseFinite()` in `Support/Str.ts`.
+            if (
+                asNumber === undefined ||
+                asNumber !== asNumber ||
+                asNumber === math.huge ||
+                asNumber === -math.huge
+            ) {
                 return 0;
             }
 

@@ -10,6 +10,30 @@ import type { JsonSerializable } from "Illuminate/Contracts/Support/JsonSerializ
 const MAGIC = "([%^%$%(%)%%%.%[%]%*%+%-%?])";
 
 /**
+ * `tonumber()`, but only for spellings PHP also reads as numeric.
+ *
+ * Luau accepts `"nan"` and `"inf"` as numeric literals and returns the
+ * matching float. PHP's numeric casts recognise neither, so `(int) 'nan'` is
+ * `0` -- and letting the float through instead poisons every arithmetic
+ * downstream of it.
+ */
+function parseFinite(value: string, base?: number): number | undefined {
+    const parsed = base === undefined ? tonumber(value) : tonumber(value, base);
+
+    if (parsed === undefined) {
+        return undefined;
+    }
+
+    // `parsed !== parsed` is the NaN test -- NaN is the one value not equal
+    // to itself.
+    if (parsed !== parsed || parsed === math.huge || parsed === -math.huge) {
+        return undefined;
+    }
+
+    return parsed;
+}
+
+/**
  * PHP: `Str::INVISIBLE_CHARACTERS`, plus the `" \n\r\t\v\0"` upstream appends
  * to it in `trim()`/`ltrim()`/`rtrim()`.
  *
@@ -2798,10 +2822,10 @@ export class Stringable
      * PHP says `12`.
      */
     public toInteger(base = 10): number {
-        const parsed =
-            base === 10
-                ? tonumber(this.stringValue)
-                : tonumber(this.stringValue, base);
+        const parsed = parseFinite(
+            this.stringValue,
+            base === 10 ? undefined : base,
+        );
 
         if (parsed === undefined) {
             return 0;
@@ -2812,7 +2836,7 @@ export class Stringable
 
     /** Get the underlying string value as a float. */
     public toFloat(): number {
-        return tonumber(this.stringValue) ?? 0;
+        return parseFinite(this.stringValue) ?? 0;
     }
 
     /**

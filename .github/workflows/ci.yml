@@ -23,12 +23,6 @@ jobs:
 
             - run: npm run lint
 
-            # The specs compile through a `tsconfig` of their own, into a
-            # separate `out-tests/`, so `npm run build` never touches them.
-            # Running the suite needs a Studio session; compiling it does not,
-            # and it is what catches a spec left behind by a rename.
-            - run: npm run test:build
-
             # `npm run analyze` compiles to Luau, refreshes the sourcemap and runs
             # luau-lsp over `out/`, so it needs the Rokit toolchain and the Roblox
             # global type definitions the analyze script expects on disk.

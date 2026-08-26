@@ -17,9 +17,10 @@ import { MemoryStoreLock } from "Illuminate/Cache/MemoryStoreLock";
  * exercises the real store against `MemoryStoreService` -- a real Roblox
  * service, reachable only from a running Studio session with API access
  * enabled -- and asserts the round-tripped behaviour instead of the call
- * upstream mocks. Each test uses its own `mapName`, generated from `HttpService`'s
- * `GenerateGUID`, so tests never see each other's keys even though the map is
- * shared across the whole `MemoryStoreService`.
+ * upstream mocks. Each test writes into the same map under a key prefix of
+ * its own, generated from `HttpService`'s `GenerateGUID`, so tests never see
+ * each other's keys even though the map is shared across the whole
+ * `MemoryStoreService` -- see `MAP`.
  *
  * `MemoryStoreStore.ts`'s class comment documents three platform-forced
  * divergences from `RedisStore`, each covered by a case below:
@@ -46,13 +47,14 @@ import { MemoryStoreLock } from "Illuminate/Cache/MemoryStoreLock";
  */
 
 const HttpService = game.GetService("HttpService");
+const MemoryStoreService = game.GetService("MemoryStoreService");
 
 /**
  * How long a value with no explicit TTL lives.
  *
  * Not `MAX_EXPIRATION`, which is what `MemoryStoreStore` defaults to: the
  * universe's MemoryStore quota is 64 KB, it is shared with the running game,
- * and every run here writes under a map name of its own -- so a 45-day
+ * and a value outlives the run that wrote it -- so a 45-day
  * default means each run's leavings hold their share of that quota for a
  * month and a half. After enough runs `SetAsync` starts answering
  * `TotalMemoryOverLimit` and every test below fails for a reason that has
@@ -61,17 +63,58 @@ const HttpService = game.GetService("HttpService");
  */
 const EXPIRATION = 30;
 
-/** A fresh store, isolated from every other test by a random map name. */
+/**
+ * The one map every test here writes into.
+ *
+ * Not a name per test, which is what this used to generate: MemoryStore lets
+ * you enumerate the keys of a map you can name (`ListItemsAsync`), but offers
+ * no way to list the maps themselves -- `MemoryStoreService` only hands back
+ * a structure whose name you already have. Randomising the map name put a
+ * run's leavings out of reach: nothing could name them again to remove them,
+ * and they held their share of the universe's 64 KB quota until they expired
+ * on their own. Randomising the key *prefix* instead -- which is where
+ * Laravel's `prefix` lives anyway -- isolates tests just as well and leaves
+ * every key reachable, both for `drain()` below and for a one-off wipe if a
+ * run ever dies before it gets there.
+ */
+const MAP = "larablox-tests";
+
+/** A fresh store, isolated from every other test by a random key prefix. */
 function freshStore(prefix = ""): MemoryStoreStore {
     return new MemoryStoreStore(
-        HttpService.GenerateGUID(false),
-        prefix,
+        MAP,
+        `${HttpService.GenerateGUID(false)}:${prefix}`,
         EXPIRATION,
     );
 }
 
+/**
+ * Give the quota back rather than waiting `EXPIRATION` out.
+ *
+ * Only tests write into `MAP`, so everything in it is this run's, and now
+ * that the name is fixed `ListItemsAsync` can reach all of it.
+ */
+function drain(): void {
+    const map = MemoryStoreService.GetHashMap(MAP);
+    const pages = map.ListItemsAsync(100);
+
+    for (;;) {
+        for (const item of pages.GetCurrentPage() as Array<{ key: string }>) {
+            map.RemoveAsync(item.key);
+        }
+
+        if (pages.IsFinished) {
+            break;
+        }
+
+        pages.AdvanceToNextPageAsync();
+    }
+}
+
 export = (): void => {
     describe("MemoryStoreStore", () => {
+        afterAll(drain);
+
         // PHP: CacheRedisStoreTest::testGetReturnsNullWhenNotFound
         it("get() returns undefined for a key that was never set", () => {
             const store = freshStore();

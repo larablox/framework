@@ -66,8 +66,6 @@ local function warmUp()
 		total += #moduleScripts(root)
 	end
 
-	print(("Warming up %d modules..."):format(total))
-
 	local startedAt = os.clock()
 
 	for _, root in ipairs(trees) do

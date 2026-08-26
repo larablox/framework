@@ -95,7 +95,7 @@ export = (): void => {
             container.bind("ContainerTestCallStub", ContainerTestCallStub);
             result = container.call(
                 "ContainerTestCallStub@inject",
-                new Map<string | number, unknown>([[1, "foo"]]),
+                new Map<string | number, unknown>([[2, "foo"]]),
             );
             const injectedWithOverride = result as [
                 ContainerCallConcreteStub,
@@ -166,7 +166,7 @@ export = (): void => {
             container = new Container();
             result = container.call(
                 [new ContainerTestCallStub(), "inject"],
-                new Map<string | number, unknown>([[1, "bar"]]),
+                new Map<string | number, unknown>([[2, "bar"]]),
             );
             let injected = result as [ContainerCallConcreteStub, unknown];
             expect(injected[0] instanceof ContainerCallConcreteStub).to.equal(
@@ -244,8 +244,11 @@ export = (): void => {
             }
 
             public static variadic(
-                @Inject(ContainerCallConcreteStub)
-                foo: ContainerCallConcreteStub,
+                // PHP's first parameter is a `stdClass`, which
+                // `ContainerCallOtherStub` stands in for -- the point of the
+                // test is that the *variadic* is the one bound to a list, so
+                // the two classes have to stay distinct.
+                @Inject(ContainerCallOtherStub) foo: ContainerCallOtherStub,
                 @Variadic(ContainerCallConcreteStub)
                 ...bar: Array<ContainerCallConcreteStub>
             ): Array<unknown> {
@@ -275,7 +278,7 @@ export = (): void => {
             container.call(
                 [ContainerCallClosureStub, "injected"],
                 new Map<string | number, unknown>([
-                    [0, new ContainerCallConcreteStub()],
+                    [1, new ContainerCallConcreteStub()],
                 ]),
             );
         });
@@ -295,7 +298,7 @@ export = (): void => {
 
             result = container.call(
                 [ContainerCallClosureStub, "withDefault"],
-                new Map<string | number, unknown>([[1, "taylor"]]),
+                new Map<string | number, unknown>([[2, "taylor"]]),
             ) as [ContainerCallConcreteStub, unknown];
 
             expect(result[0] instanceof ContainerCallConcreteStub).to.equal(
@@ -319,7 +322,7 @@ export = (): void => {
             // Wrap a function...
             const wrapped = container.wrap(
                 [ContainerCallClosureStub, "withDefault"] as never,
-                new Map<string | number, unknown>([[1, "taylor"]]),
+                new Map<string | number, unknown>([[2, "taylor"]]),
             );
             const wrappedResult = wrapped() as [
                 ContainerCallConcreteStub,
@@ -345,7 +348,8 @@ export = (): void => {
                 "variadic",
             ]) as Array<unknown>;
 
-            expect(result[0] instanceof ContainerCallConcreteStub).to.equal(
+            expect(result[0] instanceof ContainerCallOtherStub).to.equal(true);
+            expect(result[1] instanceof ContainerCallConcreteStub).to.equal(
                 true,
             );
             expect(result[1]).to.equal(stub1);
@@ -368,7 +372,7 @@ export = (): void => {
         // names do not survive compilation in this port, so an index-keyed
         // override map (`ParameterOverrides`, `Types.ts`) *is* the mechanism
         // that stands in for name-matching here, not a secondary fallback --
-        // `container.call([stub, "unresolvable"], new Map([[0, "foo"], [1,
+        // `container.call([stub, "unresolvable"], new Map([[1, "foo"], [2,
         // "bar"]]))` resolves successfully by design (see
         // `hasParameterOverride()`/`getMethodDependencies()` in
         // `Container.ts`/`BoundMethod.ts`). There is no scenario left in

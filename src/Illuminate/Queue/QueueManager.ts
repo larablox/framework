@@ -69,22 +69,25 @@ export class QueueManager implements Factory {
 
     /** Determine if the driver is connected. */
     public connected(name?: string): boolean {
-        return this.connections.has(name ?? this.getDefaultDriver());
+        return this.connections.has(
+            QueueManager.cacheKey(name ?? this.getDefaultDriver()),
+        );
     }
 
     /** Resolve a queue connection instance. */
     public connection(name?: string): QueueContract {
         const connection = name ?? this.getDefaultDriver();
+        const key = QueueManager.cacheKey(connection);
 
         // If the connection has not been resolved yet we will resolve it now as all
         // of the connections are resolved when they are actually needed so we do
         // not make any unnecessary connection to the various queue end-points.
-        let resolved = this.connections.get(connection);
+        let resolved = this.connections.get(key);
 
         if (resolved === undefined) {
             resolved = this.resolve(connection);
 
-            this.connections.set(connection, resolved);
+            this.connections.set(key, resolved);
 
             (resolved as unknown as BaseQueue).setContainer(this.app);
         }
@@ -92,8 +95,21 @@ export class QueueManager implements Factory {
         return resolved;
     }
 
+    /**
+     * The key the resolved-connection cache is indexed by.
+     *
+     * PHP writes `$this->connections[$name]` even when `$name` is null,
+     * which PHP turns into the empty-string key. A Luau table cannot be keyed
+     * by nil at all, so the coercion is spelled out -- and only for the cache:
+     * the name itself stays undefined, which is what makes `getConfig()` fall
+     * back to the null driver.
+     */
+    private static cacheKey(name?: string): string {
+        return name ?? "";
+    }
+
     /** Resolve a queue connection. */
-    protected resolve(name: string): QueueContract {
+    protected resolve(name?: string): QueueContract {
         const config = this.getConfig(name);
 
         if (config === undefined) {
@@ -104,7 +120,9 @@ export class QueueManager implements Factory {
 
         const queue = this.getConnector(config.driver as string)
             .connect(config)
-            .setConnectionName(name);
+            // PHP hands `setConnectionName()` a null name straight through;
+            // the empty string is the closest thing a `string` field has.
+            .setConnectionName(name ?? "");
 
         const setConfig = (queue as { setConfig?: unknown }).setConfig;
 
@@ -152,10 +170,9 @@ export class QueueManager implements Factory {
     }
 
     /** Get the name of the default queue connection. */
-    public getDefaultDriver(): string {
-        return this.app
-            .make<Repository>("config")
-            .get("queue.default") as string;
+    public getDefaultDriver(): string | undefined {
+        return this.app.make<Repository>("config").get("queue.default") as
+            string | undefined;
     }
 
     /** Set the name of the default queue connection. */
@@ -164,7 +181,7 @@ export class QueueManager implements Factory {
     }
 
     /** Get the full name for the given connection. */
-    public getName(connection?: string): string {
+    public getName(connection?: string): string | undefined {
         return connection ?? this.getDefaultDriver();
     }
 

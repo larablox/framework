@@ -10,18 +10,10 @@ import type { Passable } from "Illuminate/Contracts/Pipeline/Pipeline";
  *
  * Ported in full -- all three PHP tests translate directly.
  *
- * `testPipeThrowsExceptionForUndefinedPipeline` is kept faithful to
- * upstream's contract, not to this port's current behavior: `Hub.pipe()`
- * (`Hub.ts`) does not actually throw for an undefined pipeline name -- it
- * silently returns `undefined` instead (`if (builder === undefined) { return
- * undefined; }`), whereas PHP's `Hub::pipe()` throws
- * `InvalidArgumentException("Pipeline [{$name}] is not defined.")`. This is
- * not a documented platform limitation (unlike, say, `Pipeline`'s
- * `withinTransaction()`), just a gap in `Hub.ts` -- so, per this repo's
- * testing philosophy (`agent_docs/testing.md`'s Monolog counterpart: "Real
- * bugs this suite has already caught"), the test is ported as upstream
- * specifies it and is expected to fail against `Hub.ts` as it stands today,
- * rather than being quietly rewritten to match the gap.
+ * `testPipeThrowsExceptionForUndefinedPipeline` was ported as upstream
+ * specifies it rather than as `Hub.ts` then behaved -- it answered
+ * `undefined` for an unknown pipeline name instead of throwing -- and the
+ * gap it exposed is fixed.
  */
 export = (): void => {
     describe("Hub", () => {
@@ -51,7 +43,6 @@ export = (): void => {
 
         it("throws for an undefined pipeline", () => {
             // PHP: HubTest::testPipeThrowsExceptionForUndefinedPipeline
-            // (see class comment -- this currently fails against Hub.ts)
             const [ok, err] = pcall(() => hub.pipe("foo", "missing"));
 
             expect(ok).to.equal(false);

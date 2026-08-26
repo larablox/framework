@@ -3,6 +3,7 @@ import { Config } from "Illuminate/Container/Attributes/Config";
 import { Container } from "Illuminate/Container/Container";
 import { Context } from "Illuminate/Container/Attributes/Context";
 import { Give } from "Illuminate/Container/Attributes/Give";
+import { Inject } from "Illuminate/Container/Attributes/Inject";
 import { Tag } from "Illuminate/Container/Attributes/Tag";
 import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
 import { Repository as ContextRepository } from "Illuminate/Log/Context/Repository";
@@ -134,7 +135,12 @@ export = (): void => {
         class SimpleDependency extends ContainerTestContract {}
 
         class ComplexDependency extends ContainerTestContract {
-            public constructor(public readonly param: boolean) {
+            // PHP overrides this by name (`['param' => true]`); with no
+            // parameter names here it is overridden by position, and only an
+            // annotated parameter takes a positional override at all.
+            public constructor(
+                @Inject("$param") public readonly param: boolean,
+            ) {
                 super();
             }
         }
@@ -385,29 +391,26 @@ export = (): void => {
             ) {}
         }
 
-        class LocaleObject {
-            public constructor(
-                @Config("app.locale") public readonly locale?: string,
-            ) {}
-        }
-
-        it("Config() resolves a present key and a missing key (adapted -- see class comment)", () => {
+        it("Config() resolves the configured key (adapted -- see class comment)", () => {
             // PHP: ContextualAttributeBindingTest::testAttributeOnAppCall / testNestedAttributeOnAppCall
+            //
+            // Upstream's second half reads `'app.locale' => null` back as
+            // `null`. There is no such value here -- a Luau table cannot hold
+            // `nil`, so the key simply does not exist, and an attribute that
+            // resolves to nothing has no parameter default to fall back to
+            // (`Container.resolveDependencies()` diagnoses it instead). The
+            // sub-case is dropped.
             const container = new Container();
             container.singleton(
                 "config",
                 () =>
                     new FakeConfigRepository({
                         "app.timezone": "Europe/Paris",
-                        "app.locale": undefined,
                     }),
             );
 
             const timezoneObject = container.make(TimezoneObject);
             expect(timezoneObject.timezone).to.equal("Europe/Paris");
-
-            const localeObject = container.make(LocaleObject);
-            expect(localeObject.locale).to.equal(undefined);
         });
 
         class TagTest {

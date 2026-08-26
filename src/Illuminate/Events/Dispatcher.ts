@@ -394,20 +394,31 @@ export class Dispatcher implements DispatcherContract {
             ? (listener as [Abstract, string])
             : this.parseClassCallable(listener as Abstract);
 
-        if (this.handlerShouldBeQueued(klass)) {
+        // PHP asks `ReflectionClass::implementsInterface(ShouldQueue)`, which
+        // needs nothing but the class name. An interface leaves no runtime
+        // trace here, so a string abstract has to be resolved before there is
+        // anything to ask -- and the resolved object is then reused for the
+        // call rather than resolved a second time, which the container would
+        // otherwise report as two `make()`s for one dispatch.
+        const resolved = typeIs(klass, "string")
+            ? this.container.make(klass)
+            : undefined;
+
+        if (this.handlerShouldBeQueued(resolved ?? klass)) {
             return this.createQueuedHandlerCallable(klass, method);
         }
 
-        const instance = this.container.make(klass) as Record<string, unknown>;
+        const instance = (resolved ?? this.container.make(klass)) as Record<
+            string,
+            unknown
+        >;
 
         return this.toCallable([instance as unknown as object, method]);
     }
 
     /** Determine if the event handler class should be queued. */
-    protected handlerShouldBeQueued(klass: Abstract): boolean {
-        return isShouldQueue(
-            typeIs(klass, "string") ? this.container.make(klass) : klass,
-        );
+    protected handlerShouldBeQueued(handler: unknown): boolean {
+        return isShouldQueue(handler);
     }
 
     /** Create a callable for putting an event handler on the queue. */

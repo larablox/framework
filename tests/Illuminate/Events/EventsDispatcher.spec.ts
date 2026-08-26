@@ -773,8 +773,10 @@ export = (): void => {
                     eventTest.push("cons-1");
                 }
 
-                public handle(): void {
+                public handle(): string {
                     eventTest.push("handle-1");
+
+                    return "resp-1";
                 }
             }
 
@@ -795,8 +797,10 @@ export = (): void => {
                     eventTest.push("cons-3");
                 }
 
-                public handle(): void {
+                public handle(): string {
                     eventTest.push("handle-3");
+
+                    return "resp-3";
                 }
             }
 
@@ -805,8 +809,10 @@ export = (): void => {
                     eventTest.push("cons-2");
                 }
 
-                public handle(): void {
+                public handle(): string {
                     eventTest.push("handle-2");
+
+                    return "resp-2";
                 }
             }
 

@@ -72,9 +72,12 @@ export class LogManager implements LoggerContract {
     /** Create a new, on-demand aggregate logger instance. */
     public stack(channels: Array<string>, channel?: string): Logger {
         return new Logger(
+            // PHP passes the channel name under `name`, which is the key
+            // `parseChannel()` reads; under `channel` it would never be seen
+            // and the stack would fall back to the default channel name.
             this.createStackDriver({
                 channels,
-                channel,
+                name: channel,
             } as unknown as ArrayAccessible),
             this.events(),
         ).withContext(this.sharedContextValues);
@@ -513,7 +516,10 @@ export class LogManager implements LoggerContract {
             );
         }
 
-        return resolved;
+        // PHP trims here, which is what lets a stack spell its members as
+        // `'single, daily, stderr'`: `createStackDriver()` splits that on the
+        // comma and hands the pieces straight to `channel()`, spaces and all.
+        return Str.trim(resolved);
     }
 
     /** Get all of the resolved log channels. */

@@ -1052,9 +1052,9 @@ export class Container implements ContainerContract {
             // If the dependency has an override for this particular build we will use
             // that instead as the value. Otherwise, we will continue with this run
             // of resolutions and let the annotation determine the result.
-            if (this.hasParameterOverride(dependency, index)) {
+            if (this.hasParameterOverride(dependency, index + 1)) {
                 results.push(
-                    this.getParameterOverride(dependency, index) as defined,
+                    this.getParameterOverride(dependency, index + 1) as defined,
                 );
 
                 continue;
@@ -1070,7 +1070,7 @@ export class Container implements ContainerContract {
             }
 
             if (result === undefined) {
-                result = this.resolveDeclaredDependency(dependency, index);
+                result = this.resolveDeclaredDependency(dependency, index + 1);
             }
 
             this.fireAfterResolvingAttributeCallbacks(
@@ -1102,13 +1102,13 @@ export class Container implements ContainerContract {
     /** Resolve the abstract a parameter named, once the attributes had their say. */
     protected resolveDeclaredDependency(
         dependency: ParameterDependency,
-        index: number,
+        position: number,
     ): unknown {
         const abstract = dependency.abstract;
 
         if (abstract === undefined) {
             throw new BindingResolutionException(
-                `Unresolvable dependency: parameter #${index} declares no binding. ` +
+                `Unresolvable dependency: parameter #${position} declares no binding. ` +
                     `Annotate it with Inject or a contextual attribute.`,
             );
         }
@@ -1606,8 +1606,14 @@ export class Container implements ContainerContract {
     /**
      * Normalize the public `$parameters` argument into the override map.
      *
-     * A plain list is read as index-keyed overrides, which is the closest thing
-     * to PHP's positional-by-name matching that survives compilation.
+     * A plain list is read as position-keyed overrides, which is the closest
+     * thing to PHP's positional-by-name matching that survives compilation.
+     * The positions are numbered from one, like a Luau list's own indices --
+     * which is what keeps the two forms from colliding. A `Map` holding only
+     * the key `1` *is* the one-element list `[value]` as far as Luau is
+     * concerned, and there is no telling them apart; numbering from one at
+     * least makes them mean the same thing. Numbered from zero they would
+     * not, and overriding the second parameter alone would be unsayable.
      */
     protected normalizeParameters(
         parameters?: ParameterList,
@@ -1624,7 +1630,7 @@ export class Container implements ContainerContract {
         const list = parameters as Array<unknown>;
 
         for (let index = 0; index < list.size(); index++) {
-            overrides.set(index, list[index]);
+            overrides.set(index + 1, list[index]);
         }
 
         return overrides;

@@ -1,3 +1,4 @@
+import { InvalidArgumentException } from "Illuminate/Exception";
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import { Pipeline } from "Illuminate/Pipeline/Pipeline";
 import type { Container } from "Illuminate/Contracts/Container/Container";
@@ -32,7 +33,9 @@ export class Hub implements HubContract {
         const builder = this.pipelines.get(pipeline);
 
         if (builder === undefined) {
-            return undefined;
+            throw new InvalidArgumentException(
+                `Pipeline [${pipeline}] is not defined.`,
+            );
         }
 
         return builder(new Pipeline(this.container), object);

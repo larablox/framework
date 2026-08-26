@@ -1,4 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
+import { Arr } from "Illuminate/Support/Arr";
 import { Container } from "Illuminate/Container/Container";
 import { Repository as ConfigRepository } from "Illuminate/Config/Repository";
 import { NullConnector } from "Illuminate/Queue/Connectors/NullConnector";
@@ -31,7 +32,15 @@ import type { ArrayAccessible } from "Illuminate/Support/Arr";
 
 function makeApp(config: ArrayAccessible): Application {
     const container = new Container();
-    container.singleton("config", () => new ConfigRepository(config));
+
+    // The fixtures below are written with dotted keys for readability, but
+    // `Repository` addresses a *nested* table -- and `set()` writes into one,
+    // so a flat `"queue.default"` key would be shadowed the moment
+    // `setDefaultDriver()` wrote a nested one beside it.
+    container.singleton(
+        "config",
+        () => new ConfigRepository(Arr.undot(config)),
+    );
 
     return container as unknown as Application;
 }

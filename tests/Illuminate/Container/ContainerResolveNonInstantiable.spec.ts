@@ -25,10 +25,16 @@ export = (): void => {
         abstract class TestInterface {}
 
         class ChildClass {
+            public readonly objects: Array<TestInterface>;
+
+            // A rest parameter, not a single array one: a variadic dependency
+            // is spread into separate arguments, the same way PHP's
+            // `TestInterface ...$objects` receives them.
             public constructor(
-                @Variadic(TestInterface)
-                public readonly objects: Array<TestInterface>,
-            ) {}
+                @Variadic(TestInterface) ...objects: Array<TestInterface>
+            ) {
+                this.objects = objects;
+            }
         }
 
         class VariadicParentClass {
@@ -39,10 +45,11 @@ export = (): void => {
         }
 
         class VariadicPrimitive {
-            public constructor(
-                @Variadic("$params")
-                public readonly params: Array<unknown> = [],
-            ) {}
+            public readonly params: Array<unknown>;
+
+            public constructor(@Variadic("$params") ...params: Array<unknown>) {
+                this.params = params;
+            }
         }
 
         it("resolving a variadic non-instantiable dependency still resets the parameter stack", () => {

@@ -153,9 +153,9 @@ export class BoundMethod {
                 continue;
             }
 
-            if (parameters.has(index)) {
-                dependencies.push(parameters.get(index) as defined);
-                consumed.add(index);
+            if (parameters.has(index + 1)) {
+                dependencies.push(parameters.get(index + 1) as defined);
+                consumed.add(index + 1);
 
                 continue;
             }
@@ -172,7 +172,7 @@ export class BoundMethod {
 
             if (resolved === undefined && abstract === undefined) {
                 throw new BindingResolutionException(
-                    `Unresolvable dependency: parameter #${index} declares no binding.`,
+                    `Unresolvable dependency: parameter #${index + 1} declares no binding.`,
                 );
             }
 
@@ -180,6 +180,19 @@ export class BoundMethod {
                 dependency.attributes,
                 resolved,
             );
+
+            // A variadic parameter contributes its elements, not the list --
+            // PHP: `array_merge($dependencies, is_array($v) ? $v : [$v])`,
+            // the same rule `Container.resolveDependencies()` follows.
+            if (dependency.variadic === true) {
+                for (const value of Util.arrayWrap(
+                    resolved as defined | Array<defined> | undefined,
+                )) {
+                    dependencies.push(value);
+                }
+
+                continue;
+            }
 
             dependencies.push(resolved as defined);
         }

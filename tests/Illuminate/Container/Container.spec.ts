@@ -556,10 +556,12 @@ export = (): void => {
                 [1, 2, 3],
             ) as ParameterOverrides;
 
+            // Positions are numbered from one, like a Luau list's own indices
+            // -- see laravel-parity.md, "Параметры make() / call()".
             expect(result.size()).to.equal(3);
-            expect(result.get(0)).to.equal(1);
-            expect(result.get(1)).to.equal(2);
-            expect(result.get(2)).to.equal(3);
+            expect(result.get(1)).to.equal(1);
+            expect(result.get(2)).to.equal(2);
+            expect(result.get(3)).to.equal(3);
         });
 
         it("a later offsetSet() overrides an earlier one", () => {
@@ -897,10 +899,12 @@ export = (): void => {
                 [1, 2, 3],
             ) as ParameterOverrides;
 
+            // Positions are numbered from one, like a Luau list's own indices
+            // -- see laravel-parity.md, "Параметры make() / call()".
             expect(result.size()).to.equal(3);
-            expect(result.get(0)).to.equal(1);
-            expect(result.get(1)).to.equal(2);
-            expect(result.get(2)).to.equal(3);
+            expect(result.get(1)).to.equal(1);
+            expect(result.get(2)).to.equal(2);
+            expect(result.get(3)).to.equal(3);
         });
 
         it("make() overrides a primitive dependency by its abstract name (adapted -- see class comment)", () => {

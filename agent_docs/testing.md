@@ -119,6 +119,36 @@ test:build` (or `npm run test:watch`) then press Play again — a `ModuleScript`
 that already failed once caches that failure for the rest of the session, so
 mid-session edits to a broken module need a fresh Play, not just a re-sync.
 
+## Why part of the run overlaps
+
+Five spec files hold 58 of the 1141 tests and about 80% of the running time,
+because every one of those tests waits on a Roblox service. Measured on this
+place: a `DataStoreService` call costs ~305ms and a `MemoryStoreService` one
+~233ms, near enough all of it idle. Ten reads in a row take 3.05s; ten
+overlapped take 0.80s. The request budget is nowhere near its limit while that
+happens (991 reads left of the minute's allowance), so what is being paid for
+is latency, not throughput — and latency is what overlapping removes.
+
+So `RunTests.server.luau` builds one plan for everything else and one plan per
+service file, runs the first alone, then runs the rest together. A plan is the
+unit a `TestSession` covers, which makes it the smallest thing that can run
+beside another.
+
+What makes a file safe to put in that group is **not** that it is slow — it is
+that it shares no state with the others. Each of the five builds its own
+`Container` and names its own store from a GUID, and none of them touches a
+facade. Everything else runs first and alone, so a spec that does lean on
+global state is never interleaved with anything. Add a file to `CONCURRENT`
+only after checking the same.
+
+Overlapping buys nothing for a test that only computes: one Luau thread runs
+them all and they would simply take turns. Actors — real parallelism — cannot
+help either, because a parallel-phase script may not make the yielding service
+calls these tests are made of.
+
+In the slow list, `~` marks a test that ran overlapped: its number is wall
+time and counts the waiting it did on the tests beside it.
+
 ## Formerly a known blocker (fixed 2026-08-26)
 
 `src/Illuminate/Log/LogManager.ts` imports `ConsoleHandler`,

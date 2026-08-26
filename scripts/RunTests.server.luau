@@ -34,6 +34,39 @@ local COLUMNS = 63
 local SLOW_SECONDS = 0.1
 local SLOW_SHOWN = 10
 
+--[[
+	Spec files that wait on a Roblox service, run overlapping each other.
+
+	A `DataStoreService` call costs about 305ms of waiting and a
+	`MemoryStoreService` one about 233ms, near enough all of it spent idle:
+	ten reads in a row take 3.05s where ten overlapped take 0.80s, and the
+	request budget is nowhere near its limit while that happens. These five
+	files hold 58 of the suite's tests and about 80% of its running time.
+
+	Named here rather than detected, because what makes a file safe to overlap
+	is not that it is slow: it is that it shares no state with the others.
+	Each of these builds its own `Container` and names its own store from a
+	GUID, and none of them touches a facade. Everything else runs first, on
+	its own, exactly as it did before -- so a spec that does lean on global
+	state cannot be interleaved with anything.
+
+	TestEZ itself keeps one piece of state across sessions --
+	`_G.__TESTEZ_RUNNING_TEST__`, set while a callback runs and cleared after
+	-- so two sessions do clear it from under each other. Nothing in this
+	repository reads it; it is TestEZ's own escape hatch for code that wants
+	to know whether it is under test.
+
+	Overlapping is worth nothing for a test that only computes: one Luau
+	thread runs them all, and they would merely take turns.
+]]
+local CONCURRENT = {
+	DataStoreFailedJobProvider = true,
+	DataStoreStore = true,
+	MemoryStoreQueue = true,
+	MemoryStoreStore = true,
+	Size = true,
+}
+
 local FRAMEWORK = ReplicatedStorage.Illuminate
 local SPECS = ReplicatedStorage.IlluminateTests
 
@@ -141,9 +174,9 @@ local function watch(progress, durations)
 		setSkipped = TestSession.setSkipped,
 	}
 
-	-- One variable and not a stack: an `It` never contains another `It`, and
-	-- the run is sequential, so at most one test is ever being timed.
-	local startedAt = nil
+	-- Keyed by session and not one variable: the overlapped plans each run a
+	-- session of their own, and two of them are commonly mid-test at once.
+	local startedAt = {}
 
 	-- `setError()` is written on a `Describe` as well, to roll its children
 	-- up; only a leaf is a test.
@@ -165,7 +198,7 @@ local function watch(progress, durations)
 		original.pushNode(self, planNode)
 
 		if planNode.type == TestEnum.NodeType.It then
-			startedAt = os.clock()
+			startedAt[self] = os.clock()
 		end
 	end
 
@@ -174,11 +207,13 @@ local function watch(progress, durations)
 			return false
 		end
 
-		if startedAt ~= nil then
+		local began = startedAt[session]
+
+		if began ~= nil then
 			local node = session.nodeStack[#session.nodeStack]
 
-			durations[node.planNode] = os.clock() - startedAt
-			startedAt = nil
+			durations[node.planNode] = os.clock() - began
+			startedAt[session] = nil
 		end
 
 		return true
@@ -267,10 +302,10 @@ local function describeError(node)
 	return message
 end
 
-local function collectFailures(results)
+local function collectFailures(collected)
 	local failures = {}
 
-	results:visitAllNodes(function(node)
+	local function visit(node)
 		-- Only leaves carry a useful message; a failed `describe` is just the
 		-- roll-up of the `it`s beneath it.
 		if
@@ -284,7 +319,11 @@ local function collectFailures(results)
 			phrase = fullPhrase(node),
 			message = describeError(node),
 		})
-	end)
+	end
+
+	for _, results in ipairs(collected) do
+		results:visitAllNodes(visit)
+	end
 
 	table.sort(failures, function(first, second)
 		return first.phrase < second.phrase
@@ -300,22 +339,34 @@ end
 	of very slow ones -- and which ones decides what is worth doing about it.
 	Nothing is printed when there are none, so a fast run stays quiet.
 ]]
-local function reportSlowest(results, durations, elapsed)
+local function reportSlowest(collected, durations, overlapped, elapsed)
 	local ranked = {}
 	local spent = 0
+	local anyOverlapped = false
 
-	results:visitAllNodes(function(node)
-		if node.planNode.type ~= TestEnum.NodeType.It then
-			return
-		end
+	for _, results in ipairs(collected) do
+		results:visitAllNodes(function(node)
+			if node.planNode.type ~= TestEnum.NodeType.It then
+				return
+			end
 
-		local seconds = durations[node.planNode]
+			local seconds = durations[node.planNode]
 
-		if seconds ~= nil and seconds >= SLOW_SECONDS then
-			table.insert(ranked, { phrase = fullPhrase(node), seconds = seconds })
-			spent += seconds
-		end
-	end)
+			if seconds ~= nil and seconds >= SLOW_SECONDS then
+				local wasOverlapped = overlapped[node.planNode] == true
+
+				anyOverlapped = anyOverlapped or wasOverlapped
+
+				table.insert(ranked, {
+					phrase = fullPhrase(node),
+					seconds = seconds,
+					overlapped = wasOverlapped,
+				})
+
+				spent += seconds
+			end
+		end)
+	end
 
 	if #ranked == 0 then
 		return
@@ -338,24 +389,43 @@ local function reportSlowest(results, durations, elapsed)
 	print("")
 
 	for index = 1, shown do
-		print(("  %6.2fs  %s"):format(ranked[index].seconds, ranked[index].phrase))
+		print(("  %s%6.2fs  %s"):format(
+			if ranked[index].overlapped then "~" else " ",
+			ranked[index].seconds,
+			ranked[index].phrase
+		))
+	end
+
+	if anyOverlapped then
+		print("")
+		print("  ~ ran overlapped, so this is wall time: it counts the waiting")
+		print("    it did on the tests beside it, not only its own.")
 	end
 end
 
-local function report(results, durations, elapsed)
-	local failures = collectFailures(results)
-	local total = results.successCount + results.failureCount + results.skippedCount
+local function report(collected, durations, overlapped, elapsed)
+	local failures = collectFailures(collected)
+
+	local total = 0
+	local failureCount = 0
+	local skippedCount = 0
+
+	for _, results in ipairs(collected) do
+		total += results.successCount + results.failureCount + results.skippedCount
+		failureCount += results.failureCount
+		skippedCount += results.skippedCount
+	end
 
 	print("")
 	print(("Time: %.1fs"):format(elapsed))
 
-	reportSlowest(results, durations, elapsed)
+	reportSlowest(collected, durations, overlapped, elapsed)
 
 	print("")
 
 	if #failures == 0 then
-		if results.skippedCount > 0 then
-			print(("OK (%d tests, %d skipped)"):format(total, results.skippedCount))
+		if skippedCount > 0 then
+			print(("OK (%d tests, %d skipped)"):format(total, skippedCount))
 		else
 			print(("OK (%d tests)"):format(total))
 		end
@@ -378,26 +448,117 @@ local function report(results, durations, elapsed)
 	print("")
 
 	-- Raised, not printed: a red line is what says the run did not pass.
-	error(("FAILURES!\nTests: %d, Failures: %d."):format(total, results.failureCount), 0)
+	error(("FAILURES!\nTests: %d, Failures: %d."):format(total, failureCount), 0)
 end
 
 -- ---------------------------------------------------------------------
 -- Run
 -- ---------------------------------------------------------------------
 
+--[[
+	Run every plan at once, and answer their results once all of them are done.
+
+	The same shape as `Support/Concurrency`, written out again rather than
+	required: the runner has to be able to report a framework that is broken,
+	which it could not do if it were built on one.
+]]
+local function runTogether(plans)
+	local collected = {}
+	local total = #plans
+	local settled = 0
+	local failure = nil
+	local waiting = nil
+
+	for index = 1, total do
+		task.spawn(function()
+			local ok, result = pcall(TestRunner.runPlan, plans[index])
+
+			if ok then
+				collected[index] = result
+			elseif failure == nil then
+				failure = result
+			end
+
+			settled += 1
+
+			if settled == total and waiting ~= nil then
+				local resume = waiting
+
+				waiting = nil
+
+				task.spawn(resume)
+			end
+		end)
+	end
+
+	-- Only if something is still running: a plan that never yielded has
+	-- settled already, and its resume would arrive before the yield below.
+	if settled < total then
+		waiting = coroutine.running()
+
+		coroutine.yield()
+	end
+
+	if failure ~= nil then
+		error(failure, 0)
+	end
+
+	return collected
+end
+
 print("Larablox framework test suite")
 print("")
 
 warmUp()
 
-local plan = TestPlanner.createPlan(TestBootstrap:getModules(SPECS))
+-- One plan for everything that does not wait on a service, and one per file
+-- that does. A plan is the unit a `TestSession` covers, so it is also the
+-- smallest thing that can be run beside another.
+local alone = {}
+local overlapping = {}
 
-local testCount = #plan:findNodes(function(node)
+for _, module in ipairs(TestBootstrap:getModules(SPECS)) do
+	if CONCURRENT[module.path[1]] then
+		table.insert(overlapping, { module })
+	else
+		table.insert(alone, module)
+	end
+end
+
+local plans = { TestPlanner.createPlan(alone) }
+
+for _, group in ipairs(overlapping) do
+	table.insert(plans, TestPlanner.createPlan(group))
+end
+
+local function isTest(node)
 	return node.type == TestEnum.NodeType.It
-end)
+end
+
+local testCount = 0
+local overlappedCount = 0
+local overlapped = {}
+
+for index, plan in ipairs(plans) do
+	local tests = plan:findNodes(isTest)
+
+	testCount += #tests
+
+	if index > 1 then
+		overlappedCount += #tests
+
+		for _, node in ipairs(tests) do
+			overlapped[node] = true
+		end
+	end
+end
 
 print("")
-print(("Running %d tests"):format(testCount))
+print(("Running %d tests, %d of them overlapped across %d files"):format(
+	testCount,
+	overlappedCount,
+	#plans - 1
+))
 print("")
 
 local progress = Progress.new(testCount)
@@ -405,14 +566,31 @@ local durations = {}
 local restore = watch(progress, durations)
 
 local startedAt = os.clock()
-local ok, results = pcall(TestRunner.runPlan, plan)
+
+-- The first plan alone, then the rest together: nothing that leans on global
+-- state is ever mid-test while something else runs.
+local ok, collected = pcall(function()
+	local first = TestRunner.runPlan(plans[1])
+	local rest = {}
+
+	for index = 2, #plans do
+		table.insert(rest, plans[index])
+	end
+
+	local results = runTogether(rest)
+
+	table.insert(results, 1, first)
+
+	return results
+end)
+
 local elapsed = os.clock() - startedAt
 
 restore()
 progress:flush()
 
 if not ok then
-	error(results, 0)
+	error(collected, 0)
 end
 
-report(results, durations, elapsed)
+report(collected, durations, overlapped, elapsed)

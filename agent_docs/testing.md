@@ -97,6 +97,44 @@ a port of an upstream class — see that repo's `CLAUDE.md` "Not ported"
 section for why) — all in the sibling `monolog` checkout, not here. Both
 repos build and lint clean as of this fix.
 
+## Real bugs this suite has caught
+
+The suite reached green at **1137 passing** on 2026-08-26. Getting there
+turned up around thirty genuine framework defects — every one of them
+compiled clean, type-checked clean, and was invisible to `npm run analyze`.
+They fall into recognisable families, and the families are worth knowing
+because the next component ported will hit the same ones:
+
+- **A Luau table is a reference; a PHP array is a value.** `Arr::except()`
+  reached into the caller's nested tables, and `Route::bind()` handed
+  `originalParameters` the very map `SubstituteBindings` was about to write
+  over. Anywhere upstream leans on assignment-copies an explicit copy is
+  needed here.
+- **One shape, two meanings.** `new Map([[1, x]])` compiles to the same
+  table as the list `[x]`, and `[Throttle, "60"]` to the same table as a
+  list of two middleware. Both collisions were silently resolving the wrong
+  way; both are documented where they were fixed
+  (`Container.normalizeParameters()`, `Pipeline/Pipes.ts`).
+- **A regular expression translated instead of ported.** `Str::snake()`,
+  `Str::deduplicate()`, `whereUlid()` — each read plausibly and matched the
+  wrong thing. Read the PCRE pattern character by character, especially
+  what a quantifier actually binds to under `/u`.
+- **`mb_*` is not `string.*`.** `Str::position()` answered bytes where
+  `mb_strpos()` answers characters; `Str::limit()` measured length where
+  `mb_strwidth()` measures display width; `trim()` did not strip the 58
+  invisible codepoints Laravel's does.
+- **`nil` is not `null`.** A table cannot hold one, so *absent* and
+  *present-but-null* are one state — which is why several ported cases are
+  marked dropped rather than adapted.
+
+Test-side, three defects in the harness accounted for roughly 240 of the
+original failures on their own: TestEZ's `equal()` is Luau `==` (reference
+identity on tables, hence `expectDeepEqual` in `tests/Illuminate/TestHelpers.ts`),
+its globals are installed with `setfenv` on the callback (so a spec calling
+`describe()` at module scope sees a nil `expect` — hence the
+`export = (): void => { ... }` wrapper every spec uses), and `throw(msg)`
+matches with `err:find()`, which an exception *object* never satisfies.
+
 ## As components change
 
 Compiling only checks types; the pattern from `CLAUDE.md`'s own "## Rules"

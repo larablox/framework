@@ -118,11 +118,13 @@ export class QueueManager implements Factory {
             );
         }
 
+        // PHP hands `setConnectionName()` a null name straight through; the
+        // empty string is the closest thing a `string` field has.
+        const connectionName = name ?? "";
+
         const queue = this.getConnector(config.driver as string)
             .connect(config)
-            // PHP hands `setConnectionName()` a null name straight through;
-            // the empty string is the closest thing a `string` field has.
-            .setConnectionName(name ?? "");
+            .setConnectionName(connectionName);
 
         const setConfig = (queue as { setConfig?: unknown }).setConfig;
 

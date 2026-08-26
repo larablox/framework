@@ -54,7 +54,7 @@
 | `Illuminate\Queue\Connectors\*` | `Queue/Connectors/*.ts` | sync, null, deferred, memory, memorystore |
 | `Illuminate\Queue\Attributes\DeleteWhenMissingModels` | `Queue/Attributes/*.ts` | «модель» — это `Instance` |
 | `Illuminate\Queue\Failed\{FailedJobProviderInterface,NullFailedJobProvider}` | `Queue/Failed/*.ts` | остальные пишут в БД или файл |
-| `Illuminate\Queue\Failed\DatabaseFailedJobProvider` | `Queue/Failed/DataStoreFailedJobProvider.ts` | `DataStoreService`; порядок по `failed_at`, а не по `id` |
+| `Illuminate\Queue\Failed\DatabaseFailedJobProvider` | `Queue/Failed/DataStoreFailedJobProvider.ts` | `DataStoreService`; порядок по `failed_at`, ничью решает `id` |
 | `Illuminate\Queue\Events\*` | `Queue/Events/*.ts` | пятнадцать событий: очередь, джоб, воркер |
 | `Illuminate\Queue\Attributes\{Tries,Timeout,Backoff,MaxExceptions,FailOnTimeout}` | `Queue/Attributes/*.ts` | декораторы + реестр |
 | `Illuminate\Contracts\Queue\{Queue,Job,Factory,Monitor,ShouldQueue}` | `Contracts/Queue/*.ts` | `ShouldQueue` — декоратор-маркер |

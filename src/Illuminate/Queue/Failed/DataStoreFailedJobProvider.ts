@@ -2,6 +2,7 @@ import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
 import { InvalidArgumentException } from "Illuminate/Exception";
 import { Serializer } from "Illuminate/Support/Serializer";
 import { Concurrency } from "Illuminate/Support/Concurrency";
+import { DataStoreRequest } from "Illuminate/Support/DataStoreRequest";
 import { Str } from "Illuminate/Support/Str";
 import type {
     JobPayload,
@@ -83,7 +84,9 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
             failed_at: InteractsWithTime.currentTime(),
         };
 
-        this.store().SetAsync(this.prefix + id, record);
+        DataStoreRequest.run(() =>
+            this.store().SetAsync(this.prefix + id, record),
+        );
 
         return id;
     }
@@ -116,11 +119,8 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
 
         // A forgotten job stays in the listing unless it is excluded, and
         // reading a tombstone costs as much as reading a failure.
-        const pages = store.ListKeysAsync(
-            this.prefix,
-            undefined,
-            undefined,
-            true,
+        const pages = DataStoreRequest.run(() =>
+            store.ListKeysAsync(this.prefix, undefined, undefined, true),
         );
 
         while (true) {
@@ -132,7 +132,13 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
             // key may well hold nothing; see `Concurrency.run()`.
             const read = Concurrency.run(
                 page.map((entry) => () => {
-                    const [held] = store.GetAsync<StoredFailure>(entry.KeyName);
+                    const held = DataStoreRequest.run(() => {
+                        const [value] = store.GetAsync<StoredFailure>(
+                            entry.KeyName,
+                        );
+
+                        return value;
+                    });
 
                     return { record: this.toRecord(held) };
                 }),
@@ -148,7 +154,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
                 break;
             }
 
-            pages.AdvanceToNextPageAsync();
+            DataStoreRequest.run(() => pages.AdvanceToNextPageAsync());
         }
 
         // `failed_at` has a one-second resolution, so two failures logged in
@@ -166,18 +172,26 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
 
     /** Get a single failed job. */
     public find(id: string | number): FailedJobRecord | undefined {
-        const [held] = this.store().GetAsync<StoredFailure>(
-            this.prefix + tostring(id),
-        );
+        const held = DataStoreRequest.run(() => {
+            const [value] = this.store().GetAsync<StoredFailure>(
+                this.prefix + tostring(id),
+            );
+
+            return value;
+        });
 
         return this.toRecord(held);
     }
 
     /** Delete a single failed job from storage. */
     public forget(id: string | number): boolean {
-        const [held] = this.store().RemoveAsync<StoredFailure>(
-            this.prefix + tostring(id),
-        );
+        const held = DataStoreRequest.run(() => {
+            const [value] = this.store().RemoveAsync<StoredFailure>(
+                this.prefix + tostring(id),
+            );
+
+            return value;
+        });
 
         return held !== undefined;
     }
@@ -209,7 +223,9 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
 
         Concurrency.run(
             records.map((record) => () => {
-                store.RemoveAsync(this.prefix + tostring(record.id));
+                DataStoreRequest.run(() =>
+                    store.RemoveAsync(this.prefix + tostring(record.id)),
+                );
 
                 return true;
             }),

@@ -339,9 +339,9 @@ end
 	of very slow ones -- and which ones decides what is worth doing about it.
 	Nothing is printed when there are none, so a fast run stays quiet.
 ]]
-local function reportSlowest(collected, durations, overlapped, elapsed)
+local function reportSlowest(collected, durations, overlap, elapsed)
 	local ranked = {}
-	local spent = 0
+	local spentAlone = 0
 	local anyOverlapped = false
 
 	for _, results in ipairs(collected) do
@@ -353,7 +353,7 @@ local function reportSlowest(collected, durations, overlapped, elapsed)
 			local seconds = durations[node.planNode]
 
 			if seconds ~= nil and seconds >= SLOW_SECONDS then
-				local wasOverlapped = overlapped[node.planNode] == true
+				local wasOverlapped = overlap.nodes[node.planNode] == true
 
 				anyOverlapped = anyOverlapped or wasOverlapped
 
@@ -363,7 +363,12 @@ local function reportSlowest(collected, durations, overlapped, elapsed)
 					overlapped = wasOverlapped,
 				})
 
-				spent += seconds
+				-- Only the ones that ran alone add up to anything: a wall
+				-- time counts the waiting its neighbours did too, so summing
+				-- overlapped ones counts the same seconds several times over.
+				if not wasOverlapped then
+					spentAlone += seconds
+				end
 			end
 		end)
 	end
@@ -379,12 +384,10 @@ local function reportSlowest(collected, durations, overlapped, elapsed)
 	local shown = math.min(#ranked, SLOW_SHOWN)
 
 	print("")
-	print(("Slowest tests (%d of %d over %dms, %.1fs of %.1fs):"):format(
+	print(("Slowest tests (%d of %d over %dms):"):format(
 		shown,
 		#ranked,
-		SLOW_SECONDS * 1000,
-		spent,
-		elapsed
+		SLOW_SECONDS * 1000
 	))
 	print("")
 
@@ -396,14 +399,26 @@ local function reportSlowest(collected, durations, overlapped, elapsed)
 		))
 	end
 
+	print("")
+
 	if anyOverlapped then
+		print(("  ~ ran overlapped: %d tests, done in %.1fs of the %.1fs run."):format(
+			overlap.count,
+			overlap.elapsed,
+			elapsed
+		))
+		print("    Each is wall time and counts the waiting its neighbours did,")
+		print("    so these do not add up to that.")
 		print("")
-		print("  ~ ran overlapped, so this is wall time: it counts the waiting")
-		print("    it did on the tests beside it, not only its own.")
 	end
+
+	print(("  The rest ran alone, and the slow ones cost %.1fs of the %.1fs."):format(
+		spentAlone,
+		elapsed
+	))
 end
 
-local function report(collected, durations, overlapped, elapsed)
+local function report(collected, durations, overlap, elapsed)
 	local failures = collectFailures(collected)
 
 	local total = 0
@@ -419,7 +434,7 @@ local function report(collected, durations, overlapped, elapsed)
 	print("")
 	print(("Time: %.1fs"):format(elapsed))
 
-	reportSlowest(collected, durations, overlapped, elapsed)
+	reportSlowest(collected, durations, overlap, elapsed)
 
 	print("")
 
@@ -566,6 +581,7 @@ local durations = {}
 local restore = watch(progress, durations)
 
 local startedAt = os.clock()
+local overlappedElapsed = 0
 
 -- The first plan alone, then the rest together: nothing that leans on global
 -- state is ever mid-test while something else runs.
@@ -577,7 +593,10 @@ local ok, collected = pcall(function()
 		table.insert(rest, plans[index])
 	end
 
+	local began = os.clock()
 	local results = runTogether(rest)
+
+	overlappedElapsed = os.clock() - began
 
 	table.insert(results, 1, first)
 
@@ -593,4 +612,8 @@ if not ok then
 	error(collected, 0)
 end
 
-report(collected, durations, overlapped, elapsed)
+report(collected, durations, {
+	nodes = overlapped,
+	count = overlappedCount,
+	elapsed = overlappedElapsed,
+}, elapsed)

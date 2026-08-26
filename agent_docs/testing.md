@@ -81,13 +81,13 @@ PHPUnit's instead — a progress row per 63 tests while it runs, then a
 numbered list of failures, then the totals:
 
 ```
-Running 1141 tests
+Running 1141 tests, 54 of them overlapped across 5 files
 
 ...............................................................  63 / 1141 (  5%)
 ...............................................................  126 / 1141 ( 11%)
 ...
 
-Time: 77.6s
+Time: 46.3s
 
 There were 2 failures:
 
@@ -132,7 +132,7 @@ is latency, not throughput — and latency is what overlapping removes.
 So `RunTests.server.luau` builds one plan for everything else and one plan per
 service file, runs the first alone, then runs the rest together. A plan is the
 unit a `TestSession` covers, which makes it the smallest thing that can run
-beside another.
+beside another. Measured over the whole suite: **110.9s before, 46.3s after**.
 
 What makes a file safe to put in that group is **not** that it is slow — it is
 that it shares no state with the others. Each of the five builds its own
@@ -147,7 +147,10 @@ help either, because a parallel-phase script may not make the yielding service
 calls these tests are made of.
 
 In the slow list, `~` marks a test that ran overlapped: its number is wall
-time and counts the waiting it did on the tests beside it.
+time and counts the waiting it did on the tests beside it. Those numbers are
+therefore not addable — the first version of this report summed them and
+announced "93.8s of 46.3s". What the report gives instead is the overlapped
+group's own elapsed time, and a separate sum for the tests that ran alone.
 
 ## Formerly a known blocker (fixed 2026-08-26)
 

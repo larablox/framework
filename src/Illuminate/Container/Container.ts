@@ -1079,8 +1079,14 @@ export class Container implements ContainerContract {
             );
 
             // A variadic parameter contributes its elements, not the list.
+            // PHP: `array_merge($results, is_array($result) ? $result : [$result])`
+            // -- the resolver hands back a list for a variadic that resolved
+            // several dependencies and a bare instance for one, and both have
+            // to end up spread.
             if (dependency.variadic === true) {
-                for (const value of (result ?? []) as Array<defined>) {
+                for (const value of Util.arrayWrap(
+                    result as defined | Array<defined> | undefined,
+                )) {
                     results.push(value);
                 }
 
@@ -1235,12 +1241,18 @@ export class Container implements ContainerContract {
     }
 
     /** Resolve a class based variadic dependency from the container. */
-    protected resolveVariadicClass(parameter: Abstract): Array<defined> {
+    protected resolveVariadicClass(parameter: Abstract): unknown {
         const abstract = this.getAlias(parameter);
         const concrete = this.getContextualConcrete(abstract);
 
         if (!Util.isArray(concrete)) {
-            return [this.make(parameter) as defined];
+            // PHP returns `$this->make($className)` as-is, and deliberately:
+            // a contextual binding registered through `giveTagged()` is a
+            // closure, not a list, so this branch is the one it takes, and
+            // `make()` running that closure is what yields the whole tagged
+            // list. Wrapping it here would hand the variadic a single
+            // dependency that happens to be an array.
+            return this.make(parameter);
         }
 
         const resolved = new Array<defined>();

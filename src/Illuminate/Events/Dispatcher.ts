@@ -472,12 +472,10 @@ export class Dispatcher implements DispatcherContract {
             "delaySeconds",
         ) as DelayValue | undefined;
 
-        // PHP calls `pushOn`/`laterOn`, which are these two with the queue name
-        // moved to the front.
         if (delay === undefined) {
-            connection.push(job, "", queue);
+            connection.pushOn(queue as string, job);
         } else {
-            connection.later(delay, job, "", queue);
+            connection.laterOn(queue as string, delay, job);
         }
     }
 

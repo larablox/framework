@@ -750,7 +750,18 @@ export = (): void => {
         // reading in the first place; the middleware-invocation counter is
         // dropped along with `$response->original`, since there is nowhere left
         // to read it from.
-        it("Route::flushController() forces a fresh controller instance on the next dispatch", () => {
+        //
+        // The expectation is inverted from upstream, and deliberately. PHP
+        // caches the controller on the route and `flushController()` drops it,
+        // which is safe there because the route object dies with the request.
+        // Here the collection's route lives as long as the place and requests
+        // interleave, so one cached controller would be a single instance
+        // shared between players -- and a controller holding any state of its
+        // own would leak it mid-request. `Route::forRequest()` hands each
+        // request a copy carrying no controller, so every dispatch builds its
+        // own and `flushController()` has nothing left to drop. It stays on the
+        // class for parity with PHP.
+        it("gives every dispatch its own controller, leaving flushController() nothing to drop (diverges -- see comment)", () => {
             let constructCount = 0;
 
             class ActionCountStub extends Controller {
@@ -774,13 +785,16 @@ export = (): void => {
             expect(r.dispatch(request).content()).to.equal(1);
             expect(constructCount).to.equal(1);
 
-            expect(r.dispatch(request).content()).to.equal(2);
-            expect(constructCount).to.equal(1);
+            // Upstream answers 2 here, off the instance the route kept.
+            expect(r.dispatch(request).content()).to.equal(1);
+            expect(constructCount).to.equal(2);
 
+            // Drops a controller the per-request copy never held, so the
+            // dispatch after it is no different from the one before.
             (request.route() as Route).flushController();
 
             expect(r.dispatch(request).content()).to.equal(1);
-            expect(constructCount).to.equal(2);
+            expect(constructCount).to.equal(3);
         });
 
         // PHP: RoutingRouteTest::testRoutePreservingOriginalParametersState

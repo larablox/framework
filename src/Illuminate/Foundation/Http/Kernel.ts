@@ -26,6 +26,16 @@ import type { Response } from "Illuminate/Http/Response";
 import type { Route } from "Illuminate/Routing/Route";
 import type { Router } from "Illuminate/Routing/Router";
 
+/**
+ * The container key the request's start time is bound under.
+ *
+ * PHP keeps this in a property; here it belongs to the request rather than to
+ * the kernel, and the request's container is the sandbox. Not exported: it is
+ * the kernel's own bookkeeping, and `requestStartedAt()` is how it is read. A
+ * class rather than a string so it cannot collide with a key a game binds.
+ */
+class RequestStartedAt {}
+
 /** PHP: one entry of `$requestLifecycleDurationHandlers`. */
 interface DurationHandler {
     threshold: number;
@@ -44,6 +54,17 @@ interface DurationHandler {
  * once at start-up rather than on the way into the first request, and the
  * duration handlers measure with `os.clock()` because `Carbon` -- a wall clock
  * with a timezone -- is not ported.
+ *
+ * It also shows up in the signatures. PHP keeps the application on the kernel
+ * and the current request's start time beside it, because one process serves
+ * one request and neither can be about anybody else. Here one kernel serves
+ * every request and a remote handler is a coroutine, so a yield inside one
+ * request lets the next overwrite both -- the first would then bind its request
+ * into the second's container, terminate the second's application, and report
+ * the second's duration as its own. So the kernel holds no per-request state:
+ * the application arrives with the request, exactly as it does in
+ * `Router::dispatch()`, and the start time is kept in that application, which
+ * is this request's sandbox and therefore the right place for it.
  *
  * Not ported: `$bootstrappers` entry `HandleExceptions` (it installs PHP's
  * error handlers), `enableHttpMethodParameterOverride()` (no forms), and
@@ -70,9 +91,6 @@ export class Kernel implements KernelContract {
     /** All of the registered request duration handlers. */
     protected requestLifecycleDurationHandlers = new Array<DurationHandler>();
 
-    /** When the kernel started handling the current request. */
-    protected startedAt?: number;
-
     /**
      * The priority-sorted list of middleware.
      *
@@ -97,44 +115,54 @@ export class Kernel implements KernelContract {
     // The request lifecycle
     // -----------------------------------------------------------------
 
-    /** Handle an incoming HTTP request. */
-    public handle(request: Request): Response {
-        this.startedAt = os.clock();
+    /**
+     * Handle an incoming HTTP request.
+     *
+     * `app` is the application this request runs on -- its sandbox. It
+     * defaults to the kernel's own, which is the root, for a caller outside
+     * the worker; see the class comment for why it is not simply read off the
+     * kernel.
+     */
+    public handle(request: Request, app: Application = this.app): Response {
+        app.instance(RequestStartedAt, os.clock());
 
         let response: Response;
 
         try {
-            response = this.sendRequestThroughRouter(request);
+            response = this.sendRequestThroughRouter(request, app);
         } catch (e) {
-            this.reportException(e);
+            this.reportException(e, app);
 
-            response = this.renderException(request, e);
+            response = this.renderException(request, e, app);
         }
 
-        this.events().dispatch(new RequestHandled(request, response));
+        this.events(app).dispatch(new RequestHandled(request, response));
 
         return response;
     }
 
     /** Send the given request through the middleware / router. */
-    protected sendRequestThroughRouter(request: Request): Response {
-        this.app.instance("request", request);
+    protected sendRequestThroughRouter(
+        request: Request,
+        app: Application,
+    ): Response {
+        app.instance("request", request);
 
         // PHP also clears the `Request` facade's resolved instance; there is no
         // request facade here to clear.
 
         this.bootstrap();
 
-        const pipeline = new Pipeline(this.app)
+        const pipeline = new Pipeline(app)
             .send(request)
             .through(
-                this.app.shouldSkipMiddleware()
+                app.shouldSkipMiddleware()
                     ? new Array<Pipe>()
                     : this.middleware,
             );
 
         return pipeline.then((passable: Passable) =>
-            this.dispatchToRouter(passable as Request),
+            this.dispatchToRouter(passable as Request, app),
         ) as Response;
     }
 
@@ -146,25 +174,37 @@ export class Kernel implements KernelContract {
     }
 
     /** Get the route dispatcher callback. */
-    protected dispatchToRouter(request: Request): Response {
-        this.app.instance("request", request);
+    protected dispatchToRouter(request: Request, app: Application): Response {
+        app.instance("request", request);
 
         // The router is a singleton built on the root application and holds it;
-        // `this.app` is the sandbox this request runs on, and it is the one the
+        // `app` is the sandbox this request runs on, and it is the one the
         // route, its controller and its middleware have to resolve out of --
         // not least because the `"request"` bound a line above is bound there.
-        return this.router.dispatch(request, this.app);
+        return this.router.dispatch(request, app);
     }
 
-    /** Call the terminate method on any terminable middleware. */
-    public terminate(request: Request, response: Response): void {
-        this.events().dispatch(new Terminating());
+    /**
+     * Perform any final actions for the request lifecycle.
+     *
+     * Takes the application the request ran on for the same reason `handle()`
+     * does, and more sharply: the worker defers this, so by the time it runs
+     * the kernel has very likely been asked to serve something else.
+     */
+    public terminate(
+        request: Request,
+        response: Response,
+        app: Application = this.app,
+    ): void {
+        this.events(app).dispatch(new Terminating());
 
-        this.terminateMiddleware(request, response);
+        this.terminateMiddleware(request, response, app);
 
-        this.app.terminate();
+        app.terminate();
 
-        if (this.startedAt === undefined) {
+        const startedAt = this.requestStartedAt(app);
+
+        if (startedAt === undefined) {
             return;
         }
 
@@ -173,17 +213,24 @@ export class Kernel implements KernelContract {
         const finishedAt = os.clock();
 
         for (const entry of this.requestLifecycleDurationHandlers) {
-            if ((finishedAt - this.startedAt) * 1000 > entry.threshold) {
-                entry.handler(this.startedAt, request, response);
+            if ((finishedAt - startedAt) * 1000 > entry.threshold) {
+                entry.handler(startedAt, request, response);
             }
         }
 
-        this.startedAt = undefined;
+        // PHP clears the property here. Nothing to clear: the sandbox holding
+        // this is thrown away by the worker on the very next line of its own
+        // `finally`, and a caller that passed no application is writing to the
+        // root, where the next `handle()` overwrites it.
     }
 
     /** Call the terminate method on any terminable middleware. */
-    protected terminateMiddleware(request: Request, response: Response): void {
-        if (this.app.shouldSkipMiddleware()) {
+    protected terminateMiddleware(
+        request: Request,
+        response: Response,
+        app: Application,
+    ): void {
+        if (app.shouldSkipMiddleware()) {
             return;
         }
 
@@ -201,7 +248,7 @@ export class Kernel implements KernelContract {
             }
 
             const [name] = this.parseMiddleware(middleware);
-            const instance = this.app.make(name) as Record<string, unknown>;
+            const instance = app.make(name) as Record<string, unknown>;
             const terminate = instance.terminate;
 
             if (typeIs(terminate, "function")) {
@@ -232,8 +279,10 @@ export class Kernel implements KernelContract {
     }
 
     /** When the request being handled started, as `os.clock()` read it. */
-    public requestStartedAt(): number | undefined {
-        return this.startedAt;
+    public requestStartedAt(app: Application = this.app): number | undefined {
+        return app.bound(RequestStartedAt)
+            ? (app.make(RequestStartedAt) as number)
+            : undefined;
     }
 
     /** Gather the route middleware for the given request. */
@@ -525,18 +574,22 @@ export class Kernel implements KernelContract {
     }
 
     /** Report the exception to the exception handler. */
-    protected reportException(e: unknown): void {
-        this.app.make<Handler>(Handler).report(e);
+    protected reportException(e: unknown, app: Application = this.app): void {
+        app.make<Handler>(Handler).report(e);
     }
 
     /** Render the exception to a response. */
-    protected renderException(request: Request, e: unknown): Response {
-        return this.app.make<Handler>(Handler).render(request, e);
+    protected renderException(
+        request: Request,
+        e: unknown,
+        app: Application = this.app,
+    ): Response {
+        return app.make<Handler>(Handler).render(request, e);
     }
 
     /** The event dispatcher, which PHP reaches as `$this->app['events']`. */
-    protected events(): Dispatcher {
-        return this.app.make<Dispatcher>("events");
+    protected events(app: Application = this.app): Dispatcher {
+        return app.make<Dispatcher>("events");
     }
 
     /** Get the application instance. */

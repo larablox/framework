@@ -15,11 +15,18 @@ export interface Kernel {
     /** Bootstrap the application for HTTP requests. */
     bootstrap(): void;
 
-    /** Handle an incoming HTTP request. */
-    handle(request: Request): Response;
+    /**
+     * Handle an incoming HTTP request.
+     *
+     * PHP takes the request alone: one process serves one request, so the
+     * application on the kernel can only be this request's. Here one kernel
+     * serves every request and they interleave, so the application arrives
+     * with the request -- the same trade `Router::dispatch()` makes.
+     */
+    handle(request: Request, app?: Application): Response;
 
     /** Perform any final actions for the request lifecycle. */
-    terminate(request: Request, response: Response): void;
+    terminate(request: Request, response: Response, app?: Application): void;
 
     /** Get the application instance. */
     getApplication(): Application;

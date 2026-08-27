@@ -51,9 +51,11 @@ import type { Response } from "Illuminate/Http/Response";
  * start before this one is done. So per-request state may not live on any
  * object that outlives the request:
  *
- * - the container is the sandbox, and the kernel hands it to the router with
- *   the request (`Router::dispatch(request, container)`) rather than the router
- *   holding it;
+ * - the kernel keeps nothing about a request. The sandbox is handed to it call
+ *   by call -- `Kernel::handle(request, app)`, `Kernel::terminate(request,
+ *   response, app)` -- and it passes that same one on to the router, rather
+ *   than either of them holding it. The request's start time lives in the
+ *   sandbox for the same reason;
  * - the route is a copy taken at match time (`Route::forRequest()`), which is
  *   what carries the parameters, the controller and that container.
  *
@@ -64,7 +66,7 @@ import type { Response } from "Illuminate/Http/Response";
  * correct under interleaving.
  */
 export class Worker {
-    /** The kernel, resolved once and lent to each sandbox in turn. */
+    /** The kernel, resolved once and handed a sandbox per request. */
     protected kernel?: HttpKernel;
 
     /** Whether `boot()` has run. */
@@ -134,22 +136,21 @@ export class Worker {
         const kernel = this.bootedKernel();
         const sandbox = this.app.sandbox();
 
-        // PHP: `GiveNewApplicationInstanceToHttpKernel`. The kernel is one
-        // object -- it holds the middleware stack -- so the sandbox borrows it
-        // rather than building its own, and it is pointed back at the root once
-        // the request is done with it.
-        kernel.setApplication(sandbox);
-
+        // PHP: `GiveNewApplicationInstanceToHttpKernel` points the kernel at the
+        // sandbox and back again. That cannot work here -- requests interleave,
+        // so the next one would move the kernel out from under this one. The
+        // kernel is still one object, holding the middleware stack and nothing
+        // about any request; the sandbox is handed to it call by call instead.
         try {
             this.dispatchEvent(
                 sandbox,
                 new RequestReceived(this.app, sandbox, request),
             );
 
-            const response = kernel.handle(request);
+            const response = kernel.handle(request, sandbox);
 
             task.defer(() => {
-                this.terminateRequest(kernel, sandbox, request, response);
+                this.terminateRequest(sandbox, request, response);
             });
 
             return response;
@@ -159,7 +160,7 @@ export class Worker {
             // never scheduled -- and let the gateway turn it into a 500.
             this.dispatchEvent(sandbox, new WorkerErrorOccurred(e, sandbox));
 
-            this.flushSandbox(kernel, sandbox);
+            this.flushSandbox(sandbox);
 
             throw e;
         }
@@ -167,7 +168,6 @@ export class Worker {
 
     /** Terminate the request, then throw the sandbox away. */
     protected terminateRequest(
-        kernel: HttpKernel,
         sandbox: Application,
         request: Request,
         response: Response,
@@ -175,7 +175,7 @@ export class Worker {
         try {
             // `Kernel::terminate()` ends in `$this->app->terminate()`, and
             // `$this->app` is the sandbox -- which is the whole point.
-            kernel.terminate(request, response);
+            this.bootedKernel().terminate(request, response, sandbox);
 
             this.dispatchEvent(
                 sandbox,
@@ -184,7 +184,7 @@ export class Worker {
         } catch (e) {
             this.dispatchEvent(sandbox, new WorkerErrorOccurred(e, sandbox));
         } finally {
-            this.flushSandbox(kernel, sandbox);
+            this.flushSandbox(sandbox);
         }
     }
 
@@ -198,10 +198,8 @@ export class Worker {
      * it happens on the way out here instead, because a request that starts
      * while another is mid-flight must not pull the cache out from under it.
      */
-    protected flushSandbox(kernel: HttpKernel, sandbox: Application): void {
+    protected flushSandbox(sandbox: Application): void {
         sandbox.flush();
-
-        kernel.setApplication(this.app);
 
         Str.flushCache();
     }

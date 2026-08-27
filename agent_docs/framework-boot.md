@@ -29,17 +29,18 @@ src/server/main.server.ts
        └─ gateway.listen(request → worker.handle(request))
             └─ worker.handle(request)
                  ├─ sandbox = app.sandbox()   // копия контейнера на запрос
-                 ├─ kernel.setApplication(sandbox)
                  ├─ событие RequestReceived
-                 ├─ kernel.handle(request)
-                 │    ├─ instance("request") → глобальные middleware → router.dispatch()
+                 ├─ kernel.handle(request, sandbox)   // ядро о запросе ничего не хранит
+                 │    ├─ sandbox.instance("request") → глобальные middleware
+                 │    ├─ router.dispatch(request, sandbox)
                  │    ├─ что-то брошено      → Handler::report() + Handler::render()
                  │    └─ событие RequestHandled
                  └─ task.defer:
-                      ├─ kernel.terminate()  → Terminating, terminate() у middleware,
-                      │                        sandbox.terminate()  ← не корневой app
+                      ├─ kernel.terminate(request, response, sandbox)
+                      │    → Terminating, terminate() у middleware,
+                      │      sandbox.terminate()  ← не корневой app
                       ├─ событие RequestTerminated
-                      └─ sandbox.flush(), kernel.setApplication(app), Str.flushCache()
+                      └─ sandbox.flush(), Str.flushCache()
 ```
 
 `Bus` и `Pipeline` в PHP лежат не среди базовых провайдеров, а в
@@ -137,9 +138,16 @@ PHP-процесс, поэтому `Illuminate/Foundation/Runtime/Worker` пор
   внутри себя. Фасад резолвит из корня — верно для синглтонов, ради которых он
   и нужен, и неверно для чего угодно request-scoped: `App::make("request")` не
   использовать.
-- **Ядро одно.** Оно держит стек middleware, поэтому песочница его одалживает
-  (`kernel.setApplication(sandbox)`), а не строит своё, — это Octane's
-  `GiveNewApplicationInstanceToHttpKernel`.
+- **Ядро одно, но песочницу оно не одалживает.** Octane переключает ядро на
+  песочницу и обратно (`GiveNewApplicationInstanceToHttpKernel`); здесь так
+  нельзя — запросы чередуются, и следующий увёл бы ядро из-под текущего.
+  Поэтому ядро не хранит о запросе **ничего**: песочница передаётся ему
+  вызовом (`Kernel::handle(request, app)`, `Kernel::terminate(request,
+  response, app)`), и он передаёт её дальше роутеру. Время старта запроса
+  лежит там же — в песочнице, под приватным ключом, а не полем на ядре.
+  Замерено: без этого отложенная терминация терминирует чужую песочницу или
+  корень, а обработчики `whenRequestLifecycleIsLongerThan` для части запросов
+  не срабатывают вовсе.
 - **`FlushStrCache` переехал.** Octane вешает его на `RequestReceived`, то есть
   на начало следующего запроса; здесь он на выходе, чтобы запрос, стартовавший
   посреди другого, не выдёргивал кэш из-под него.

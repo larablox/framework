@@ -18,6 +18,17 @@ local task = require("@lune/task")
 
 local Globals = {}
 
+--[[
+	What marks a value as the `DateTime` shim.
+
+	Luau honours a `__type` metafield only on userdata, so a table cannot
+	report itself as a `DateTime` -- and `typeIs(value, "DateTime")` compiles to
+	exactly `typeof(value) == "DateTime"`, which `Serializer` dispatches on.
+	Rather than let that branch quietly go the wrong way, the metatable is the
+	mark and `typeof` below is taught to read it.
+]]
+local momentMeta = {}
+
 local function unavailable(name: string)
 	return setmetatable({}, {
 		__index = function(_, key)
@@ -153,10 +164,10 @@ function Globals.build(replicatedStorage: any): { [string]: any }
 	local DateTime = {}
 
 	local function moment(millis: number): any
-		return {
+		return setmetatable({
 			UnixTimestamp = millis // 1000,
 			UnixTimestampMillis = millis,
-		}
+		}, momentMeta)
 	end
 
 	function DateTime.now(): any
@@ -171,12 +182,19 @@ function Globals.build(replicatedStorage: any): { [string]: any }
 		return moment(millis)
 	end
 
+	--[[ Roblox's `typeof`, which answers `"DateTime"` where Luau says table. ]]
+	local function robloxTypeof(value: any): string
+		if type(value) == "table" and getmetatable(value) == momentMeta then
+			return "DateTime"
+		end
+		return typeof(value)
+	end
+
 	return {
 		game = game,
-		workspace = nil,
 		task = task,
 		DateTime = DateTime,
-		typeof = typeof,
+		typeof = robloxTypeof,
 	}
 end
 

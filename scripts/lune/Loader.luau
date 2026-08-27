@@ -18,6 +18,7 @@
 
 local fs = require("@lune/fs")
 local luau = require("@lune/luau")
+local process = require("@lune/process")
 
 local Globals = require("./Globals")
 local Tree = require("./Tree")
@@ -29,22 +30,31 @@ local Loader = {}
 	that file: a mount added there has to be added here too, and the two
 	drifting apart is a run that passes on a tree Studio never sees.
 ]]
+local function mount(parent: any, name: string, dir: string): any
+	if not fs.isDir(dir) then
+		-- Reported and exited rather than raised: `fs.readDir`'s own error is a
+		-- traceback through this file that says nothing about the step that was
+		-- skipped, and a raise here would print one too.
+		print(`{dir} is missing. Run \`npm run test:build\` first (\`npm test\` does both).`)
+		process.exit(1)
+	end
+
+	return Tree.attach(parent, Tree.fromDirectory(name, dir))
+end
+
 local function buildTree(root: string): any
-	local replicatedStorage = Tree.folder("ReplicatedStorage", nil)
+	local replicatedStorage = Tree.folder("ReplicatedStorage")
 
-	Tree.attach(replicatedStorage, Tree.fromDirectory("Illuminate", root .. "/out-tests/src/Illuminate"))
-	Tree.attach(replicatedStorage, Tree.fromDirectory("IlluminateTests", root .. "/out-tests/tests/Illuminate"))
+	mount(replicatedStorage, "Illuminate", root .. "/out-tests/src/Illuminate")
+	mount(replicatedStorage, "IlluminateTests", root .. "/out-tests/tests/Illuminate")
 
-	local nodeModules = Tree.attach(replicatedStorage, Tree.folder("node_modules", nil))
-	Tree.attach(nodeModules, Tree.fromDirectory("@rbxts", root .. "/node_modules/@rbxts"))
-	Tree.attach(nodeModules, Tree.fromDirectory("@larablox", root .. "/node_modules/@larablox"))
+	local nodeModules = Tree.attach(replicatedStorage, Tree.folder("node_modules"))
+	mount(nodeModules, "@rbxts", root .. "/node_modules/@rbxts")
+	mount(nodeModules, "@larablox", root .. "/node_modules/@larablox")
 
-	local include = Tree.attach(
-		replicatedStorage,
-		Tree.fromDirectory("rbxts_include", root .. "/node_modules/roblox-ts/include")
-	)
-	local includeModules = Tree.attach(include, Tree.folder("node_modules", nil))
-	Tree.attach(includeModules, Tree.fromDirectory("@rbxts", root .. "/node_modules/@rbxts"))
+	local include = mount(replicatedStorage, "rbxts_include", root .. "/node_modules/roblox-ts/include")
+	local includeModules = Tree.attach(include, Tree.folder("node_modules"))
+	mount(includeModules, "@rbxts", root .. "/node_modules/@rbxts")
 
 	return replicatedStorage
 end

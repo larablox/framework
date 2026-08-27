@@ -285,10 +285,7 @@ local function describeError(node)
 		message = rest
 	end
 
-	-- Lune's tracebacks carry file paths, Studio's carry instance paths; the
-	-- spec frame is worth having in either shape.
 	local frame = string.match(text, "(IlluminateTests[%w%.]*spec:%d+)")
-		or string.match(text, "(out%-tests[%w%./%-]*%.spec:%d+)")
 
 	if frame ~= nil and not string.find(message, frame, 1, true) then
 		message = message .. "\n   " .. frame
@@ -330,7 +327,11 @@ local function report(results, elapsed, skipped)
 	print("")
 
 	if #failures == 0 then
-		print(("OK (%d tests)"):format(total))
+		if results.skippedCount > 0 then
+			print(("OK (%d tests, %d skipped)"):format(total, results.skippedCount))
+		else
+			print(("OK (%d tests)"):format(total))
+		end
 
 		if #skipped > 0 then
 			print("")
@@ -393,6 +394,19 @@ table.sort(skipped)
 if #modules == 0 then
 	if filter == "" then
 		print("No specs found.")
+		process.exit(1)
+	end
+
+	-- Matched, but every match was service-backed. Saying "no spec matched"
+	-- here sends the reader looking for a typo they did not make.
+	if #skipped > 0 then
+		print(("Every spec matching \"%s\" needs a real Roblox service:"):format(filter))
+
+		for _, name in ipairs(skipped) do
+			print("   " .. name)
+		end
+
+		print("Run those in Studio or through Open Cloud; see agent_docs/testing.md.")
 		process.exit(1)
 	end
 

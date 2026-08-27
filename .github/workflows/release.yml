@@ -58,6 +58,13 @@ jobs:
 
             - run: npm run lint
 
+            # Re-run rather than trust CI: a tag can be pushed onto a commit CI
+            # never saw, and `npm publish` cannot be taken back. Not the whole
+            # suite -- the run names the five specs Lune skips.
+            - uses: CompeyDev/setup-rokit@v0.1.2
+
+            - run: npm test
+
             # `out/` is gitignored, so the package contents listed under `files`
             # only exist after this build.
             - run: npm run build

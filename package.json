@@ -30,6 +30,8 @@
     "scripts": {
         "build": "rbxtsc",
         "test:build": "rbxtsc -p tsconfig.tests.json --rojo test.project.json",
+        "test": "npm run test:build && npm run test:lune",
+        "test:lune": "lune run scripts/lune/RunTests",
         "test:watch": "npm run test:build -- -w",
         "test:serve": "rojo serve test.project.json",
         "clean": "rimraf out out-tests include sourcemap.json tsconfig.tsbuildinfo",

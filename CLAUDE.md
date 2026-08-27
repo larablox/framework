@@ -63,6 +63,10 @@ this wired up, both load-bearing:
 | Lint                                    | `npm run lint`             |
 | Lint + autofix                          | `npm run lint:fix`         |
 | Analyze generated Luau                  | `npm run analyze`          |
+| Run the suite (no Studio)               | `npm test`                 |
+| Run one spec (no Studio)                | `npm run test:lune -- <filter>` |
+| Build the test place                    | `npm run test:build`       |
+| Serve the test place to Studio          | `npm run test:serve`       |
 | Remove build artifacts                  | `npm run clean`            |
 | Install the workbench                   | `npm run workbench:install`|
 | Build the workbench                     | `npm run workbench`        |
@@ -75,6 +79,14 @@ definitions are 650 KB and are not kept in the repository.
 
 `default.project.json` here is a throwaway Studio place used only to run
 this repo's own test suite once it exists — it is not a game.
+
+`npm test` runs the suite under **Lune**, with no Studio and no DataModel —
+1096 of the suite's 1141 tests in about 13 seconds. The other 45 live in five
+spec files that are about `DataStoreService` and `MemoryStoreService` and
+nothing else; those are skipped, named at the end of every run, and still need
+Studio or Open Cloud. A green `npm test` is therefore not a green suite, which
+is why the run says so out loud. `agent_docs/testing.md` has how the harness
+works and why the two services are not faked.
 
 ## The workbench
 

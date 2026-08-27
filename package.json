@@ -34,7 +34,7 @@
         "test:lune": "lune run scripts/lune/RunTests",
         "test:watch": "npm run test:build -- -w",
         "test:serve": "rojo serve test.project.json",
-        "clean": "rimraf out out-tests include sourcemap.json tsconfig.tsbuildinfo",
+        "clean": "rimraf out out-tests include globalTypes.None.d.luau sourcemap.json tsconfig.tsbuildinfo",
         "watch": "rbxtsc -w",
         "dev": "npm run watch",
         "lint": "eslint .",

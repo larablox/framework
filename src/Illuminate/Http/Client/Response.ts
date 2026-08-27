@@ -4,6 +4,8 @@ import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
 import { DeterminesStatusCode } from "Illuminate/Http/Client/Concerns/DeterminesStatusCode";
 import { RequestException } from "Illuminate/Http/Client/RequestException";
 import { data_get } from "Illuminate/Support/Helpers";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
+import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
 import type { ResponseEnvelope } from "Illuminate/Http/Remote";
 
 /**

@@ -7,7 +7,7 @@
 // unless the package has a `types` entry pointing somewhere.
 //
 // `@larablox/monolog` satisfies the same scan with a generated `out/index.d.ts`.
-// This one is checked in rather than generated, because `declaration` is off
-// here: turning it on makes `rbxtsc` fail with TS4094 on every mixin, which is
-// the trait pattern the whole port is built on. See `CLAUDE.md`.
+// This one is checked in because there is nothing to generate it from -- the
+// package has no barrel, only the per-module declarations `declaration: true`
+// emits beside the Luau in `out/Illuminate`. See `CLAUDE.md`.
 export {};

@@ -27,12 +27,10 @@
 		"rootDirs": ["src", "tests"],
 		"outDir": "out-tests",
 		"baseUrl": "src",
-		// NOT `"declaration": true` -- unlike monolog, this repo's own
-		// `tsconfig.json` keeps it off on purpose (see "## Rules" in
-		// CLAUDE.md): turning it on fails with TS4094 on every mixin
-		// (`Conditionable`, `ForwardsCalls`, `InteractsWithData`, `Request`,
-		// `Stringable`, `Response`, `PendingRequest`, ...). The test build
-		// recompiles the same `src/`, so it would hit the identical error.
+		// NOT `"declaration": true`, unlike `tsconfig.json`. Declarations are
+		// there because the published package needs them; `out-tests/` is a
+		// Studio place that nothing imports from, so emitting them here would
+		// only cost build time.
 		"incremental": true,
 		"tsBuildInfoFile": "out-tests/tsconfig.tsbuildinfo"
 	},

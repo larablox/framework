@@ -131,6 +131,131 @@ export class Stringable extends Tappable(Conditionable()) {}
 - `private`-метод трейта попадает в таблицу класса как обычный: приватность
   стирается, и одноимённый метод подкласса его перекроет. В PHP у трейтов та же
   беда.
+- **Возвращаемый тип фабрики надо писать руками, иначе `declaration` не
+  собирается.** Миксин возвращает анонимное классовое выражение, а
+  declaration emit не умеет записать такое выражение, если в нём есть
+  `private`/`protected`: TS4094 «Property of exported class expression may
+  not be private or protected». Пакет обязан отдавать `.d.ts` (иначе у
+  потребителя TS2307 на каждый глубокий импорт), поэтому у каждого трейта с
+  непубличными членами рядом лежит `declare class <Имя>Shape` — тип
+  стирается в рантайме, попадает в `.d.ts` и, будучи **классом**, а не
+  интерфейсом, несёт ту же видимость, что и трейт в Laravel:
+
+  ```ts
+  export declare class ConditionablePublicShape {
+      /** Type-only: там, где это компилируется, такого значения нет. */
+      protected constructor();
+
+      public when(...): this | TWhenReturn;
+  }
+
+  export declare class ConditionableShape extends ConditionablePublicShape {
+      private constructor();
+      private resolveCondition(...): TValue | undefined;
+  }
+
+  // не экспортируется: нужна только затем, чтобы у проверок ниже был
+  // конкретный тип, а не сама форма
+  function conditionable<TBase extends Constructor>(Base: TBase) {
+      return class extends Base {
+          ...
+      } satisfies Constructor<ConditionablePublicShape>;
+  }
+
+  type ConditionableExtra = Exclude<
+      keyof InstanceType<ReturnType<typeof conditionable<typeof Trait>>>,
+      keyof ConditionablePublicShape
+  >;
+
+  type ConditionableIsExact = AssertTrue<
+      AssertNoExtraMembers<ConditionableExtra>
+  >;
+
+  export function Conditionable<TBase extends Constructor>(
+      Base: TBase = Trait as never,
+  ): TBase & Constructor<ConditionableShape> {
+      return conditionable(Base) as never;
+  }
+  ```
+
+  Форма разрезана надвое, потому что сверить с реализацией можно только ту
+  половину, в которой нет непубличных членов. Две проверки закрывают её
+  целиком:
+
+  - `satisfies Constructor<ConditionablePublicShape>` — реализация обязана
+    иметь всё, что объявлено в форме, с теми же сигнатурами. Ловит
+    пропавший, переименованный и изменённый по типу член (TS1360).
+    `satisfies` — единственная конструкция, которая корректно переживает
+    `this`-типы; сравнение через `Omit`/`Pick`/условные типы на них
+    ломается.
+  - `AssertNoExtraMembers<...>` — обратное направление: публичный член,
+    добавленный в трейт и забытый в форме. `keyof` видит только публичные
+    члены, отсюда и разрез. Ошибка называет виновника: `member: "sneaky"`.
+
+  `ForwardsCalls` — единственный трейт целиком из `protected`, поэтому у него
+  публичной половины нет: `keyof` там и так пуст, остаётся только вторая
+  проверка.
+
+  Так сделаны `Conditionable`, `ForwardsCalls`, `InteractsWithData` и
+  `ResolvesRouteDependencies`; `Tappable` и `DeterminesStatusCode` обходятся
+  без этого, потому что у них нет непубличных членов.
+
+  Три вещи, которые из этого следуют:
+
+  - **`as never` обязателен.** `protected`-члены из двух разных объявлений
+    никогда не совместимы по присваиванию, так что без каста аннотация не
+    проходит (TS2322). Тело класса при этом проверяется как обычно — каст
+    отключает только сверку класса с формой.
+  - **Форму надо экспортировать, и именно как `export declare class`.**
+    Каждый зависимый `.d.ts` (`PendingRequest`, `Stringable`, `Response`,
+    `Request`, диспетчеры) обязан сослаться на этот тип по имени; без
+    экспорта TS4094 просто переезжает на них. Напрашивающийся
+    `export type { ConditionableShape }` для этого годится с точки зрения
+    TypeScript, но **roblox-ts не стирает type-only export specifier** и
+    кладёт в таблицу модуля `ConditionableShape = ConditionableShape` —
+    несуществующий глобал, который ловит `npm run analyze`. `export declare
+    class` стирается целиком. Платой идёт то, что для TypeScript это
+    экспорт *значения*, которому в рантайме ничего не соответствует, —
+    отсюда `private constructor()`, чтобы форму нельзя было
+    инстанцировать или унаследовать.
+  - **Непубличная половина остаётся на совести автора.** Обе проверки выше
+    работают только по публичным членам: `keyof` не видит
+    `private`/`protected`, а присваиваемость между двумя объявлениями на них
+    и подавно не работает. Таких членов сейчас семь — `resolveCondition`,
+    `forwardCallTo`, `forwardDecoratedCallTo`, `data`, `isEmptyString`,
+    `container`, `concreteContainer`. Меняешь любой — правь и форму.
+
+  И отдельная ловушка, уже не про сам трейт, а про тех, кто его применяет.
+  В `.d.ts` класса, наследующего миксин, TypeScript синтезирует строку вида
+
+  ```ts
+  declare const Request_base: ... & Constructor<ConditionableShape> ...;
+  ```
+
+  Ссылку на форму он при этом пишет как `import("...")`, и **путь берёт из
+  исходника как есть** — то есть baseUrl-путь `"Illuminate/Support/Traits/
+  Conditionable"`, который у потребителя не резолвится (TS2307), в отличие
+  от обычных `import type`, которые тот же эмит переписывает в
+  относительные. Лечится явным type-импортом формы в файле класса:
+
+  ```ts
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- ...
+  import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
+  ```
+
+  Импорт в коде не используется — он нужен ровно затем, чтобы declaration
+  emit взял относительный путь из него, — поэтому идёт с
+  `eslint-disable-next-line` и пояснением. Сейчас такие импорты стоят в
+  `Request`, `Str`, `Http/Client/PendingRequest`, `Http/Client/Response`,
+  `CallableDispatcher` и `ControllerDispatcher`. **Новый класс, наследующий
+  трейт с формой, требует такого же импорта** — проверять надо не сборкой, а
+  `grep 'import("Illuminate/' out --include='*.d.ts'`: там должно быть
+  пусто.
+
+  Альтернатива — снять `private`/`protected` с восьми членов, тогда TS4094
+  уходит сам. Так делать не стали: это расхождение с Laravel по видимости, и
+  вдобавок anonymous-class emit стирает `this`-типы (`when()` возвращал бы
+  `any`, а не `this`). Именованная форма их сохраняет.
 
 ## Типы и стандартная библиотека
 

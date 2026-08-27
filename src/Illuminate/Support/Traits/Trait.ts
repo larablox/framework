@@ -23,6 +23,26 @@
 export type Constructor<T = object> = new (...args: Array<any>) => T;
 
 /**
+ * Fails to compile unless `TKeys` is `never`, naming the offending key.
+ *
+ * Used by the traits to assert that a mixin has no public member its declared
+ * shape does not list. `Exclude<...>` there evaluates to the extra keys, and
+ * this turns them into an error that reads "Type '{ error: ...; member:
+ * "sneaky"; }' does not satisfy the constraint 'true'" -- a bare
+ * `T extends never` constraint reports only `string`, which does not say what
+ * to go and fix. See `agent_docs/roblox-ts-constraints.md`.
+ */
+export type AssertNoExtraMembers<TKeys> = [TKeys] extends [never]
+    ? true
+    : {
+          error: "this member is public on the trait but missing from its declared shape";
+          member: TKeys;
+      };
+
+/** Fails to compile unless `T` is `true`; pairs with {@link AssertNoExtraMembers}. */
+export type AssertTrue<T extends true> = T;
+
+/**
  * What a trait mixes into when the class using it has no parent of its own.
  *
  * Compiled, this is an ordinary class with an empty constructor, so the

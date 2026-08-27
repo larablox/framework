@@ -47,13 +47,12 @@ fail with TS6059 ("File is not under 'rootDir'"). `tsconfig.tests.json`
 `Illuminate` classes.
 
 One difference from monolog's version: `tsconfig.tests.json` here does
-**not** set `"declaration": true`. Monolog's does, because its own
-`tsconfig.json` also does. This repo's `tsconfig.json` keeps `declaration`
-off on purpose (see "## Rules" in `CLAUDE.md`) — turning it on fails with
-TS4094 on every mixin (`Conditionable`, `ForwardsCalls`, `InteractsWithData`,
-`Request`, `Stringable`, `Response`, `PendingRequest`, ...). The test build
-recompiles the same `src/`, so it would hit the identical error; there was
-never a reason to diverge from the publish build on this setting.
+**not** set `"declaration": true`, though `tsconfig.json` does. Declarations
+are on in the publish build because the package ships them — without them a
+consumer gets TS2307 on every deep import (see "## Rules" in `CLAUDE.md` and
+the mixin note in `roblox-ts-constraints.md`). Nothing imports from
+`out-tests/`: it is a Studio place, so emitting `.d.ts` there would only
+cost build time.
 
 `test.project.json` mounts `ReplicatedStorage.Illuminate` from
 `out-tests/src/Illuminate` and `ReplicatedStorage.IlluminateTests` from

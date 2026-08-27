@@ -85,15 +85,29 @@ this repo's own test suite once it exists — it is not a game.
 - No Node APIs, no DOM, no `window`. The runtime is Luau; the only usable npm
   packages are `@rbxts/*`.
 - Do not add dependencies unless asked.
-- `"declaration": true` is what a consumer needs for real `.d.ts` files, but
-  it is currently **off**: turning it on makes `rbxtsc` fail with TS4094
-  ("Property of exported class expression may not be private or protected")
-  on every mixin (`Conditionable`, `ForwardsCalls`, `InteractsWithData`, and
-  everything that extends them — `Request`, `Stringable`, `Response`,
-  `PendingRequest`, ...). This is the trait-as-mixin pattern
-  `roblox-ts-constraints.md` documents as load-bearing for the whole port —
-  do not "fix" it by dropping `private`/`protected` on those members without
-  discussing it first; that is a real encapsulation change, not a workaround.
+- `"declaration": true` is **on**, and has to stay on: without the `.d.ts`
+  it emits, a consumer gets TS2307 on every deep import. It only compiles
+  because each mixin with non-public members declares its own return type —
+  `export declare class <Name>Shape` next to the factory (exported, and
+  *not* through `export type { ... }` — roblox-ts leaves that one in the
+  compiled module table), `as never` on the returned class expression.
+  Without it, declaration emit fails with
+  TS4094 ("Property of exported class expression may not be private or
+  protected") on `Conditionable`, `ForwardsCalls`, `InteractsWithData`,
+  `ResolvesRouteDependencies` and everything extending them (`Request`,
+  `Stringable`, `Response`, `PendingRequest`, the dispatchers). The
+  **public** half of each shape is checked against the trait in both
+  directions and will fail the build if the two drift; the `private` and
+  `protected` members cannot be (nothing in the type system reaches across
+  two declarations), so those seven are on the honour system — change one
+  and change its shape. A class extending such a mixin also needs an explicit
+  `import type` of the shape, or its `.d.ts` keeps a baseUrl path no
+  consumer can resolve; `grep 'import("Illuminate/' out --include='*.d.ts'`
+  must come back empty. `roblox-ts-constraints.md` has the full pattern and
+  the reasoning behind both. Do not
+  "simplify" it by dropping `private`/`protected` on those members: that
+  clears TS4094 too, but it is a real encapsulation change, it diverges from
+  Laravel, and anonymous-class emit erases `this` types on the way out.
 
 ## Publishing
 
@@ -109,8 +123,9 @@ Two things the package needs that are easy to break:
   `node_modules/@larablox` in `typeRoots` to deep-import, and that makes
   TypeScript try to load `@larablox/framework` as an implicit type library,
   which needs a `types` entry to point somewhere. `@larablox/monolog`
-  generates its own from `src/index.ts` because it has `declaration` on;
-  this one cannot (see the TS4094 note above), so the file is committed.
+  generates its own from `src/index.ts`; this package has no barrel to
+  generate one from — only the per-module declarations that land beside the
+  Luau in `out/Illuminate` — so the file is committed.
 - **`files` lists only `index.d.ts` and `out/Illuminate`.** The specs
   compile to `out-tests/` for exactly this reason — `npm pack --dry-run` is
   the way to check nothing else crept in.

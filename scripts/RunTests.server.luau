@@ -127,28 +127,35 @@ local function filterSegments(text)
 end
 
 --[[
-	Whether a spec's path answers to the filter.
+	The longest suffix of the filter that names anything at all.
 
-	The longest suffix of the filter that matches wins, which is what lets a
-	path be pasted from anywhere. `tests/Illuminate/Foundation/Runtime/
-	Server.spec.ts` names a file whose spec path is
-	`IlluminateTests.Foundation.Runtime.Server` -- two leading segments have
-	collapsed into the name the tree is mounted under, and a third way of
-	writing it would collapse differently. Rather than know that mapping,
-	drop leading segments until what is left is a path: whatever prefix the
-	filter was copied with falls away on its own, and the most specific form
-	is tried first.
+	`tests/Illuminate/Foundation/Runtime/Server.spec.ts` is a file whose spec
+	path is `IlluminateTests.Foundation.Runtime.Server`: two leading segments
+	have collapsed into the name the tree is mounted under, and another way of
+	writing the same path would collapse differently. Rather than know that
+	mapping, leading segments are dropped until what is left names something.
+
+	Resolved once against the whole suite rather than per spec, which is the
+	difference between asking for one file and getting it. Matched file by
+	file, `foundation.runtime.worker` finds `Foundation.Runtime.Worker` and
+	then, for every spec it did not match, keeps falling back until plain
+	`worker` picks up `Queue.Worker` as well. The filter means one thing, so it
+	is settled before anything is compared to it.
 ]]
-local function matchesPath(path, needle)
-	for start = 1, #needle do
-		local candidate = table.concat(needle, ".", start)
+local function resolveNeedle(modules, segments)
+	for start = 1, #segments do
+		local candidate = table.concat(segments, ".", start)
 
-		if string.find(path, candidate, 1, true) ~= nil then
-			return true
+		for _, module in ipairs(modules) do
+			local path = comparable(dottedPath(module.path))
+
+			if string.find(path, candidate, 1, true) ~= nil then
+				return candidate
+			end
 		end
 	end
 
-	return false
+	return nil
 end
 
 local function matching(modules, filter)
@@ -156,11 +163,18 @@ local function matching(modules, filter)
 		return modules
 	end
 
-	local needle = filterSegments(filter)
+	local needle = resolveNeedle(modules, filterSegments(filter))
+
+	if needle == nil then
+		return {}
+	end
+
 	local kept = {}
 
 	for _, module in ipairs(modules) do
-		if matchesPath(comparable(dottedPath(module.path)), needle) then
+		local path = comparable(dottedPath(module.path))
+
+		if string.find(path, needle, 1, true) ~= nil then
 			table.insert(kept, module)
 		end
 	end

@@ -176,10 +176,11 @@ workbench, so nothing in there can break the package's checks.
 
 ## Publishing
 
-Pushing a `v*` tag runs `.github/workflows/release.yml`, which checks the
-tag against `package.json`'s version, builds, and publishes through npm
-trusted publishing (OIDC — no token in the repository, and npm attaches a
-provenance attestation on its own). Nothing about it needs an agent, and an
+Pushing a `v*` tag runs `.github/workflows/release.yml`, which runs `ci.yml`
+in full (it is called, not restated, so the release gate cannot drift from
+the pull-request one), checks the tag against `package.json`'s version,
+builds, and publishes through npm trusted publishing (OIDC — no token in the
+repository, and npm attaches a provenance attestation on its own). Nothing about it needs an agent, and an
 agent has no npm login to do it by hand with.
 
 Two things the package needs that are easy to break:

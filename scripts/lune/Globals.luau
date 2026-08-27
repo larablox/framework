@@ -13,21 +13,11 @@
 	raise instead, so a spec that reaches one says so.
 ]]
 
+local datetime = require("@lune/datetime")
 local serde = require("@lune/serde")
 local task = require("@lune/task")
 
 local Globals = {}
-
---[[
-	What marks a value as the `DateTime` shim.
-
-	Luau honours a `__type` metafield only on userdata, so a table cannot
-	report itself as a `DateTime` -- and `typeIs(value, "DateTime")` compiles to
-	exactly `typeof(value) == "DateTime"`, which `Serializer` dispatches on.
-	Rather than let that branch quietly go the wrong way, the metatable is the
-	mark and `typeof` below is taught to read it.
-]]
-local momentMeta = {}
 
 local function unavailable(name: string)
 	return setmetatable({}, {
@@ -158,20 +148,33 @@ function Globals.build(replicatedStorage: any): { [string]: any }
 	end
 
 	--[[
-		Roblox's `DateTime`, the four members `src/` uses. Whole seconds and
-		milliseconds since the epoch, which is all the framework asks of it.
+		Roblox's `DateTime`, the four members `src/` uses.
+
+		Userdata rather than a table, and that is the whole point of the
+		`newproxy`: a table is walked field by field by anything comparing
+		structurally -- `expectDeepEqual` in `tests/Illuminate/TestHelpers.ts`
+		does exactly that -- so two shims built from one instant would compare
+		equal here and not in Studio, where the real thing is opaque and has no
+		equality by value. The `__type` on the metatable is what `typeof` below
+		reads; Luau's own `typeof` does not honour it, that part is Roblox's.
 	]]
 	local DateTime = {}
 
 	local function moment(millis: number): any
-		return setmetatable({
+		local value = newproxy(true)
+		local meta = getmetatable(value)
+
+		meta.__type = "DateTime"
+		meta.__index = {
 			UnixTimestamp = millis // 1000,
 			UnixTimestampMillis = millis,
-		}, momentMeta)
+		}
+
+		return value
 	end
 
 	function DateTime.now(): any
-		return moment(math.floor(os.time() * 1000))
+		return moment(datetime.now().unixTimestampMillis)
 	end
 
 	function DateTime.fromUnixTimestamp(seconds: number): any
@@ -182,11 +185,16 @@ function Globals.build(replicatedStorage: any): { [string]: any }
 		return moment(millis)
 	end
 
-	--[[ Roblox's `typeof`, which answers `"DateTime"` where Luau says table. ]]
+	--[[ Roblox's `typeof`, which reads `__type` where Luau's does not. ]]
 	local function robloxTypeof(value: any): string
-		if type(value) == "table" and getmetatable(value) == momentMeta then
-			return "DateTime"
+		if type(value) == "userdata" then
+			local meta = getmetatable(value)
+
+			if type(meta) == "table" and meta.__type ~= nil then
+				return meta.__type
+			end
 		end
+
 		return typeof(value)
 	end
 

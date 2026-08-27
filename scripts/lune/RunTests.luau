@@ -326,6 +326,21 @@ local function report(results, elapsed, skipped)
 	print(("Time: %.1fs"):format(elapsed))
 	print("")
 
+	-- On both outcomes, not just the green one: a failing run's totals read like
+	-- the whole suite just as easily as a passing run's do.
+	local function reportSkipped()
+		if #skipped == 0 then
+			return
+		end
+
+		print("")
+		print(("%d spec files were not run -- they need a real Roblox service:"):format(#skipped))
+
+		for _, name in ipairs(skipped) do
+			print("   " .. name)
+		end
+	end
+
 	if #failures == 0 then
 		if results.skippedCount > 0 then
 			print(("OK (%d tests, %d skipped)"):format(total, results.skippedCount))
@@ -333,14 +348,7 @@ local function report(results, elapsed, skipped)
 			print(("OK (%d tests)"):format(total))
 		end
 
-		if #skipped > 0 then
-			print("")
-			print(("%d spec files were not run -- they need a real Roblox service:"):format(#skipped))
-
-			for _, name in ipairs(skipped) do
-				print("   " .. name)
-			end
-		end
+		reportSkipped()
 
 		return
 	end
@@ -356,6 +364,8 @@ local function report(results, elapsed, skipped)
 		print(("%d) %s"):format(index, failure.phrase))
 		print("   " .. failure.message)
 	end
+
+	reportSkipped()
 
 	print("")
 	print(("FAILURES!\nTests: %d, Failures: %d."):format(total, results.failureCount))

@@ -12,6 +12,8 @@
         "dev": "npm run watch",
         "serve": "rojo serve",
         "place": "rojo build default.project.json --output workbench.rbxlx",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
         "clean": "rimraf out include sourcemap.json tsconfig.tsbuildinfo",
         "link": "node scripts/link-framework.mjs",
         "postinstall": "node scripts/link-framework.mjs"

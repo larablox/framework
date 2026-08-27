@@ -8,12 +8,15 @@ export default [
 	{
 		// `index.d.ts` is hand-written and belongs to no tsconfig project --
 		// it exists only to satisfy a consumer's implicit type-library scan.
+		// `.workbench` is a separate npm project with its own dependencies, and
+		// CI installs only this one -- so linting it from here fails on a
+		// runner with "Scope @larablox ... was not found". It lints itself:
+		// `.workbench/eslint.config.js`, or `npm run workbench:lint`.
 		ignores: [
 			"out/**",
 			"out-tests/**",
 			"index.d.ts",
-			".workbench/out/**",
-			".workbench/include/**",
+			".workbench/**",
 		],
 	},
 	{
@@ -23,11 +26,7 @@ export default [
 			parserOptions: {
 				ecmaVersion: 2018,
 				sourceType: "module",
-				project: [
-					"./tsconfig.json",
-					"./tsconfig.tests.json",
-					"./.workbench/tsconfig.json",
-				],
+				project: ["./tsconfig.json", "./tsconfig.tests.json"],
 			},
 		},
 		plugins: {

@@ -37,6 +37,8 @@
         "dev": "npm run watch",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
+        "workbench:lint": "npm --prefix .workbench run lint",
+        "workbench:lint:fix": "npm --prefix .workbench run lint:fix",
         "types:roblox": "curl -sSL -o globalTypes.None.d.luau https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.None.d.luau",
         "sourcemap": "rojo sourcemap default.project.json --output sourcemap.json",
         "analyze": "npm run build && npm run sourcemap && luau-lsp analyze --platform=roblox --sourcemap=sourcemap.json --definitions=globalTypes.None.d.luau --base-luaurc=.luaurc --settings=luau-lsp.settings.json --ignore=\"**/include/**\" --ignore=\"**/node_modules/**\" out",

@@ -99,11 +99,22 @@ So the workbench compiles against **built** output: change `src/` here, run
 `npm run build` here, and the workbench sees it with no reinstall. The Rojo
 place declares the `Call`/`Send`/`Stream`/`Push` remotes the gateway waits for.
 
-`eslint.config.js` lists `.workbench/tsconfig.json` among its projects, so the
-workbench is linted by the same rules. That gives `npm run lint` a dependency
-on `out/`: run it straight after `npm run clean` and every framework type in
-the workbench is `any`, which `roblox-ts/lua-truthiness` reports as errors that
-are not there. Build first.
+**The workbench lints itself** — `.workbench/eslint.config.js`, reachable as
+`npm run workbench:lint` from the root. The root config ignores `.workbench/**`
+outright, and has to: it is a separate npm project, CI installs only this one,
+and linting it from a runner with no `.workbench/node_modules` fails on every
+import with "Scope @larablox is declared in typeRoots but was not found". Its
+rules are the framework's, spelled out again with a different TypeScript
+project; the plugins resolve from this repository's `node_modules`, so the
+workbench needs no lint dependencies of its own.
+
+Its lint does depend on `out/` existing. Run it straight after `npm run clean`
+and every framework type degrades to `any`, which `roblox-ts/lua-truthiness`
+then reports as errors that are not there. Build first.
+
+CI (`.github/workflows/ci.yml`) checks the package only — `npm ci`, `lint`,
+`analyze`. It does not install or build the workbench, so nothing in there can
+break the package's checks.
 
 ## Rules
 

@@ -1,7 +1,7 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
     "name": "@larablox/framework",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "The Larablox Framework.",
     "license": "MIT",
     "keywords": [

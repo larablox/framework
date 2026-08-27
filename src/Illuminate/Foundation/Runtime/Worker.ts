@@ -59,11 +59,9 @@ import type { Response } from "Illuminate/Http/Response";
  * - the route is a copy taken at match time (`Route::forRequest()`), which is
  *   what carries the parameters, the controller and that container.
  *
- * Two shared fields are knowingly left: `Router::$currentRoute` and
- * `Router::$currentRequest`, which back `Router::current()` and are only ever
- * right for whichever request wrote them last. Making them per-request needs a
- * per-coroutine store, and `Request::route()` is already the accessor that is
- * correct under interleaving.
+ * - `Router::current()` and `getCurrentRequest()` read a store keyed by
+ *   coroutine, since the whole point of them is being reachable without being
+ *   handed anything, and a request is one coroutine.
  */
 export class Worker {
     /** The kernel, resolved once and handed a sandbox per request. */

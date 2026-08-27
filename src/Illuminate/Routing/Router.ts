@@ -25,6 +25,12 @@ import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
 import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
 import type { Request } from "Illuminate/Http/Request";
 
+/** What one coroutine is dispatching, if anything. */
+interface DispatchedOnThread {
+    route?: Route;
+    request?: Request;
+}
+
 /** What `Route::bind()` registers: a value for a parameter, from its raw text. */
 export type BinderCallback = (value: string, route: Route) => unknown;
 
@@ -55,11 +61,29 @@ export class Router {
     /** The route collection instance. */
     protected routes = new RouteCollection();
 
-    /** The currently dispatched route instance. */
-    protected currentRoute?: Route;
-
-    /** The request currently being dispatched. */
-    protected currentRequest?: Request;
+    /**
+     * What each coroutine is dispatching.
+     *
+     * PHP keeps `$current` and `$currentRequest` in two properties, and is
+     * exact doing it: one process serves one request, so whatever is in them
+     * is this request's. The router here is a singleton, and a remote handler
+     * is a coroutine -- a yield inside a route lets the next request match and
+     * overwrite both, leaving the first to wake up reading about the second.
+     *
+     * A request is one coroutine from the gateway down, so the coroutine is
+     * what tells them apart. `Kernel` and `Route` were given the sandbox to
+     * carry their per-request state instead, which is better; these two cannot
+     * be, because the whole point of `Route::current()` is being reachable
+     * without being handed anything.
+     *
+     * The keys are weak, so an entry goes when the coroutine that made it is
+     * collected. Clearing on the way out would be wrong -- PHP leaves these
+     * readable after the response, and terminable middleware runs then.
+     */
+    protected readonly dispatching = setmetatable(
+        new Map<thread, DispatchedOnThread>(),
+        { __mode: "k" },
+    );
 
     /** All of the short-hand keys for middlewares. */
     protected middlewareAliases = new OrderedMap<string, Pipe>();
@@ -353,7 +377,7 @@ export class Router {
         request: Request,
         container: Container = this.container,
     ): Response {
-        this.currentRequest = request;
+        this.dispatchedHere().request = request;
 
         return this.dispatchToRoute(request, container);
     }
@@ -378,7 +402,7 @@ export class Router {
         // `Request::route()` is the accessor that is correct under interleaving;
         // this one backs `Router::current()`, which PHP-side code reads and
         // which cannot be made per-request without a per-coroutine store.
-        this.currentRoute = route;
+        this.dispatchedHere().route = route;
 
         // The route carries the request's container from here on: it is
         // per-request now, and the router is not.
@@ -698,21 +722,38 @@ export class Router {
     /**
      * Get the currently dispatched route instance.
      *
-     * PHP keeps this in a `$current` property; a field and a method of the
-     * same name share one table once compiled, so the field is `currentRoute`.
+     * PHP keeps this in a `$current` property. Here it is per coroutine -- see
+     * `dispatching` -- so what comes back is the route of the request asking,
+     * not of whichever one matched most recently.
      */
     public current(): Route | undefined {
-        return this.currentRoute;
+        return this.dispatching.get(coroutine.running())?.route;
     }
 
     /** Get the currently dispatched route instance. */
     public getCurrentRoute(): Route | undefined {
-        return this.currentRoute;
+        return this.current();
     }
 
     /** Get the request currently being dispatched. */
     public getCurrentRequest(): Request | undefined {
-        return this.currentRequest;
+        return this.dispatching.get(coroutine.running())?.request;
+    }
+
+    /** What this coroutine is dispatching, started if it is the first thing it dispatches. */
+    protected dispatchedHere(): DispatchedOnThread {
+        const thread = coroutine.running();
+        const existing = this.dispatching.get(thread);
+
+        if (existing !== undefined) {
+            return existing;
+        }
+
+        const started: DispatchedOnThread = {};
+
+        this.dispatching.set(thread, started);
+
+        return started;
     }
 
     /** Check if a route with the given name exists. */
@@ -728,7 +769,7 @@ export class Router {
 
     /** Get the current route name. */
     public currentRouteName(): string | undefined {
-        return this.currentRoute?.getName();
+        return this.current()?.getName();
     }
 
     /** Alias for the "currentRouteNamed" method. */
@@ -739,14 +780,14 @@ export class Router {
     /** Determine if the current route matches a pattern. */
     public currentRouteNamed(...patterns: Array<string>): boolean {
         return (
-            this.currentRoute !== undefined &&
-            this.currentRoute.named(...patterns)
+            this.current() !== undefined &&
+            (this.current() as Route).named(...patterns)
         );
     }
 
     /** Get the current route action. */
     public currentRouteAction(): string | undefined {
-        return this.currentRoute?.getActionName();
+        return this.current()?.getActionName();
     }
 
     /** Determine if the current route action matches a given action. */

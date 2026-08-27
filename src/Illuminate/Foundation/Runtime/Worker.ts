@@ -147,8 +147,12 @@ export class Worker {
 
             const response = kernel.handle(request, sandbox);
 
+            // The kernel goes with it rather than being looked up again later:
+            // `bootedKernel()` refuses once the worker has been terminated, and
+            // this runs after the response, by which time the place may well be
+            // shutting down. A request that has been answered gets terminated.
             task.defer(() => {
-                this.terminateRequest(sandbox, request, response);
+                this.terminateRequest(kernel, sandbox, request, response);
             });
 
             return response;
@@ -166,6 +170,7 @@ export class Worker {
 
     /** Terminate the request, then throw the sandbox away. */
     protected terminateRequest(
+        kernel: HttpKernel,
         sandbox: Application,
         request: Request,
         response: Response,
@@ -173,7 +178,7 @@ export class Worker {
         try {
             // `Kernel::terminate()` ends in `$this->app->terminate()`, and
             // `$this->app` is the sandbox -- which is the whole point.
-            this.bootedKernel().terminate(request, response, sandbox);
+            kernel.terminate(request, response, sandbox);
 
             this.dispatchEvent(
                 sandbox,
@@ -187,7 +192,7 @@ export class Worker {
     }
 
     /**
-     * Drop the sandbox and put the kernel back on the root application.
+     * Drop the sandbox.
      *
      * PHP: the `finally` of `Worker::handle()`, plus `FlushStrCache` -- the
      * casing caches are `Str`'s own statics rather than container state, so

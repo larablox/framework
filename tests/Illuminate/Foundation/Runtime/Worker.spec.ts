@@ -128,5 +128,26 @@ export = (): void => {
                     .content(),
             ).to.equal("ok");
         });
+
+        it("terminates a request it has already answered, even once the worker has stopped", () => {
+            const terminated = new Array<string>();
+            const app = booted(terminated);
+            const worker = app.make<Worker>(Worker);
+
+            worker.boot([]);
+
+            worker.handle(new Request({} as Player, "GET", "t/one"));
+
+            // The place shuts down in the gap termination is deferred into.
+            // Refusing to serve is right; refusing to finish what was already
+            // answered is not -- the terminable middleware and the terminating
+            // callbacks are what release whatever the request took.
+            worker.terminate();
+
+            task.wait();
+
+            expect(terminated.size()).to.equal(1);
+            expect(terminated[0]).to.equal("one");
+        });
     });
 };

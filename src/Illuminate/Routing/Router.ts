@@ -377,7 +377,13 @@ export class Router {
         request: Request,
         container: Container = this.container,
     ): Response {
-        this.dispatchedHere().request = request;
+        // Replaced rather than written into: a coroutine that has dispatched
+        // before still holds that route, and nothing would clear it until this
+        // request matched -- which is after the global middleware has run and
+        // had every chance to ask. Starting the record fresh here leaves the
+        // accessors answering after the response, since this clears on the way
+        // in and not on the way out.
+        this.dispatching.set(coroutine.running(), { request: request });
 
         return this.dispatchToRoute(request, container);
     }
@@ -398,10 +404,8 @@ export class Router {
         // `Route::forRequest()`.
         const route = this.routes.match(request);
 
-        // Shared, and so only ever right for the request that wrote it last.
-        // `Request::route()` is the accessor that is correct under interleaving;
-        // this one backs `Router::current()`, which PHP-side code reads and
-        // which cannot be made per-request without a per-coroutine store.
+        // Onto this coroutine's record, which `dispatch()` started -- see
+        // `dispatching`. This is what `Router::current()` reads.
         this.dispatchedHere().route = route;
 
         // The route carries the request's container from here on: it is

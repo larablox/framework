@@ -9,7 +9,7 @@ permissions:
     contents: read
 
 jobs:
-    check:
+    lint:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v5
@@ -23,20 +23,24 @@ jobs:
 
             - run: npm run lint
 
-            # `npm run analyze` compiles to Luau, refreshes the sourcemap and runs
-            # luau-lsp over `out/`, so it needs the Rokit toolchain and the Roblox
-            # global type definitions the analyze script expects on disk.
+    analyze:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - run: npm ci
+
             - uses: CompeyDev/setup-rokit@v0.1.2
 
             - run: npm run types:roblox
 
             - run: npm run analyze
 
-    # The suite, minus the five spec files that need a real DataStoreService or
-    # MemoryStoreService -- `scripts/lune/RunTests` names them at the end of
-    # every run. Those still need Studio or Open Cloud; see
-    # `agent_docs/testing.md`. Lune needs no Roblox install, so this runs on the
-    # same ubuntu runner as everything else.
     tests:
         runs-on: ubuntu-latest
         steps:

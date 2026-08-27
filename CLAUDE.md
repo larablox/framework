@@ -124,9 +124,9 @@ Its lint does depend on `out/` existing. Run it straight after `npm run clean`
 and every framework type degrades to `any`, which `roblox-ts/lua-truthiness`
 then reports as errors that are not there. Build first.
 
-CI (`.github/workflows/ci.yml`) checks the package only — `npm ci`, `lint`,
-`analyze`. It does not install or build the workbench, so nothing in there can
-break the package's checks.
+CI (`.github/workflows/ci.yml`) checks the package only, in three independent
+jobs — `lint`, `analyze` and `tests`. It does not install or build the
+workbench, so nothing in there can break the package's checks.
 
 ## Rules
 

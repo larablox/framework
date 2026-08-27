@@ -104,10 +104,14 @@
 | `Illuminate\Foundation\Configuration\ApplicationBuilder` | `Foundation/Configuration/ApplicationBuilder.ts` | только портируемые `with*` |
 | `Illuminate\Foundation\Http\Kernel` | `Foundation/Http/Kernel.ts` | `bootstrap()` на старте, `terminate()` через `task.defer` |
 | `Illuminate\Contracts\Http\Kernel` | `Contracts/Http/Kernel.ts` | ключ контейнера — сам класс ядра: интерфейс им быть не может |
+| `Laravel\Octane\Worker` | `Foundation/Runtime/Worker.ts` | не из `laravel/framework`: приложение живёт всегда, значит это Octane, а не `public/index.php` |
+| Octane: сервер (Swoole/RoadRunner) | `Foundation/Runtime/Server.ts` | владеет транспортом: поднимает воркер и цепляет `RemoteGateway` |
+| — | `Foundation/Runtime/Client.ts` | прецедента нет: у Laravel один рантайм, у Roblox два. Точка входа клиента; не ядро — диспетчить нечего |
 | `Illuminate\Foundation\Exceptions\{Handler,ReportableHandler}` | `Foundation/Exceptions/*.ts` | без троттлинга отчётов; `handles()` нечем реализовать |
 | `Illuminate\Contracts\Debug\ExceptionHandler` | `Contracts/Debug/ExceptionHandler.ts` | без `renderForConsole()` |
 | `Illuminate\Foundation\Configuration\{Middleware,Exceptions}` | `Foundation/Configuration/*.ts` | объекты для `withMiddleware()` / `withExceptions()` |
 | `Illuminate\Foundation\Http\Events\RequestHandled`, `Illuminate\Foundation\Events\Terminating` | `Foundation/Http/Events/*.ts`, `Foundation/Events/*.ts` | |
+| `Laravel\Octane\Events\{WorkerStarting,WorkerStopping,WorkerErrorOccurred,RequestReceived,RequestTerminated}` | `Foundation/Events/*.ts` | |
 | `Illuminate\Foundation\Providers\FoundationServiceProvider` | `Foundation/Providers/FoundationServiceProvider.ts` | из всего провайдера — только клиент `Http` |
 | `Illuminate\Http\Request` | `Http/Request.ts` | input-API целиком; `player()` и `transport()` вместо `ip()`/схемы |
 | `Illuminate\Http\Response` | `Http/Response.ts` | контент — значение, а не строка; `JsonResponse` не нужен |
@@ -945,6 +949,20 @@ route.get("players/{player}", (request: Request, player: Player) => ...)
 `call`. Проверяет это `Matching/TransportValidator` — порт `SchemeValidator`
 один в один, только поле другое.
 
+### Маршрут копируется на запрос, контейнер приезжает с запросом
+
+`Route` в PHP живёт ровно один запрос — процесс умирает вместе с ответом.
+Здесь маршрут в коллекции живёт всё место, а обработчик ремоута — корутина:
+yield внутри маршрута пускает следующий запрос, и два запроса по одному
+маршруту молча меняются параметрами. Поэтому `handleMatchedRoute()` биндит не
+маршрут коллекции, а его копию — `Route::forRequest()`. Копия владеет
+параметрами, контроллером и контейнером; шаблон держит скомпилированный паттерн
+и имена параметров. `flushController()` при этом становится ненужным.
+
+По той же причине `Router::dispatch()` принимает вторым аргументом контейнер:
+роутер — синглтон на корневом приложении, а запрос идёт по песочнице. Подробнее
+— `framework-boot.md`, раздел «Маршрутизация».
+
 ### Ядро: бутстрап на старте, `terminate()` через `task.defer`
 
 `Foundation\Http\Kernel` перенесён почти дословно, но процесс здесь живёт
@@ -954,6 +972,12 @@ route.get("players/{player}", (request: Request, player: Player) => ...)
 же воркеру очереди. И `terminate()` уезжает в `task.defer`: PHP терминирует
 после `$response->send()`, а отправка ответа здесь — это возврат из обработчика,
 после которого уже ничего не выполнится.
+
+Само ядро при этом не изменено: `terminate()` по-прежнему кончается на
+`$this->app->terminate()`. Терминируется песочница, а не корневое приложение —
+приложение, живущее всегда, это Octane, и `Foundation/Runtime/Worker.ts` портирован с
+`Laravel\Octane\Worker`, а не с `public/index.php`. Что именно перенесено из
+Octane и что не перенесено — в `framework-boot.md`, раздел «Воркер и песочница».
 
 `whenRequestLifecycleIsLongerThan()` меряет `os.clock()`, а не `Carbon`:
 настенных часов с таймзоной в порте нет, а длительность нужна монотонная.

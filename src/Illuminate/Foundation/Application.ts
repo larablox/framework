@@ -4,6 +4,7 @@ import { Container } from "Illuminate/Container/Container";
 import { ContextServiceProvider } from "Illuminate/Log/Context/ContextServiceProvider";
 import { Dispatcher } from "Illuminate/Events/Dispatcher";
 import { EventServiceProvider } from "Illuminate/Events/EventServiceProvider";
+import { FoundationServiceProvider } from "Illuminate/Foundation/Providers/FoundationServiceProvider";
 import { LogManager } from "Illuminate/Log/LogManager";
 import { LogServiceProvider } from "Illuminate/Log/LogServiceProvider";
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
@@ -16,6 +17,7 @@ import { RoutingServiceProvider } from "Illuminate/Routing/RoutingServiceProvide
 import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
 import { Str } from "Illuminate/Support/Str";
 import { Util } from "Illuminate/Container/Util";
+import { Worker } from "Illuminate/Foundation/Runtime/Worker";
 import type {
     Abstract,
     AbstractClass,
@@ -29,7 +31,9 @@ import type {
     Bootstrapper,
 } from "Illuminate/Contracts/Foundation/Application";
 import type { Dispatcher as DispatcherContract } from "Illuminate/Contracts/Events/Dispatcher";
-import type { ArrayAccessible } from "../Support/Arr";
+import type { ArrayAccessible } from "Illuminate/Support/Arr";
+import type { Request } from "Illuminate/Http/Request";
+import type { Response } from "Illuminate/Http/Response";
 
 /**
  * PHP: `Illuminate\Foundation\Application`.
@@ -92,13 +96,72 @@ export class Application extends Container implements ApplicationContract {
     protected static applicationBuilder: typeof ApplicationBuilder =
         ApplicationBuilder;
 
-    /** Create a new application instance. */
-    public constructor() {
+    /**
+     * Create a new application instance.
+     *
+     * `bare` is what PHP gets for free from `clone`, which never runs a
+     * constructor: a sandbox must not register the base bindings and providers
+     * a second time -- `copyStateTo()` is about to overwrite them -- and above
+     * all must not take the global container instance away from the root
+     * application, which `registerBaseBindings()` would do.
+     */
+    public constructor(bare = false) {
         super();
+
+        if (bare) {
+            return;
+        }
 
         this.registerBaseBindings();
         this.registerBaseServiceProviders();
         this.registerCoreContainerAliases();
+    }
+
+    /**
+     * Get a copy of the application to handle a single request with.
+     *
+     * PHP: `clone $this->app` in `Laravel\Octane\Worker::handle()`. The place
+     * outlives every request the way an Octane worker outlives one, so the
+     * application cannot be torn down with the response the way PHP's is; it
+     * also cannot be handed to the request as is, or whatever the request
+     * resolves, rebinds or forgets would still be there for the next one.
+     *
+     * So the request gets a copy. It shares every singleton the root has
+     * already resolved -- that is the point of booting once -- but owns the
+     * maps holding them, and is thrown away by `flush()` when the response is
+     * out. The root is neither flushed nor terminated.
+     */
+    public sandbox(): Application {
+        const sandbox = new Application(true);
+
+        this.copyStateTo(sandbox);
+
+        // PHP: `CurrentApplication::set()`. The two keys the container answers
+        // itself under have to point at the copy, or everything resolved
+        // through them would reach past the sandbox into the root.
+        sandbox.instance("app", sandbox);
+        sandbox.instance(Container, sandbox);
+
+        return sandbox;
+    }
+
+    /** Copy this application's state onto another one. */
+    protected copyStateTo(target: Container): void {
+        super.copyStateTo(target);
+
+        const app = target as Application;
+
+        app.bootstrapped = this.bootstrapped;
+        app.hasBooted = this.hasBooted;
+
+        app.registeredCallbacks = table.clone(this.registeredCallbacks);
+        app.bootingCallbacks = table.clone(this.bootingCallbacks);
+        app.bootedCallbacks = table.clone(this.bootedCallbacks);
+        app.terminatingCallbacks = table.clone(this.terminatingCallbacks);
+
+        app.serviceProviders = this.serviceProviders.clone();
+        app.loadedProviders = this.loadedProviders.clone();
+        app.deferredServices = this.deferredServices.clone();
     }
 
     /**
@@ -139,6 +202,13 @@ export class Application extends Container implements ApplicationContract {
         this.register(new BusServiceProvider(this));
         this.register(new PipelineServiceProvider(this));
         this.register(new RoutingServiceProvider(this));
+
+        // Same reason, and the same list -- `Support\DefaultProviders` holds
+        // this one too. It registers the outbound HTTP client, which is what
+        // the `Http` facade resolves; without it here, every game would have to
+        // name a framework provider in its own `app.providers`, which is
+        // something no Laravel application ever does.
+        this.register(new FoundationServiceProvider(this));
     }
 
     /** Run the given array of bootstrap classes. */
@@ -507,6 +577,19 @@ export class Application extends Container implements ApplicationContract {
 
             index += 1;
         }
+    }
+
+    /**
+     * Handle the incoming request and send the response.
+     *
+     * PHP resolves the kernel, sends the response and terminates, all in the
+     * one method, because the process ends a line later. Here the worker owns
+     * that sequence -- the application is bootstrapped once and each request is
+     * answered on a `sandbox()` -- and "send" means "return", so the response
+     * comes back instead of going out.
+     */
+    public handleRequest(request: Request): Response {
+        return this.make<Worker>(Worker).handle(request);
     }
 
     /** Register a terminating callback with the application. */

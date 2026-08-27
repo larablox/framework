@@ -339,29 +339,52 @@ export class Router {
     // Dispatching
     // -----------------------------------------------------------------
 
-    /** Dispatch the request to the application. */
-    public dispatch(request: Request): Response {
+    /**
+     * Dispatch the request to the application.
+     *
+     * PHP takes the request alone: there is one container per process, the
+     * router was handed it when it was built, and that is the end of it. Here
+     * the router is a singleton on the root application while each request runs
+     * on a copy of it (`Application::sandbox()`), so the container to resolve
+     * *this* request out of arrives with the request. It defaults to the
+     * router's own, which is what every caller outside the kernel wants.
+     */
+    public dispatch(
+        request: Request,
+        container: Container = this.container,
+    ): Response {
         this.currentRequest = request;
 
-        return this.dispatchToRoute(request);
+        return this.dispatchToRoute(request, container);
     }
 
     /** Dispatch the request to a route and return the response. */
-    public dispatchToRoute(request: Request): Response {
-        return this.runRoute(request, this.findRoute(request));
+    public dispatchToRoute(
+        request: Request,
+        container: Container = this.container,
+    ): Response {
+        return this.runRoute(request, this.findRoute(request, container));
     }
 
     /** Find the route matching a given request. */
-    protected findRoute(request: Request): Route {
+    protected findRoute(request: Request, container: Container): Route {
         this.events.dispatch(new Routing(request));
 
+        // A copy of the collection's route, owned by this request -- see
+        // `Route::forRequest()`.
         const route = this.routes.match(request);
 
+        // Shared, and so only ever right for the request that wrote it last.
+        // `Request::route()` is the accessor that is correct under interleaving;
+        // this one backs `Router::current()`, which PHP-side code reads and
+        // which cannot be made per-request without a per-coroutine store.
         this.currentRoute = route;
 
-        route.setContainer(this.container);
+        // The route carries the request's container from here on: it is
+        // per-request now, and the router is not.
+        route.setContainer(container);
 
-        this.container.instance(Route, route);
+        container.instance(Route, route);
 
         return route;
     }
@@ -380,9 +403,13 @@ export class Router {
 
     /** Run the given route within a Stack "onion" instance. */
     protected runRouteWithinStack(route: Route, request: Request): unknown {
+        // The route was given this request's container in `findRoute()`; the
+        // router's own is the fallback for a route dispatched by hand.
+        const container = route.getContainer() ?? this.container;
+
         const shouldSkipMiddleware =
-            this.container.bound("middleware.disable") &&
-            this.container.make("middleware.disable") === true;
+            container.bound("middleware.disable") &&
+            container.make("middleware.disable") === true;
 
         const middleware = shouldSkipMiddleware
             ? new Array<Pipe>()
@@ -391,7 +418,7 @@ export class Router {
         // Named rather than chained: `then` is a Luau keyword, so the compiler
         // has to index it as a string, and chaining leaves it reading from the
         // `_` placeholder -- which `luau-lsp analyze` flags.
-        const pipeline = new Pipeline(this.container)
+        const pipeline = new Pipeline(container)
             .send(request)
             .through(middleware);
 

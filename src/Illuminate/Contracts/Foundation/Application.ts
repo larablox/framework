@@ -77,6 +77,9 @@ export interface Application extends Container {
     /** Load and boot all of the remaining deferred providers. */
     loadDeferredProviders(): void;
 
+    /** Get a copy of the application to handle a single request with. */
+    sandbox(): Application;
+
     /** Register a terminating callback with the application. */
     terminating(callback: Callback): this;
 

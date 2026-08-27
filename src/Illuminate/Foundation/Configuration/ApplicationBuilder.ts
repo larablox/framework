@@ -1,10 +1,14 @@
+import { Client } from "Illuminate/Foundation/Runtime/Client";
 import { Exceptions as ExceptionsConfiguration } from "Illuminate/Foundation/Configuration/Exceptions";
 import { Handler } from "Illuminate/Foundation/Exceptions/Handler";
 import { Kernel } from "Illuminate/Foundation/Http/Kernel";
+import { RemoteGateway } from "Illuminate/Http/RemoteGateway";
+import { Server } from "Illuminate/Foundation/Runtime/Server";
 import { LoadConfiguration } from "Illuminate/Foundation/Bootstrap/LoadConfiguration";
 import { Middleware as MiddlewareConfiguration } from "Illuminate/Foundation/Configuration/Middleware";
 import { RegisterProviders } from "Illuminate/Foundation/Bootstrap/RegisterProviders";
 import { Util } from "Illuminate/Container/Util";
+import { Worker } from "Illuminate/Foundation/Runtime/Worker";
 import type {
     Abstract,
     Concrete,
@@ -71,9 +75,30 @@ export class ApplicationBuilder {
      * PHP binds the HTTP kernel's contract to the concrete kernel, and the
      * console kernel beside it. There is no console, and an interface cannot be
      * a container key here, so one binding is left: the kernel itself.
+     *
+     * The runtime entry points are bound beside it, and every one of them has to
+     * be a singleton: each holds "this has already started", and a second copy
+     * would hold it separately. `Server` and `Worker` are the server's half --
+     * Octane's split between the thing that owns the transport and the thing
+     * that answers one request -- and `Client` is the other runtime's. Each
+     * runtime resolves what it needs and leaves the rest alone; which runtime
+     * this is, is not known here.
+     *
+     * `RemoteGateway` joins them, and for a sharper reason: its "already
+     * listening" guard is per instance, so two resolutions of an unbound
+     * gateway would each attach to the remotes and every request would be
+     * served twice.
      */
     public withKernels(): this {
         this.app.singleton(Kernel);
+
+        this.app.singleton(RemoteGateway);
+
+        this.app.singleton(Worker);
+
+        this.app.singleton(Server);
+
+        this.app.singleton(Client);
 
         return this;
     }

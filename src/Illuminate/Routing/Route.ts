@@ -292,6 +292,42 @@ export class Route {
     // Parameters
     // -----------------------------------------------------------------
 
+    /**
+     * Get a copy of the route, bound to the given request.
+     *
+     * No PHP counterpart, and none can exist there: a `Route` object lives as
+     * long as the process, and a process lives as long as one request. Here one
+     * `Route` sits in the collection for the life of the place, and every
+     * request that matches it would write its parameters, its controller and
+     * its container onto that one object. A handler that yields -- a
+     * `DataStore` call, `task.wait()` -- lets the next request in, so the first
+     * one wakes up reading the second one's parameters. Same route, two
+     * players, silently swapped ids.
+     *
+     * So the route in the collection is a template, and matching hands out a
+     * copy: everything per-request is written there and thrown away with it.
+     *
+     * The caches worth keeping are filled on the template first, so that the
+     * copies inherit them rather than each paying for them: the compiled
+     * pattern, which builds a regex, and the parameter names.
+     * `computedMiddleware` deliberately is **not** -- gathering it instantiates
+     * the controller (`controllerMiddleware()`), and the controller is exactly
+     * the state a copy exists to keep apart.
+     */
+    public forRequest(request: Request): Route {
+        this.compileRoute();
+        this.parameterNames();
+
+        const copy = table.clone(this) as Route;
+
+        copy.controller = undefined;
+        copy.computedMiddleware = undefined;
+        copy.parameterValues = undefined;
+        copy.originalParameterValues = undefined;
+
+        return copy.bind(request);
+    }
+
     /** Bind the route to a given request for execution. */
     public bind(request: Request): this {
         this.compileRoute();
@@ -801,5 +837,18 @@ export class Route {
         this.container = container;
 
         return this;
+    }
+
+    /**
+     * Get the container instance used by the route.
+     *
+     * PHP keeps `$container` private with no reader: nothing needs one when
+     * there is a single container per process. Here the route is per-request
+     * (`forRequest()`) and so is the container it was given, which makes the
+     * route the thing that carries "the container of this request" down into
+     * the dispatchers and the middleware pipeline.
+     */
+    public getContainer(): ContainerContract | undefined {
+        return this.container;
     }
 }

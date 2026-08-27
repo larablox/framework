@@ -149,7 +149,11 @@ export class Kernel implements KernelContract {
     protected dispatchToRouter(request: Request): Response {
         this.app.instance("request", request);
 
-        return this.router.dispatch(request);
+        // The router is a singleton built on the root application and holds it;
+        // `this.app` is the sandbox this request runs on, and it is the one the
+        // route, its controller and its middleware have to resolve out of --
+        // not least because the `"request"` bound a line above is bound there.
+        return this.router.dispatch(request, this.app);
     }
 
     /** Call the terminate method on any terminable middleware. */

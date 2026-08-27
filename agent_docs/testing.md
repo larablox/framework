@@ -118,6 +118,51 @@ test:build` (or `npm run test:watch`) then press Play again — a `ModuleScript`
 that already failed once caches that failure for the rest of the session, so
 mid-session edits to a broken module need a fresh Play, not just a re-sync.
 
+## Running one spec
+
+The whole suite is 65 seconds, which is the wrong price for debugging one
+test. `ServerScriptService.TestFilter` — a `StringValue` the project file
+ships empty — narrows the run to specs whose path contains its value:
+
+```
+Foundation.Runtime.Worker                             как в списке провалов
+tests/Illuminate/Foundation/Runtime/Server.spec.ts    как в редакторе
+Foundation/Runtime                                    директория
+Routing                                               всё поддерево
+```
+
+Регистр не важен, совпадение — по подстроке пути вида
+`IlluminateTests.Foundation.Runtime.Worker`.
+
+Путь из редактора работает наравне с путём из вывода, и это не тривиально:
+`IlluminateTests` смонтирован на `out-tests/tests/Illuminate`, то есть **два**
+сегмента репозиторного пути схлопываются в имя корня. Поэтому фильтр не
+пытается знать это соответствие — он отбрасывает ведущие сегменты, пока
+остаток не окажется путём. Сначала пробуется самая точная форма, так что
+приставка, с которой путь скопировали, отваливается сама.
+
+Если ничего не совпало, раннер печатает несколько настоящих путей — чтобы
+промах объяснял себя. Когда файлов немного, он перечисляет и то, что попало
+под фильтр, до начала прогона.
+
+Значение правится **прямо в Studio**, в панели Properties: пересобирать и
+пересинхронизировать не нужно, достаточно нажать Play заново. Осторожно с
+`rojo serve` — очередная синхронизация вернёт значение из проектного файла,
+то есть пустое.
+
+Отфильтрованный прогон говорит об этом первой же строкой:
+
+```
+Filtered to "Foundation.Runtime" -- 2 of the suite's specs
+```
+
+Иначе короткий зелёный прогон не отличить от полного. Фильтр, не совпавший ни
+с чем, — это ошибка, а не пустой успех: раннер падает с сообщением, а не
+печатает `OK (0 tests)`.
+
+Прогревается при этом по-прежнему всё дерево — 390 модулей за 0.1s, экономить
+там нечего.
+
 ## Why part of the run overlaps
 
 Five spec files hold 58 of the 1141 tests and about 80% of the running time,

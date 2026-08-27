@@ -17,6 +17,7 @@
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local TS = require(ReplicatedStorage.rbxts_include.RuntimeLib)
 
@@ -65,6 +66,107 @@ local CONCURRENT = {
 
 local FRAMEWORK = ReplicatedStorage.Illuminate
 local SPECS = ReplicatedStorage.IlluminateTests
+
+-- ---------------------------------------------------------------------
+-- Selecting what to run
+-- ---------------------------------------------------------------------
+
+--[[
+	Which specs to run, as a substring of their path.
+
+	Empty runs everything, which is what the project file ships. The value is a
+	`StringValue` beside this script rather than something baked into the
+	place, so it can be typed into Studio's Properties panel between one Play
+	and the next -- debugging one spec should not cost a rebuild, and it should
+	not cost the other sixty-five seconds either.
+
+	Both `Foundation.Runtime.Worker` and `Foundation/Runtime` work: a path is
+	as likely to be copied from the failure list, which prints dots, as from a
+	file name.
+]]
+local function selection()
+	local value = ServerScriptService:FindFirstChild("TestFilter")
+
+	if value == nil or not value:IsA("StringValue") then
+		return ""
+	end
+
+	return value.Value
+end
+
+--[[ TestEZ builds `path` leaf-first; reversed it reads like the source tree. ]]
+local function dottedPath(path)
+	local parts = {}
+
+	for index = #path, 1, -1 do
+		table.insert(parts, path[index])
+	end
+
+	return table.concat(parts, ".")
+end
+
+local function comparable(text)
+	return (text:gsub("[/\\]", "."):lower())
+end
+
+--[[
+	The filter, cut into the segments a path is made of.
+
+	Only the file's own suffix comes off: `.spec` is not in TestEZ's paths
+	because it strips it, and `.ts` is not in the tree at all.
+]]
+local function filterSegments(text)
+	local filter = comparable(text):gsub("%.ts$", ""):gsub("%.spec$", "")
+	local parts = {}
+
+	for part in filter:gmatch("[^%.]+") do
+		table.insert(parts, part)
+	end
+
+	return parts
+end
+
+--[[
+	Whether a spec's path answers to the filter.
+
+	The longest suffix of the filter that matches wins, which is what lets a
+	path be pasted from anywhere. `tests/Illuminate/Foundation/Runtime/
+	Server.spec.ts` names a file whose spec path is
+	`IlluminateTests.Foundation.Runtime.Server` -- two leading segments have
+	collapsed into the name the tree is mounted under, and a third way of
+	writing it would collapse differently. Rather than know that mapping,
+	drop leading segments until what is left is a path: whatever prefix the
+	filter was copied with falls away on its own, and the most specific form
+	is tried first.
+]]
+local function matchesPath(path, needle)
+	for start = 1, #needle do
+		local candidate = table.concat(needle, ".", start)
+
+		if string.find(path, candidate, 1, true) ~= nil then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function matching(modules, filter)
+	if filter == "" then
+		return modules
+	end
+
+	local needle = filterSegments(filter)
+	local kept = {}
+
+	for _, module in ipairs(modules) do
+		if matchesPath(comparable(dottedPath(module.path)), needle) then
+			table.insert(kept, module)
+		end
+	end
+
+	return kept
+end
 
 -- ---------------------------------------------------------------------
 -- Warm-up
@@ -402,7 +504,34 @@ warmUp()
 local alone = {}
 local overlapping = {}
 
-for _, module in ipairs(TestBootstrap:getModules(SPECS)) do
+local filter = selection()
+local available = TestBootstrap:getModules(SPECS)
+local modules = matching(available, filter)
+
+if #modules == 0 then
+	-- Raised rather than reported as an empty pass: a filter that matches
+	-- nothing is a typo, and "OK (0 tests)" reads like good news.
+	if filter == "" then
+		error("No specs found.", 0)
+	end
+
+	-- With the paths beside it, a filter that missed says why it missed.
+	local sample = {}
+
+	for index = 1, math.min(#available, 5) do
+		table.insert(sample, "   " .. dottedPath(available[index].path))
+	end
+
+	error(
+		('No spec matched "%s".\nThe filter is `TestFilter` in ServerScriptService; spec paths look like:\n%s'):format(
+			filter,
+			table.concat(sample, "\n")
+		),
+		0
+	)
+end
+
+for _, module in ipairs(modules) do
 	if CONCURRENT[module.path[1]] then
 		table.insert(overlapping, { module })
 	else
@@ -434,6 +563,20 @@ for index, plan in ipairs(plans) do
 end
 
 print("")
+
+if filter ~= "" then
+	-- Loudly: a short green run is otherwise indistinguishable from a full one.
+	print(('Filtered to "%s" -- %d of the suite\'s specs'):format(filter, #modules))
+
+	-- Named while there are few enough to read, so that a filter which matched
+	-- more than it looks like it should says so before the run, not after.
+	if #modules <= 10 then
+		for _, module in ipairs(modules) do
+			print("   " .. dottedPath(module.path))
+		end
+	end
+end
+
 print(("Running %d tests, %d of them overlapped across %d files"):format(
 	testCount,
 	overlappedCount,

@@ -29,6 +29,7 @@ import type {
     Bootstrapper,
 } from "Illuminate/Contracts/Foundation/Application";
 import type { Dispatcher as DispatcherContract } from "Illuminate/Contracts/Events/Dispatcher";
+import type { ArrayAccessible } from "../Support/Arr";
 
 /**
  * PHP: `Illuminate\Foundation\Application`.
@@ -40,7 +41,7 @@ import type { Dispatcher as DispatcherContract } from "Illuminate/Contracts/Even
  */
 export class Application extends Container implements ApplicationContract {
     /** The framework version. */
-    public static readonly VERSION = "0.1.0";
+    public static readonly VERSION = "0.2.1";
 
     /**
      * Indicates if the application has been bootstrapped before.
@@ -87,6 +88,10 @@ export class Application extends Container implements ApplicationContract {
         Constructor<ServiceProvider>
     >();
 
+    /** The application builder class. */
+    protected static applicationBuilder: typeof ApplicationBuilder =
+        ApplicationBuilder;
+
     /** Create a new application instance. */
     public constructor() {
         super();
@@ -102,8 +107,10 @@ export class Application extends Container implements ApplicationContract {
      * PHP takes a base path and infers one when omitted; there is no filesystem
      * here, so the configuration is handed over with `withConfig()` instead.
      */
-    public static configure(): ApplicationBuilder {
-        return new ApplicationBuilder(new Application()).withKernels();
+    public static configure(config: ArrayAccessible): ApplicationBuilder {
+        return new Application.applicationBuilder(new Application())
+            .withConfig(config)
+            .withKernels();
     }
 
     /** Get the version number of the application. */

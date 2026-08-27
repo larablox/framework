@@ -28,8 +28,6 @@ jobs:
 
             - uses: actions/setup-node@v5
               with:
-                  # `.nvmrc` is on 24 for this: trusted publishing needs npm
-                  # >= 11.5.1, and the 22 line is pinned to npm 10 for life.
                   node-version-file: .nvmrc
                   cache: npm
                   registry-url: https://registry.npmjs.org

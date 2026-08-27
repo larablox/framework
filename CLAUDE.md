@@ -123,6 +123,11 @@ break the package's checks.
 - When porting a framework component, check it against the Laravel sources:
   reproduce class names, method names, and argument order literally. Diverge
   only where the platform forces it, and say so in your reply.
+- **Every public member is in use.** This is a library: its callers are games,
+  and none of them are in this repository. So `grep` finding no caller says
+  nothing at all — not that a method is dead, not that a bug in it does not
+  matter, not that its behaviour is safe to change. The surface is defined by
+  Laravel, not by whatever `src/` happens to call.
 - A successful build proves nothing: `rbxtsc` only checks TS types. After
   changing `src/`, run `npm run analyze` and read the corresponding file in
   `out/` — the compiler does not see Luau semantics.

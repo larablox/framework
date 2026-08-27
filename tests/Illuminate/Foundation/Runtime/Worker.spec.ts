@@ -1,5 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
 import { Application } from "Illuminate/Foundation/Application";
+import { expectThrows } from "../../TestHelpers";
 import { Kernel } from "Illuminate/Foundation/Http/Kernel";
 import { Request } from "Illuminate/Http/Request";
 import { Response } from "Illuminate/Http/Response";
@@ -100,6 +101,32 @@ export = (): void => {
             // that and then clear it, and the second would find nothing left
             // and report nothing at all.
             expect(reported.size()).to.equal(2);
+        });
+
+        it("stops serving once it has been terminated, and serves again once booted again", () => {
+            const app = booted(new Array<string>());
+            const worker = app.make<Worker>(Worker);
+
+            worker.boot([]);
+            worker.terminate();
+
+            // `terminate()` dispatches `WorkerStopping`, so a listener has by
+            // now let go of whatever it holds. A request answered after that
+            // runs against services nobody is keeping any more.
+            expectThrows(
+                () => worker.handle(new Request({} as Player, "GET", "t/one")),
+                "not booted",
+            );
+
+            // Stopping is not the end of it: the worker is a singleton on an
+            // application that outlives any number of stops.
+            worker.boot([]);
+
+            expect(
+                worker
+                    .handle(new Request({} as Player, "GET", "t/two"))
+                    .content(),
+            ).to.equal("ok");
         });
     });
 };

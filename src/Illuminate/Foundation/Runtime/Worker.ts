@@ -221,9 +221,18 @@ export class Worker {
         return this.app;
     }
 
-    /** Get the kernel, or say why there is none. */
+    /**
+     * Get the kernel, or say why there is none to serve with.
+     *
+     * `booted` is asked as well as the kernel, and that is the point: the
+     * kernel outlives `terminate()` so that `boot()` can pick the worker up
+     * again, but `terminate()` has already dispatched `WorkerStopping` and
+     * whatever listened to it has let go of what it held. Serving after that
+     * runs a request against services nobody is keeping any more, and nothing
+     * raises to say so.
+     */
     protected bootedKernel(): HttpKernel {
-        if (this.kernel === undefined) {
+        if (!this.booted || this.kernel === undefined) {
             throw new RuntimeException(
                 "Worker has not booted. Unable to handle requests.",
             );

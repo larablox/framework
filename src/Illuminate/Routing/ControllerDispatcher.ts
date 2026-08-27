@@ -2,6 +2,8 @@ import { ResolvesRouteDependencies } from "Illuminate/Routing/ResolvesRouteDepen
 import type { Container } from "Illuminate/Contracts/Container/Container";
 import type { ControllerDispatcher as ControllerDispatcherContract } from "Illuminate/Routing/Contracts/ControllerDispatcher";
 import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
+import type { ResolvesRouteDependenciesShape } from "Illuminate/Routing/ResolvesRouteDependencies";
 import type { Route } from "Illuminate/Routing/Route";
 
 /**

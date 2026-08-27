@@ -4,6 +4,8 @@ import { Remote } from "Illuminate/Http/Remote";
 import { Response } from "Illuminate/Http/Client/Response";
 import { retry } from "Illuminate/Support/Helpers";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
+import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
 import type { RequestException } from "Illuminate/Http/Client/RequestException";
 import type { ResponseEnvelope, Transport } from "Illuminate/Http/Remote";
 

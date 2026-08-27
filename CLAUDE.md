@@ -18,6 +18,10 @@ Mirrors [`laravel/framework`](https://github.com/laravel/framework):
 - `src/Illuminate/` — the framework core, one directory per component, same
   names as upstream Laravel
 - `out/` — generated Luau, a build artifact; never edit by hand
+- `.workbench/` — a consumer of the package, for trying a theory against a
+  running place instead of arguing about it. Its own npm project, tsconfig and
+  Rojo place; never shipped (`files` keeps it out, `npm pack --dry-run`
+  confirms). See `.workbench/README.md`
 
 There is no game here — no `server`/`client` split, no entry point.
 `Illuminate/Log` depends on Monolog the same way Laravel does — as an
@@ -60,6 +64,10 @@ this wired up, both load-bearing:
 | Lint + autofix                          | `npm run lint:fix`         |
 | Analyze generated Luau                  | `npm run analyze`          |
 | Remove build artifacts                  | `npm run clean`            |
+| Install the workbench                   | `npm run workbench:install`|
+| Build the workbench                     | `npm run workbench`        |
+| Build the workbench place file          | `npm run workbench:place`  |
+| Serve the workbench to Studio           | `npm run workbench:serve`  |
 
 `npm run analyze` rebuilds the project and refreshes the sourcemap on its
 own. Run `npm run types:roblox` once after cloning — the Roblox API
@@ -67,6 +75,35 @@ definitions are 650 KB and are not kept in the repository.
 
 `default.project.json` here is a throwaway Studio place used only to run
 this repo's own test suite once it exists — it is not a game.
+
+## The workbench
+
+`.workbench/` is a game that consumes this package, kept for the questions a
+compiler cannot answer: does the request actually reach the controller, does
+the sandbox actually isolate, do two overlapping requests actually keep their
+own route parameters. `npm run analyze` reads the generated Luau as code; the
+workbench runs it.
+
+Two things about it are load-bearing and were arrived at the hard way:
+
+- **The framework is linked in as `out/` only**, by
+  `.workbench/scripts/link-framework.mjs`, not as a `"file:.."` dependency.
+  npm would symlink the whole repository, and the repository contains
+  `.workbench` — so the workbench's own modules become reachable through the
+  link and roblox-ts fails with `Could not find Rojo data` on them.
+- **`preserveSymlinks` is on** in `.workbench/tsconfig.json`, for the same
+  cycle: without it TypeScript resolves the link to its real path and decides
+  the package root is the repository.
+
+So the workbench compiles against **built** output: change `src/` here, run
+`npm run build` here, and the workbench sees it with no reinstall. The Rojo
+place declares the `Call`/`Send`/`Stream`/`Push` remotes the gateway waits for.
+
+`eslint.config.js` lists `.workbench/tsconfig.json` among its projects, so the
+workbench is linted by the same rules. That gives `npm run lint` a dependency
+on `out/`: run it straight after `npm run clean` and every framework type in
+the workbench is `any`, which `roblox-ts/lua-truthiness` reports as errors that
+are not there. Build first.
 
 ## Rules
 
@@ -129,6 +166,28 @@ Two things the package needs that are easy to break:
 - **`files` lists only `index.d.ts` and `out/Illuminate`.** The specs
   compile to `out-tests/` for exactly this reason — `npm pack --dry-run` is
   the way to check nothing else crept in.
+
+A consequence worth telling consumers about: because `index.d.ts` is
+`export {}`, an editor has nothing to auto-import from. TypeScript offers
+completions for what is *in the program*, and a deep-imported module only
+enters the program once some file already imports it — so `Log` and everything
+else is invisible until it has been typed out by hand once. A barrel would fix
+the completion and break the runtime: roblox-ts would emit a require of the
+package root, and there is no module there in the DataModel.
+
+The fix is on the consumer's side — list the declarations in its `tsconfig.json`
+so they are all in the program from the start:
+
+```json
+"include": [
+    "src/**/*.ts",
+    "node_modules/@larablox/framework/out/Illuminate/**/*.d.ts"
+]
+```
+
+`.workbench/tsconfig.json` does this; verified with `tsc --listFiles` (303
+declaration files in the program, `Facades/Log.d.ts` among them, with nothing
+importing it).
 
 ## Topic details
 

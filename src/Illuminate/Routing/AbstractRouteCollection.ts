@@ -57,7 +57,12 @@ export abstract class AbstractRouteCollection {
     /** Handle the matched route. */
     protected handleMatchedRoute(request: Request, route?: Route): Route {
         if (route !== undefined) {
-            return route.bind(request);
+            // PHP binds the collection's own route, because nothing else will
+            // ever run through it. Here it is a template and the request gets a
+            // copy -- see `Route::forRequest()`. This is the one place a shared
+            // route becomes "the route of this request", so it is the one place
+            // that has to copy.
+            return route.forRequest(request);
         }
 
         // If no route was found we will now check if a matching route is specified by

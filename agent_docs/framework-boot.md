@@ -10,23 +10,37 @@
 src/server/main.server.ts
   └─ import { app } from "server/bootstrap/app"
        └─ Application.configure().withConfig(config).create()
-            ├─ withKernels()                   // singleton(Kernel), зовёт сам configure()
+            ├─ withKernels()                   // Kernel, RemoteGateway, Server, Worker, Client
             ├─ withConfig()                    // конфиг передаётся заранее
             └─ new Application()
                  ├─ registerBaseBindings()          // setInstance, "app", Container
                  ├─ registerBaseServiceProviders()  // Event, Log, Context, Bus, Pipeline, Routing
                  └─ registerCoreContainerAliases()  // "app"/"config"/"events" → классы
-  └─ app.make(Kernel)     → syncMiddlewareToRouter(), затем колбэк withMiddleware()
-  └─ kernel.bootstrap()   → app.bootstrapWith(<список ядра>)
-       ├─ LoadConfiguration   → instance("config"), detectEnvironment, resolveEnvironmentUsing
-       ├─ RegisterFacades     → Facade::setFacadeApplication()
-       ├─ RegisterProviders   → registerConfiguredProviders() → ProviderRepository::load()
-       └─ BootProviders       → app.boot()
-  └─ gateway.listen(request → kernel.handle(request))
-       ├─ instance("request") → глобальные middleware → router.dispatch()
-       ├─ что-то брошено      → Handler::report() + Handler::render()
-       ├─ событие RequestHandled
-       └─ task.defer(terminate) → Terminating, terminate() у middleware, app.terminate()
+  └─ server.boot()
+       ├─ worker.boot()
+       │    ├─ app.make(Kernel)  → syncMiddlewareToRouter(), затем колбэк withMiddleware()
+       │    ├─ kernel.bootstrap()→ app.bootstrapWith(<список ядра>)
+       │    │    ├─ LoadConfiguration   → instance("config"), detectEnvironment, resolveEnvironmentUsing
+       │    │    ├─ RegisterFacades     → Facade::setFacadeApplication()
+       │    │    ├─ RegisterProviders   → registerConfiguredProviders() → ProviderRepository::load()
+       │    │    └─ BootProviders       → app.boot()
+       │    ├─ warm()            → резолв тяжёлых синглтонов до первого запроса
+       │    └─ событие WorkerStarting
+       └─ gateway.listen(request → worker.handle(request))
+            └─ worker.handle(request)
+                 ├─ sandbox = app.sandbox()   // копия контейнера на запрос
+                 ├─ событие RequestReceived
+                 ├─ kernel.handle(request, sandbox)   // ядро о запросе ничего не хранит
+                 │    ├─ sandbox.instance("request") → глобальные middleware
+                 │    ├─ router.dispatch(request, sandbox)
+                 │    ├─ что-то брошено      → Handler::report() + Handler::render()
+                 │    └─ событие RequestHandled
+                 └─ task.defer:
+                      ├─ kernel.terminate(request, response, sandbox)
+                      │    → Terminating, terminate() у middleware,
+                      │      sandbox.terminate()  ← не корневой app
+                      ├─ событие RequestTerminated
+                      └─ sandbox.flush(), Str.flushCache()
 ```
 
 `Bus` и `Pipeline` в PHP лежат не среди базовых провайдеров, а в
@@ -68,18 +82,25 @@ export const app = Application.configure()
 
 ```ts
 // src/server/main.server.ts
-const kernel = app.make<Kernel>(Kernel);
-
-kernel.bootstrap();
-
-app.make<RemoteGateway>(RemoteGateway).listen((request: Request) => {
-    const response = kernel.handle(request);
-
-    task.defer(() => kernel.terminate(request, response));
-
-    return response;
-});
+app.make<Server>(Server).boot();
 ```
+
+Три точки входа лежат в `Foundation/Runtime`:
+
+| Класс | Роль | Откуда |
+|---|---|---|
+| `Server` | владеет транспортом: поднимает воркер и цепляет шлюз | Octane: сервер (Swoole/RoadRunner) держит сокет |
+| `Worker` | обслуживает один запрос на песочнице | `Laravel\Octane\Worker` |
+| `Client` | точка входа второго рантайма | прецедента нет, платформа вынуждает |
+
+Разделение `Server`/`Worker` — октейновское: там сервер владеет сокетом и
+передаёт пришедшее воркеру, который отвечает. Шов был здесь и раньше, просто
+безымянный — докблок `RemoteGateway` сам про себя говорит «это сокет, та часть,
+которую PHP оставляет веб-серверу».
+
+`RemoteGateway` тоже забинжен синглтоном, и по резкой причине: его флаг
+`listening` живёт на инстансе, поэтому два резолва небинженного шлюза
+подписались бы оба и каждый запрос обслужился бы дважды.
 
 PHP бутстрапит на входе в первый запрос: процесс рождается вместе с этим
 запросом и умирает вместе с ответом. Здесь процесс переживает запросы, а
@@ -88,13 +109,143 @@ PHP бутстрапит на входе в первый запрос: проц�
 PHP терминирует после `$response->send()`, а «отправить ответ» здесь означает
 «вернуть его».
 
+## Воркер и песочница
+
+Приложение, которое живёт всегда, — это ровно то, во что Octane превращает
+PHP-процесс, поэтому `Illuminate/Foundation/Runtime/Worker` портирован не с
+`public/index.php`, а с `Laravel\Octane\Worker`.
+
+Корневое приложение бутстрапится один раз и больше не трогается. Отдавать его
+запросу нельзя: всё, что запрос зарезолвил, перебиндил или забыл, осталось бы
+следующему. Поэтому каждый запрос получает `app.sandbox()` — копию контейнера
+(`clone $this->app` в Octane). Копия делит с корнем уже созданные синглтоны, но
+владеет самими картами, так что `flush()` по ней корень не задевает.
+
+Из этого следует то, ради чего всё затевалось: `Kernel::terminate()` остаётся
+дословным ларавеловским — с `$this->app->terminate()` на конце. Просто
+`$this->app` в этот момент песочница, а не корень: терминируется и флашится
+копия, `Kernel.ts` при этом не изменился ни на строку.
+
+Три расхождения с Octane, все вынужденные:
+
+- **`CurrentApplication::set()` портирован наполовину.** Octane переключает на
+  песочницу и глобальный контейнер, и корень фасадов — обе величины
+  процессные. Обработчик ремоута — корутина, и любой yield внутри маршрута
+  (`DataStore`, `task.wait()`) пускает следующий запрос до того, как закончился
+  текущий; переключение отдало бы одному запросу песочницу другого. Поэтому
+  `Container::setInstance()` и `Facade::setFacadeApplication()` навсегда смотрят
+  на корень, а песочница перебинживает только ключи `"app"` и `Container`
+  внутри себя. Фасад резолвит из корня — верно для синглтонов, ради которых он
+  и нужен, и неверно для чего угодно request-scoped: `App::make("request")` не
+  использовать.
+- **Ядро одно, но песочницу оно не одалживает.** Octane переключает ядро на
+  песочницу и обратно (`GiveNewApplicationInstanceToHttpKernel`); здесь так
+  нельзя — запросы чередуются, и следующий увёл бы ядро из-под текущего.
+  Поэтому ядро не хранит о запросе **ничего**: песочница передаётся ему
+  вызовом (`Kernel::handle(request, app)`, `Kernel::terminate(request,
+  response, app)`), и он передаёт её дальше роутеру. Время старта запроса
+  лежит там же — в песочнице, под приватным ключом, а не полем на ядре.
+  Замерено: без этого отложенная терминация терминирует чужую песочницу или
+  корень, а обработчики `whenRequestLifecycleIsLongerThan` для части запросов
+  не срабатывают вовсе.
+- **`FlushStrCache` переехал.** Octane вешает его на `RequestReceived`, то есть
+  на начало следующего запроса; здесь он на выходе, чтобы запрос, стартовавший
+  посреди другого, не выдёргивал кэш из-под него.
+
+Из листенеров Octane перенесено по смыслу только это: остальные 47 — про БД,
+сессии, auth, cookies, Vite, Livewire, Inertia, Scout, Socialite. Не перенесён и
+`CreateConfigurationSandbox`: PHP клонирует `config` по значению вглубь, а
+поверхностная копия делила бы вложенные таблицы — то есть `Config::set()` на
+вложенном ключе всё равно протёк бы. Пока `Config::set()` внутри запроса
+трогает общий репозиторий.
+
+`warm()` резолвит тяжёлые синглтоны до первого запроса. Список берётся из
+`app.warm`, а при его отсутствии — из `Worker.defaultServicesToWarm()`
+(`events`, `config`, `log`, `router`, `queue`); в PHP это `octane.warm` из
+конфига, который публикует пакет, а публиковать здесь некуда.
+
+События жизненного цикла — `WorkerStarting`, `WorkerStopping`,
+`WorkerErrorOccurred`, `RequestReceived`, `RequestTerminated` — лежат в
+`Illuminate/Foundation/Events` и повторяют одноимённые события Octane. На них
+вешается всё, что игре нужно сбрасывать между запросами.
+
+## Маршрутизация: ничего per-request на общих объектах
+
+Обработчик ремоута — корутина. Любой yield внутри маршрута пускает следующий
+запрос до того, как закончился текущий. Значит per-request состояние не может
+лежать ни на одном объекте, переживающем запрос, — а `Router` синглтон, и
+`Route` в коллекции живёт всё место.
+
+**Маршрут копируется на запрос.** `AbstractRouteCollection::handleMatchedRoute()`
+в PHP биндит сам маршрут коллекции: там объект живёт ровно один запрос. Здесь он
+шаблон, и матчинг отдаёт копию — `Route::forRequest()`. На копии живут
+`parameterValues`, `originalParameterValues`, `controller` и контейнер; шаблон
+держит то, что дорого и неизменно: скомпилированный паттерн и имена параметров
+(их специально прогревают до копирования). `computedMiddleware` намеренно **не**
+прогревается: его сбор инстанцирует контроллер, а контроллер — ровно то, что
+копия и разводит. Побочно это делает Octane's `flushController()` ненужным.
+
+Без этого два запроса по одному маршруту молча меняются параметрами: первый
+уходит в `DataStore`, второй перебиндивает `{id}`, первый просыпается и читает
+чужой id.
+
+**Контейнер приезжает с запросом.** `Router` — синглтон, построенный на корневом
+приложении, и держит его. Поэтому `dispatch()` принимает вторым аргументом
+контейнер (по умолчанию — свой), ядро передаёт туда песочницу, `findRoute()`
+кладёт её на копию маршрута, а `runRouteWithinStack()` берёт контейнер уже с
+маршрута. Дальше из песочницы резолвятся контроллер, диспетчеры и весь
+middleware-конвейер — включая `instance("request")`, который ядро туда и
+положило. Это `GiveNewApplicationInstanceToRouter` из Octane, только копией, а
+не мутацией общего роутера.
+
+**`Router::current()` — по корутине.** `$currentRoute` и `$currentRequest` в
+PHP два поля, и это точно: на процесс приходится один запрос. Здесь роутер
+синглтон, и yield внутри маршрута давал следующему запросу перезаписать оба —
+первый просыпался и читал про второго. Ядру и маршруту per-request состояние
+отдали в песочницу, а этим нельзя: весь их смысл в том, что они доступны, **не
+получая ничего на вход**. Значит различать нечем, кроме корутины, — запрос это
+одна корутина от шлюза и вниз.
+
+Ключи слабые: запись уходит со сборкой корутины. Чистить на выходе нельзя —
+PHP их после ответа не чистит, а terminable middleware работает уже после.
+
+Два следствия. Вложенный диспетч на одном потоке этим не разводится
+(лечится save/restore, а не ключом по потоку). И в отложенной терминации
+`current()` вернёт `nil`, потому что `task.defer` — другой поток; раньше вернул
+бы что-то, возможно чужое.
+
+`Request::route()` корректен и был корректен всегда — он идёт через
+`setRouteResolver()` и указывает на копию своего запроса.
+
 Вокруг каждого бутстраппера `bootstrapWith` шлёт события
 `bootstrapping: <Имя>` и `bootstrapped: <Имя>` — на них вешаются
 `beforeBootstrapping()` / `afterBootstrapping()`.
 
 Список бутстрапперов держит ядро — как и в Laravel. Клиент ядра не резолвит:
-запросов он не обслуживает, поэтому `main.client.ts` зовёт `bootstrapWith()`
-сам.
+запросов он не обслуживает. Его точка входа — `Foundation/Runtime/Client`:
+
+```ts
+// src/client/main.client.ts
+app.make<Client>(Client).boot();
+```
+
+`Client` — клиенту то же, чем `Worker` является серверу: держит список
+бутстрапперов этой точки входа и прогревает то, чем этот рантайм пользуется
+(`events`, `config`, `log` — без роутера и очереди). Ядром он **не** является:
+диспетчить нечего, входящее на клиенте — вещание, а не маршруты (решение 6 в
+`routing-design.md`). Дописать туда `handle()` — значит переоткрыть уже принятое
+решение.
+
+То, что список бутстрапперов держит фреймворковый класс, а не игра, — это
+laravel'овская форма, а не отход от неё: в PHP список консоли лежит в
+`Illuminate\Foundation\Console\Kernel`, а приложение его наследует. И списки у
+двух точек входа разные — потому что нужды разные.
+
+Имя: `Illuminate\Http\Client` — это **исходящий** HTTP-клиент, совсем другая
+вещь, но пересекаются они только на словах. Символа `Client` то пространство
+имён не экспортирует вовсе (там `Factory`, `PendingRequest`, `Response`), так
+что алиасить ничего не приходится. Настоящая пара одноимённых классов в порте
+уже есть, и она из PHP: `Http\Response` и `Http\Client\Response`.
 
 ## Конфигурация
 

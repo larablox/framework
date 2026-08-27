@@ -1,0 +1,74 @@
+{
+	"name": "larablox/workbench",
+	"globIgnorePaths": [
+		"**/package.json",
+		"**/tsconfig.json",
+		"**/package-lock.json",
+		"**/*.md"
+	],
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+
+			"rbxts_include": {
+				"$path": "include",
+				"node_modules": {
+					"$className": "Folder",
+					"@rbxts": {
+						"$path": "node_modules/@rbxts"
+					}
+				}
+			},
+
+			"node_modules": {
+				"$className": "Folder",
+				"@rbxts": {
+					"$path": "node_modules/@rbxts"
+				},
+				"@larablox": {
+					"$className": "Folder",
+
+					"framework": {
+						"$className": "Folder",
+						"out": {
+							"$className": "Folder",
+							"Illuminate": {
+								"$path": "node_modules/@larablox/framework/out/Illuminate"
+							}
+						}
+					},
+
+					"monolog": {
+						"$path": "node_modules/@larablox/monolog"
+					}
+				}
+			},
+
+			"Larablox": {
+				"$className": "Folder",
+				"Call": { "$className": "RemoteFunction" },
+				"Send": { "$className": "RemoteEvent" },
+				"Stream": { "$className": "UnreliableRemoteEvent" },
+				"Push": { "$className": "RemoteEvent" }
+			}
+		},
+
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"Server": {
+				"$path": "out/server"
+			}
+		},
+
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+				"Client": {
+					"$path": "out/client"
+				}
+			}
+		}
+	}
+}

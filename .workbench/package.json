@@ -1,0 +1,32 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "name": "larablox-workbench",
+    "version": "0.0.0",
+    "description": "A throwaway consumer of @larablox/framework, for trying things against a running place.",
+    "license": "MIT",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "rbxtsc",
+        "watch": "rbxtsc -w",
+        "dev": "npm run watch",
+        "serve": "rojo serve",
+        "place": "rojo build default.project.json --output workbench.rbxlx",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "clean": "rimraf out include sourcemap.json tsconfig.tsbuildinfo",
+        "link": "node scripts/link-framework.mjs",
+        "postinstall": "node scripts/link-framework.mjs"
+    },
+    "dependencies": {
+        "@larablox/framework": "file:..",
+        "@larablox/monolog": "^0.2.0"
+    },
+    "devDependencies": {
+        "@rbxts/compiler-types": "^3.0.0-types.0",
+        "@rbxts/types": "^1.0.943",
+        "rimraf": "^6.1.3",
+        "roblox-ts": "^3.0.0",
+        "typescript": "^5.9.3"
+    }
+}

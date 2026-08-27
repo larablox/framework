@@ -37,6 +37,12 @@
 			"$className": "ServerScriptService",
 			"RunTests": {
 				"$path": "scripts/RunTests.server.luau"
+			},
+			"TestFilter": {
+				"$className": "StringValue",
+				"$properties": {
+					"Value": ""
+				}
 			}
 		}
 	}

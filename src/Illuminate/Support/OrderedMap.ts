@@ -72,6 +72,22 @@ export class OrderedMap<K extends defined, V extends defined> {
         return values;
     }
 
+    /**
+     * A shallow copy: the same keys in the same order, the same values.
+     *
+     * What PHP gets for free when an array is assigned or an object holding
+     * one is cloned. Nothing here copies by value, so the copy is explicit.
+     */
+    public clone(): OrderedMap<K, V> {
+        const copy = new OrderedMap<K, V>();
+
+        for (const key of this.insertionOrder) {
+            copy.set(key, this.entriesByKey.get(key) as V);
+        }
+
+        return copy;
+    }
+
     public entries(): Array<[K, V]> {
         const entries = new Array<[K, V]>();
 

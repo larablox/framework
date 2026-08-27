@@ -1539,6 +1539,115 @@ export class Container implements ContainerContract {
             : this.environmentResolver(environments) === true;
     }
 
+    /**
+     * Copy this container's state onto another one.
+     *
+     * PHP: what `clone $container` does on its own. Its arrays are values, so
+     * cloning copies every one of them and leaves the objects inside shared --
+     * a copy resolves and forgets without the original noticing, while both
+     * hand out the same singletons. Nothing in Luau copies on assignment, so
+     * the same thing has to be written out: every map and array copied one
+     * level deep, everything they hold shared.
+     *
+     * The two stacks are deliberately not copied: they belong to a resolution
+     * in progress, and a copy is not in one.
+     */
+    protected copyStateTo(target: Container): void {
+        target.resolvedTypes = this.resolvedTypes.clone();
+        target.bindings = this.bindings.clone();
+        target.methodBindings = Container.cloneNestedMap(this.methodBindings);
+        target.instances = this.instances.clone();
+        target.scopedInstances = table.clone(this.scopedInstances);
+        target.aliases = this.aliases.clone();
+        target.abstractAliases = Container.cloneArrayMap(this.abstractAliases);
+        target.extenders = Container.cloneArrayMap(this.extenders);
+        target.tags = Container.cloneArrayMap(this.tags);
+
+        target.buildStack = new Array<BuildStackEntry>();
+        target.with = new Array<ParameterOverrides>();
+
+        target.contextual = Container.cloneNestedMap(this.contextual);
+        target.contextualAttributes = this.contextualAttributes.clone();
+        target.afterResolvingAttributeCallbacks = Container.cloneArrayMap(
+            this.afterResolvingAttributeCallbacks,
+        );
+
+        target.checkedForAttributeBindings = Container.cloneMap(
+            this.checkedForAttributeBindings,
+        );
+        target.checkedForSingletonOrScopedAttributes = Container.cloneMap(
+            this.checkedForSingletonOrScopedAttributes,
+        );
+
+        target.reboundCallbacks = Container.cloneArrayMap(
+            this.reboundCallbacks,
+        );
+        target.beforeResolvingCallbacks = Container.cloneArrayMap(
+            this.beforeResolvingCallbacks,
+        );
+        target.resolvingCallbacks = Container.cloneArrayMap(
+            this.resolvingCallbacks,
+        );
+        target.afterResolvingCallbacks = Container.cloneArrayMap(
+            this.afterResolvingCallbacks,
+        );
+
+        target.globalBeforeResolvingCallbacks = table.clone(
+            this.globalBeforeResolvingCallbacks,
+        );
+        target.globalResolvingCallbacks = table.clone(
+            this.globalResolvingCallbacks,
+        );
+        target.globalAfterResolvingCallbacks = table.clone(
+            this.globalAfterResolvingCallbacks,
+        );
+
+        target.environmentResolver = this.environmentResolver;
+    }
+
+    /** Copy a plain map one level deep. */
+    private static cloneMap<K extends defined, V extends defined>(
+        source: Map<K, V>,
+    ): Map<K, V> {
+        const copy = new Map<K, V>();
+
+        for (const [key, value] of source) {
+            copy.set(key, value);
+        }
+
+        return copy;
+    }
+
+    /** Copy a map of arrays, arrays included. */
+    private static cloneArrayMap<K extends defined, V extends defined>(
+        source: OrderedMap<K, Array<V>>,
+    ): OrderedMap<K, Array<V>> {
+        const copy = new OrderedMap<K, Array<V>>();
+
+        for (const [key, value] of source.entries()) {
+            copy.set(key, table.clone(value));
+        }
+
+        return copy;
+    }
+
+    /** Copy a map of maps, inner maps included. */
+    private static cloneNestedMap<
+        K extends defined,
+        IK extends defined,
+        IV extends defined,
+    >(
+        source: OrderedMap<K, OrderedMap<IK, IV>>,
+    ): OrderedMap<K, OrderedMap<IK, IV>> {
+        const copy = new OrderedMap<K, OrderedMap<IK, IV>>();
+
+        for (const [key, value] of source.entries()) {
+            copy.set(key, value.clone());
+        }
+
+        return copy;
+    }
+
     /** Flush the container of all bindings and resolved instances. */
     public flush(): void {
         this.aliases.clear();

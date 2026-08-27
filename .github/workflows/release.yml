@@ -28,7 +28,9 @@ jobs:
 
             - uses: actions/setup-node@v5
               with:
-                  node-version: 22
+                  # Trusted publishing requires npm >= 11.5.1, which 24 bundles
+                  # and the 22 line never will -- it is pinned to npm 10.
+                  node-version: 24
                   cache: npm
                   registry-url: https://registry.npmjs.org
 
@@ -48,12 +50,8 @@ jobs:
                       exit 1
                   fi
 
-            # Trusted publishing requires npm >= 11.5.1; Node 22 bundles npm 10.
-            - run: npm install -g npm@11
-
             - run: npm ci
 
-            # `out/` is gitignored, so what `files` lists exists only after this.
             - run: npm run build
 
             - run: npm publish

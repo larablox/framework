@@ -1,18 +1,11 @@
 name: Release
 
 on:
-    # A tag pushed from a terminal and a tag made through GitHub's interface
-    # both arrive as a push. Adding `release: types: [published]` alongside this
-    # -- which the workflow briefly did -- fires an interface release twice, and
-    # the second run stops at `npm publish` with "version already exists".
     push:
         tags: ["v*"]
-    workflow_dispatch:
 
 permissions:
     contents: read
-    # Required for npm trusted publishing (OIDC); npm attaches a provenance
-    # attestation on its own once it is here.
     id-token: write
 
 jobs:
@@ -32,8 +25,6 @@ jobs:
                   cache: npm
                   registry-url: https://registry.npmjs.org
 
-            # The ref is checked first because `workflow_dispatch` will happily
-            # run against a branch, which does not say which version to publish.
             - name: Verify the tag matches package.json
               run: |
                   if [ "$GITHUB_REF_TYPE" != "tag" ]; then

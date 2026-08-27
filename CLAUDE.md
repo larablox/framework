@@ -77,6 +77,18 @@ this wired up, both load-bearing:
 own. Run `npm run types:roblox` once after cloning — the Roblox API
 definitions are 650 KB and are not kept in the repository.
 
+`.nvmrc` holds the Node line this is developed and tested on, and both
+workflows read it through `node-version-file`, so the version is written down
+once rather than in four places. It is on 24 rather than 22 because npm
+trusted publishing needs npm >= 11.5.1 and the 22 line ships npm 10 for the
+rest of its life. `nvm use $(cat .nvmrc)` — nvm for Windows does not read the
+file on its own.
+
+There is deliberately no `engines` field. It would describe what a *consumer*
+needs, and a consumer's Node only runs `rbxtsc`: the runtime this package
+ships to is Luau. Claiming `>=24` there would hand everyone still on 20 or 22
+an `EBADENGINE` warning for a requirement that is ours, not theirs.
+
 `default.project.json` here is a throwaway Studio place used only to run
 this repo's own test suite once it exists — it is not a game.
 

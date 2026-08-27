@@ -54,7 +54,22 @@ export class Server {
         // Order matters and is the same order Octane starts in: the worker is
         // ready before anything can arrive. The gateway answers a request that
         // lands before bootstrapping with a 503, but that is a net, not a plan.
-        this.worker.boot(services);
+        //
+        // Asked to boot rather than told, because these two steps do not fail
+        // together. A gateway that refuses -- the remotes are not there, or
+        // something is already attached to them -- leaves the worker running
+        // and the server not booted, and booting again is exactly what a caller
+        // does once the cause is fixed. Insisting here would answer that second
+        // attempt with "the worker has already booted", which is true, is not
+        // the problem, and leaves the server unstartable.
+        //
+        // The same reading covers a game that booted the worker itself: the
+        // server's job is to see it booted, not to be the one that booted it.
+        // A `services` list handed here is then the earlier call's, not this
+        // one's.
+        if (!this.worker.hasBooted()) {
+            this.worker.boot(services);
+        }
 
         this.gateway.listen((request: Request) => this.worker.handle(request));
 

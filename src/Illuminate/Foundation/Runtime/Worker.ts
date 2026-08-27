@@ -211,6 +211,11 @@ export class Worker {
         this.booted = false;
     }
 
+    /** Whether the worker has booted. */
+    public hasBooted(): boolean {
+        return this.booted;
+    }
+
     /** Get the application instance being used by the worker. */
     public application(): Application {
         return this.app;

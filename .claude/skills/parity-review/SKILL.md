@@ -78,6 +78,13 @@ collision (`$pipes` beside `pipes()`) — the convention is a leading underscore
 `_finally`, `_with`); the comparator matches `_x` to `x` automatically, no alias needed.
 Never invent a descriptive name where a minimal-distance name exists.
 
+**Statement shape.** Upstream's control-flow spelling is part of the letter: an if/else
+stays an if/else (not a ternary), a single return stays single, a `function` closure stays
+a function expression unless it touches `$this` (then the arrow is forced by lexical
+binding). Before writing any shape upstream does not have, exhaust the mirrored encodings
+— and when only a non-mirror encoding remains, propose it to the user first instead of
+committing it.
+
 **Formatting.** Mechanics are enforced (dprint: PSR-12 braces, quotes, width; eslint
 expands array literals of 2+ elements). Argument-list line breaks and import order are
 authored: copy upstream's breaks along with its names. `npm run format` and `npm run lint`

@@ -114,12 +114,25 @@ most one sentence of behavioral fact, and the porting rationale lives in the not
 subclasses that override before calling shapes equivalent.
 
 **Magic methods.** Not automatically impossible: `toString` compiles to `__tostring`,
-facades replace `__callStatic` with metatables. Only claim impossibility for a specific
+facades replace `__callStatic` with metatables, and `HigherOrderWhenProxy` carries `__get`
+and `__call` as *named members* dispatched off one shared `__index` — do not fuse them
+into a port-named helper, that hides the twins the way `callPipe` once did. `__get` is a
+legal TS name; roblox-ts reserves only the actual Lua metamethod names (`__call`,
+`__index`, ...) in class definitions, and those take the underscore convention one step
+further (`___call`), which the comparator folds back. One platform wrinkle: a mapped
+proxy type declares function-valued *fields*, which roblox-ts dot-calls — no self
+arrives, the wrapper passes the target by hand. Only claim impossibility for a specific
 magic use after checking what the port already does elsewhere.
 
-**Trait mixins and heritage.** Every `uses:` trait, `implements` interface and `extends`
-parent is its own row in members.csv (`kind: trait/implements/extends`), and a *present*
-relation goes through the same review cycle as a member: it lands `unreviewed`, the agent
+**Trait mixins and heritage.** The carrier follows the upstream construct: a trait *with
+members* is a mixin-chain link (`use Conditionable` is `extends Conditionable()`; more
+traits nest — `Conditionable(Macroable(RealParent))` — so the extends slot is never
+spent, and mixing in obliges a `super()` call PHP has no counterpart for), while a
+*marker* interface is a validating decorator — a decorator cannot add members to a type,
+a mixin cannot mark without adding, so the two never substitute for each other. Every
+`uses:` trait, `implements` interface and `extends` parent is its own row in members.csv
+(`kind: trait/implements/extends`), and a *present* relation goes through the same
+review cycle as a member: it lands `unreviewed`, the agent
 proposes it after checking the detector's contains-match is not a false positive, and the
 user approves having seen the relation with their own eyes — the entry pins the FQCN and
 the matched heritage text, so a rewritten mixin chain or a changed upstream relation
@@ -146,9 +159,12 @@ Dissolve the split back into the upstream body first; judge only what refuses to
 standing in for what PHP gets from the language, user-approved, never inventing Laravel
 API a PHP developer would expect upstream. The kit so far: `Arr.reverse`/`Arr.pad`/
 `Arr.merge` for the array builtins, `Str.explode` for `explode` (with PHP's limit
-semantics), `Pipeline/helpers`' `call`/`callMethod`/`methodExists`/`isCallable` for
+semantics), `Container/helpers`' `call`/`callMethod`/`methodExists`/`isCallable` for
 PHP's dynamic calls and capability checks, and `Container/Util`'s `truthy`/`elvis` for
-PHP truthiness and the `?:` operator. Check this kit before spelling a builtin as a
+PHP truthiness and the `?:` operator. Placement is load-bearing: `Support/helpers.ts`
+sits at the top of the Support import graph and nothing under Support may import it back
+(its docblock explains the cycle), so cross-component compensations live at the bottom —
+`Container/helpers.ts` — where Support and Pipeline both reach without cycles. Check this kit before spelling a builtin as a
 loop, and extend it (with the user's approval) rather than casting at the site — a call
 site needing the same type assertion more than once is the smell of a missing
 compensation.
@@ -172,8 +188,13 @@ pass fast — `pending` is trusted, the other two are flagged:
   other residue means the member is not pending material.
 - **`decision` (`--decision`) is a divergence awaiting the user's call.** Anything the
   conventions do not already cover — a surviving dismissal, an encoding with several
-  defensible spellings, a scope-jump fix — goes here, never into `pending`. The note
-  opens with `DECISION:` and states the question and the options.
+  defensible spellings, a scope-jump fix — goes here, never into `pending`. Two cases
+  that look like pending and are not: a member whose body **omits a branch under a
+  deferred waiver** (the question "implement or defer" is the user's — `when()` with the
+  proxy branches omitted was wrongly proposed once), and a **docblock type the upstream
+  body violates** (the proxy's `@var bool` condition holds raw captures; whether the
+  documented contract or the runtime truth wins is the user's call). The note opens with
+  `DECISION:` and states the question and the options.
 - **`rejected` (`--reject`) is a review that found the port wrong** — behavior diverges
   and the port is the side that must change. The note opens with `REJECTED:` and the
   failure scenario. This replaces leaving a member `unreviewed` with the finding only in
@@ -214,7 +235,11 @@ the three states. Never promote on your own initiative, and never treat a genera
   `MemoryStoreQueue.ts`), member-level with `@kind` for collisions
   (`delay@property` → `delaySeconds`). Underscore renames need no alias.
 - A waived member's reason should say **what would reopen it** ("revisit if a database
-  lands on DataStore"), not just what blocks it.
+  lands on DataStore"), not just what blocks it. A `deferred` waiver is an
+  *implementation candidate first*: sketch the mechanism in the reason
+  (HigherOrderWhenProxy's waiver named the facades' metatable pattern, and the sketch
+  became the implementation the same day) — when the user asks about a deferred item,
+  the answer starts from how to build it, not from why it was skipped.
 - A `deferred` waiver whose absence is *visible inside a ported body* (an omitted branch,
   a skipped argument) also gets a `@deferred` docblock at the exact site, naming the
   registry as the tracker, with the verbatim future code in an `@example` fence written

@@ -42,6 +42,13 @@
         "note": "Body matches; container optional as upstream, parameter property replaces the explicit assignment. @Inject(ContainerContract) is the port's spelling of the reflected ?Container hint, exactly as on Hub#__construct (the byte-identical upstream body): $app->make(Pipeline::class) is a public path and must hand the pipeline the resolving container. The earlier dismissal ('upstream never container-resolves Pipeline, so no hint is owed') did not survive the public-surface rule -- the framework's own call sites say nothing about consumers'; pinned by the 'receives the container when resolved from one' spec.",
         "approved_at": "2026-08-28"
     },
+    "Pipeline/Pipeline.php#Pipeline#carry": {
+        "php_hash": "da3461f243a7ecf855475e42c9d35f42c53156a2",
+        "ts_hash": "d5c79a923d8b0ca0013f25167f009957ce5816f8",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "The upstream closure statement for statement: is_callable first (isCallable in the helpers -- a function, or a table with __call, the platform's __invoke), the not-an-object branch reassigning pipe from the container as upstream reassigns $pipe, the object branch, then the method_exists ternary -- a resolved or given object without the method is called as an invokable, so a __call table runs and anything else raises Luau's attempt-to-call, reaching handleException exactly as PHP's Error does. This closes the field-test finding: the port used to throw its own RuntimeException with no invokable path, and both upstream invokable tests are now ported. Dismissed: the destructured slot is _parameters with the merged list in let parameters (PHP retypes in place, as parsePipeString's note records); array_merge([passable, stack], parameters) is the spread literal; method_exists spells as one handler lookup reused by the ternary. Known corner: a binding resolving to a bare function is indexed for the method and raises, where PHP's method_exists(Closure) would fall through to the call -- no upstream test reaches it."
+    },
     "Pipeline/Pipeline.php#Pipeline#finally": {
         "php_hash": "13c6c00386ec42eef6b7bc32b9a5dd8e253f3f3a",
         "ts_hash": "3e6d66d43592d9c0d8cde57e72710bdbe7df3736",

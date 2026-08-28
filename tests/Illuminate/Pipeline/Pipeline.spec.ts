@@ -60,16 +60,10 @@ class PipelineTestParameterPipe
  *   `Conditionable` for `when()`/`unless()`; this port's `Pipeline` does not
  *   (`Pipeline.ts` has no `Conditionable` mixin), so there is no `when()` to
  *   call.
- * - `testPipelineUsageWithInvokableObjects`, `testPipelineUsageWithInvokableClass`
- *   -- upstream's `Pipeline::carry()` checks `is_callable($pipe)` *before*
- *   falling back to `method_exists($pipe, $this->method)`, so an object whose
- *   only entry point is `__invoke()` (`PipelineTestPipeTwo`) still runs. This
- *   port's `Pipeline.callPipe()` has no such fallback -- a resolved or
- *   already-an-instance pipe always calls `this.method` (default `"handle"")
- *   and throws `RuntimeException` if it is missing, with no invokable-object
- *   path (there is no `__invoke`/`__call` equivalent to dispatch through).
- *   `PipelineTestPipeTwo` (which declares only `__invoke`, no `handle`) has
- *   no faithful equivalent here, so neither test is ported.
+ * - `testPipelineUsageWithInvokableClass` is adapted like the parameter test
+ *   below: PHP spells the invokable as a class (`__invoke`), a roblox-ts class
+ *   cannot declare a `__call` metamethod, so the invokable is built with
+ *   `setmetatable` (see `invokablePipe`) and registered under a binding name.
  *
  * `testPipelineUsageWithParameters` is adapted, not skipped: upstream spells
  * the pipe as `PipelineTestParameterPipe::class . ':one,two'` -- legal only
@@ -91,6 +85,22 @@ class PipelineTestParameterPipe
  * for the same technique), which keeps `Pipeline` on the exact "resolve a class
  * from the container" code path while still giving the test a handle to inspect.
  */
+/**
+ * PHP: `Illuminate\Tests\Pipeline\PipelineTestPipeTwo` -- an invokable object.
+ * `__invoke` is a `__call` metamethod here, built with `setmetatable` since a
+ * roblox-ts class cannot declare one.
+ */
+function invokablePipe(record: (piped: unknown) => void): object
+{
+    return setmetatable({}, {
+        __call: (_self: object, piped: unknown, _next: unknown) => {
+            record(piped);
+
+            return (_next as Next)(piped);
+        },
+    } as LuaMetatable<object>);
+}
+
 /** A pipe whose handle() returns the value CarryHandlingPipeline explodes on. */
 class BoomPipe
 {
@@ -190,6 +200,35 @@ export = (): void => {
 
             expect(result2).to.equal('bar');
             expect(pipeOneCalled).to.equal('foo');
+        });
+
+        it('calls an invokable object pipe directly', () => {
+            // PHP: PipelineTest::testPipelineUsageWithInvokableObjects
+            let received: unknown;
+
+            const result = new Pipeline(new Container())
+                .send('foo')
+                .through([invokablePipe((piped) => (received = piped))])
+                .then((piped) => piped);
+
+            expect(result).to.equal('foo');
+            expect(received).to.equal('foo');
+        });
+
+        it('calls a resolved pipe without a handle method as an invokable', () => {
+            // PHP: PipelineTest::testPipelineUsageWithInvokableClass (adapted
+            // -- see the class comment)
+            const container = new Container();
+            let received: unknown;
+            container.instance('invokable-pipe', invokablePipe((piped) => (received = piped)));
+
+            const result = new Pipeline(container)
+                .send('foo')
+                .through('invokable-pipe')
+                .then((piped) => piped);
+
+            expect(result).to.equal('foo');
+            expect(received).to.equal('foo');
         });
 
         it('pipe() appends pipes onto the ones set by through()', () => {

@@ -28,6 +28,26 @@ export function isPipeWithParameters(value: unknown): value is PipeWithParameter
 }
 
 /**
+ * Whether the value is callable: a function, or a table with a `__call`
+ * metamethod -- `is_callable` for a pipe, where `__call` is what PHP spells
+ * `__invoke`.
+ */
+export function isCallable(value: unknown): boolean
+{
+    if (typeIs(value, 'function')) {
+        return true;
+    }
+
+    if (!typeIs(value, 'table')) {
+        return false;
+    }
+
+    const metatable = getmetatable(value as object);
+
+    return typeIs(metatable, 'table') && typeIs(rawget(metatable, '__call'), 'function');
+}
+
+/**
  * Whether the value is a list of pipes -- the question `is_array($pipes)`
  * answers in `through()` and `pipe()`. Two platform wrinkles: a parameterized
  * pipe is itself a list here (see `isPipeWithParameters`), and `Util.isArray`

@@ -7,13 +7,13 @@ import { Util } from 'Illuminate/Container/Util';
  * apart by the target's member -- a function-valued one is a method, reached
  * through the returned wrapper, anything else a property. `$condition` and
  * `$negateConditionOnCapture` live beside their methods, so the properties
- * take the leading underscore. A captured `undefined` condition removes its
- * key from the table, so `pass()` reads it back with `rawget`.
+ * take the leading underscore. `condition()` normalizes what it stores to the
+ * docblock's `bool` -- a Luau field cannot hold the raw `nil` anyway.
  */
 export class HigherOrderWhenProxy<TTarget>
 {
     /** The condition for proxying. */
-    protected _condition: unknown;
+    protected _condition = false;
 
     /** Indicates whether the proxy has a condition. */
     protected hasCondition = false;
@@ -43,7 +43,7 @@ export class HigherOrderWhenProxy<TTarget>
     public condition(condition: unknown): this
     {
         [this._condition, this.hasCondition] = [
-            condition,
+            Util.truthy(condition),
             true,
         ];
 
@@ -73,7 +73,7 @@ export class HigherOrderWhenProxy<TTarget>
                     return this.condition(this._negateConditionOnCapture ? !Util.truthy(condition) : condition);
                 }
 
-                return Util.truthy(rawget(this as unknown as object, '_condition'))
+                return this._condition
                     ? (value as Callback)(this.target, ...(parameters as Array<never>))
                     : this.target;
             };
@@ -83,7 +83,7 @@ export class HigherOrderWhenProxy<TTarget>
             return this.condition(this._negateConditionOnCapture ? !Util.truthy(value) : value);
         }
 
-        return Util.truthy(rawget(this as unknown as object, '_condition')) ? value : this.target;
+        return this._condition ? value : this.target;
     }
 }
 

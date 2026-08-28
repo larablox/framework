@@ -8,17 +8,17 @@
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition": {
         "php_hash": "6ea6a00729734ae21255b1f79b4e144feaceac41",
-        "ts_hash": "c41f457c35e82b4a6f67c0d6dffee709b5044e40",
+        "ts_hash": "fb3971a7d64f66f4f90fb289d00b71f8ae83e182",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim, list assignment included: [this._condition, this.hasCondition] = [condition, true]."
+        "note": "Mirrored. The list assignment is upstream: [this._condition, this.hasCondition] = [Util.truthy(condition), true] -- the stored value normalizes to the docblock bool (the user chose the documented contract over the raw capture; observably identical, the condition is only ever consumed through truthiness)."
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition@property": {
         "php_hash": "393215010b27d69d375f88a0f1b4f8509ef743b3",
-        "ts_hash": "047fef9aaa6b79c436649db7b4860d4ef214493b",
+        "ts_hash": "3aedf3fee639ffda571f03c74aef3dac66572b4b",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Mirrored. _condition under the underscore convention (collides with condition()). Typed unknown against the docblock bool deliberately: the __get capture stores the raw target member (any value) and only negation produces a bool -- the condition is consumed through truthiness alone, so unknown is the runtime-honest domain and boolean would demand a normalization PHP does not perform."
+        "note": "Mirrored. _condition under the underscore convention (collides with condition()); boolean per the docblock @var bool, initialized false where PHP leaves it unset (a Luau field cannot hold nil), with condition() normalizing every write."
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#hasCondition@property": {
         "php_hash": "9fe95fa13d42dc957b0b6fcff19f3cfea4050351",
@@ -43,10 +43,10 @@
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#pass": {
         "php_hash": null,
-        "ts_hash": "2024bf0f2eefb6e2f89975131a12553dd62e41bf",
+        "ts_hash": "98058444793dae0cd27cf74c8547d50f638f8bc2",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Port-only: __get and __call fused, since Luau dispatches both through one __index -- a function-valued target member takes __call's path via the returned dot-called wrapper, anything else __get's. Reads _condition with rawget: a captured undefined removes the key, and a plain read would recurse into the metamethod. Known corner: a property holding a function reads as a method here."
+        "note": "Port-only: __get and __call fused, since Luau dispatches both through one __index -- a function-valued target member takes __call's path via the returned dot-called wrapper, anything else __get's. Known corner: a property holding a function reads as a method here."
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#target@property": {
         "php_hash": "37820d2850ce9bf5f531f0b39e0115f8caa35e38",

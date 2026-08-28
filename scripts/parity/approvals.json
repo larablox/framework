@@ -130,10 +130,10 @@
     },
     "Pipeline/Pipeline.php#Pipeline#thenReturn": {
         "php_hash": "8769eeff97e702e251d6301db6bc1a6a2c4e9d96",
-        "ts_hash": "0076d038da80a32029704e80b0464d777070797e",
+        "ts_hash": "cc741eb18b7345ac74ac3d63c91843cc7bea0947",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: then() with the identity destination."
+        "note": "Verbatim, closure form included: a function expression with the expanded return, as upstream writes it -- thenReturn predates PHP 7.4's arrow functions and was never modernized, and the port mirrors the letter rather than modernizing for it."
     },
     "Pipeline/Pipeline.php#Pipeline#through": {
         "php_hash": "9b68c30f5c5375c00a286305e598f50b2ce3a458",

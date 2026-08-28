@@ -105,7 +105,9 @@ export class Pipeline implements PipelineContract
     /** Run the pipeline and return the result. */
     public thenReturn(): unknown
     {
-        return this.then((passable) => passable);
+        return this.then(function(passable) {
+            return passable;
+        });
     }
 
     /** Set a callback to run when the pipeline finishes, whatever happened. */

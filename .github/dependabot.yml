@@ -1,0 +1,46 @@
+version: 2
+
+updates:
+  # The workflows. This entry does not reach the composite action below it:
+  # `/` covers `.github/workflows/` and a root-level `action.yml`, nothing
+  # deeper.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /.github/actions/setup
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # One pull request for everything routine, separate ones for majors --
+      # which is where a roblox-ts or TypeScript bump actually needs reading.
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # The workbench pins roblox-ts, TypeScript and `@rbxts/types` at the same
+  # ranges as the package, and has to: it compiles against this repository's
+  # built `out/`. Left out, it drifts. Note that CI does not install or build
+  # it (see CLAUDE.md), so a green check on one of these says nothing --
+  # `npm run workbench:lint` is the one that does.
+  - package-ecosystem: npm
+    directory: /.workbench
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]

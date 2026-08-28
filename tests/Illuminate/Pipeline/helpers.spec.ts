@@ -1,6 +1,15 @@
 /// <reference types="@rbxts/testez/globals" />
 import { expectThrows } from '../TestHelpers';
-import { call, isCallable, isPipeArray, isPipeWithParameters, splitPipe, wrapPipes } from 'Illuminate/Pipeline/helpers';
+import {
+    call,
+    callMethod,
+    isCallable,
+    isPipeArray,
+    isPipeWithParameters,
+    methodExists,
+    splitPipe,
+    wrapPipes,
+} from 'Illuminate/Pipeline/helpers';
 import type { Next } from 'Illuminate/Pipeline/Pipeline';
 import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
@@ -31,6 +40,19 @@ export = (): void => {
             expect(call(invokable, 'x')).to.equal('x');
 
             expectThrows(() => call('not callable'));
+        });
+    });
+
+    describe('methodExists / callMethod', () => {
+        it('finds a method through __index and calls it with the target as self', () => {
+            const pipe = new HelpersSpecPipe();
+
+            expect(methodExists(pipe, 'handle')).to.equal(true);
+            expect(methodExists(pipe, 'missing')).to.equal(false);
+            expect(methodExists('not a table', 'handle')).to.equal(false);
+
+            const passed = callMethod(pipe, 'handle', 'foo', (piped: unknown) => piped);
+            expect(passed).to.equal('foo');
         });
     });
 

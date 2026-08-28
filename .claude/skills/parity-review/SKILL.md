@@ -142,10 +142,11 @@ never treat a general "закончи ревью" as that instruction.
 - A waived member's reason should say **what would reopen it** ("revisit if a database
   lands on DataStore"), not just what blocks it.
 - A `deferred` waiver whose absence is *visible inside a ported body* (an omitted branch,
-  a skipped argument) also gets an inline `// @deferred <member>: ...` comment at the
-  exact site, naming the registry as the tracker — `grep '@deferred' src` is the map of
-  what upstream still owes the port. Body hashes strip comments, so the marker never
-  stales an approval.
+  a skipped argument) also gets a `@deferred` docblock at the exact site, naming the
+  registry as the tracker, with the verbatim future code in an `@example` fence written
+  against the conventions it will land under (see `then()`'s withinTransaction block) —
+  `grep '@deferred' src` is the map of what upstream still owes the port. Body hashes
+  strip comments, so the marker never stales an approval.
 - `--exclude` accepts `key@kind` and pins the hash of that specific member. Properties
   have no body hash, so a property waiver never goes stale on upstream changes — pair it
   with the method's waiver when the two travel together.

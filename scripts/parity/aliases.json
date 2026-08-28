@@ -18,7 +18,8 @@
         "Queue/Jobs/RedisJob.php": "Queue/Jobs/MemoryStoreJob.ts",
         "Queue/RedisQueue.php": "Queue/MemoryStoreQueue.ts",
         "Routing/Matching/SchemeValidator.php": "Routing/Matching/TransportValidator.ts",
-        "Support/Stringable.php": "Support/Str.ts"
+        "Support/Stringable.php": "Support/Str.ts",
+        "Conditionable/HigherOrderWhenProxy.php": "Support/HigherOrderWhenProxy.ts"
     },
     "members": {
         "Bus/Queueable.php": {

@@ -9,29 +9,26 @@
             "php_hash": "9c3a4134dd863567df88e26526a4ba34383358b2",
             "kind": "deferred",
             "reason": "Wraps the run in a 'db' connection transaction; the port has no database component and no 'db' binding to reach for. Revisit when a database layer (e.g. over DataStore) lands and 'db' becomes bindable."
+        },
+        "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__get": {
+            "php_hash": "80037fe8b6e4cf7b8114bda6e6a76808c88e4287",
+            "kind": "deferred",
+            "reason": "A named __get cannot exist: property dispatch is the __index metamethod. Its behavior is pass() plus the constructor's __index, fused with __call (a method here is a function-valued field). Candidate for impossible -- nothing is owed, the functionality is complete."
+        },
+        "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__call": {
+            "php_hash": "8b460550917b209207ab4b1adff9f256b397db65",
+            "kind": "deferred",
+            "reason": "A named __call cannot exist: method dispatch is the __index metamethod returning a wrapper. Fused with __get into pass(). Candidate for impossible -- nothing is owed, the functionality is complete."
         }
     },
-    "traits": {
-        "Illuminate\\Support\\Traits\\Macroable": "Needs __call on the class itself; deferred platform-wide, facades carry the static half."
-    },
     "paths": [
-        {
-            "glob": "Conditionable/HigherOrderWhenProxy.php",
-            "kind": "deferred",
-            "reason": "A proxy capturing the next property or method access through __get/__call to apply it conditionally. Not impossible -- the facades' metatable pattern covers __callStatic already -- but it needs a designed instance-level dynamic proxy and arity-aware when()/unless() signatures. Revisit when such a proxy is designed; until then callbacks are required at the call sites (see the @deferred markers in Support/Traits/Conditionable.ts)."
-        },
         {
             "glob": "Pipeline/helpers.ts",
             "kind": "port-only",
             "reason": "Port-only helper with no upstream twin: isPipeArray/wrapPipes/isPipeWithParameters tell one parameterized pipe `[Class, 'args']` from a list of pipes -- a distinction PHP spells inside a single string ('Class:args') and never has to make, because a class is not a string on this platform. isPipeArray is Pipeline.through()/pipe()'s is_array; wrapPipes serves Routing/Route and Routing/Controller."
         }
     ],
-    "heritage": {
-        "ArrayAccess": "PHP builtin interface; no runtime counterpart on the platform.",
-        "IteratorAggregate": "PHP builtin interface; no runtime counterpart on the platform.",
-        "Countable": "PHP builtin interface; no runtime counterpart on the platform.",
-        "JsonSerializable": "PHP builtin interface; no runtime counterpart on the platform.",
-        "Stringable": "PHP builtin interface; toString compiles to __tostring instead.",
-        "Traversable": "PHP builtin interface; no runtime counterpart on the platform."
+    "traits": {
+        "Illuminate\\Support\\Traits\\Macroable": "Needs __call on the class itself; deferred platform-wide, facades carry the static half."
     }
 }

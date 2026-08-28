@@ -1,17 +1,73 @@
 {
-    "Conditionable/Traits/Conditionable.php#Conditionable#unless": {
-        "php_hash": "b50290d39aac9deb74efbe5b8443d2592b9a5a39",
-        "ts_hash": "6a87dc2bd54ce3994d367c83675f4d82bf68112c",
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__construct": {
+        "php_hash": "531f2651176a5cfd99c5c49de69e665cf0911c92",
+        "ts_hash": "30500bd89f0f57fbe5267d312de4de4fc5edeaef",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Mirrored. Statement for statement through truthiness (bare if () is Util.truthy), instanceof-closure (typeIs function, PHP reassigning  in place), nullable-default (= null parameter defaults as ? optionality) and the underscore convention (_default: default is a reserved word); the elseif and both ?? this fallbacks are the letter. The HigherOrderWhenProxy branches (func_num_args 0 and 1) are omitted under the deferred waiver on Conditionable/HigherOrderWhenProxy.php, marked @deferred at the site."
+        "note": "Verbatim: the promoted  parameter, plus the __index metatable installed here -- the runtime half of __get/__call (their member waivers carry the proof)."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition": {
+        "php_hash": "6ea6a00729734ae21255b1f79b4e144feaceac41",
+        "ts_hash": "c41f457c35e82b4a6f67c0d6dffee709b5044e40",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim, list assignment included: [this._condition, this.hasCondition] = [condition, true]."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition@property": {
+        "php_hash": "393215010b27d69d375f88a0f1b4f8509ef743b3",
+        "ts_hash": "047fef9aaa6b79c436649db7b4860d4ef214493b",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. _condition under the underscore convention (collides with condition()); untyped mixed as unknown."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#hasCondition@property": {
+        "php_hash": "9fe95fa13d42dc957b0b6fcff19f3cfea4050351",
+        "ts_hash": "3d9cc5232b2984d8ca4ca3384c0db936301dd4ea",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: protected, false default."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#negateConditionOnCapture": {
+        "php_hash": "cde9d3a8bf1370a5a4a8b35b3244589a3dad071b",
+        "ts_hash": "739fe5b0597bebfc711818b5103a3beff781d575",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: set the flag, return this."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#negateConditionOnCapture@property": {
+        "php_hash": "b4ee3342ad2b1f947a38d3547ed87188c8c1119e",
+        "ts_hash": "8bcd43c03a3d747449836ed1f5b754d1a32070ae",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. _negateConditionOnCapture under the underscore convention; initialized false where PHP leaves the bool unset (an uninitialized flag reads falsy either way, and a Luau field cannot hold nil)."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#pass": {
+        "php_hash": null,
+        "ts_hash": "2024bf0f2eefb6e2f89975131a12553dd62e41bf",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Port-only: __get and __call fused, since Luau dispatches both through one __index -- a function-valued target member takes __call's path via the returned dot-called wrapper, anything else __get's. Reads _condition with rawget: a captured undefined removes the key, and a plain read would recurse into the metamethod. Known corner: a property holding a function reads as a method here."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#target@property": {
+        "php_hash": "37820d2850ce9bf5f531f0b39e0115f8caa35e38",
+        "ts_hash": "fe89c28031e701040d28918b60808e90c3452d1d",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: the promoted constructor parameter."
+    },
+    "Conditionable/Traits/Conditionable.php#Conditionable#unless": {
+        "php_hash": "b50290d39aac9deb74efbe5b8443d2592b9a5a39",
+        "ts_hash": "c67cadc2f754c0b294795c4021ad4872397c9828",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. The full upstream body, proxy branches included: func_num_args() is the rest parameter's size() (a trailing explicit undefined is uncountable -- when(undefined) reads as when(), where PHP counts one; the file docblock records it), the named parameters destructure from the rest tuple, and the remaining residues are the standing conventions -- truthiness, instanceof-closure, nullable-default, _default under the underscore convention. The one-argument form negates with !Util.truthy(value), PHP: condition(! )."
     },
     "Conditionable/Traits/Conditionable.php#Conditionable#when": {
         "php_hash": "a858339b620db8c30391917756d5db1000369d32",
-        "ts_hash": "b0bb7c3a23ea9fbf0d3fdf440bc226d60c80ab9b",
+        "ts_hash": "3c3c03cf13382648e11aa856ec52e9ffdbf106b6",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Mirrored. Statement for statement through truthiness (bare if () is Util.truthy), instanceof-closure (typeIs function, PHP reassigning  in place), nullable-default (= null parameter defaults as ? optionality) and the underscore convention (_default: default is a reserved word); the elseif and both ?? this fallbacks are the letter. The HigherOrderWhenProxy branches (func_num_args 0 and 1) are omitted under the deferred waiver on Conditionable/HigherOrderWhenProxy.php, marked @deferred at the site."
+        "note": "Mirrored. The full upstream body, proxy branches included: func_num_args() is the rest parameter's size() (a trailing explicit undefined is uncountable -- when(undefined) reads as when(), where PHP counts one; the file docblock records it), the named parameters destructure from the rest tuple, and the remaining residues are the standing conventions -- truthiness, instanceof-closure, nullable-default, _default under the underscore convention."
     },
     "Pipeline/Hub.php#Hub#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",

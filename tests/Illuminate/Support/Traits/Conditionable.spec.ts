@@ -5,17 +5,20 @@ import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
 /**
  * PHP: `Illuminate\Tests\Support\SupportConditionableTest`.
  *
- * `Conditionable.ts`'s class comment: `when()`/`unless()` called with no
- * callback return a `HigherOrderWhenProxy` in PHP, captured through
- * `__get`/`__call`; neither exists here, so the callback is required and the
- * proxy is not ported. `testWhenProxy` and `testUnlessProxy` exercise exactly
- * that proxy form end to end and have nothing to port from.
+ * The proxy tests (`testWhenProxy`, `testUnlessProxy`) are adapted from the
+ * upstream test's documented behavior -- the composer dist ships no tests to
+ * copy from: a zero-argument `when()`/`unless()` captures the condition from
+ * the next property or method access and applies the one after it.
  */
 export = (): void => {
     describe('Conditionable', () => {
         class ConditionableLogger extends Conditionable()
         {
             public values = new Array<unknown>();
+
+            public truthy = true;
+
+            public falsy = false;
 
             public log(...values: Array<unknown>): this
             {
@@ -30,7 +33,65 @@ export = (): void => {
             {
                 return (this.values as Array<defined>).includes(value as defined);
             }
+
+            public truthyMethod(): boolean
+            {
+                return true;
+            }
+
+            public falsyMethod(): boolean
+            {
+                return false;
+            }
         }
+
+        it('when() with no arguments captures the condition from the next access', () => {
+            // PHP: SupportConditionableTest::testWhenProxy (adapted -- see
+            // the class comment)
+            const logger = new ConditionableLogger();
+
+            logger.when().truthy.log('one');
+            logger.when().falsy.log('two');
+            logger.when().truthyMethod().log('three');
+            logger.when().falsyMethod().log('four');
+
+            expectDeepEqual(logger.values, [
+                'one',
+                'three',
+            ]);
+        });
+
+        it('unless() with no arguments captures the negated condition', () => {
+            // PHP: SupportConditionableTest::testUnlessProxy (adapted -- see
+            // the class comment)
+            const logger = new ConditionableLogger();
+
+            logger.unless().truthy.log('one');
+            logger.unless().falsy.log('two');
+            logger.unless().truthyMethod().log('three');
+            logger.unless().falsyMethod().log('four');
+
+            expectDeepEqual(logger.values, [
+                'two',
+                'four',
+            ]);
+        });
+
+        it('when() and unless() with only a value return a conditioned proxy', () => {
+            // PHP: the func_num_args() === 1 branch -- (new
+            // HigherOrderWhenProxy($this))->condition($value)
+            const logger = new ConditionableLogger();
+
+            logger.when(true).log('one');
+            logger.when(false).log('two');
+            logger.unless(true).log('three');
+            logger.unless(false).log('four');
+
+            expectDeepEqual(logger.values, [
+                'one',
+                'four',
+            ]);
+        });
 
         it('when() invokes the callback for a truthy static or callback condition', () => {
             // PHP: SupportConditionableTest::testWhenConditionCallback

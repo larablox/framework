@@ -1,6 +1,31 @@
+import { HigherOrderWhenProxy } from 'Illuminate/Support/HigherOrderWhenProxy';
 import { Trait } from 'Illuminate/Support/Traits/Trait';
 import { Util } from 'Illuminate/Container/Util';
 import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/Support/Traits/Trait';
+import type { WhenProxyCapture, WhenProxyConditioned } from 'Illuminate/Support/HigherOrderWhenProxy';
+
+/** PHP: `(\Closure($this): TWhenParameter)|TWhenParameter|null` -- the condition. */
+export type ConditionValue<TTarget, TParameter> = TParameter | ((target: TTarget) => TParameter) | undefined;
+
+/** PHP: `(callable($this, TWhenParameter): TWhenReturnType)|null` -- a branch. */
+export type ConditionCallback<TTarget, TParameter, TReturnType> = (
+    target: TTarget,
+    value: TParameter,
+) => TReturnType | undefined;
+
+/** The three optional arguments, as the countable tuple `func_num_args()` needs. */
+export type ConditionArguments<TTarget, TParameter, TReturnType> = [
+    value?: TParameter | ((target: TTarget) => TParameter),
+    callback?: ConditionCallback<TTarget, TParameter, TReturnType>,
+    _default?: ConditionCallback<TTarget, TParameter, TReturnType>,
+];
+
+/** Everything `when()`/`unless()` can answer with, by arity. */
+export type ConditionResult<TTarget, TReturnType> =
+    | TTarget
+    | TReturnType
+    | WhenProxyCapture<TTarget>
+    | WhenProxyConditioned<TTarget>;
 
 /**
  * The instance type `Conditionable()` mixes in.
@@ -40,17 +65,25 @@ export declare class ConditionablePublicShape
     protected constructor();
 
     /** Apply the callback if the given "value" is (or resolves to) truthy. */
+    public when(): WhenProxyCapture<this>;
+    public when<TWhenParameter extends defined>(
+        value: ConditionValue<this, TWhenParameter>,
+    ): WhenProxyConditioned<this>;
     public when<TWhenParameter extends defined, TWhenReturnType extends defined>(
-        value: TWhenParameter | ((target: this) => TWhenParameter) | undefined,
-        callback: (target: this, value: TWhenParameter) => TWhenReturnType | undefined,
-        _default?: (target: this, value: TWhenParameter) => TWhenReturnType | undefined,
+        value: ConditionValue<this, TWhenParameter>,
+        callback: ConditionCallback<this, TWhenParameter, TWhenReturnType>,
+        _default?: ConditionCallback<this, TWhenParameter, TWhenReturnType>,
     ): this | TWhenReturnType;
 
     /** Apply the callback if the given "value" is (or resolves to) falsy. */
+    public unless(): WhenProxyCapture<this>;
+    public unless<TUnlessParameter extends defined>(
+        value: ConditionValue<this, TUnlessParameter>,
+    ): WhenProxyConditioned<this>;
     public unless<TUnlessParameter extends defined, TUnlessReturnType extends defined>(
-        value: TUnlessParameter | ((target: this) => TUnlessParameter) | undefined,
-        callback: (target: this, value: TUnlessParameter) => TUnlessReturnType | undefined,
-        _default?: (target: this, value: TUnlessParameter) => TUnlessReturnType | undefined,
+        value: ConditionValue<this, TUnlessParameter>,
+        callback: ConditionCallback<this, TUnlessParameter, TUnlessReturnType>,
+        _default?: ConditionCallback<this, TUnlessParameter, TUnlessReturnType>,
     ): this | TUnlessReturnType;
 }
 
@@ -72,26 +105,33 @@ function conditionable<TBase extends Constructor>(Base: TBase)
 {
     return class extends Base {
         /** Apply the callback if the given "value" is (or resolves to) truthy. */
+        public when(): WhenProxyCapture<this>;
+        public when<TWhenParameter extends defined>(
+            value: ConditionValue<this, TWhenParameter>,
+        ): WhenProxyConditioned<this>;
         public when<TWhenParameter extends defined, TWhenReturnType extends defined>(
-            value: TWhenParameter | ((target: this) => TWhenParameter) | undefined,
-            callback: (target: this, value: TWhenParameter) => TWhenReturnType | undefined,
-            _default?: (target: this, value: TWhenParameter) => TWhenReturnType | undefined,
-        ): this | TWhenReturnType
+            value: ConditionValue<this, TWhenParameter>,
+            callback: ConditionCallback<this, TWhenParameter, TWhenReturnType>,
+            _default?: ConditionCallback<this, TWhenParameter, TWhenReturnType>,
+        ): this | TWhenReturnType;
+        public when<TWhenParameter extends defined, TWhenReturnType extends defined>(
+            ...args: ConditionArguments<this, TWhenParameter, TWhenReturnType>
+        ): ConditionResult<this, TWhenReturnType>
         {
+            let [value, callback, _default] = args;
+
             value = typeIs(value, 'function') ? (value as (target: this) => TWhenParameter)(this) : value;
 
-            /**
-             * @deferred `HigherOrderWhenProxy`: called with no arguments (or
-             * only the value) upstream returns a proxy that captures the next
-             * property or method access through `__get`/`__call` and applies
-             * it conditionally; the proxy is not ported, so `callback` is
-             * required. Tracked in scripts/parity/exclusions.json. No
-             * `@example`: the branch needs the proxy itself and an
-             * arity-aware signature, both of which belong to the proxy's own
-             * design.
-             */
+            if (args.size() === 0) {
+                return new HigherOrderWhenProxy(this) as WhenProxyCapture<this>;
+            }
+
+            if (args.size() === 1) {
+                return new HigherOrderWhenProxy(this).condition(value) as WhenProxyConditioned<this>;
+            }
+
             if (Util.truthy(value)) {
-                return callback(this, value as TWhenParameter) ?? this;
+                return callback!(this, value as TWhenParameter) ?? this;
             } else if (Util.truthy(_default)) {
                 return _default!(this, value as TWhenParameter) ?? this;
             }
@@ -100,20 +140,33 @@ function conditionable<TBase extends Constructor>(Base: TBase)
         }
 
         /** Apply the callback if the given "value" is (or resolves to) falsy. */
+        public unless(): WhenProxyCapture<this>;
+        public unless<TUnlessParameter extends defined>(
+            value: ConditionValue<this, TUnlessParameter>,
+        ): WhenProxyConditioned<this>;
         public unless<TUnlessParameter extends defined, TUnlessReturnType extends defined>(
-            value: TUnlessParameter | ((target: this) => TUnlessParameter) | undefined,
-            callback: (target: this, value: TUnlessParameter) => TUnlessReturnType | undefined,
-            _default?: (target: this, value: TUnlessParameter) => TUnlessReturnType | undefined,
-        ): this | TUnlessReturnType
+            value: ConditionValue<this, TUnlessParameter>,
+            callback: ConditionCallback<this, TUnlessParameter, TUnlessReturnType>,
+            _default?: ConditionCallback<this, TUnlessParameter, TUnlessReturnType>,
+        ): this | TUnlessReturnType;
+        public unless<TUnlessParameter extends defined, TUnlessReturnType extends defined>(
+            ...args: ConditionArguments<this, TUnlessParameter, TUnlessReturnType>
+        ): ConditionResult<this, TUnlessReturnType>
         {
+            let [value, callback, _default] = args;
+
             value = typeIs(value, 'function') ? (value as (target: this) => TUnlessParameter)(this) : value;
 
-            /**
-             * @deferred `HigherOrderWhenProxy`: the zero- and one-argument
-             * forms return the negated proxy upstream -- see `when()` above.
-             */
+            if (args.size() === 0) {
+                return new HigherOrderWhenProxy(this).negateConditionOnCapture() as WhenProxyCapture<this>;
+            }
+
+            if (args.size() === 1) {
+                return new HigherOrderWhenProxy(this).condition(!Util.truthy(value)) as WhenProxyConditioned<this>;
+            }
+
             if (!Util.truthy(value)) {
-                return callback(this, value as TUnlessParameter) ?? this;
+                return callback!(this, value as TUnlessParameter) ?? this;
             } else if (Util.truthy(_default)) {
                 return _default!(this, value as TUnlessParameter) ?? this;
             }
@@ -142,12 +195,9 @@ type ConditionableIsExact = AssertTrue<AssertNoExtraMembers<ConditionableExtra>>
 /**
  * PHP: `trait Illuminate\Support\Traits\Conditionable`.
  *
- * `when()` and `unless()` called with no callback return a
- * `HigherOrderWhenProxy`, which captures the condition and applies the next
- * method call through `__get` / `__call`. There is no `__call`, so the
- * callback is required here and the proxy is not ported.
- *
- * `if ($value)` is PHP truthiness, not a null check -- see `Util.truthy`.
+ * `func_num_args()` is the rest parameter's `size()`, which cannot see a
+ * trailing explicit `undefined` -- `when(undefined)` reads as `when()`, where
+ * PHP's `when(null)` counts one argument.
  */
 export function Conditionable<TBase extends Constructor>(
     Base: TBase = Trait as never,

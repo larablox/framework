@@ -512,7 +512,7 @@ export function summaryText(summary, upstreamVersion)
     const line = (entry) =>
         `| ${entry.component} | ${entry.files} | ${entry.matched} | ${entry.deferred} | ${entry.impossible} | ${entry.port_only} | ${entry.missing} | ${entry.extra} | ${
             coverageOf(entry)
-        } | ${fidelityOf(entry)} | ${entry.approved} | ${entry.pending} | ${entry.stale} | ${entry.unreviewed} |`;
+        } | ${fidelityOf(entry)} | ${entry.approved} | ${entry.pending} | ${entry.decision} | ${entry.rejected} | ${entry.stale} | ${entry.unreviewed} |`;
     for (const entry of summary) {
         lines.push(line(entry));
         for (const key of Object.keys(totals)) {

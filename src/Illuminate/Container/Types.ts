@@ -8,10 +8,10 @@ import type { Contract } from 'Illuminate/Container/Contract';
  * its constructor signature; the container rebuilds the argument list from the
  * `Inject` metadata rather than from the type.
  */
-export type Constructor<T extends object = object> = new(...args: never[]) => T;
+export type Constructor<T extends object = object> = new(...args: Array<never>) => T;
 
 /** A class that may be abstract -- usable as a key, but never instantiated. */
-export type AbstractClass<T extends object = object> = abstract new(...args: never[]) => T;
+export type AbstractClass<T extends object = object> = abstract new(...args: Array<never>) => T;
 
 /**
  * PHP: `string`, in practice either a plain key such as `"config"`, a

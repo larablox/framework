@@ -103,7 +103,7 @@ export function expectDeepEqual(actual: unknown, expected: unknown): void
 }
 
 /** An `Illuminate/Exception` subclass, as passed to `expectThrows()`. */
-type ExceptionClass = new(...args: never[]) => object;
+type ExceptionClass = new(...args: Array<never>) => object;
 
 /**
  * Asserts that `fn` throws -- optionally that the thrown value is an instance

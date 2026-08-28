@@ -53,6 +53,11 @@ export default [
             '@stylistic/array-element-newline': ['warn', { ArrayExpression: 'always' }],
             '@stylistic/array-bracket-newline': ['warn', { multiline: true }],
 
+            // `Array<T>`, never `T[]`: the platform's containers (`Map`,
+            // `Set`, `ReadonlyArray`) have no bracket shorthand, so the
+            // generic form keeps them uniform.
+            '@typescript-eslint/array-type': ['warn', { default: 'generic' }],
+
             // Imports go through `baseUrl`, never relatively. In the framework
             // that is simply the convention; in a game it is load-bearing.
             // `server/`, `client/` and `shared/` are separate DataModel

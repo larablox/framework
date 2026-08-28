@@ -79,6 +79,10 @@ export class Pipeline implements PipelineContract
         const pipeline = Arr.reverse(this.pipes()).reduce(this.carry(), this.prepareDestination(destination));
 
         try {
+            // @deferred withinTransaction: upstream runs the pipeline inside a
+            // 'db' connection transaction here when withinTransaction() was
+            // called; there is no database component yet. Tracked in
+            // scripts/parity/exclusions.json under the same kind.
             return pipeline(this.passable);
         } finally {
             if (this._finally !== undefined) {

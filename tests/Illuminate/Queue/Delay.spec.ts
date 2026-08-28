@@ -22,44 +22,53 @@ import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
  * `ReadsClassAttributes.getAttributeValue()`'s call in `Bus/Dispatcher.ts`).
  */
 
-class FakeQueue {
+class FakeQueue
+{
     public laterCalls = new Array<[DelayValue, unknown]>();
     public pushCalls = new Array<unknown>();
 
-    public push(job: unknown): unknown {
+    public push(job: unknown): unknown
+    {
         this.pushCalls[this.pushCalls.size()] = job;
 
         return undefined;
     }
 
-    public later(delay: DelayValue, job: unknown): unknown {
+    public later(delay: DelayValue, job: unknown): unknown
+    {
         this.laterCalls.push([delay, job]);
 
         return undefined;
     }
 
-    public pop(): Job | undefined {
+    public pop(): Job | undefined
+    {
         return undefined;
     }
 
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return 'fake';
     }
 
-    public setConnectionName(): this {
+    public setConnectionName(): this
+    {
         return this;
     }
 }
 
 @ShouldQueue()
-class TestJob extends Queueable {
-    public constructor() {
+class TestJob extends Queueable
+{
+    public constructor()
+    {
         super();
 
         this.delay(60);
     }
 
-    public handle(): void {
+    public handle(): void
+    {
         //
     }
 }

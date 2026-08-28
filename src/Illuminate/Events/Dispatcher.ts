@@ -29,7 +29,8 @@ import type {
 } from 'Illuminate/Contracts/Events/Dispatcher';
 
 /** One dispatch held back while `defer()` runs. */
-interface DeferredEvent {
+interface DeferredEvent
+{
     readonly event: EventName | object;
     readonly payload?: unknown;
     readonly halt: boolean;
@@ -47,7 +48,8 @@ interface DeferredEvent {
  * `CallQueuedListener` job. `queueable()` and `QueuedClosure` stay out: they
  * queue a closure, and a closure does not serialize.
  */
-export class Dispatcher implements DispatcherContract {
+export class Dispatcher implements DispatcherContract
+{
     /** The IoC container instance. */
     protected readonly container: ContainerContract;
 
@@ -73,7 +75,8 @@ export class Dispatcher implements DispatcherContract {
     protected queueResolver?: () => QueueFactory;
 
     /** Create a new event dispatcher instance. */
-    public constructor(container?: ContainerContract) {
+    public constructor(container?: ContainerContract)
+    {
         this.container = container ?? new Container();
     }
 
@@ -84,7 +87,8 @@ export class Dispatcher implements DispatcherContract {
      * first parameter's type; parameter types do not survive compilation, so the
      * event must always be named.
      */
-    public listen(events: EventName | Array<EventName>, listener: Listener): void {
+    public listen(events: EventName | Array<EventName>, listener: Listener): void
+    {
         for (const event of Util.arrayWrap(events)) {
             if (typeIs(event, 'string') && Str.contains(event, '*')) {
                 this.setupWildcardListen(event, listener);
@@ -102,7 +106,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Setup a wildcard listener callback. */
-    protected setupWildcardListen(event: string, listener: Listener): void {
+    protected setupWildcardListen(event: string, listener: Listener): void
+    {
         let registered = this.wildcards.get(event);
 
         if (registered === undefined) {
@@ -116,7 +121,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Determine if a given event has listeners. */
-    public hasListeners(eventName: EventName): boolean {
+    public hasListeners(eventName: EventName): boolean
+    {
         if (this.listeners.has(eventName)) {
             return true;
         }
@@ -129,7 +135,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Determine if the given event has any wildcard listeners. */
-    public hasWildcardListeners(eventName: string): boolean {
+    public hasWildcardListeners(eventName: string): boolean
+    {
         for (const key of this.wildcards.keys()) {
             if (Str.is(key, eventName)) {
                 return true;
@@ -140,19 +147,22 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Register an event and payload to be fired later. */
-    public push(event: string, payload?: unknown): void {
+    public push(event: string, payload?: unknown): void
+    {
         this.listen(`${event}_pushed`, () => {
             this.dispatch(event, payload);
         });
     }
 
     /** Flush a set of pushed events. */
-    public flush(event: string): void {
+    public flush(event: string): void
+    {
         this.dispatch(`${event}_pushed`);
     }
 
     /** Register an event subscriber with the dispatcher. */
-    public subscribe(subscriber: object | Abstract): void {
+    public subscribe(subscriber: object | Abstract): void
+    {
         const resolved = this.resolveSubscriber(subscriber);
 
         const subscribe = (resolved as unknown as Record<string, unknown>).subscribe;
@@ -164,7 +174,8 @@ export class Dispatcher implements DispatcherContract {
         }
 
         const events = (subscribe as Callback)(resolved, this) as
-            Array<[EventName, Listener | Array<Listener>]> | undefined;
+            | Array<[EventName, Listener | Array<Listener>]>
+            | undefined;
 
         // PHP wraps the loop below in `if (is_array($events))`, so a
         // `subscribe()` that registers its listeners itself and hands back
@@ -187,7 +198,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Resolve the subscriber instance. */
-    protected resolveSubscriber(subscriber: object | Abstract): object {
+    protected resolveSubscriber(subscriber: object | Abstract): object
+    {
         if (!Reflector.isInstance(subscriber)) {
             return this.container.make(subscriber as Abstract) as object;
         }
@@ -196,12 +208,14 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Fire an event until the first non-null response is returned. */
-    public until(event: EventName | object, payload?: unknown): unknown {
+    public until(event: EventName | object, payload?: unknown): unknown
+    {
         return this.dispatch(event, payload, true);
     }
 
     /** Fire an event and call the listeners. */
-    public dispatch(event: EventName | object, payload?: unknown, halt = false): unknown {
+    public dispatch(event: EventName | object, payload?: unknown, halt = false): unknown
+    {
         // When the given "event" is actually an object, we will assume it is an event
         // object, and use the class as the event name and this event itself as the
         // payload to the handler, which makes object-based events quite simple.
@@ -222,7 +236,8 @@ export class Dispatcher implements DispatcherContract {
      * A listener returning nothing contributes no entry to the response list: a
      * Luau array cannot hold nil, so PHP's null placeholders are dropped.
      */
-    protected invokeListeners(event: EventName, payload: EventPayload, halt = false): unknown {
+    protected invokeListeners(event: EventName, payload: EventPayload, halt = false): unknown
+    {
         const responses = new Array<defined>();
 
         for (const listener of this.getListeners(event)) {
@@ -251,7 +266,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Parse the given event and payload and prepare them for dispatching. */
-    protected parseEventAndPayload(event: EventName | object, payload: unknown): [EventName, EventPayload] {
+    protected parseEventAndPayload(event: EventName | object, payload: unknown): [EventName, EventPayload]
+    {
         if (Reflector.isInstance(event)) {
             return [Reflector.classOf(event as object) as EventName, [event as defined]];
         }
@@ -260,7 +276,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Get all of the listeners for a given event name. */
-    public getListeners(eventName: EventName): Array<Callback> {
+    public getListeners(eventName: EventName): Array<Callback>
+    {
         const listeners = this.prepareListeners(eventName);
 
         // A class event has no namespace to match on, so a wildcard is tested
@@ -277,7 +294,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Get the wildcard listeners for the event. */
-    protected getWildcardListeners(eventName: string): Array<Callback> {
+    protected getWildcardListeners(eventName: string): Array<Callback>
+    {
         const wildcards = new Array<Callback>();
 
         for (const [key, listeners] of this.wildcards.entries()) {
@@ -294,7 +312,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Prepare the listeners for a given event. */
-    protected prepareListeners(eventName: EventName): Array<Callback> {
+    protected prepareListeners(eventName: EventName): Array<Callback>
+    {
         const listeners = new Array<Callback>();
 
         for (const listener of this.listeners.get(eventName) ?? []) {
@@ -305,7 +324,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Register an event listener with the dispatcher. */
-    public makeListener(listener: Listener, wildcard = false): Callback {
+    public makeListener(listener: Listener, wildcard = false): Callback
+    {
         if (!typeIs(listener, 'function') && !this.isInstanceCallable(listener)) {
             return this.createClassListener(listener as Abstract | [Abstract, string], wildcard);
         }
@@ -317,7 +337,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Create a class based listener using the IoC container. */
-    public createClassListener(listener: Abstract | [Abstract, string], wildcard = false): Callback {
+    public createClassListener(listener: Abstract | [Abstract, string], wildcard = false): Callback
+    {
         return (event: EventName, payload: EventPayload) => {
             const callable = this.createClassCallable(listener);
 
@@ -331,7 +352,8 @@ export class Dispatcher implements DispatcherContract {
      * PHP falls back to `__invoke` when the named method is missing; Luau has no
      * callable objects, so a missing handler is an error.
      */
-    protected createClassCallable(listener: Abstract | [Abstract, string]): Callback {
+    protected createClassCallable(listener: Abstract | [Abstract, string]): Callback
+    {
         const [klass, method] = Util.isArray(listener)
             ? (listener as [Abstract, string])
             : this.parseClassCallable(listener as Abstract);
@@ -354,12 +376,14 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Determine if the event handler class should be queued. */
-    protected handlerShouldBeQueued(handler: unknown): boolean {
+    protected handlerShouldBeQueued(handler: unknown): boolean
+    {
         return isShouldQueue(handler);
     }
 
     /** Create a callable for putting an event handler on the queue. */
-    protected createQueuedHandlerCallable(klass: Abstract, method: string): Callback {
+    protected createQueuedHandlerCallable(klass: Abstract, method: string): Callback
+    {
         return (...args: Array<unknown>) => {
             if (this.handlerWantsToBeQueued(klass, args)) {
                 this.queueHandler(klass, method, args);
@@ -368,7 +392,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Determine if the event handler wants to be queued. */
-    protected handlerWantsToBeQueued(klass: Abstract, args: Array<unknown>): boolean {
+    protected handlerWantsToBeQueued(klass: Abstract, args: Array<unknown>): boolean
+    {
         const instance = this.container.make(klass) as Record<string, unknown>;
 
         const shouldQueue = instance.shouldQueue;
@@ -381,7 +406,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Queue the handler class. */
-    protected queueHandler(klass: Abstract, method: string, args: Array<unknown>): void {
+    protected queueHandler(klass: Abstract, method: string, args: Array<unknown>): void
+    {
         const [listener, job] = this.createListenerAndJob(klass, method, args);
 
         const connection = this.resolveQueue().connection(
@@ -411,7 +437,8 @@ export class Dispatcher implements DispatcherContract {
         method: string,
         attribute: Callback,
         property: string,
-    ): unknown {
+    ): unknown
+    {
         const declared = (listener as Record<string, unknown>)[method];
 
         if (typeIs(declared, 'function')) {
@@ -436,7 +463,8 @@ export class Dispatcher implements DispatcherContract {
         klass: Abstract,
         method: string,
         args: Array<unknown>,
-    ): [object, CallQueuedListener] {
+    ): [object, CallQueuedListener]
+    {
         const listener = this.container.make(klass) as object;
 
         return [
@@ -451,7 +479,8 @@ export class Dispatcher implements DispatcherContract {
      * The uniqueness, deduplication and message-group options PHP also copies
      * want the cache and SQS.
      */
-    protected propagateListenerOptions(listener: object, job: CallQueuedListener): CallQueuedListener {
+    protected propagateListenerOptions(listener: object, job: CallQueuedListener): CallQueuedListener
+    {
         const read = (attribute: Callback, property: string): unknown =>
             ReadsClassAttributes.getAttributeValue(listener, attribute, property);
 
@@ -460,9 +489,9 @@ export class Dispatcher implements DispatcherContract {
 
             return typeIs(declared, 'function')
                 ? (declared as (self: object, ...data: Array<never>) => unknown)(
-                      listener,
-                      ...(job.data as Array<never>),
-                  )
+                    listener,
+                    ...(job.data as Array<never>),
+                )
                 : undefined;
         };
 
@@ -478,8 +507,8 @@ export class Dispatcher implements DispatcherContract {
 
         job.failOnTimeout = (read(FailOnTimeout, 'failOnTimeout') as boolean | undefined) ?? false;
 
-        job.deleteWhenMissingModels =
-            (read(DeleteWhenMissingModels, 'deleteWhenMissingModels') as boolean | undefined) ?? false;
+        job.deleteWhenMissingModels = (read(DeleteWhenMissingModels, 'deleteWhenMissingModels') as boolean | undefined)
+            ?? false;
 
         const middleware = method('middleware');
 
@@ -491,7 +520,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Resolve the queue implementation. */
-    protected resolveQueue(): QueueFactory {
+    protected resolveQueue(): QueueFactory
+    {
         if (this.queueResolver === undefined) {
             throw new RuntimeException('The queue resolver has not been set on the event dispatcher.');
         }
@@ -500,14 +530,16 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Set the queue resolver implementation. */
-    public setQueueResolver(resolver: () => QueueFactory): this {
+    public setQueueResolver(resolver: () => QueueFactory): this
+    {
         this.queueResolver = resolver;
 
         return this;
     }
 
     /** Parse the class listener into class and method. */
-    protected parseClassCallable(listener: Abstract): [Abstract, string] {
+    protected parseClassCallable(listener: Abstract): [Abstract, string]
+    {
         if (typeIs(listener, 'string')) {
             const [target, method] = Str.parseCallback(listener, 'handle');
 
@@ -518,12 +550,14 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Determine if the listener is an already resolved `[instance, method]` pair. */
-    protected isInstanceCallable(listener: Listener): boolean {
+    protected isInstanceCallable(listener: Listener): boolean
+    {
         return Util.isArray(listener) && Reflector.isInstance((listener as [unknown, string])[0]);
     }
 
     /** Turn a callable listener into a plain function. */
-    protected toCallable(listener: Callback | [object, string]): Callback {
+    protected toCallable(listener: Callback | [object, string]): Callback
+    {
         if (typeIs(listener, 'function')) {
             return listener;
         }
@@ -541,7 +575,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Remove a set of listeners from the dispatcher. */
-    public forget(event: EventName): void {
+    public forget(event: EventName): void
+    {
         if (typeIs(event, 'string') && Str.contains(event, '*')) {
             this.wildcards.delete(event);
         } else {
@@ -558,7 +593,8 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Forget all of the pushed listeners. */
-    public forgetPushed(): void {
+    public forgetPushed(): void
+    {
         for (const key of this.listeners.keys()) {
             if (typeIs(key, 'string') && Str.endsWith(key, '_pushed')) {
                 this.forget(key);
@@ -574,7 +610,8 @@ export class Dispatcher implements DispatcherContract {
      * survive. A listener registered on a base event class therefore also runs
      * for its subclasses, which is the shape Laravel gets from interfaces.
      */
-    protected addInterfaceListeners(eventName: EventName, listeners: Array<Callback>): Array<Callback> {
+    protected addInterfaceListeners(eventName: EventName, listeners: Array<Callback>): Array<Callback>
+    {
         if (!typeIs(eventName, 'table')) {
             return listeners;
         }
@@ -597,7 +634,8 @@ export class Dispatcher implements DispatcherContract {
      *
      * Passing a list of event names defers only those.
      */
-    public defer<T>(callback: () => T, events?: Array<EventName>): T {
+    public defer<T>(callback: () => T, events?: Array<EventName>): T
+    {
         const wasDeferring = this.deferringEvents;
         const previousDeferred = this.deferredEvents;
         const previousToDefer = this.eventsToDefer;
@@ -624,12 +662,14 @@ export class Dispatcher implements DispatcherContract {
     }
 
     /** Determine if the given event should be held back for now. */
-    protected shouldDeferEvent(event: EventName): boolean {
+    protected shouldDeferEvent(event: EventName): boolean
+    {
         return this.deferringEvents && (this.eventsToDefer === undefined || this.eventsToDefer.includes(event));
     }
 
     /** Gets the raw, unprepared listeners. */
-    public getRawListeners(): Array<[EventName, Array<Listener>]> {
+    public getRawListeners(): Array<[EventName, Array<Listener>]>
+    {
         return this.listeners.entries();
     }
 }

@@ -109,6 +109,7 @@ export = (): void => {
 };
 
 /** Shallow tuple-equality helper for `Str.parseCallback()`'s return pair. */
-function pairEqual(value: [string, string | undefined], klass: string, method: string | undefined): boolean {
+function pairEqual(value: [string, string | undefined], klass: string, method: string | undefined): boolean
+{
     return value[0] === klass && value[1] === method;
 }

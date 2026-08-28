@@ -10,7 +10,8 @@ import type { Response } from 'Illuminate/Http/Response';
  * caught value is `unknown` until something narrows it -- which is exactly what
  * the handler spends its time doing.
  */
-export interface ExceptionHandler {
+export interface ExceptionHandler
+{
     /** Report or log an exception. */
     report(e: unknown): void;
 

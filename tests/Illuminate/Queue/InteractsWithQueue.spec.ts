@@ -14,15 +14,18 @@ import type { Job } from 'Illuminate/Contracts/Queue/Job';
  * becomes a hand-written fake that records what it was called with.
  */
 
-class FakeJob implements Partial<Job> {
+class FakeJob implements Partial<Job>
+{
     public failedWith?: unknown;
 
-    public fail(e?: unknown): void {
+    public fail(e?: unknown): void
+    {
         this.failedWith = e;
     }
 }
 
-class JobFixture extends InteractsWithQueue {}
+class JobFixture extends InteractsWithQueue
+{}
 
 export = (): void => {
     describe('InteractsWithQueue', () => {
@@ -57,13 +60,16 @@ export = (): void => {
             const calls = new Array<string>();
 
             const queueJob: Partial<Job> = {
-                attempts() {
+                attempts()
+                {
                     return 3;
                 },
-                release(delay?: number) {
+                release(delay?: number)
+                {
                     calls.push(`release:${delay}`);
                 },
-                delete() {
+                delete()
+                {
                     calls.push('delete');
                 },
             };

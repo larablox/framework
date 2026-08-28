@@ -8,7 +8,8 @@ import type { Lock as LockContract } from 'Illuminate/Contracts/Cache/Lock';
  * `block()` waits with `task.wait` rather than `usleep`, which means it yields
  * -- the caller has to be somewhere that may yield.
  */
-export abstract class Lock implements LockContract {
+export abstract class Lock implements LockContract
+{
     /** The number of milliseconds to wait between blocked attempts. */
     protected sleepMilliseconds = 250;
 
@@ -17,7 +18,8 @@ export abstract class Lock implements LockContract {
         protected readonly name: string,
         protected readonly seconds: number,
         protected readonly ownerId: string = Str.random(),
-    ) {}
+    )
+    {}
 
     /** Attempt to acquire the lock. */
     public abstract acquire(): boolean;
@@ -32,7 +34,8 @@ export abstract class Lock implements LockContract {
     public abstract forceRelease(): void;
 
     /** Attempt to acquire the lock, running the callback while it is held. */
-    public get<T>(callback?: () => T): T | boolean {
+    public get<T>(callback?: () => T): T | boolean
+    {
         const result = this.acquire();
 
         if (result && callback !== undefined) {
@@ -47,7 +50,8 @@ export abstract class Lock implements LockContract {
     }
 
     /** Attempt to acquire the lock for the given number of seconds. */
-    public block<T>(seconds: number, callback?: () => T): T | boolean {
+    public block<T>(seconds: number, callback?: () => T): T | boolean
+    {
         const starting = os.clock();
 
         while (!this.acquire()) {
@@ -70,27 +74,32 @@ export abstract class Lock implements LockContract {
     }
 
     /** Returns the owner value written into the driver for this lock. */
-    public owner(): string {
+    public owner(): string
+    {
         return this.ownerId;
     }
 
     /** Determines whether this lock is allowed to release the lock in the driver. */
-    public isOwnedByCurrentProcess(): boolean {
+    public isOwnedByCurrentProcess(): boolean
+    {
         return this.isOwnedBy(this.ownerId);
     }
 
     /** Determine whether this lock is owned by the given identifier. */
-    public isOwnedBy(owner: string): boolean {
+    public isOwnedBy(owner: string): boolean
+    {
         return this.getCurrentOwner() === owner;
     }
 
     /** Determine whether the lock is being held. */
-    public isLocked(): boolean {
+    public isLocked(): boolean
+    {
         return this.getCurrentOwner() !== undefined;
     }
 
     /** Specify the number of milliseconds to sleep between blocked attempts. */
-    public betweenBlockedAttemptsSleepFor(milliseconds: number): this {
+    public betweenBlockedAttemptsSleepFor(milliseconds: number): this
+    {
         this.sleepMilliseconds = milliseconds;
 
         return this;

@@ -27,7 +27,8 @@ const ReplicatedStorage = game.GetService('ReplicatedStorage');
 export type Transport = 'call' | 'send' | 'stream';
 
 /** What a handled request looks like once it is flat enough to replicate. */
-export interface ResponseEnvelope {
+export interface ResponseEnvelope
+{
     /** The HTTP-shaped status code the handler answered with. */
     status: number;
 
@@ -61,7 +62,8 @@ export const RemoteLimits = {
 };
 
 /** Locates the remotes, and caches what it finds. */
-export class Remote {
+export class Remote
+{
     private static folderInstance?: Folder;
 
     private static callRemote?: RemoteFunction;
@@ -79,7 +81,8 @@ export class Remote {
      * with the place file, and blocks on a client only until replication
      * catches up.
      */
-    public static folder(): Folder {
+    public static folder(): Folder
+    {
         if (Remote.folderInstance === undefined) {
             Remote.folderInstance = ReplicatedStorage.WaitForChild(REMOTES_FOLDER) as Folder;
         }
@@ -88,7 +91,8 @@ export class Remote {
     }
 
     /** The remote carrying requests that expect a response. */
-    public static call(): RemoteFunction {
+    public static call(): RemoteFunction
+    {
         if (Remote.callRemote === undefined) {
             Remote.callRemote = Remote.folder().WaitForChild('Call') as RemoteFunction;
         }
@@ -97,7 +101,8 @@ export class Remote {
     }
 
     /** The remote carrying requests that expect no response. */
-    public static send(): RemoteEvent {
+    public static send(): RemoteEvent
+    {
         if (Remote.sendRemote === undefined) {
             Remote.sendRemote = Remote.folder().WaitForChild('Send') as RemoteEvent;
         }
@@ -111,7 +116,8 @@ export class Remote {
      * The engine caps an unreliable payload at 1000 bytes and drops anything
      * larger without a word.
      */
-    public static stream(): UnreliableRemoteEvent {
+    public static stream(): UnreliableRemoteEvent
+    {
         if (Remote.streamRemote === undefined) {
             Remote.streamRemote = Remote.folder().WaitForChild('Stream') as UnreliableRemoteEvent;
         }
@@ -120,7 +126,8 @@ export class Remote {
     }
 
     /** The remote carrying server-to-client traffic. */
-    public static push(): RemoteEvent {
+    public static push(): RemoteEvent
+    {
         if (Remote.pushRemote === undefined) {
             Remote.pushRemote = Remote.folder().WaitForChild('Push') as RemoteEvent;
         }

@@ -1,4 +1,4 @@
-﻿/// <reference types="@rbxts/testez/globals" />
+/// <reference types="@rbxts/testez/globals" />
 import { MAX_EXPIRATION, MemoryStoreStore } from 'Illuminate/Cache/MemoryStoreStore';
 import { MemoryStoreLock } from 'Illuminate/Cache/MemoryStoreLock';
 
@@ -77,7 +77,8 @@ const EXPIRATION = 30;
 const MAP = 'larablox-tests';
 
 /** A fresh store, isolated from every other test by a random key prefix. */
-function freshStore(prefix = ''): MemoryStoreStore {
+function freshStore(prefix = ''): MemoryStoreStore
+{
     return new MemoryStoreStore(MAP, `${HttpService.GenerateGUID(false)}:${prefix}`, EXPIRATION);
 }
 
@@ -87,12 +88,13 @@ function freshStore(prefix = ''): MemoryStoreStore {
  * Only tests write into `MAP`, so everything in it is this run's, and now
  * that the name is fixed `ListItemsAsync` can reach all of it.
  */
-function drain(): void {
+function drain(): void
+{
     const map = MemoryStoreService.GetHashMap(MAP);
     const pages = map.ListItemsAsync(100);
 
     for (;;) {
-        for (const item of pages.GetCurrentPage() as Array<{ key: string }>) {
+        for (const item of pages.GetCurrentPage() as Array<{ key: string; }>) {
             map.RemoveAsync(item.key);
         }
 

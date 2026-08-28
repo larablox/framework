@@ -4,7 +4,8 @@ import type { ContextualAttribute } from 'Illuminate/Contracts/Container/Context
 import type { Request } from 'Illuminate/Http/Request';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] class RouteParameter`. */
-export interface RouteParameter extends ContextualAttribute {
+export interface RouteParameter extends ContextualAttribute
+{
     readonly parameter: string;
 }
 
@@ -15,7 +16,8 @@ export interface RouteParameter extends ContextualAttribute {
  * names them; this asks for one by name, which is what a PHP signature does
  * for free.
  */
-export function RouteParameter(parameter: string) {
+export function RouteParameter(parameter: string)
+{
     const instance: RouteParameter = {
         parameter,
         resolve: (attribute: never, container: Container) =>

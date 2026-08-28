@@ -59,7 +59,8 @@ export = (): void => {
         // `$this->config` on each run -- sharing one literal across `it()`s
         // would let `set()`/`prepend()`/`push()` mutations from one test leak
         // into the next, since a Luau table is a reference type.
-        function makeConfig(): ArrayAccessible {
+        function makeConfig(): ArrayAccessible
+        {
             return {
                 foo: 'bar',
                 bar: 'baz',

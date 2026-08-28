@@ -74,18 +74,22 @@ import { Router } from 'Illuminate/Routing/Router';
  *   notes on `testWhenEnumMethod`).
  */
 
-class RouteRegistrarControllerStub {
-    public index(): string {
+class RouteRegistrarControllerStub
+{
+    public index(): string
+    {
         return 'controller';
     }
 }
 
-function router(): Router {
+function router(): Router
+{
     return new Router(new Dispatcher(), new Container());
 }
 
 /** PHP: `RouteRegistrarTest::getRoute()`. */
-function lastRoute(router: Router): Route {
+function lastRoute(router: Router): Route
+{
     const routes = router.getRoutes().getRoutes();
     return routes[routes.size() - 1];
 }
@@ -98,13 +102,15 @@ export = (): void => {
     // nil value".
 
     /** PHP: `RouteRegistrarTest::seeResponse()`. */
-    function seeResponse(route: Route, content: unknown, request: Request): void {
+    function seeResponse(route: Route, content: unknown, request: Request): void
+    {
         expect(route.matches(request)).to.equal(true);
         expect(route.bind(request).run()).to.equal(content);
     }
 
     /** PHP: `RouteRegistrarTest::seeMiddleware()`. */
-    function seeMiddleware(route: Route, middleware: string): void {
+    function seeMiddleware(route: Route, middleware: string): void
+    {
         expect(route.middleware()[0]).to.equal(middleware);
     }
 

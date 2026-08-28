@@ -13,16 +13,19 @@ import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
  * redirects to make and no PSR bridge. `registerResponseFactory()` waits for
  * `ResponseFactory` and the `response()` helper.
  */
-export class RoutingServiceProvider extends ServiceProvider {
+export class RoutingServiceProvider extends ServiceProvider
+{
     /** Register the service provider. */
-    public register(): void {
+    public register(): void
+    {
         this.registerRouter();
         this.registerCallableDispatcher();
         this.registerControllerDispatcher();
     }
 
     /** Register the router instance. */
-    protected registerRouter(): void {
+    protected registerRouter(): void
+    {
         this.app.singleton(
             'router',
             (container: Container) => new Router(container.make<Dispatcher>('events'), container),
@@ -30,12 +33,14 @@ export class RoutingServiceProvider extends ServiceProvider {
     }
 
     /** Register the callable dispatcher. */
-    protected registerCallableDispatcher(): void {
+    protected registerCallableDispatcher(): void
+    {
         this.app.singleton(CallableDispatcher, (container: Container) => new CallableDispatcher(container));
     }
 
     /** Register the controller dispatcher. */
-    protected registerControllerDispatcher(): void {
+    protected registerControllerDispatcher(): void
+    {
         this.app.singleton(ControllerDispatcher, (container: Container) => new ControllerDispatcher(container));
     }
 }

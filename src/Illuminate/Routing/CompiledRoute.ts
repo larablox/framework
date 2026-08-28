@@ -2,7 +2,8 @@ import { InvalidArgumentException } from 'Illuminate/Exception';
 import { Str } from 'Illuminate/Support/Str';
 
 /** One segment of a compiled URI: either literal text or a parameter. */
-export interface RouteSegment {
+export interface RouteSegment
+{
     /** The parameter name, or undefined when the segment is literal. */
     readonly name?: string;
 
@@ -37,15 +38,18 @@ export interface RouteSegment {
  *   trailing parameter with no pattern still takes one segment: nothing would
  *   be left to refuse the rest with.
  */
-export class CompiledRoute {
+export class CompiledRoute
+{
     /** Create a new compiled route. */
     public constructor(
         public readonly segments: Array<RouteSegment>,
         public readonly parameterNames: Array<string>,
-    ) {}
+    )
+    {}
 
     /** Compile the given URI into the segments matching walks. */
-    public static compile(uri: string): CompiledRoute {
+    public static compile(uri: string): CompiledRoute
+    {
         const segments = new Array<RouteSegment>();
         const parameterNames = new Array<string>();
         let seenOptional = false;
@@ -100,7 +104,8 @@ export class CompiledRoute {
      * match at all -- which is the whole of what `UriValidator` asks, and what
      * `RouteParameterBinder` reads the values out of.
      */
-    public match(path: string, wheres: Record<string, string> = {}): Map<string, string> | undefined {
+    public match(path: string, wheres: Record<string, string> = {}): Map<string, string> | undefined
+    {
         const parts = CompiledRoute.split(path);
         const parameters = new Map<string, string>();
         const overflowing = parts.size() > this.segments.size();
@@ -161,14 +166,16 @@ export class CompiledRoute {
      * regular expression does. Without one, a route matches its own number of
      * segments and no more.
      */
-    protected trailingParameterSpans(wheres: Record<string, string>): boolean {
+    protected trailingParameterSpans(wheres: Record<string, string>): boolean
+    {
         const last = this.segments[this.segments.size() - 1];
 
         return last !== undefined && last.name !== undefined && wheres[last.name] !== undefined;
     }
 
     /** The path from the given part onwards, joined back together. */
-    protected static rest(parts: Array<string>, from: number): string {
+    protected static rest(parts: Array<string>, from: number): string
+    {
         const remaining = new Array<string>();
 
         for (let index = from; index < parts.size(); index++) {
@@ -179,7 +186,8 @@ export class CompiledRoute {
     }
 
     /** Split a URI into segments, treating "/" as no segments at all. */
-    protected static split(uri: string): Array<string> {
+    protected static split(uri: string): Array<string>
+    {
         const segments = new Array<string>();
 
         for (const segment of uri.split('/')) {

@@ -16,7 +16,8 @@ import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/S
  * is exactly what `ForwardsCallsExtra` below asserts. Both members are on the
  * honour system -- change one and change it here.
  */
-export declare class ForwardsCallsShape {
+export declare class ForwardsCallsShape
+{
     /** Type-only: there is no such value in the compiled Luau. */
     private constructor();
 
@@ -37,10 +38,12 @@ export declare class ForwardsCallsShape {
  * `ForwardsCallsExtra` has something concrete to look at -- see the note on
  * `conditionable` in `Illuminate/Support/Traits/Conditionable`.
  */
-function forwardsCalls<TBase extends Constructor>(Base: TBase) {
+function forwardsCalls<TBase extends Constructor>(Base: TBase)
+{
     return class extends Base {
         /** Forward a method call to the given object. */
-        protected forwardCallTo(target: object, method: string, parameters: Array<unknown>): unknown {
+        protected forwardCallTo(target: object, method: string, parameters: Array<unknown>): unknown
+        {
             const callable = (target as Record<string, unknown>)[method];
 
             if (!typeIs(callable, 'function')) {
@@ -56,7 +59,8 @@ function forwardsCalls<TBase extends Constructor>(Base: TBase) {
          * Forward a method call to the given object, returning $this if the
          * forwarded call returned itself.
          */
-        protected forwardDecoratedCallTo(target: object, method: string, parameters: Array<unknown>): unknown {
+        protected forwardDecoratedCallTo(target: object, method: string, parameters: Array<unknown>): unknown
+        {
             const result = this.forwardCallTo(target, method, parameters);
 
             return result === target ? this : result;
@@ -93,11 +97,13 @@ type ForwardsCallsIsExact = AssertTrue<AssertNoExtraMembers<ForwardsCallsExtra>>
  */
 export function ForwardsCalls<TBase extends Constructor>(
     Base: TBase = Trait as never,
-): TBase & Constructor<ForwardsCallsShape> {
+): TBase & Constructor<ForwardsCallsShape>
+{
     return forwardsCalls(Base) as never;
 }
 
 /** PHP: `static::throwBadMethodCallException($method)`. */
-export function throwBadMethodCallException(target: unknown, method: string): never {
+export function throwBadMethodCallException(target: unknown, method: string): never
+{
     throw new BadMethodCallException(`Call to undefined method ${Reflector.className(target)}::${method}()`);
 }

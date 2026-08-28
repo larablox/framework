@@ -63,7 +63,8 @@ import type { Response } from 'Illuminate/Http/Response';
  *   coroutine, since the whole point of them is being reachable without being
  *   handed anything, and a request is one coroutine.
  */
-export class Worker {
+export class Worker
+{
     /** The kernel, resolved once and handed a sandbox per request. */
     protected kernel?: HttpKernel;
 
@@ -71,19 +72,22 @@ export class Worker {
     protected booted = false;
 
     /** Create a new worker instance. */
-    public constructor(@Inject('app') protected readonly app: Application) {}
+    public constructor(@Inject('app') protected readonly app: Application)
+    {}
 
     /**
      * The services resolved before the first request is answered.
      *
      * PHP: `Octane::defaultServicesToWarm()`, cut down to what exists here.
      */
-    public static defaultServicesToWarm(): Array<Abstract> {
+    public static defaultServicesToWarm(): Array<Abstract>
+    {
         return ['events', 'config', 'log', 'router', 'queue'];
     }
 
     /** Boot the worker: bootstrap the application once, then warm it. */
-    public boot(services?: Array<Abstract>): void {
+    public boot(services?: Array<Abstract>): void
+    {
         if (this.booted) {
             throw new RuntimeException('The worker has already booted.');
         }
@@ -106,11 +110,11 @@ export class Worker {
      * is no such file here, so the key is `app.warm` and the default list
      * stands in when it is absent.
      */
-    public warm(services?: Array<Abstract>): void {
-        const configured =
-            services ??
-            (this.app.make<ConfigRepository>('config').get('app.warm') as Array<Abstract> | undefined) ??
-            Worker.defaultServicesToWarm();
+    public warm(services?: Array<Abstract>): void
+    {
+        const configured = services
+            ?? (this.app.make<ConfigRepository>('config').get('app.warm') as Array<Abstract> | undefined)
+            ?? Worker.defaultServicesToWarm();
 
         for (const service of configured) {
             if (this.app.bound(service)) {
@@ -129,7 +133,8 @@ export class Worker {
      * what the terminable middleware and the terminating callbacks resolve out
      * of, and is flushed on the way out.
      */
-    public handle(request: Request): Response {
+    public handle(request: Request): Response
+    {
         const kernel = this.bootedKernel();
         const sandbox = this.app.sandbox();
 
@@ -165,7 +170,8 @@ export class Worker {
     }
 
     /** Terminate the request, then throw the sandbox away. */
-    protected terminateRequest(kernel: HttpKernel, sandbox: Application, request: Request, response: Response): void {
+    protected terminateRequest(kernel: HttpKernel, sandbox: Application, request: Request, response: Response): void
+    {
         try {
             // `Kernel::terminate()` ends in `$this->app->terminate()`, and
             // `$this->app` is the sandbox -- which is the whole point.
@@ -189,26 +195,30 @@ export class Worker {
      * it happens on the way out here instead, because a request that starts
      * while another is mid-flight must not pull the cache out from under it.
      */
-    protected flushSandbox(sandbox: Application): void {
+    protected flushSandbox(sandbox: Application): void
+    {
         sandbox.flush();
 
         Str.flushCache();
     }
 
     /** Stop the worker. */
-    public terminate(): void {
+    public terminate(): void
+    {
         this.dispatchEvent(this.app, new WorkerStopping(this.app));
 
         this.booted = false;
     }
 
     /** Whether the worker has booted. */
-    public hasBooted(): boolean {
+    public hasBooted(): boolean
+    {
         return this.booted;
     }
 
     /** Get the application instance being used by the worker. */
-    public application(): Application {
+    public application(): Application
+    {
         return this.app;
     }
 
@@ -222,7 +232,8 @@ export class Worker {
      * runs a request against services nobody is keeping any more, and nothing
      * raises to say so.
      */
-    protected bootedKernel(): HttpKernel {
+    protected bootedKernel(): HttpKernel
+    {
         if (!this.booted || this.kernel === undefined) {
             throw new RuntimeException('Worker has not booted. Unable to handle requests.');
         }
@@ -236,7 +247,8 @@ export class Worker {
      * PHP: `Laravel\Octane\DispatchesEvents`. A worker event may be sent before
      * the dispatcher is bound, and one that nobody can hear is not an error.
      */
-    protected dispatchEvent(app: Application, event: object): void {
+    protected dispatchEvent(app: Application, event: object): void
+    {
         if (!app.bound('events')) {
             return;
         }

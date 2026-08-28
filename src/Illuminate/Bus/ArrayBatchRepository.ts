@@ -9,7 +9,8 @@ import type { Factory as QueueFactory } from 'Illuminate/Contracts/Queue/Factory
 import type { PendingBatch } from 'Illuminate/Bus/PendingBatch';
 
 /** One batch as the repository keeps it. */
-interface BatchRecord {
+interface BatchRecord
+{
     id: string;
     name: string;
     totalJobs: number;
@@ -36,15 +37,18 @@ interface BatchRecord {
  * both can reach, and callbacks that survive the trip -- neither of which this
  * repository is.
  */
-export class ArrayBatchRepository implements BatchRepository {
+export class ArrayBatchRepository implements BatchRepository
+{
     /** The batches, keyed by id. */
     protected batches = new OrderedMap<string, BatchRecord>();
 
     /** Create a new batch repository instance. */
-    public constructor(protected readonly queue: QueueFactory) {}
+    public constructor(protected readonly queue: QueueFactory)
+    {}
 
     /** Retrieve a list of batches. */
-    public get(limit: number, before?: string): Array<Batch> {
+    public get(limit: number, before?: string): Array<Batch>
+    {
         const found = new Array<Batch>();
 
         for (const record of this.batches.values()) {
@@ -63,14 +67,16 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Retrieve information about an existing batch. */
-    public find(batchId: string): Batch | undefined {
+    public find(batchId: string): Batch | undefined
+    {
         const record = this.batches.get(batchId);
 
         return record === undefined ? undefined : this.toBatch(record);
     }
 
     /** Store a new pending batch. */
-    public store(batch: PendingBatch): Batch {
+    public store(batch: PendingBatch): Batch
+    {
         const record: BatchRecord = {
             id: Str.orderedUuid(),
             name: batch.batchName,
@@ -88,7 +94,8 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Increment the total jobs count for the batch. */
-    public incrementTotalJobs(batchId: string, amount: number): void {
+    public incrementTotalJobs(batchId: string, amount: number): void
+    {
         const record = this.batches.get(batchId);
 
         if (record === undefined) {
@@ -101,7 +108,8 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Decrement the pending jobs for the batch. */
-    public decrementPendingJobs(batchId: string, jobId: string): UpdatedBatchJobCounts {
+    public decrementPendingJobs(batchId: string, jobId: string): UpdatedBatchJobCounts
+    {
         const record = this.batches.get(batchId);
 
         if (record === undefined) {
@@ -115,7 +123,8 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Increment the failed jobs for the batch. */
-    public incrementFailedJobs(batchId: string, jobId: string): UpdatedBatchJobCounts {
+    public incrementFailedJobs(batchId: string, jobId: string): UpdatedBatchJobCounts
+    {
         const record = this.batches.get(batchId);
 
         if (record === undefined) {
@@ -132,7 +141,8 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Mark the batch that has the given ID as finished. */
-    public markAsFinished(batchId: string): void {
+    public markAsFinished(batchId: string): void
+    {
         const record = this.batches.get(batchId);
 
         if (record !== undefined) {
@@ -141,7 +151,8 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Cancel the batch that has the given ID. */
-    public cancel(batchId: string): void {
+    public cancel(batchId: string): void
+    {
         const record = this.batches.get(batchId);
 
         if (record !== undefined) {
@@ -151,22 +162,26 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Delete the batch that has the given ID. */
-    public delete(batchId: string): void {
+    public delete(batchId: string): void
+    {
         this.batches.delete(batchId);
     }
 
     /** Execute the given callback: there is nothing to lock. */
-    public transaction<T>(callback: () => T): T {
+    public transaction<T>(callback: () => T): T
+    {
         return callback();
     }
 
     /** Roll back the last transaction: there was none. */
-    public rollBack(): void {
+    public rollBack(): void
+    {
         //
     }
 
     /** Build a batch instance from a stored record. */
-    protected toBatch(record: BatchRecord): Batch {
+    protected toBatch(record: BatchRecord): Batch
+    {
         return new Batch(
             this.queue,
             this,

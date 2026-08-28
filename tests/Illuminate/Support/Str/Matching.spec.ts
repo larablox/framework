@@ -101,7 +101,8 @@ export = (): void => {
 };
 
 /** Shallow array-equality helper -- TestEZ's `expect().to.equal()` is `===`. */
-function arraysEqual(value: Array<string>, expected: Array<string>): boolean {
+function arraysEqual(value: Array<string>, expected: Array<string>): boolean
+{
     if (value.size() !== expected.size()) {
         return false;
     }

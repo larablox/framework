@@ -5,7 +5,8 @@ import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
 import type { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
 
 /** PHP: the compiled service manifest. */
-export interface ProviderManifest {
+export interface ProviderManifest
+{
     /** Providers registered on every boot. */
     eager: Array<Constructor<ServiceProvider>>;
 
@@ -23,12 +24,15 @@ export interface ProviderManifest {
  * place has no writable filesystem, and instantiating the providers is the only
  * way to ask them what they defer.
  */
-export class ProviderRepository {
+export class ProviderRepository
+{
     /** Create a new service repository instance. */
-    public constructor(protected readonly app: Application) {}
+    public constructor(protected readonly app: Application)
+    {}
 
     /** Register the application service providers. */
-    public load(providers: Array<Constructor<ServiceProvider>>): void {
+    public load(providers: Array<Constructor<ServiceProvider>>): void
+    {
         const manifest = this.compileManifest(providers);
 
         // Next, we will register events to load the providers for each of the events
@@ -49,7 +53,8 @@ export class ProviderRepository {
     }
 
     /** Register the load events for the given provider. */
-    protected registerLoadEvents(provider: Constructor<ServiceProvider>, events: Array<string>): void {
+    protected registerLoadEvents(provider: Constructor<ServiceProvider>, events: Array<string>): void
+    {
         if (events.isEmpty()) {
             return;
         }
@@ -58,7 +63,8 @@ export class ProviderRepository {
     }
 
     /** Compile the application service manifest. */
-    protected compileManifest(providers: Array<Constructor<ServiceProvider>>): ProviderManifest {
+    protected compileManifest(providers: Array<Constructor<ServiceProvider>>): ProviderManifest
+    {
         const manifest = this.freshManifest();
 
         for (const provider of providers) {
@@ -85,7 +91,8 @@ export class ProviderRepository {
     }
 
     /** Create a fresh service manifest data structure. */
-    protected freshManifest(): ProviderManifest {
+    protected freshManifest(): ProviderManifest
+    {
         return {
             eager: new Array<Constructor<ServiceProvider>>(),
             deferred: new OrderedMap<Abstract, Constructor<ServiceProvider>>(),
@@ -94,7 +101,8 @@ export class ProviderRepository {
     }
 
     /** Create a new provider instance. */
-    public createProvider(provider: Constructor<ServiceProvider>): ServiceProvider {
-        return new (provider as new (app: Application) => ServiceProvider)(this.app);
+    public createProvider(provider: Constructor<ServiceProvider>): ServiceProvider
+    {
+        return new (provider as new(app: Application) => ServiceProvider)(this.app);
     }
 }

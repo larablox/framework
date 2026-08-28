@@ -23,6 +23,7 @@ export const LOG_LEVELS: Array<LogLevel> = [
 ];
 
 /** The numeric severity of a level, for `isHandling` comparisons. */
-export function levelSeverity(level: LogLevel): number {
+export function levelSeverity(level: LogLevel): number
+{
     return LOG_LEVELS.indexOf(level);
 }

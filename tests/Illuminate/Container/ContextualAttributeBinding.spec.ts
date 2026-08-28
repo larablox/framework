@@ -47,17 +47,22 @@ import type { ContextualAttribute } from 'Illuminate/Contracts/Container/Context
  */
 export = (): void => {
     describe('Contextual attribute bindings', () => {
-        abstract class ContainerTestContract {}
+        abstract class ContainerTestContract
+        {}
 
-        class ContainerTestImplA extends ContainerTestContract {}
+        class ContainerTestImplA extends ContainerTestContract
+        {}
 
-        class ContainerTestImplB extends ContainerTestContract {}
+        class ContainerTestImplB extends ContainerTestContract
+        {}
 
-        interface ContainerTestAttributeThatResolvesContractImpl extends ContextualAttribute {
+        interface ContainerTestAttributeThatResolvesContractImpl extends ContextualAttribute
+        {
             readonly name: 'A' | 'B';
         }
 
-        function ContainerTestAttributeThatResolvesContractImpl(name: 'A' | 'B') {
+        function ContainerTestAttributeThatResolvesContractImpl(name: 'A' | 'B')
+        {
             const instance: ContainerTestAttributeThatResolvesContractImpl = {
                 name,
             };
@@ -73,18 +78,20 @@ export = (): void => {
             };
         }
 
-        class ContainerTestHasAttributeThatResolvesToImplA {
+        class ContainerTestHasAttributeThatResolvesToImplA
+        {
             public constructor(
-                @ContainerTestAttributeThatResolvesContractImpl('A')
-                public readonly property: ContainerTestContract,
-            ) {}
+                @ContainerTestAttributeThatResolvesContractImpl('A') public readonly property: ContainerTestContract,
+            )
+            {}
         }
 
-        class ContainerTestHasAttributeThatResolvesToImplB {
+        class ContainerTestHasAttributeThatResolvesToImplB
+        {
             public constructor(
-                @ContainerTestAttributeThatResolvesContractImpl('B')
-                public readonly property: ContainerTestContract,
-            ) {}
+                @ContainerTestAttributeThatResolvesContractImpl('B') public readonly property: ContainerTestContract,
+            )
+            {}
         }
 
         it('resolves a dependency through whenHasAttribute()', () => {
@@ -109,29 +116,34 @@ export = (): void => {
             expect(classB.property instanceof ContainerTestImplB).to.equal(true);
         });
 
-        class SimpleDependency extends ContainerTestContract {}
+        class SimpleDependency extends ContainerTestContract
+        {}
 
-        class ComplexDependency extends ContainerTestContract {
+        class ComplexDependency extends ContainerTestContract
+        {
             // PHP overrides this by name (`['param' => true]`); with no
             // parameter names here it is overridden by position, and only an
             // annotated parameter takes a positional override at all.
-            public constructor(@Inject('$param') public readonly param: boolean) {
+            public constructor(@Inject('$param') public readonly param: boolean)
+            {
                 super();
             }
         }
 
-        class GiveTestSimple {
+        class GiveTestSimple
+        {
             public constructor(
-                @Give(SimpleDependency)
-                public readonly dependency: ContainerTestContract,
-            ) {}
+                @Give(SimpleDependency) public readonly dependency: ContainerTestContract,
+            )
+            {}
         }
 
-        class GiveTestComplex {
+        class GiveTestComplex
+        {
             public constructor(
-                @Give(ComplexDependency, [true])
-                public readonly dependency: ComplexDependency,
-            ) {}
+                @Give(ComplexDependency, [true]) public readonly dependency: ComplexDependency,
+            )
+            {}
         }
 
         it('resolves a simple dependency through Give()', () => {
@@ -156,21 +168,26 @@ export = (): void => {
         });
 
         /** A tiny stand-in for `Illuminate\Config\Repository`, get(key) only. */
-        class FakeConfigRepository {
-            public constructor(private readonly items: Record<string, unknown>) {}
+        class FakeConfigRepository
+        {
+            public constructor(private readonly items: Record<string, unknown>)
+            {}
 
-            public get(key: string, defaultValue?: unknown): unknown {
+            public get(key: string, defaultValue?: unknown): unknown
+            {
                 const value = this.items[key];
 
                 return value !== undefined ? value : defaultValue;
             }
         }
 
-        interface ContainerTestConfigValue extends ContextualAttribute {
+        interface ContainerTestConfigValue extends ContextualAttribute
+        {
             readonly key: string;
         }
 
-        function ContainerTestConfigValue(key: string) {
+        function ContainerTestConfigValue(key: string)
+        {
             const instance: ContainerTestConfigValue = { key };
 
             return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
@@ -178,11 +195,12 @@ export = (): void => {
             };
         }
 
-        class ContainerTestHasConfigValueProperty {
+        class ContainerTestHasConfigValueProperty
+        {
             public constructor(
-                @ContainerTestConfigValue('app.timezone')
-                public readonly timezone: string,
-            ) {}
+                @ContainerTestConfigValue('app.timezone') public readonly timezone: string,
+            )
+            {}
         }
 
         it('resolves a scalar dependency through whenHasAttribute()', () => {
@@ -196,8 +214,9 @@ export = (): void => {
                     }),
             );
 
-            container.whenHasAttribute(ContainerTestConfigValue, (attribute: ContainerTestConfigValue, c) =>
-                c.make<FakeConfigRepository>('config').get(attribute.key),
+            container.whenHasAttribute(
+                ContainerTestConfigValue,
+                (attribute: ContainerTestConfigValue, c) => c.make<FakeConfigRepository>('config').get(attribute.key),
             );
 
             const classInstance = container.make(ContainerTestHasConfigValueProperty);
@@ -206,11 +225,13 @@ export = (): void => {
             expect(classInstance.timezone).to.equal('Europe/Paris');
         });
 
-        interface ContainerTestConfigValueWithResolve extends ContextualAttribute {
+        interface ContainerTestConfigValueWithResolve extends ContextualAttribute
+        {
             readonly key: string;
         }
 
-        function ContainerTestConfigValueWithResolve(key: string) {
+        function ContainerTestConfigValueWithResolve(key: string)
+        {
             const instance: ContainerTestConfigValueWithResolve = {
                 key,
                 resolve: (attribute: ContainerTestConfigValueWithResolve, c) =>
@@ -228,11 +249,12 @@ export = (): void => {
             };
         }
 
-        class ContainerTestHasConfigValueWithResolveProperty {
+        class ContainerTestHasConfigValueWithResolveProperty
+        {
             public constructor(
-                @ContainerTestConfigValueWithResolve('app.env')
-                public readonly env: string,
-            ) {}
+                @ContainerTestConfigValueWithResolve('app.env') public readonly env: string,
+            )
+            {}
         }
 
         it("resolves a scalar dependency through the attribute's own resolve()", () => {
@@ -246,14 +268,16 @@ export = (): void => {
             expect(classInstance.env).to.equal('production');
         });
 
-        class Person {
+        class Person
+        {
             public name = 'Taylor';
             public role?: string;
         }
 
         type ContainerTestConfigValueWithResolveAndAfter = ContextualAttribute;
 
-        function ContainerTestConfigValueWithResolveAndAfter() {
+        function ContainerTestConfigValueWithResolveAndAfter()
+        {
             const instance: ContainerTestConfigValueWithResolveAndAfter = {
                 resolve: () => new Person(),
                 after: (_attribute: never, value: Person) => {
@@ -272,11 +296,12 @@ export = (): void => {
             };
         }
 
-        class ContainerTestHasConfigValueWithResolvePropertyAndAfterCallback {
+        class ContainerTestHasConfigValueWithResolvePropertyAndAfterCallback
+        {
             public constructor(
-                @ContainerTestConfigValueWithResolveAndAfter()
-                public readonly person: Person,
-            ) {}
+                @ContainerTestConfigValueWithResolveAndAfter() public readonly person: Person,
+            )
+            {}
         }
 
         it("runs the attribute's after() callback once the dependency resolves", () => {
@@ -297,11 +322,13 @@ export = (): void => {
             expect(hasAttribute.person.name).to.equal('Taylor');
         });
 
-        class ConfigTest {
+        class ConfigTest
+        {
             public constructor(
                 @Config('foo') public readonly foo: string,
                 @Config('bar') public readonly bar: string,
-            ) {}
+            )
+            {}
         }
 
         it('resolves two Config()-attributed dependencies', () => {
@@ -315,8 +342,10 @@ export = (): void => {
             expect(classInstance.bar).to.equal('bar');
         });
 
-        class TimezoneObject {
-            public constructor(@Config('app.timezone') public readonly timezone?: string) {}
+        class TimezoneObject
+        {
+            public constructor(@Config('app.timezone') public readonly timezone?: string)
+            {}
         }
 
         it('Config() resolves the configured key (adapted -- see class comment)', () => {
@@ -341,8 +370,10 @@ export = (): void => {
             expect(timezoneObject.timezone).to.equal('Europe/Paris');
         });
 
-        class TagTest {
-            public constructor(@Tag('numbers') public readonly integers: unknown) {}
+        class TagTest
+        {
+            public constructor(@Tag('numbers') public readonly integers: unknown)
+            {}
         }
 
         it('resolves a Tag()-attributed dependency into every tagged binding (adapted -- see class comment)', () => {
@@ -353,7 +384,7 @@ export = (): void => {
             container.tag(['one', 'two'], 'numbers');
 
             const classInstance = container.make(TagTest);
-            const values = (classInstance.integers as { toArray(): Array<unknown> }).toArray();
+            const values = (classInstance.integers as { toArray(): Array<unknown>; }).toArray();
 
             expect(values[0]).to.equal(1);
             expect(values[1]).to.equal(2);
@@ -364,11 +395,13 @@ export = (): void => {
          * standing in for the Mockery mock upstream builds -- see class
          * comment.
          */
-        class FakeContextRepository {
+        class FakeContextRepository
+        {
             public getCallCount = 0;
             public getHiddenCallCount = 0;
 
-            public get(key: string, defaultValue?: unknown): unknown {
+            public get(key: string, defaultValue?: unknown): unknown
+            {
                 this.getCallCount++;
                 expect(key).to.equal('foo');
                 expect(defaultValue).to.equal(undefined);
@@ -376,7 +409,8 @@ export = (): void => {
                 return 'foo';
             }
 
-            public getHidden(key: string, defaultValue?: unknown): unknown {
+            public getHidden(key: string, defaultValue?: unknown): unknown
+            {
                 this.getHiddenCallCount++;
                 expect(key).to.equal('bar');
                 expect(defaultValue).to.equal(undefined);
@@ -385,12 +419,16 @@ export = (): void => {
             }
         }
 
-        class ContextTest {
-            public constructor(@Context('foo') public readonly foo: string) {}
+        class ContextTest
+        {
+            public constructor(@Context('foo') public readonly foo: string)
+            {}
         }
 
-        class ContextHiddenTest {
-            public constructor(@Context('bar', undefined, true) public readonly foo: string) {}
+        class ContextHiddenTest
+        {
+            public constructor(@Context('bar', undefined, true) public readonly foo: string)
+            {}
         }
 
         it('resolves a Context()-attributed dependency', () => {

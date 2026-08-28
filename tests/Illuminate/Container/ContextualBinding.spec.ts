@@ -43,109 +43,130 @@ import { Variadic } from 'Illuminate/Container/Attributes/Variadic';
  */
 export = (): void => {
     describe('Contextual bindings', () => {
-        abstract class IContainerContextContractStub {}
+        abstract class IContainerContextContractStub
+        {}
 
-        class ContainerContextNonContractStub {}
+        class ContainerContextNonContractStub
+        {}
 
-        class ContainerContextImplementationStub extends IContainerContextContractStub {}
+        class ContainerContextImplementationStub extends IContainerContextContractStub
+        {}
 
-        class ContainerContextImplementationStubTwo extends IContainerContextContractStub {}
+        class ContainerContextImplementationStubTwo extends IContainerContextContractStub
+        {}
 
-        class ContainerImplementationStub extends IContainerContextContractStub {}
+        class ContainerImplementationStub extends IContainerContextContractStub
+        {}
 
-        class ContainerConcreteStub {}
+        class ContainerConcreteStub
+        {}
 
-        class ContainerTestContextInjectInstantiations extends IContainerContextContractStub {
+        class ContainerTestContextInjectInstantiations extends IContainerContextContractStub
+        {
             public static instantiations = 0;
 
-            public constructor() {
+            public constructor()
+            {
                 super();
                 ContainerTestContextInjectInstantiations.instantiations++;
             }
         }
 
-        class ContainerTestContextInjectOne {
+        class ContainerTestContextInjectOne
+        {
             public constructor(
-                @Inject(IContainerContextContractStub)
-                public readonly impl: IContainerContextContractStub,
-            ) {}
+                @Inject(IContainerContextContractStub) public readonly impl: IContainerContextContractStub,
+            )
+            {}
         }
 
-        class ContainerTestContextInjectTwo {
+        class ContainerTestContextInjectTwo
+        {
             public constructor(
-                @Inject(IContainerContextContractStub)
-                public readonly impl: IContainerContextContractStub,
-            ) {}
+                @Inject(IContainerContextContractStub) public readonly impl: IContainerContextContractStub,
+            )
+            {}
         }
 
-        class ContainerTestContextInjectThree {
+        class ContainerTestContextInjectThree
+        {
             public constructor(
-                @Inject(IContainerContextContractStub)
-                public readonly impl: IContainerContextContractStub,
-            ) {}
+                @Inject(IContainerContextContractStub) public readonly impl: IContainerContextContractStub,
+            )
+            {}
         }
 
-        class ContainerTestContextWithOptionalInnerDependency {
-            public constructor(public readonly inner?: ContainerTestContextInjectOne) {}
+        class ContainerTestContextWithOptionalInnerDependency
+        {
+            public constructor(public readonly inner?: ContainerTestContextInjectOne)
+            {}
         }
 
-        class ContainerTestContextInjectTwoInstances {
+        class ContainerTestContextInjectTwoInstances
+        {
             public constructor(
-                @Inject(ContainerTestContextWithOptionalInnerDependency)
-                public readonly implOne: ContainerTestContextWithOptionalInnerDependency,
-                @Inject(ContainerTestContextInjectTwo)
-                public readonly implTwo: ContainerTestContextInjectTwo,
-            ) {}
+                @Inject(ContainerTestContextWithOptionalInnerDependency) public readonly implOne:
+                    ContainerTestContextWithOptionalInnerDependency,
+                @Inject(ContainerTestContextInjectTwo) public readonly implTwo: ContainerTestContextInjectTwo,
+            )
+            {}
         }
 
-        class ContainerTestContextInjectArray {
-            public constructor(@Inject('$stubs') public readonly stubs: Array<unknown>) {}
+        class ContainerTestContextInjectArray
+        {
+            public constructor(@Inject('$stubs') public readonly stubs: Array<unknown>)
+            {}
         }
 
-        class ContainerTestContextInjectVariadic {
+        class ContainerTestContextInjectVariadic
+        {
             public readonly stubs: Array<IContainerContextContractStub>;
 
             public constructor(
-                @Variadic(IContainerContextContractStub)
-                ...stubs: Array<IContainerContextContractStub>
-            ) {
+                @Variadic(IContainerContextContractStub) ...stubs: Array<IContainerContextContractStub>
+            )
+            {
                 this.stubs = stubs;
             }
         }
 
-        class ContainerTestContextInjectVariadicAfterNonVariadic {
+        class ContainerTestContextInjectVariadicAfterNonVariadic
+        {
             public readonly stubs: Array<IContainerContextContractStub>;
 
             public constructor(
-                @Inject(ContainerContextNonContractStub)
-                public readonly other: ContainerContextNonContractStub,
-                @Variadic(IContainerContextContractStub)
-                ...stubs: Array<IContainerContextContractStub>
-            ) {
+                @Inject(ContainerContextNonContractStub) public readonly other: ContainerContextNonContractStub,
+                @Variadic(IContainerContextContractStub) ...stubs: Array<IContainerContextContractStub>
+            )
+            {
                 this.stubs = stubs;
             }
         }
 
-        class ContainerTestContextInjectFromConfigIndividualValues {
+        class ContainerTestContextInjectFromConfigIndividualValues
+        {
             public constructor(
                 @Inject('$username') public readonly username: unknown,
                 @Inject('$password') public readonly password: unknown,
                 @Inject('$alias') public readonly alias: unknown = undefined,
-            ) {}
+            )
+            {}
         }
 
-        class ContainerTestContextInjectFromConfigArray {
+        class ContainerTestContextInjectFromConfigArray
+        {
             public constructor(
-                @Inject('$settings')
-                public readonly settings: Map<string, unknown>,
-            ) {}
+                @Inject('$settings') public readonly settings: Map<string, unknown>,
+            )
+            {}
         }
 
-        class ContainerTestContextInjectMethodArgument {
+        class ContainerTestContextInjectMethodArgument
+        {
             public method(
-                @Inject(IContainerContextContractStub)
-                dependency: IContainerContextContractStub,
-            ): IContainerContextContractStub {
+                @Inject(IContainerContextContractStub) dependency: IContainerContextContractStub,
+            ): IContainerContextContractStub
+            {
                 return dependency;
             }
         }
@@ -377,8 +398,10 @@ export = (): void => {
             expect(ContainerTestContextInjectInstantiations.instantiations).to.equal(1);
         });
 
-        class ContainerInjectVariableStub {
-            public constructor(@Inject('$something') public readonly something: unknown) {}
+        class ContainerInjectVariableStub
+        {
+            public constructor(@Inject('$something') public readonly something: unknown)
+            {}
         }
 
         it('injects a simple contextual primitive', () => {
@@ -565,10 +588,13 @@ export = (): void => {
         });
 
         /** A tiny stand-in for `Illuminate\Config\Repository`, get(key, default) only. */
-        class FakeConfigRepository {
-            public constructor(private readonly items: Map<string, Map<string, unknown>>) {}
+        class FakeConfigRepository
+        {
+            public constructor(private readonly items: Map<string, Map<string, unknown>>)
+            {}
 
-            public get(key: string, defaultValue?: unknown): unknown {
+            public get(key: string, defaultValue?: unknown): unknown
+            {
                 const [section, item] = key.split('.') as [string, string];
                 const value = this.items.get(section)?.get(item);
 
@@ -708,10 +734,13 @@ export = (): void => {
             // a *method*, so the call compiles to `config:get(key)` and a
             // literal's function-valued property would be handed the table
             // itself as its first argument.
-            class FakeConfigSection {
-                public constructor(private readonly section: Map<string, unknown>) {}
+            class FakeConfigSection
+            {
+                public constructor(private readonly section: Map<string, unknown>)
+                {}
 
-                public get(key: string): unknown {
+                public get(key: string): unknown
+                {
                     return key === 'test' ? this.section : undefined;
                 }
             }

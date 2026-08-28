@@ -34,7 +34,8 @@ import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/S
  *   two declarations, so `resolveCondition` below is on the honour system:
  *   change it and change it here.
  */
-export declare class ConditionablePublicShape {
+export declare class ConditionablePublicShape
+{
     /** Type-only: there is no such value in the compiled Luau. */
     protected constructor();
 
@@ -54,7 +55,8 @@ export declare class ConditionablePublicShape {
 }
 
 /** The full shape: {@link ConditionablePublicShape} plus what Laravel hides. */
-export declare class ConditionableShape extends ConditionablePublicShape {
+export declare class ConditionableShape extends ConditionablePublicShape
+{
     /** Type-only: there is no such value in the compiled Luau. */
     private constructor();
 
@@ -71,14 +73,16 @@ export declare class ConditionableShape extends ConditionablePublicShape {
  * checks on the shape have something concrete to look at: the annotation on
  * the exported factory would answer every question with the shape itself.
  */
-function conditionable<TBase extends Constructor>(Base: TBase) {
+function conditionable<TBase extends Constructor>(Base: TBase)
+{
     return class extends Base {
         /** Apply the callback if the given "value" is (or resolves to) truthy. */
         public when<TWhenParameter extends defined, TWhenReturn extends defined>(
             value: TWhenParameter | ((target: this) => TWhenParameter) | undefined,
             callback: (target: this, value: TWhenParameter) => TWhenReturn | undefined,
             defaultCallback?: (target: this, value: TWhenParameter) => TWhenReturn | undefined,
-        ): this | TWhenReturn {
+        ): this | TWhenReturn
+        {
             const resolved = this.resolveCondition(value);
 
             if (Util.truthy(resolved)) {
@@ -97,7 +101,8 @@ function conditionable<TBase extends Constructor>(Base: TBase) {
             value: TUnlessParameter | ((target: this) => TUnlessParameter) | undefined,
             callback: (target: this, value: TUnlessParameter) => TUnlessReturn | undefined,
             defaultCallback?: (target: this, value: TUnlessParameter) => TUnlessReturn | undefined,
-        ): this | TUnlessReturn {
+        ): this | TUnlessReturn
+        {
             const resolved = this.resolveCondition(value);
 
             if (!Util.truthy(resolved)) {
@@ -114,7 +119,8 @@ function conditionable<TBase extends Constructor>(Base: TBase) {
         /** PHP: `$value instanceof Closure ? $value($this) : $value`. */
         private resolveCondition<TValue extends defined>(
             value: TValue | ((target: this) => TValue) | undefined,
-        ): TValue | undefined {
+        ): TValue | undefined
+        {
             return typeIs(value, 'function') ? (value as (target: this) => TValue)(this) : value;
         }
     } satisfies Constructor<ConditionablePublicShape>;
@@ -148,6 +154,7 @@ type ConditionableIsExact = AssertTrue<AssertNoExtraMembers<ConditionableExtra>>
  */
 export function Conditionable<TBase extends Constructor>(
     Base: TBase = Trait as never,
-): TBase & Constructor<ConditionableShape> {
+): TBase & Constructor<ConditionableShape>
+{
     return conditionable(Base) as never;
 }

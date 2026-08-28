@@ -18,7 +18,8 @@ import type { Delay } from 'Illuminate/Support/InteractsWithTime';
  * closure does not survive serialization), batches inside chains
  * (`ChainedBatch`), and the PHPUnit `assertHasChain` helpers.
  */
-export class Queueable extends InteractsWithQueue {
+export class Queueable extends InteractsWithQueue
+{
     /** The name of the connection the job should be sent to. */
     public connection?: string;
 
@@ -44,21 +45,24 @@ export class Queueable extends InteractsWithQueue {
     public chained = new Array<string>();
 
     /** Set the desired connection for the job. */
-    public onConnection(connection?: string): this {
+    public onConnection(connection?: string): this
+    {
         this.connection = connection;
 
         return this;
     }
 
     /** Set the desired queue for the job. */
-    public onQueue(queue?: string): this {
+    public onQueue(queue?: string): this
+    {
         this.queue = queue;
 
         return this;
     }
 
     /** Set the desired connection for the chain. */
-    public allOnConnection(connection?: string): this {
+    public allOnConnection(connection?: string): this
+    {
         this.chainConnection = connection;
         this.connection = connection;
 
@@ -66,7 +70,8 @@ export class Queueable extends InteractsWithQueue {
     }
 
     /** Set the desired queue for the chain. */
-    public allOnQueue(queue?: string): this {
+    public allOnQueue(queue?: string): this
+    {
         this.chainQueue = queue;
         this.queue = queue;
 
@@ -74,28 +79,32 @@ export class Queueable extends InteractsWithQueue {
     }
 
     /** Set the desired delay in seconds for the job. */
-    public delay(delay?: Delay): this {
+    public delay(delay?: Delay): this
+    {
         this.delaySeconds = delay;
 
         return this;
     }
 
     /** Set the delay for the job to zero seconds. */
-    public withoutDelay(): this {
+    public withoutDelay(): this
+    {
         this.delaySeconds = 0;
 
         return this;
     }
 
     /** Indicate that the job should be dispatched after all database transactions have committed. */
-    public afterCommitting(): this {
+    public afterCommitting(): this
+    {
         this.afterCommit = true;
 
         return this;
     }
 
     /** Indicate that the job should not wait until database transactions have been committed. */
-    public beforeCommit(): this {
+    public beforeCommit(): this
+    {
         this.afterCommit = false;
 
         return this;
@@ -108,43 +117,48 @@ export class Queueable extends InteractsWithQueue {
      * is the single middleware itself. `Util.isArray()` cannot be used here --
      * it answers for a non-empty list only.
      */
-    public through(middleware: unknown | Array<unknown>): this {
-        this.middleware =
-            typeIs(middleware, 'table') && getmetatable(middleware as object) === undefined
-                ? (middleware as Array<unknown>)
-                : [middleware];
+    public through(middleware: unknown | Array<unknown>): this
+    {
+        this.middleware = typeIs(middleware, 'table') && getmetatable(middleware as object) === undefined
+            ? (middleware as Array<unknown>)
+            : [middleware];
 
         return this;
     }
 
     /** Set the jobs that should run if this job is successful. */
-    public chain(chain: Array<object>): this {
+    public chain(chain: Array<object>): this
+    {
         this.chained = chain.map((job) => this.serializeJob(job));
 
         return this;
     }
 
     /** Prepend a job to the current chain so that it is run after the currently running job. */
-    public prependToChain(job: object): this {
+    public prependToChain(job: object): this
+    {
         this.chained = [this.serializeJob(job), ...this.chained];
 
         return this;
     }
 
     /** Append a job to the end of the current chain. */
-    public appendToChain(job: object): this {
+    public appendToChain(job: object): this
+    {
         this.chained = [...this.chained, this.serializeJob(job)];
 
         return this;
     }
 
     /** Serialize a job for queuing. */
-    protected serializeJob(job: object): string {
+    protected serializeJob(job: object): string
+    {
         return Serializer.serialize(job);
     }
 
     /** Dispatch the next job on the chain. */
-    public dispatchNextJobInChain(): void {
+    public dispatchNextJobInChain(): void
+    {
         if (this.chained.size() === 0) {
             return;
         }

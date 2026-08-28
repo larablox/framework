@@ -19,11 +19,14 @@ import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
  * is instead exercised below against a real `ArrayBatchRepository`, which is
  * the closest analogue available.
  */
-class TestJob extends Batchable {}
+class TestJob extends Batchable
+{}
 
 /** A `Factory` that always hands back the same queue, itself unused here. */
-class FakeQueueFactory implements QueueFactory {
-    public connection(): Queue {
+class FakeQueueFactory implements QueueFactory
+{
+    public connection(): Queue
+    {
         throw 'not expected';
     }
 }

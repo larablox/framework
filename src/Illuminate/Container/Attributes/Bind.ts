@@ -3,7 +3,8 @@ import { InvalidArgumentException } from 'Illuminate/Exception';
 import type { Concrete } from 'Illuminate/Container/Types';
 
 /** PHP: `#[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)] class Bind`. */
-export interface Bind {
+export interface Bind
+{
     /** The concrete class to bind to. */
     readonly concrete: Concrete;
 
@@ -16,7 +17,8 @@ export interface Bind {
  * the given environments. Repeatable: the first attribute whose environments
  * match wins, with `["*"]` as the fallback.
  */
-export function Bind(concrete: Concrete, environments: string | Array<string> = ['*']) {
+export function Bind(concrete: Concrete, environments: string | Array<string> = ['*'])
+{
     const wrapped = typeIs(environments, 'string') ? [environments] : environments;
 
     if (wrapped.isEmpty()) {

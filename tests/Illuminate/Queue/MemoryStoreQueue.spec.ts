@@ -47,8 +47,10 @@ import { MemoryStoreQueue } from 'Illuminate/Queue/MemoryStoreQueue';
 
 const HttpService = game.GetService('HttpService');
 
-class MyTestJob {
-    public handle(): void {
+class MyTestJob
+{
+    public handle(): void
+    {
         //
     }
 }
@@ -66,7 +68,8 @@ class MyTestJob {
  */
 const EXPIRATION = 30;
 
-function freshQueue(): MemoryStoreQueue {
+function freshQueue(): MemoryStoreQueue
+{
     const queue = new MemoryStoreQueue(HttpService.GenerateGUID(false), 60, 0, EXPIRATION, 'queue-test:');
     queue.setContainer(new Container());
     made.push(queue);
@@ -85,7 +88,8 @@ function freshQueue(): MemoryStoreQueue {
 const made: Array<MemoryStoreQueue> = [];
 
 /** Give back what this run pushed rather than waiting `EXPIRATION` out. */
-function drain(): void {
+function drain(): void
+{
     for (const queue of made) {
         queue.clear();
     }

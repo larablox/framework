@@ -23,9 +23,11 @@ import type { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
  * `withEvents` drives filesystem event discovery, which is likewise gone -- the
  * base `EventServiceProvider` is registered by the application constructor.
  */
-export class ApplicationBuilder {
+export class ApplicationBuilder
+{
     /** Create a new application builder instance. */
-    public constructor(protected readonly app: Application) {}
+    public constructor(protected readonly app: Application)
+    {}
 
     /**
      * Set the configuration the application should be bootstrapped with.
@@ -34,7 +36,8 @@ export class ApplicationBuilder {
      * application at a directory of configuration files, and there is no
      * directory to point at.
      */
-    public withConfig(items: ArrayAccessible): this {
+    public withConfig(items: ArrayAccessible): this
+    {
         LoadConfiguration.using(items);
 
         return this;
@@ -49,7 +52,8 @@ export class ApplicationBuilder {
      * crossing: both are one HTTP stack there, and here there is one kind of
      * request to begin with, so what would the second group be?
      */
-    public withRouting(using: (router: Router) => void): this {
+    public withRouting(using: (router: Router) => void): this
+    {
         this.booting((app: Application) => {
             using(app.make<Router>('router'));
         });
@@ -85,7 +89,8 @@ export class ApplicationBuilder {
      * gateway would each attach to the remotes and every request would be
      * served twice.
      */
-    public withKernels(): this {
+    public withKernels(): this
+    {
         this.app.singleton(Kernel);
 
         this.app.singleton(RemoteGateway);
@@ -106,7 +111,8 @@ export class ApplicationBuilder {
      * kernel the first time it is resolved -- which is how PHP does it, and why
      * the callback may name middleware the container cannot build yet.
      */
-    public withMiddleware(callback?: (middleware: MiddlewareConfiguration) => void): this {
+    public withMiddleware(callback?: (middleware: MiddlewareConfiguration) => void): this
+    {
         this.app.afterResolving(Kernel, (resolved: never) => {
             const kernel = resolved as Kernel;
             const middleware = new MiddlewareConfiguration();
@@ -138,7 +144,8 @@ export class ApplicationBuilder {
     }
 
     /** Register and configure the application's exception handler. */
-    public withExceptions(using?: (exceptions: ExceptionsConfiguration) => void): this {
+    public withExceptions(using?: (exceptions: ExceptionsConfiguration) => void): this
+    {
         this.app.singleton(Handler);
 
         if (using !== undefined) {
@@ -151,14 +158,16 @@ export class ApplicationBuilder {
     }
 
     /** Register additional service providers. */
-    public withProviders(providers: Array<Constructor<ServiceProvider>> = []): this {
+    public withProviders(providers: Array<Constructor<ServiceProvider>> = []): this
+    {
         RegisterProviders.merge(providers);
 
         return this;
     }
 
     /** Register an array of container bindings to be bound when the application is booting. */
-    public withBindings(bindings: Array<[Abstract, Concrete]>): this {
+    public withBindings(bindings: Array<[Abstract, Concrete]>): this
+    {
         return this.registered((app: Application) => {
             for (const [abstract, concrete] of bindings) {
                 app.bind(abstract, concrete);
@@ -167,7 +176,8 @@ export class ApplicationBuilder {
     }
 
     /** Register an array of singleton container bindings to be bound when the application is booting. */
-    public withSingletons(singletons: Array<[Abstract, Concrete] | Abstract>): this {
+    public withSingletons(singletons: Array<[Abstract, Concrete] | Abstract>): this
+    {
         return this.registered((app: Application) => {
             for (const entry of singletons) {
                 if (Util.isArray(entry)) {
@@ -182,7 +192,8 @@ export class ApplicationBuilder {
     }
 
     /** Register an array of scoped singleton container bindings to be bound when the application is booting. */
-    public withScopedSingletons(scopedSingletons: Array<[Abstract, Concrete] | Abstract>): this {
+    public withScopedSingletons(scopedSingletons: Array<[Abstract, Concrete] | Abstract>): this
+    {
         return this.registered((app: Application) => {
             for (const entry of scopedSingletons) {
                 if (Util.isArray(entry)) {
@@ -197,28 +208,32 @@ export class ApplicationBuilder {
     }
 
     /** Register a callback to be invoked when the application's service providers are registered. */
-    public registered(callback: Callback): this {
+    public registered(callback: Callback): this
+    {
         this.app.registered(callback);
 
         return this;
     }
 
     /** Register a callback to be invoked when the application is "booting". */
-    public booting(callback: Callback): this {
+    public booting(callback: Callback): this
+    {
         this.app.booting(callback);
 
         return this;
     }
 
     /** Register a callback to be invoked when the application is "booted". */
-    public booted(callback: Callback): this {
+    public booted(callback: Callback): this
+    {
         this.app.booted(callback);
 
         return this;
     }
 
     /** Get the application instance. */
-    public create(): Application {
+    public create(): Application
+    {
         return this.app;
     }
 }

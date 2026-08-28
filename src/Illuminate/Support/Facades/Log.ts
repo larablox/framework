@@ -9,7 +9,8 @@ import type { Logger } from 'Illuminate/Log/Logger';
  * @see Illuminate/Log/LogManager
  */
 @Forwards()
-export class Log extends Facade {
+export class Log extends Facade
+{
     declare public static emergency: Forwarded<LogManager['emergency']>;
     declare public static alert: Forwarded<LogManager['alert']>;
     declare public static critical: Forwarded<LogManager['critical']>;
@@ -35,7 +36,8 @@ export class Log extends Facade {
     declare public static listen: Forwarded<Logger['listen']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return 'log';
     }
 }

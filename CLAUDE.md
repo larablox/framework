@@ -198,7 +198,14 @@ inside `.github/actions/setup` — for GitHub Actions it reads
 - The build is incremental: `rbxtsc` will not regenerate a file whose source
   did not change, so edits made directly in `out/` survive `npm run build`.
   Run `npm run clean` first when you need to trust what is in `out/`.
-- Formatting and style are `npm run lint:fix`'s job, not yours.
+- Formatting and style are `npm run lint:fix`'s job, not yours. The
+  formatter is **dprint** (`dprint.json`), configured to read like Laravel:
+  PSR-12 brace placement (declarations open on the next line, control flow
+  on the same one), single quotes, and — the reason prettier is gone — it
+  **preserves authored multi-line layout**: an array or argument list
+  written in the upstream shape stays that way. Import order is authored
+  too (`sortImportDeclarations: maintain`). When porting, copy upstream's
+  line breaks along with its names.
 - No Node APIs, no DOM, no `window`. The runtime is Luau; the only usable npm
   packages are `@rbxts/*`.
 - Do not add dependencies unless asked.

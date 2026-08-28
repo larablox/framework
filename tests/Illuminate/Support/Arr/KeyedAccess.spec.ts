@@ -214,7 +214,7 @@ export = (): void => {
 
         it('set() writes a value using dot notation, creating intermediate tables', () => {
             // PHP: SupportArrTest::testSet
-            const array: { products: { desk: { price: number } } } = {
+            const array: { products: { desk: { price: number; }; }; } = {
                 products: { desk: { price: 100 } },
             };
             Arr.set(array, 'products.desk.price', 200);
@@ -265,10 +265,10 @@ export = (): void => {
             const array: Record<string, unknown> = {};
 
             Arr.push(array, 'office.furniture', 'Desk');
-            expectDeepEqual((array.office as { furniture: Array<string> }).furniture, ['Desk']);
+            expectDeepEqual((array.office as { furniture: Array<string>; }).furniture, ['Desk']);
 
             Arr.push(array, 'office.furniture', 'Chair', 'Lamp');
-            expectDeepEqual((array.office as { furniture: Array<string> }).furniture, ['Desk', 'Chair', 'Lamp']);
+            expectDeepEqual((array.office as { furniture: Array<string>; }).furniture, ['Desk', 'Chair', 'Lamp']);
         });
 
         it('forget() removes one or many dotted keys', () => {

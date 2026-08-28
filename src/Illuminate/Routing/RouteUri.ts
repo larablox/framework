@@ -14,15 +14,18 @@ import { Str } from 'Illuminate/Support/Str';
  * parameter that shares its segment with anything else is refused when the
  * route is compiled.
  */
-export class RouteUri {
+export class RouteUri
+{
     /** Create a new route URI instance. */
     public constructor(
         public readonly uri: string,
         public readonly bindingFields: Record<string, string> = {},
-    ) {}
+    )
+    {}
 
     /** Parse the given URI, extracting the binding fields. */
-    public static parse(uri: string): RouteUri {
+    public static parse(uri: string): RouteUri
+    {
         const bindingFields: Record<string, string> = {};
         const segments = uri.split('/');
 

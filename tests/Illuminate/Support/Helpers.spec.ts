@@ -67,7 +67,8 @@ export = (): void => {
             // class-name strings here (Helpers.ts's `Throwable` type comment),
             // so only the "accepts objects" case -- the one PHP case that does
             // not depend on namespace-string parsing -- is portable.
-            class Baz {}
+            class Baz
+            {}
 
             expect(class_basename(new Baz())).to.equal('Baz');
         });
@@ -474,7 +475,7 @@ export = (): void => {
                     },
                     0,
                     () => false,
-                ),
+                )
             );
         });
 

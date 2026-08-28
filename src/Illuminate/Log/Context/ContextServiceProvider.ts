@@ -9,9 +9,11 @@ import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
  * The queue hooks it installs in `boot()` -- dehydrating the context into a job
  * payload and hydrating it in the worker -- go with the queue.
  */
-export class ContextServiceProvider extends ServiceProvider {
+export class ContextServiceProvider extends ServiceProvider
+{
     /** Register the service provider. */
-    public register(): void {
+    public register(): void
+    {
         this.app.scoped(Repository);
 
         this.app.bind(ContextLogProcessorContract, () => new ContextLogProcessor());

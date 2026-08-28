@@ -13,7 +13,8 @@ import type { Batchable } from 'Illuminate/Bus/Batchable';
  * `dispatchAfterResponse()` has no response to come after. Chains inside a
  * batch (`ChainedBatch`) are not ported.
  */
-export class PendingBatch {
+export class PendingBatch
+{
     /** The batch name. */
     public batchName = '';
 
@@ -24,10 +25,12 @@ export class PendingBatch {
     public constructor(
         protected readonly container: Container,
         public readonly jobs: Array<Batchable>,
-    ) {}
+    )
+    {}
 
     /** Add jobs to the batch. */
-    public add(jobs: Array<Batchable>): this {
+    public add(jobs: Array<Batchable>): this
+    {
         for (const job of jobs) {
             this.jobs.push(job);
         }
@@ -36,75 +39,88 @@ export class PendingBatch {
     }
 
     /** Add a callback to be executed when the batch is stored. */
-    public before(callback: BatchCallback): this {
+    public before(callback: BatchCallback): this
+    {
         return this.registerCallback('before', callback);
     }
 
     /** Add a callback to be executed after a job in the batch has executed. */
-    public progress(callback: BatchCallback): this {
+    public progress(callback: BatchCallback): this
+    {
         return this.registerCallback('progress', callback);
     }
 
     /** Add a callback to be executed after all jobs have executed successfully. */
-    public then(callback: BatchCallback): this {
+    public then(callback: BatchCallback): this
+    {
         return this.registerCallback('then', callback);
     }
 
     /** Add a callback to be executed after the first failing job. */
-    public catch(callback: BatchCallback): this {
+    public catch(callback: BatchCallback): this
+    {
         return this.registerCallback('catch', callback);
     }
 
     /** Add a callback to be executed after the batch has finished executing. */
-    public finally(callback: BatchCallback): this {
+    public finally(callback: BatchCallback): this
+    {
         return this.registerCallback('finally', callback);
     }
 
     /** Indicate that the batch should not be cancelled when a job within it fails. */
-    public allowFailures(allowFailures = true): this {
+    public allowFailures(allowFailures = true): this
+    {
         this.options.allowFailures = allowFailures;
 
         return this;
     }
 
     /** Determine if the pending batch allows jobs to fail without cancelling the batch. */
-    public allowsFailures(): boolean {
+    public allowsFailures(): boolean
+    {
         return this.options.allowFailures === true;
     }
 
     /** Set the name for the batch. */
-    public name(name: string): this {
+    public name(name: string): this
+    {
         this.batchName = name;
 
         return this;
     }
 
     /** Specify the queue connection that the batched jobs should run on. */
-    public onConnection(connection: string): this {
+    public onConnection(connection: string): this
+    {
         this.options.connection = connection;
 
         return this;
     }
 
     /** Get the connection used by the pending batch. */
-    public connection(): string | undefined {
+    public connection(): string | undefined
+    {
         return this.options.connection;
     }
 
     /** Specify the queue that the batched jobs should run on. */
-    public onQueue(queue: string): this {
+    public onQueue(queue: string): this
+    {
         this.options.queue = queue;
 
         return this;
     }
 
     /** Get the queue used by the pending batch. */
-    public queue(): string | undefined {
+    public queue(): string | undefined
+    {
         return this.options.queue;
     }
 
     /** Dispatch the batch. */
-    public dispatch(): Batch {
+    public dispatch(): Batch
+    {
         const repository = this.container.make<BatchRepository>('bus.batches');
 
         const stored = repository.store(this);
@@ -127,12 +143,14 @@ export class PendingBatch {
     }
 
     /** Dispatch the batch if the given truth test passes. */
-    public dispatchIf(condition: boolean): Batch | undefined {
+    public dispatchIf(condition: boolean): Batch | undefined
+    {
         return condition ? this.dispatch() : undefined;
     }
 
     /** Dispatch the batch unless the given truth test passes. */
-    public dispatchUnless(condition: boolean): Batch | undefined {
+    public dispatchUnless(condition: boolean): Batch | undefined
+    {
         return condition ? undefined : this.dispatch();
     }
 
@@ -140,7 +158,8 @@ export class PendingBatch {
     protected registerCallback(
         kind: 'before' | 'progress' | 'then' | 'catch' | 'finally',
         callback: BatchCallback,
-    ): this {
+    ): this
+    {
         const registered = this.options[kind] ?? new Array<BatchCallback>();
 
         registered.push(callback);

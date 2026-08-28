@@ -15,7 +15,8 @@ export type JobTarget = string | object | [Abstract, string];
 export type { Delay };
 
 /** PHP: `Illuminate\Contracts\Queue\Queue`. */
-export interface Queue {
+export interface Queue
+{
     /** Get the size of the queue. */
     size(queue?: string): number;
 

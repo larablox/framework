@@ -10,13 +10,16 @@ import type { Factory } from 'Illuminate/Contracts/Queue/Factory';
  * The database-transaction resolver the PHP provider also wires up has nothing
  * to resolve here.
  */
-export class EventServiceProvider extends ServiceProvider {
+export class EventServiceProvider extends ServiceProvider
+{
     /** Register the service provider. */
-    public register(): void {
+    public register(): void
+    {
         const app: Application = this.app;
 
-        this.app.singleton('events', (container: Container) =>
-            new Dispatcher(container).setQueueResolver(() => app.make<Factory>('queue')),
+        this.app.singleton(
+            'events',
+            (container: Container) => new Dispatcher(container).setQueueResolver(() => app.make<Factory>('queue')),
         );
     }
 }

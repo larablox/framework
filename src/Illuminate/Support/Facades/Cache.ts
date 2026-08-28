@@ -13,7 +13,8 @@ import type { Repository } from 'Illuminate/Cache/Repository';
  * facade resolves `cache.store` so they land on the repository.
  */
 @Forwards()
-export class Cache extends Facade {
+export class Cache extends Facade
+{
     declare public static has: Forwarded<Repository['has']>;
     declare public static missing: Forwarded<Repository['missing']>;
     declare public static get: Forwarded<Repository['get']>;
@@ -40,7 +41,8 @@ export class Cache extends Facade {
     declare public static getStore: Forwarded<Repository['getStore']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return 'cache.store';
     }
 }
@@ -52,7 +54,8 @@ export class Cache extends Facade {
  * to the default store; with no `__call` the two surfaces are two classes.
  */
 @Forwards()
-export class CacheStores extends Facade {
+export class CacheStores extends Facade
+{
     declare public static store: Forwarded<CacheManager['store']>;
     declare public static driver: Forwarded<CacheManager['driver']>;
     declare public static build: Forwarded<CacheManager['build']>;
@@ -64,7 +67,8 @@ export class CacheStores extends Facade {
     declare public static setDefaultDriver: Forwarded<CacheManager['setDefaultDriver']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return 'cache';
     }
 }

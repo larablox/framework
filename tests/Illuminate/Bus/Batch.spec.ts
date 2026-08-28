@@ -52,75 +52,93 @@ import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
  *   constructor parameters are `public readonly` here and cannot be mutated
  *   in place the way PHP's public properties are in the original test.
  */
-class TestJob extends Batchable {}
+class TestJob extends Batchable
+{}
 
 /** A `Queue` that records every `bulk()` call it receives. */
-class FakeQueue implements Queue {
+class FakeQueue implements Queue
+{
     public bulkCalls = new Array<[unknown, unknown, string | undefined]>();
 
-    public size(): number {
+    public size(): number
+    {
         return 0;
     }
 
-    public pendingSize(): number {
+    public pendingSize(): number
+    {
         return 0;
     }
 
-    public delayedSize(): number {
+    public delayedSize(): number
+    {
         return 0;
     }
 
-    public reservedSize(): number {
+    public reservedSize(): number
+    {
         return 0;
     }
 
-    public creationTimeOfOldestPendingJob(): number | undefined {
+    public creationTimeOfOldestPendingJob(): number | undefined
+    {
         return undefined;
     }
 
-    public push(): unknown {
+    public push(): unknown
+    {
         return undefined;
     }
 
-    public pushOn(): unknown {
+    public pushOn(): unknown
+    {
         return undefined;
     }
 
-    public pushRaw(): unknown {
+    public pushRaw(): unknown
+    {
         return undefined;
     }
 
-    public later(): unknown {
+    public later(): unknown
+    {
         return undefined;
     }
 
-    public laterOn(): unknown {
+    public laterOn(): unknown
+    {
         return undefined;
     }
 
-    public bulk(jobs: unknown, data?: unknown, queue?: string): void {
+    public bulk(jobs: unknown, data?: unknown, queue?: string): void
+    {
         this.bulkCalls.push([jobs, data, queue]);
     }
 
-    public pop(): undefined {
+    public pop(): undefined
+    {
         return undefined;
     }
 
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return 'fake';
     }
 
-    public setConnectionName(): this {
+    public setConnectionName(): this
+    {
         return this;
     }
 }
 
 /** A `Factory` that only ever hands out a connection named `"test-connection"`. */
-class FakeQueueFactory implements QueueFactory {
+class FakeQueueFactory implements QueueFactory
+{
     public readonly queue = new FakeQueue();
     public connectionCalls = new Array<string | undefined>();
 
-    public connection(name?: string): Queue {
+    public connection(name?: string): Queue
+    {
         this.connectionCalls[this.connectionCalls.size()] = name;
 
         return this.queue;
@@ -143,9 +161,10 @@ function createTestBatch(
         catch?: Batch;
         finally?: Batch;
     },
-    lastException: { catch?: unknown },
+    lastException: { catch?: unknown; },
     allowFailures = false,
-): Batch {
+): Batch
+{
     const repository = new ArrayBatchRepository(queueFactory);
     container.instance('bus.batches', repository);
 
@@ -401,7 +420,7 @@ export = (): void => {
                 catch?: Batch;
                 finally?: Batch;
             } = {};
-            const lastException: { catch?: unknown } = {};
+            const lastException: { catch?: unknown; } = {};
             let batch = createTestBatch(container, queueFactory, counters, lastBatch, lastException, false);
 
             const job = new TestJob();
@@ -438,7 +457,7 @@ export = (): void => {
                 catch?: Batch;
                 finally?: Batch;
             } = {};
-            const lastException: { catch?: unknown } = {};
+            const lastException: { catch?: unknown; } = {};
             let batch = createTestBatch(container, queueFactory, counters, lastBatch, lastException, true);
 
             const job = new TestJob();

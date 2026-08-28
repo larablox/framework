@@ -12,7 +12,8 @@ import type { Router } from 'Illuminate/Routing/Router';
  * methods on the router, so the facade forwards them like any other.
  */
 @Forwards()
-export class Route extends Facade {
+export class Route extends Facade
+{
     declare public static get: Forwarded<Router['get']>;
 
     declare public static post: Forwarded<Router['post']>;
@@ -80,7 +81,8 @@ export class Route extends Facade {
     declare public static dispatch: Forwarded<Router['dispatch']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return 'router';
     }
 }

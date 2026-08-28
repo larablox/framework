@@ -39,13 +39,16 @@ import { MemoryQueue } from 'Illuminate/Queue/MemoryQueue';
  * actually reads these through.
  */
 
-class MyTestJob {
-    public handle(): void {
+class MyTestJob
+{
+    public handle(): void
+    {
         //
     }
 }
 
-function freshQueue(): MemoryQueue {
+function freshQueue(): MemoryQueue
+{
     const queue = new MemoryQueue();
     queue.setContainer(new Container());
 

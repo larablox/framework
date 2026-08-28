@@ -40,7 +40,8 @@ import { Queueable } from 'Illuminate/Bus/Queueable';
  *   does not mix in `Conditionable` (`Support/Traits/Conditionable.ts`) --
  *   there is no `when()`/`unless()` on it to call.
  */
-class FakeJob extends Queueable {
+class FakeJob extends Queueable
+{
     public onConnectionCalls = new Array<string | undefined>();
     public onQueueCalls = new Array<string | undefined>();
     public allOnConnectionCalls = new Array<string | undefined>();
@@ -49,43 +50,50 @@ class FakeJob extends Queueable {
     public withoutDelayCalls = 0;
     public chainCalls = new Array<Array<object>>();
 
-    public onConnection(connection?: string): this {
+    public onConnection(connection?: string): this
+    {
         this.onConnectionCalls[this.onConnectionCalls.size()] = connection;
 
         return super.onConnection(connection);
     }
 
-    public onQueue(queue?: string): this {
+    public onQueue(queue?: string): this
+    {
         this.onQueueCalls[this.onQueueCalls.size()] = queue;
 
         return super.onQueue(queue);
     }
 
-    public allOnConnection(connection?: string): this {
+    public allOnConnection(connection?: string): this
+    {
         this.allOnConnectionCalls[this.allOnConnectionCalls.size()] = connection;
 
         return super.allOnConnection(connection);
     }
 
-    public allOnQueue(queue?: string): this {
+    public allOnQueue(queue?: string): this
+    {
         this.allOnQueueCalls[this.allOnQueueCalls.size()] = queue;
 
         return super.allOnQueue(queue);
     }
 
-    public delay(delay?: unknown): this {
+    public delay(delay?: unknown): this
+    {
         this.delayCalls[this.delayCalls.size()] = delay;
 
         return super.delay(delay as never);
     }
 
-    public withoutDelay(): this {
+    public withoutDelay(): this
+    {
         this.withoutDelayCalls++;
 
         return super.withoutDelay();
     }
 
-    public chain(chain: Array<object>): this {
+    public chain(chain: Array<object>): this
+    {
         this.chainCalls.push(chain);
 
         return super.chain(chain);
@@ -93,8 +101,10 @@ class FakeJob extends Queueable {
 }
 
 /** PHP: `PendingDispatchWithoutDestructor` -- configured, never sent. */
-class PendingDispatchWithoutSend extends PendingDispatch {
-    public send(): unknown {
+class PendingDispatchWithoutSend extends PendingDispatch
+{
+    public send(): unknown
+    {
         return undefined;
     }
 }

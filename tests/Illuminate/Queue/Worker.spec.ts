@@ -43,11 +43,13 @@ import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
  * by asserting the callback itself was invoked.
  */
 
-function fakePayload(): JobPayload {
+function fakePayload(): JobPayload
+{
     return {} as unknown as JobPayload;
 }
 
-class FakeJob implements Job {
+class FakeJob implements Job
+{
     public fired = false;
     public deletedFlag = false;
     public releasedFlag = false;
@@ -56,129 +58,161 @@ class FakeJob implements Job {
     public maxTriesValue?: number;
     public retryUntilValue?: number;
 
-    public constructor(private readonly callback?: () => void) {}
+    public constructor(private readonly callback?: () => void)
+    {}
 
-    public getJobId(): string {
+    public getJobId(): string
+    {
         return '';
     }
 
-    public fire(): void {
+    public fire(): void
+    {
         this.fired = true;
         this.callback?.();
     }
 
-    public payload(): JobPayload {
+    public payload(): JobPayload
+    {
         return fakePayload();
     }
 
-    public getRawBody(): JobPayload {
+    public getRawBody(): JobPayload
+    {
         return fakePayload();
     }
 
-    public uuid(): string | undefined {
+    public uuid(): string | undefined
+    {
         return 'fake-uuid';
     }
 
-    public attempts(): number {
+    public attempts(): number
+    {
         return this.attemptsCount;
     }
 
-    public delete(): void {
+    public delete(): void
+    {
         this.deletedFlag = true;
     }
 
-    public isDeleted(): boolean {
+    public isDeleted(): boolean
+    {
         return this.deletedFlag;
     }
 
-    public release(): void {
+    public release(): void
+    {
         this.releasedFlag = true;
     }
 
-    public isReleased(): boolean {
+    public isReleased(): boolean
+    {
         return this.releasedFlag;
     }
 
-    public isDeletedOrReleased(): boolean {
+    public isDeletedOrReleased(): boolean
+    {
         return this.deletedFlag || this.releasedFlag;
     }
 
-    public hasFailed(): boolean {
+    public hasFailed(): boolean
+    {
         return this.failedFlag;
     }
 
-    public markAsFailed(): void {
+    public markAsFailed(): void
+    {
         this.failedFlag = true;
     }
 
-    public fail(): void {
+    public fail(): void
+    {
         this.markAsFailed();
         this.deletedFlag = true;
     }
 
-    public maxTries(): number | undefined {
+    public maxTries(): number | undefined
+    {
         return this.maxTriesValue;
     }
 
-    public maxExceptions(): number | undefined {
+    public maxExceptions(): number | undefined
+    {
         return undefined;
     }
 
-    public timeout(): number | undefined {
+    public timeout(): number | undefined
+    {
         return undefined;
     }
 
-    public retryUntil(): number | undefined {
+    public retryUntil(): number | undefined
+    {
         return this.retryUntilValue;
     }
 
-    public getName(): JobHandler {
+    public getName(): JobHandler
+    {
         return 'fake' as unknown as JobHandler;
     }
 
-    public resolveName(): string {
+    public resolveName(): string
+    {
         return 'FakeJob';
     }
 
-    public resolveQueuedJobClass(): Abstract {
+    public resolveQueuedJobClass(): Abstract
+    {
         return 'FakeJob' as unknown as Abstract;
     }
 
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return 'default';
     }
 
-    public getQueue(): string {
+    public getQueue(): string
+    {
         return 'default';
     }
 }
 
-class FakeConnection implements Partial<Queue> {
+class FakeConnection implements Partial<Queue>
+{
     public constructor(
         private readonly connectionName: string,
         private readonly jobs: Record<string, Array<Job>>,
-    ) {}
+    )
+    {}
 
-    public pop(queue?: string): Job | undefined {
+    public pop(queue?: string): Job | undefined
+    {
         const list = this.jobs[queue ?? 'default'];
 
         return list?.shift();
     }
 
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return this.connectionName;
     }
 }
 
-class FakeManager implements Factory {
-    public constructor(private readonly connectionInstance: Queue) {}
+class FakeManager implements Factory
+{
+    public constructor(private readonly connectionInstance: Queue)
+    {}
 
-    public connection(): Queue {
+    public connection(): Queue
+    {
         return this.connectionInstance;
     }
 }
 
-function getWorker(jobs: Record<string, Array<Job>>): [Worker, Dispatcher, Array<unknown>] {
+function getWorker(jobs: Record<string, Array<Job>>): [Worker, Dispatcher, Array<unknown>]
+{
     const events = new Dispatcher();
     const reported = new Array<unknown>();
     const connection = new FakeConnection('default', jobs);

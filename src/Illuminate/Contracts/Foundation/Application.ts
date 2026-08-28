@@ -4,7 +4,8 @@ import type { OrderedMap } from 'Illuminate/Support/OrderedMap';
 import type { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
 
 /** A class that bootstraps the application, as passed to `bootstrapWith()`. */
-export interface Bootstrapper {
+export interface Bootstrapper
+{
     bootstrap(app: Application): void;
 }
 
@@ -14,7 +15,8 @@ export interface Bootstrapper {
  * The path, locale, maintenance-mode and console accessors are not ported: a
  * Roblox place has no filesystem, no console and no request lifecycle.
  */
-export interface Application extends Container {
+export interface Application extends Container
+{
     /** Get the version number of the application. */
     version(): string;
 

@@ -415,7 +415,8 @@ const UPPER_RUNS: ReadonlyArray<CaseRun> = [
 ];
 
 /** Binary search: runs are emitted in ascending `start` order. */
-function mapCodepoint(runs: ReadonlyArray<CaseRun>, codepoint: number): number {
+function mapCodepoint(runs: ReadonlyArray<CaseRun>, codepoint: number): number
+{
     let low = 0;
     let high = runs.size() - 1;
 
@@ -441,22 +442,26 @@ function mapCodepoint(runs: ReadonlyArray<CaseRun>, codepoint: number): number {
 }
 
 /** The lowercase of `codepoint`, or `codepoint` when it has none. */
-export function toLowerCodepoint(codepoint: number): number {
+export function toLowerCodepoint(codepoint: number): number
+{
     return mapCodepoint(LOWER_RUNS, codepoint);
 }
 
 /** The uppercase of `codepoint`, or `codepoint` when it has none. */
-export function toUpperCodepoint(codepoint: number): number {
+export function toUpperCodepoint(codepoint: number): number
+{
     return mapCodepoint(UPPER_RUNS, codepoint);
 }
 
 /** Whether `codepoint` is a cased character with a lowercase form. */
-export function isUpperCodepoint(codepoint: number): boolean {
+export function isUpperCodepoint(codepoint: number): boolean
+{
     return toLowerCodepoint(codepoint) !== codepoint;
 }
 
 /** Whether `codepoint` is a cased character with an uppercase form. */
-export function isLowerCodepoint(codepoint: number): boolean {
+export function isLowerCodepoint(codepoint: number): boolean
+{
     return toUpperCodepoint(codepoint) !== codepoint;
 }
 
@@ -464,11 +469,13 @@ export function isLowerCodepoint(codepoint: number): boolean {
  * True when every byte is ASCII, in which case Luau's own byte-wise
  * `string.lower`/`string.upper` are already correct and much faster.
  */
-function isAscii(value: string): boolean {
+function isAscii(value: string): boolean
+{
     return value.find('[\x80-\xFF]')[0] === undefined;
 }
 
-function convert(value: string, map: (codepoint: number) => number): string {
+function convert(value: string, map: (codepoint: number) => number): string
+{
     const parts = new Array<string>();
 
     for (const [, codepoint] of utf8.codes(value)) {
@@ -479,11 +486,13 @@ function convert(value: string, map: (codepoint: number) => number): string {
 }
 
 /** PHP: `mb_strtolower($value)`. */
-export function lower(value: string): string {
+export function lower(value: string): string
+{
     return isAscii(value) ? value.lower() : convert(value, toLowerCodepoint);
 }
 
 /** PHP: `mb_strtoupper($value)`. */
-export function upper(value: string): string {
+export function upper(value: string): string
+{
     return isAscii(value) ? value.upper() : convert(value, toUpperCodepoint);
 }

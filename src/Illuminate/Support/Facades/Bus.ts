@@ -8,7 +8,8 @@ import type { Forwarded } from 'Illuminate/Support/Facades/Forwards';
  * @see Illuminate/Bus/Dispatcher
  */
 @Forwards()
-export class Bus extends Facade {
+export class Bus extends Facade
+{
     declare public static dispatch: Forwarded<Dispatcher['dispatch']>;
     declare public static dispatchSync: Forwarded<Dispatcher['dispatchSync']>;
     declare public static dispatchNow: Forwarded<Dispatcher['dispatchNow']>;
@@ -21,7 +22,8 @@ export class Bus extends Facade {
     declare public static map: Forwarded<Dispatcher['map']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return Dispatcher;
     }
 }

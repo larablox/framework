@@ -13,12 +13,14 @@ import type { BatchRepository } from 'Illuminate/Bus/BatchRepository';
  *
  * `withFakeBatch()` is a testing helper with no test runner behind it.
  */
-export class Batchable extends Queueable {
+export class Batchable extends Queueable
+{
     /** The batch ID (if applicable). */
     public batchId?: string;
 
     /** Get the batch instance for the job, if applicable. */
-    public batch(): Batch | undefined {
+    public batch(): Batch | undefined
+    {
         if (this.batchId === undefined) {
             return undefined;
         }
@@ -33,14 +35,16 @@ export class Batchable extends Queueable {
     }
 
     /** Determine if the batch is still active and processing. */
-    public batching(): boolean {
+    public batching(): boolean
+    {
         const batch = this.batch();
 
         return batch !== undefined && !batch.finished() && !batch.cancelled();
     }
 
     /** Set the batch ID on the job. */
-    public withBatchId(batchId: string): this {
+    public withBatchId(batchId: string): this
+    {
         this.batchId = batchId;
 
         return this;

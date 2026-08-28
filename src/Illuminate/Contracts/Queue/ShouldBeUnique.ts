@@ -18,16 +18,19 @@ import { Reflector } from 'Illuminate/Support/Reflector';
  * ```
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ShouldBeUnique {}
+export interface ShouldBeUnique
+{}
 
-export function ShouldBeUnique() {
+export function ShouldBeUnique()
+{
     return (target: object): void => {
         Attributes.add(target, ShouldBeUnique, {});
     };
 }
 
 /** PHP: `$job instanceof ShouldBeUnique`. */
-export function isShouldBeUnique(job: unknown): job is ShouldBeUnique {
+export function isShouldBeUnique(job: unknown): job is ShouldBeUnique
+{
     if (!typeIs(job, 'table')) {
         return false;
     }

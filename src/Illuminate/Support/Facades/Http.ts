@@ -16,7 +16,8 @@ import type { Forwarded } from 'Illuminate/Support/Facades/Forwards';
  * forwarded; they are not ported.
  */
 @Forwards()
-export class Http extends Facade {
+export class Http extends Facade
+{
     declare public static createPendingRequest: Forwarded<Factory['createPendingRequest']>;
 
     declare public static withoutWaiting: Forwarded<Factory['withoutWaiting']>;
@@ -42,7 +43,8 @@ export class Http extends Facade {
     declare public static send: Forwarded<Factory['send']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return Factory;
     }
 }

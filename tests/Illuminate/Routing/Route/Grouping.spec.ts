@@ -23,7 +23,8 @@ import type { ActionAttributes } from 'Illuminate/Routing/RouteAction';
  *   closure form (`Router.ts`'s `group()` takes a callback).
  */
 
-function router(): Router {
+function router(): Router
+{
     return new Router(new Dispatcher(), new Container());
 }
 

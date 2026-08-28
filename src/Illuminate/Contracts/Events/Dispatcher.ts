@@ -16,7 +16,8 @@ export type EventPayload = Array<defined>;
  */
 export type Listener = Callback | [Abstract, string] | [object, string] | Abstract;
 
-export interface Dispatcher {
+export interface Dispatcher
+{
     /** Register an event listener with the dispatcher. */
     listen(events: EventName | Array<EventName>, listener: Listener): void;
 

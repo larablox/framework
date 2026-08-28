@@ -24,7 +24,8 @@ export type Forwarded<T> = T extends (...args: infer A) => infer R ? (...args: A
  * `public static declare`, which emits no code -- the TypeScript equivalent of
  * the `@method static` docblocks Laravel carries for the same purpose.
  */
-export function Forwards() {
+export function Forwards()
+{
     return (target: object): void => {
         const metatable = getmetatable(target) as object | undefined;
 

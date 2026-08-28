@@ -18,7 +18,8 @@ import type { Abstract } from 'Illuminate/Container/Types';
  * }
  * ```
  */
-export function Variadic(abstract: Abstract) {
+export function Variadic(abstract: Abstract)
+{
     return (target: object, propertyKey: unknown, parameterIndex: number): void => {
         addVariadicDependency(target, propertyKey, parameterIndex, abstract);
     };

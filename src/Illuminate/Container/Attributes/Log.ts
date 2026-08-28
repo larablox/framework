@@ -10,12 +10,14 @@ import type { LogManager } from 'Illuminate/Log/LogManager';
  * the `__call` forwarding on `Illuminate\Log\Logger`, which Luau has no way to
  * express.
  */
-export interface Log extends ContextualAttribute {
+export interface Log extends ContextualAttribute
+{
     readonly channel?: string;
 }
 
 /** Resolve the annotated parameter to a log channel. */
-export function Log(channel?: string) {
+export function Log(channel?: string)
+{
     const instance: Log = {
         channel,
         resolve: (attribute: never, container: Container) =>

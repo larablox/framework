@@ -5,7 +5,8 @@ const HttpService = game.GetService('HttpService');
 const Players = game.GetService('Players');
 
 /** Thrown when a value cannot be turned into a payload, or read back from one. */
-export class SerializationException extends RuntimeException {}
+export class SerializationException extends RuntimeException
+{}
 
 /**
  * Thrown when a serialized `Instance` reference no longer resolves.
@@ -15,7 +16,8 @@ export class SerializationException extends RuntimeException {}
  * was deleted between queueing and running is the same situation as a player
  * who has left.
  */
-export class InstanceNotFoundException extends SerializationException {}
+export class InstanceNotFoundException extends SerializationException
+{}
 
 /** The key a class envelope is tagged with. */
 const CLASS_KEY = '__class';
@@ -52,9 +54,11 @@ const classesToNames = new Map<object, string>();
  * Object identity and cycles are lost: PHP's format carries back-references,
  * JSON does not, so a cycle is reported rather than silently truncated.
  */
-export class Serializer {
+export class Serializer
+{
     /** Make a class resolvable by name when a payload is read back. */
-    public static register(target: object, name?: string): void {
+    public static register(target: object, name?: string): void
+    {
         const registered = name ?? Reflector.className(target);
 
         const existing = namesToClasses.get(registered);
@@ -70,7 +74,8 @@ export class Serializer {
     }
 
     /** The name a class is serialized under, registering it if it is new. */
-    public static nameOf(target: object): string {
+    public static nameOf(target: object): string
+    {
         const known = classesToNames.get(target);
 
         if (known !== undefined) {
@@ -83,12 +88,14 @@ export class Serializer {
     }
 
     /** The class registered under the given name, if any. */
-    public static resolve(name: string): object | undefined {
+    public static resolve(name: string): object | undefined
+    {
         return namesToClasses.get(name);
     }
 
     /** PHP: `serialize($value)`. */
-    public static serialize(value: unknown): string {
+    public static serialize(value: unknown): string
+    {
         const encoded = encode(value, new Map<object, boolean>());
 
         const [ok, result] = pcall(() => HttpService.JSONEncode(encoded as defined));
@@ -101,7 +108,8 @@ export class Serializer {
     }
 
     /** PHP: `unserialize($payload)`. */
-    public static unserialize(payload: string): unknown {
+    public static unserialize(payload: string): unknown
+    {
         const [ok, decoded] = pcall(() => HttpService.JSONDecode(payload));
 
         if (!ok) {
@@ -113,7 +121,8 @@ export class Serializer {
 }
 
 /** Turn one value into something `JSONEncode` accepts. */
-function encode(value: unknown, seen: Map<object, boolean>): unknown {
+function encode(value: unknown, seen: Map<object, boolean>): unknown
+{
     if (typeIs(value, 'number') || typeIs(value, 'string') || typeIs(value, 'boolean')) {
         return value;
     }
@@ -196,7 +205,8 @@ function encode(value: unknown, seen: Map<object, boolean>): unknown {
 }
 
 /** An `Instance` becomes an identifier, never the instance itself. */
-function encodeInstance(instance: Instance): unknown {
+function encodeInstance(instance: Instance): unknown
+{
     if (instance.IsA('Player')) {
         return {
             [TYPE_KEY]: 'instance',
@@ -212,7 +222,8 @@ function encodeInstance(instance: Instance): unknown {
 }
 
 /** A table is a class instance, a list or a map. */
-function encodeTable(value: object, seen: Map<object, boolean>): unknown {
+function encodeTable(value: object, seen: Map<object, boolean>): unknown
+{
     if (seen.get(value) === true) {
         throw new SerializationException('Serialization of a cyclic value is not supported.');
     }
@@ -261,7 +272,8 @@ function encodeTable(value: object, seen: Map<object, boolean>): unknown {
 }
 
 /** Read one encoded value back. */
-function decode(value: unknown): unknown {
+function decode(value: unknown): unknown
+{
     if (!typeIs(value, 'table')) {
         return value;
     }
@@ -305,7 +317,8 @@ function decode(value: unknown): unknown {
  * The constructor is never called -- PHP's `unserialize()` does not call one
  * either -- so a job comes back with exactly the state it was queued with.
  */
-function decodeClass(name: string, fields: unknown): object {
+function decodeClass(name: string, fields: unknown): object
+{
     const klass = Serializer.resolve(name);
 
     if (klass === undefined) {
@@ -320,7 +333,8 @@ function decodeClass(name: string, fields: unknown): object {
 }
 
 /** Rebuild one of the tagged datatypes. */
-function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
+function decodeTagged(tag: string, entries: Record<string, unknown>): unknown
+{
     if (tag === 'vector3') {
         return new Vector3(entries.x as number, entries.y as number, entries.z as number);
     }
@@ -402,7 +416,8 @@ function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
 }
 
 /** `Enum.Material.Plastic` from its two names. */
-function decodeEnum(enumType: string, name: string): EnumItem {
+function decodeEnum(enumType: string, name: string): EnumItem
+{
     const enums = Enum as unknown as Record<string, Record<string, EnumItem>>;
 
     const item = enums[enumType]?.[name];
@@ -415,7 +430,8 @@ function decodeEnum(enumType: string, name: string): EnumItem {
 }
 
 /** Resolve an identifier back to the instance it stands for. */
-function decodeInstance(entries: Record<string, unknown>): Instance {
+function decodeInstance(entries: Record<string, unknown>): Instance
+{
     const className = entries.class;
 
     if (className === 'Player') {
@@ -450,12 +466,14 @@ function decodeInstance(entries: Record<string, unknown>): Instance {
  * while a plain table, an array and a `Map` have none. An instance has one too,
  * which is why `Reflector.isInstance()` rules it out first.
  */
-function isClassTable(value: object): boolean {
+function isClassTable(value: object): boolean
+{
     return getmetatable(value) !== undefined && !Reflector.isInstance(value);
 }
 
 /** A table whose keys are exactly `1..n`. */
-function isList(value: Record<string, unknown>): boolean {
+function isList(value: Record<string, unknown>): boolean
+{
     let count = 0;
 
     for (const [key] of pairs(value)) {
@@ -478,7 +496,8 @@ function isList(value: Record<string, unknown>): boolean {
 }
 
 /** A table that `JSONEncode` may write as a plain object. */
-function hasOnlyStringKeys(value: Record<string, unknown>): boolean {
+function hasOnlyStringKeys(value: Record<string, unknown>): boolean
+{
     for (const [key] of pairs(value)) {
         if (!typeIs(key, 'string')) {
             return false;

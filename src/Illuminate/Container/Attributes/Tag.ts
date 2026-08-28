@@ -3,12 +3,14 @@ import type { Container } from 'Illuminate/Contracts/Container/Container';
 import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] final class Tag`. */
-export interface Tag extends ContextualAttribute {
+export interface Tag extends ContextualAttribute
+{
     readonly tag: string;
 }
 
 /** Resolve the annotated parameter from everything bound under the tag. */
-export function Tag(tag: string) {
+export function Tag(tag: string)
+{
     const instance: Tag = {
         tag,
         resolve: (attribute: never, container: Container) => container.tagged((attribute as Tag).tag),

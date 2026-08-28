@@ -13,7 +13,8 @@ import { Inject } from 'Illuminate/Container/Attributes/Inject';
  */
 export = (): void => {
     describe('Container extend', () => {
-        class ExtendableRecord {
+        class ExtendableRecord
+        {
             public name?: string;
             public age?: number;
             public foo?: string;
@@ -80,10 +81,12 @@ export = (): void => {
 
         it('extend() is lazily initialized', () => {
             // PHP: ContainerExtendTest::testExtendIsLazyInitialized
-            class ContainerLazyExtendStub {
+            class ContainerLazyExtendStub
+            {
                 public static initialized = false;
 
-                public init(): void {
+                public init(): void
+                {
                     ContainerLazyExtendStub.initialized = true;
                 }
             }
@@ -192,19 +195,24 @@ export = (): void => {
 
         it('extend() sees the contextually-bound value it is decorating', () => {
             // PHP: ContainerExtendTest::testExtendContextualBinding
-            abstract class ContainerExtendInterfaceStub {}
+            abstract class ContainerExtendInterfaceStub
+            {}
 
-            class ContainerExtendInterfaceImplementationStub extends ContainerExtendInterfaceStub {
-                public constructor(public readonly value: string) {
+            class ContainerExtendInterfaceImplementationStub extends ContainerExtendInterfaceStub
+            {
+                public constructor(public readonly value: string)
+                {
                     super();
                 }
             }
 
-            class ContainerExtendConsumesInterfaceStub {
+            class ContainerExtendConsumesInterfaceStub
+            {
                 public constructor(
-                    @Inject(ContainerExtendInterfaceStub)
-                    public readonly stub: ContainerExtendInterfaceImplementationStub,
-                ) {}
+                    @Inject(ContainerExtendInterfaceStub) public readonly stub:
+                        ContainerExtendInterfaceImplementationStub,
+                )
+                {}
             }
 
             const container = new Container();
@@ -230,19 +238,24 @@ export = (): void => {
         it('extend() registered after the first resolution still sees the contextual value', () => {
             // PHP: ContainerExtendTest::testExtendContextualBindingAfterResolution
             // https://github.com/laravel/framework/issues/53501
-            abstract class ContainerExtendInterfaceStub {}
+            abstract class ContainerExtendInterfaceStub
+            {}
 
-            class ContainerExtendInterfaceImplementationStub extends ContainerExtendInterfaceStub {
-                public constructor(public readonly value: string) {
+            class ContainerExtendInterfaceImplementationStub extends ContainerExtendInterfaceStub
+            {
+                public constructor(public readonly value: string)
+                {
                     super();
                 }
             }
 
-            class ContainerExtendConsumesInterfaceStub {
+            class ContainerExtendConsumesInterfaceStub
+            {
                 public constructor(
-                    @Inject(ContainerExtendInterfaceStub)
-                    public readonly stub: ContainerExtendInterfaceImplementationStub,
-                ) {}
+                    @Inject(ContainerExtendInterfaceStub) public readonly stub:
+                        ContainerExtendInterfaceImplementationStub,
+                )
+                {}
             }
 
             const container = new Container();

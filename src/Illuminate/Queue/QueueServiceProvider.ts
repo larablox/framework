@@ -36,9 +36,11 @@ import type { Repository as ConfigRepository } from 'Illuminate/Contracts/Config
  * which is the one storage here that outlives the server.
  */
 @DeferrableProvider()
-export class QueueServiceProvider extends ServiceProvider implements DeferrableProvider {
+export class QueueServiceProvider extends ServiceProvider implements DeferrableProvider
+{
     /** Register the service provider. */
-    public register(): void {
+    public register(): void
+    {
         // Every payload names this class, so every server that may read one has
         // to be able to resolve the name -- PHP leaves that to the autoloader.
         Serializer.register(CallQueuedHandler);
@@ -50,7 +52,8 @@ export class QueueServiceProvider extends ServiceProvider implements DeferrableP
     }
 
     /** Register the queue manager. */
-    protected registerManager(): void {
+    protected registerManager(): void
+    {
         const app: Application = this.app;
 
         this.app.singleton('queue', () => {
@@ -66,14 +69,16 @@ export class QueueServiceProvider extends ServiceProvider implements DeferrableP
     }
 
     /** Register the default queue connection binding. */
-    protected registerConnection(): void {
+    protected registerConnection(): void
+    {
         const app: Application = this.app;
 
         this.app.singleton('queue.connection', () => app.make<Factory>('queue').connection());
     }
 
     /** Register the connectors on the queue manager. */
-    public registerConnectors(manager: QueueManager): void {
+    public registerConnectors(manager: QueueManager): void
+    {
         this.registerNullConnector(manager);
         this.registerSyncConnector(manager);
         this.registerDeferredConnector(manager);
@@ -82,27 +87,32 @@ export class QueueServiceProvider extends ServiceProvider implements DeferrableP
     }
 
     /** Register the Null queue connector. */
-    protected registerNullConnector(manager: QueueManager): void {
+    protected registerNullConnector(manager: QueueManager): void
+    {
         manager.addConnector('null', () => new NullConnector());
     }
 
     /** Register the Sync queue connector. */
-    protected registerSyncConnector(manager: QueueManager): void {
+    protected registerSyncConnector(manager: QueueManager): void
+    {
         manager.addConnector('sync', () => new SyncConnector());
     }
 
     /** Register the Deferred queue connector. */
-    protected registerDeferredConnector(manager: QueueManager): void {
+    protected registerDeferredConnector(manager: QueueManager): void
+    {
         manager.addConnector('deferred', () => new DeferredConnector());
     }
 
     /** Register the Memory queue connector. */
-    protected registerMemoryConnector(manager: QueueManager): void {
+    protected registerMemoryConnector(manager: QueueManager): void
+    {
         manager.addConnector('memory', () => new MemoryConnector());
     }
 
     /** Register the MemoryStore queue connector. */
-    protected registerMemoryStoreConnector(manager: QueueManager): void {
+    protected registerMemoryStoreConnector(manager: QueueManager): void
+    {
         manager.addConnector('memorystore', () => new MemoryStoreConnector());
     }
 
@@ -114,7 +124,8 @@ export class QueueServiceProvider extends ServiceProvider implements DeferrableP
      * component yet, so what would be reported is logged, and there is no
      * maintenance mode at all.
      */
-    protected registerWorker(): void {
+    protected registerWorker(): void
+    {
         const app: Application = this.app;
 
         this.app.singleton('queue.worker', () => {
@@ -156,7 +167,8 @@ export class QueueServiceProvider extends ServiceProvider implements DeferrableP
      * when the worker is resolved -- which is the same moment, spelled
      * differently.
      */
-    protected listenForFailedJobs(): void {
+    protected listenForFailedJobs(): void
+    {
         const app: Application = this.app;
 
         app.make<Dispatcher>('events').listen(JobFailed, (event: JobFailed) => {
@@ -170,7 +182,8 @@ export class QueueServiceProvider extends ServiceProvider implements DeferrableP
     }
 
     /** Register the failed job services. */
-    protected registerFailedJobServices(): void {
+    protected registerFailedJobServices(): void
+    {
         const app: Application = this.app;
 
         this.app.singleton('queue.failer', () => {
@@ -188,7 +201,8 @@ export class QueueServiceProvider extends ServiceProvider implements DeferrableP
     }
 
     /** Get the services provided by the provider. */
-    public provides(): Array<Abstract> {
+    public provides(): Array<Abstract>
+    {
         return ['queue', 'queue.connection', 'queue.failer', 'queue.worker'];
     }
 }

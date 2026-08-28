@@ -14,7 +14,8 @@ const MAX_KEY_LENGTH = 50;
 const ID_LENGTH = 36;
 
 /** A failed job as the provider writes it. */
-interface StoredFailure {
+interface StoredFailure
+{
     id: string;
     connection: string;
     queue: string;
@@ -42,12 +43,14 @@ interface StoredFailure {
  * `PrunableFailedJobProvider`; `count()` and `prune()` are kept with it, the
  * way `NullFailedJobProvider` keeps `count()`.
  */
-export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
+export class DataStoreFailedJobProvider implements FailedJobProviderInterface
+{
     /** Create a new DataStore failed job provider. */
     public constructor(
         protected readonly storeName = 'failed_jobs',
         protected readonly prefix = '',
-    ) {
+    )
+    {
         if (prefix.size() + ID_LENGTH > MAX_KEY_LENGTH) {
             throw new InvalidArgumentException(
                 `The failed job prefix [${prefix}] leaves no room for an id; DataStore accepts at most ${MAX_KEY_LENGTH} characters and an id is ${ID_LENGTH}.`,
@@ -56,12 +59,14 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     }
 
     /** The data store holding the failures. */
-    protected store(): DataStore {
+    protected store(): DataStore
+    {
         return DataStoreService.GetDataStore(this.storeName);
     }
 
     /** Log a failed job into storage. */
-    public log(connection: string, queue: string, payload: JobPayload, exception: unknown): string {
+    public log(connection: string, queue: string, payload: JobPayload, exception: unknown): string
+    {
         const id = Str.orderedUuid();
 
         const record: StoredFailure = {
@@ -85,7 +90,8 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
      * insertion order -- unlike `all()`, which is explicitly newest-first.
      * `all()` is the only listing here, so it is walked backwards.
      */
-    public ids(queue?: string): Array<string | number> {
+    public ids(queue?: string): Array<string | number>
+    {
         const listed = this.all().filter((record) => queue === undefined || record.queue === queue);
         const ids = new Array<string | number>();
 
@@ -97,7 +103,8 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     }
 
     /** Get a list of all of the failed jobs, newest first. */
-    public all(): Array<FailedJobRecord> {
+    public all(): Array<FailedJobRecord>
+    {
         const store = this.store();
 
         const found = new Array<FailedJobRecord>();
@@ -145,14 +152,15 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
         found.sort((first, second) =>
             first.failed_at === second.failed_at
                 ? tostring(first.id) > tostring(second.id)
-                : first.failed_at > second.failed_at,
+                : first.failed_at > second.failed_at
         );
 
         return found;
     }
 
     /** Get a single failed job. */
-    public find(id: string | number): FailedJobRecord | undefined {
+    public find(id: string | number): FailedJobRecord | undefined
+    {
         const held = DataStoreRequest.run(() => {
             const [value] = this.store().GetAsync<StoredFailure>(this.prefix + tostring(id));
 
@@ -163,7 +171,8 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     }
 
     /** Delete a single failed job from storage. */
-    public forget(id: string | number): boolean {
+    public forget(id: string | number): boolean
+    {
         const held = DataStoreRequest.run(() => {
             const [value] = this.store().RemoveAsync<StoredFailure>(this.prefix + tostring(id));
 
@@ -174,19 +183,22 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     }
 
     /** Flush all of the failed jobs from storage. */
-    public flush(hours?: number): void {
+    public flush(hours?: number): void
+    {
         const cutoff = hours === undefined ? undefined : InteractsWithTime.currentTime() - hours * 3600;
 
         this.remove(this.all().filter((record) => cutoff === undefined || record.failed_at <= cutoff));
     }
 
     /** Prune all of the entries older than the given time. */
-    public prune(before: number): number {
+    public prune(before: number): number
+    {
         return this.remove(this.all().filter((record) => record.failed_at < before));
     }
 
     /** Remove the given failures, and answer how many went. */
-    protected remove(records: Array<FailedJobRecord>): number {
+    protected remove(records: Array<FailedJobRecord>): number
+    {
         const store = this.store();
 
         Concurrency.run(
@@ -201,12 +213,13 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     }
 
     /** Count the failed jobs. */
-    public count(connection?: string, queue?: string): number {
+    public count(connection?: string, queue?: string): number
+    {
         return this.all()
             .filter(
                 (record) =>
-                    (connection === undefined || record.connection === connection) &&
-                    (queue === undefined || record.queue === queue),
+                    (connection === undefined || record.connection === connection)
+                    && (queue === undefined || record.queue === queue),
             )
             .size();
     }
@@ -222,7 +235,8 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
      * regardless, so the envelope is stored without the command. What failed,
      * when, and why is readable; retrying it from storage is not.
      */
-    protected serializePayload(payload: JobPayload): string {
+    protected serializePayload(payload: JobPayload): string
+    {
         const [ok, serialized] = pcall(() => Serializer.serialize(payload));
 
         if (ok) {
@@ -241,7 +255,8 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     }
 
     /** Turn a stored row back into a record. */
-    protected toRecord(held?: StoredFailure): FailedJobRecord | undefined {
+    protected toRecord(held?: StoredFailure): FailedJobRecord | undefined
+    {
         if (held === undefined) {
             return undefined;
         }

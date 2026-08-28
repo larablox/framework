@@ -42,85 +42,107 @@ import type { LogContext, LogLevel, Logger as LoggerContract } from 'Illuminate/
  */
 
 /** A hand-written fake standing in for a Mockery-mocked Monolog logger. */
-class RecordingLogger implements LoggerContract {
+class RecordingLogger implements LoggerContract
+{
     public calls = new Array<{
         level: LogLevel;
         message: unknown;
         context: LogContext;
     }>();
 
-    public constructor(private readonly handlingResult = true) {}
+    public constructor(private readonly handlingResult = true)
+    {}
 
-    public isHandling(): boolean {
+    public isHandling(): boolean
+    {
         return this.handlingResult;
     }
 
-    public emergency(message: unknown, context: LogContext = {}): void {
+    public emergency(message: unknown, context: LogContext = {}): void
+    {
         this.log('emergency', message, context);
     }
 
-    public alert(message: unknown, context: LogContext = {}): void {
+    public alert(message: unknown, context: LogContext = {}): void
+    {
         this.log('alert', message, context);
     }
 
-    public critical(message: unknown, context: LogContext = {}): void {
+    public critical(message: unknown, context: LogContext = {}): void
+    {
         this.log('critical', message, context);
     }
 
-    public error(message: unknown, context: LogContext = {}): void {
+    public error(message: unknown, context: LogContext = {}): void
+    {
         this.log('error', message, context);
     }
 
-    public warning(message: unknown, context: LogContext = {}): void {
+    public warning(message: unknown, context: LogContext = {}): void
+    {
         this.log('warning', message, context);
     }
 
-    public notice(message: unknown, context: LogContext = {}): void {
+    public notice(message: unknown, context: LogContext = {}): void
+    {
         this.log('notice', message, context);
     }
 
-    public info(message: unknown, context: LogContext = {}): void {
+    public info(message: unknown, context: LogContext = {}): void
+    {
         this.log('info', message, context);
     }
 
-    public debug(message: unknown, context: LogContext = {}): void {
+    public debug(message: unknown, context: LogContext = {}): void
+    {
         this.log('debug', message, context);
     }
 
-    public log(level: LogLevel, message: unknown, context: LogContext = {}): void {
+    public log(level: LogLevel, message: unknown, context: LogContext = {}): void
+    {
         this.calls.push({ level, message, context });
     }
 }
 
 /** A hand-written fake standing in for a Mockery-mocked events dispatcher. */
-class RecordingDispatcher implements DispatcherContract {
+class RecordingDispatcher implements DispatcherContract
+{
     public listenCalls = new Array<[EventName | Array<EventName>, Listener]>();
 
-    public listen(events: EventName | Array<EventName>, listener: Listener): void {
+    public listen(events: EventName | Array<EventName>, listener: Listener): void
+    {
         this.listenCalls.push([events, listener]);
     }
 
-    public hasListeners(): boolean {
+    public hasListeners(): boolean
+    {
         return false;
     }
 
-    public subscribe(): void {}
+    public subscribe(): void
+    {}
 
-    public until(): unknown {
+    public until(): unknown
+    {
         return undefined;
     }
 
-    public dispatch(): unknown {
+    public dispatch(): unknown
+    {
         return undefined;
     }
 
-    public push(): void {}
+    public push(): void
+    {}
 
-    public flush(): void {}
+    public flush(): void
+    {}
 
-    public forget(): void {}
+    public forget(): void
+    {}
 
-    public forgetPushed(): void {}
+    public forgetPushed(): void
+    {}
 }
 
 export = (): void => {

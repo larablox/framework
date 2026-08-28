@@ -17,9 +17,11 @@ export = (): void => {
         // PHP's `IContainerTaggedContractStub` interface is not reproduced: it
         // has no runtime trace in Luau and neither of these two tests actually
         // checks against it, only against the concrete classes.
-        class ContainerImplementationTaggedStub {}
+        class ContainerImplementationTaggedStub
+        {}
 
-        class ContainerImplementationTaggedStubTwo {}
+        class ContainerImplementationTaggedStubTwo
+        {}
 
         it('tag()/tagged() group bindings and resolve every tagged entry', () => {
             // PHP: ContainerTaggingTest::testContainerTags

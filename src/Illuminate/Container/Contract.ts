@@ -12,17 +12,20 @@
  * export const HubContract = new Contract<Hub>("Illuminate\\Contracts\\Pipeline\\Hub");
  * ```
  */
-export class Contract<T = unknown> {
+export class Contract<T = unknown>
+{
     /** Anchors `T` so distinct contracts stay distinct types. */
     declare protected readonly phantom?: T;
 
-    public constructor(public readonly name: string) {}
+    public constructor(public readonly name: string)
+    {}
 
     /**
      * roblox-ts maps a `toString` method onto the `__tostring` metamethod, so
      * an unbound contract fails with its name, not a table address.
      */
-    public toString(): string {
+    public toString(): string
+    {
         return this.name;
     }
 }

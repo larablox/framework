@@ -31,10 +31,12 @@ import type { Router } from 'Illuminate/Routing/Router';
  * the kernel's own bookkeeping, and `requestStartedAt()` is how it is read. A
  * class rather than a string so it cannot collide with a key a game binds.
  */
-class RequestStartedAt {}
+class RequestStartedAt
+{}
 
 /** PHP: one entry of `$requestLifecycleDurationHandlers`. */
-interface DurationHandler {
+interface DurationHandler
+{
     threshold: number;
     handler: (startedAt: number, request: Request, response: Response) => void;
 }
@@ -67,7 +69,8 @@ interface DurationHandler {
  * error handlers), `enableHttpMethodParameterOverride()` (no forms), and
  * `$routeMiddleware`, which PHP itself marks deprecated.
  */
-export class Kernel implements KernelContract {
+export class Kernel implements KernelContract
+{
     /** The bootstrap classes for the application. */
     protected bootstrappersList: Array<Constructor<Bootstrapper>> = [
         LoadConfiguration,
@@ -101,7 +104,8 @@ export class Kernel implements KernelContract {
     public constructor(
         @Inject('app') protected app: Application,
         @Inject('router') protected readonly router: Router,
-    ) {
+    )
+    {
         this.syncMiddlewareToRouter();
     }
 
@@ -117,7 +121,8 @@ export class Kernel implements KernelContract {
      * the worker; see the class comment for why it is not simply read off the
      * kernel.
      */
-    public handle(request: Request, app: Application = this.app): Response {
+    public handle(request: Request, app: Application = this.app): Response
+    {
         app.instance(RequestStartedAt, os.clock());
 
         let response: Response;
@@ -136,7 +141,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Send the given request through the middleware / router. */
-    protected sendRequestThroughRouter(request: Request, app: Application): Response {
+    protected sendRequestThroughRouter(request: Request, app: Application): Response
+    {
         app.instance('request', request);
 
         // PHP also clears the `Request` facade's resolved instance; there is no
@@ -152,14 +158,16 @@ export class Kernel implements KernelContract {
     }
 
     /** Bootstrap the application for HTTP requests. */
-    public bootstrap(): void {
+    public bootstrap(): void
+    {
         if (!this.app.hasBeenBootstrapped()) {
             this.app.bootstrapWith(this.bootstrappers());
         }
     }
 
     /** Get the route dispatcher callback. */
-    protected dispatchToRouter(request: Request, app: Application): Response {
+    protected dispatchToRouter(request: Request, app: Application): Response
+    {
         app.instance('request', request);
 
         // The router is a singleton built on the root application and holds it;
@@ -176,7 +184,8 @@ export class Kernel implements KernelContract {
      * does, and more sharply: the worker defers this, so by the time it runs
      * the kernel has very likely been asked to serve something else.
      */
-    public terminate(request: Request, response: Response, app: Application = this.app): void {
+    public terminate(request: Request, response: Response, app: Application = this.app): void
+    {
         this.events(app).dispatch(new Terminating());
 
         this.terminateMiddleware(request, response, app);
@@ -206,7 +215,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Call the terminate method on any terminable middleware. */
-    protected terminateMiddleware(request: Request, response: Response, app: Application): void {
+    protected terminateMiddleware(request: Request, response: Response, app: Application): void
+    {
         if (app.shouldSkipMiddleware()) {
             return;
         }
@@ -239,7 +249,8 @@ export class Kernel implements KernelContract {
     public whenRequestLifecycleIsLongerThan(
         threshold: number,
         handler: (startedAt: number, request: Request, response: Response) => void,
-    ): void {
+    ): void
+    {
         this.requestLifecycleDurationHandlers.push({
             threshold: threshold,
             handler: handler,
@@ -247,12 +258,14 @@ export class Kernel implements KernelContract {
     }
 
     /** When the request being handled started, as `os.clock()` read it. */
-    public requestStartedAt(app: Application = this.app): number | undefined {
+    public requestStartedAt(app: Application = this.app): number | undefined
+    {
         return app.bound(RequestStartedAt) ? (app.make(RequestStartedAt) as number) : undefined;
     }
 
     /** Gather the route middleware for the given request. */
-    protected gatherRouteMiddleware(request: Request): Array<Pipe> {
+    protected gatherRouteMiddleware(request: Request): Array<Pipe>
+    {
         // `route()` answers a parameter when given a name and the route itself
         // when not, so PHP's return type is mixed and so is this one.
         const route = request.route() as Route | undefined;
@@ -266,7 +279,8 @@ export class Kernel implements KernelContract {
      * The same two spellings `Pipeline::parsePipeString()` reads: PHP's
      * `"throttle:60,1"`, and the list a class carries its arguments in.
      */
-    protected parseMiddleware(middleware: Pipe): [Abstract, Array<string>] {
+    protected parseMiddleware(middleware: Pipe): [Abstract, Array<string>]
+    {
         if (Util.isArray(middleware)) {
             const list = middleware as Array<defined>;
             const parameters = new Array<string>();
@@ -292,7 +306,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Determine whether the container can resolve the given middleware by name. */
-    protected resolvable(middleware: Pipe): boolean {
+    protected resolvable(middleware: Pipe): boolean
+    {
         const [name] = this.parseMiddleware(middleware);
 
         if (typeIs(name, 'string')) {
@@ -305,7 +320,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Tell an instance apart from a class waiting to be resolved. */
-    protected isInstance(value: object): boolean {
+    protected isInstance(value: object): boolean
+    {
         const metatable = getmetatable(value) as object | undefined;
 
         return metatable !== undefined && rawget(metatable, '__index') === metatable;
@@ -316,12 +332,14 @@ export class Kernel implements KernelContract {
     // -----------------------------------------------------------------
 
     /** Determine if the kernel has a given middleware. */
-    public hasMiddleware(middleware: Pipe): boolean {
+    public hasMiddleware(middleware: Pipe): boolean
+    {
         return this.middleware.includes(middleware);
     }
 
     /** Add a new middleware to the beginning of the stack if it does not already exist. */
-    public prependMiddleware(middleware: Pipe): this {
+    public prependMiddleware(middleware: Pipe): this
+    {
         if (!this.middleware.includes(middleware)) {
             this.middleware.unshift(middleware);
         }
@@ -330,7 +348,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Add a new middleware to end of the stack if it does not already exist. */
-    public pushMiddleware(middleware: Pipe): this {
+    public pushMiddleware(middleware: Pipe): this
+    {
         if (!this.middleware.includes(middleware)) {
             this.middleware.push(middleware);
         }
@@ -339,7 +358,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Prepend the given middleware to the given middleware group. */
-    public prependMiddlewareToGroup(group: string, middleware: Pipe): this {
+    public prependMiddlewareToGroup(group: string, middleware: Pipe): this
+    {
         const groupMiddleware = this.middlewareGroups[group];
 
         if (groupMiddleware === undefined) {
@@ -356,7 +376,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Append the given middleware to the given middleware group. */
-    public appendMiddlewareToGroup(group: string, middleware: Pipe): this {
+    public appendMiddlewareToGroup(group: string, middleware: Pipe): this
+    {
         const groupMiddleware = this.middlewareGroups[group];
 
         if (groupMiddleware === undefined) {
@@ -373,7 +394,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Prepend the given middleware to the middleware priority list. */
-    public prependToMiddlewarePriority(middleware: Pipe): this {
+    public prependToMiddlewarePriority(middleware: Pipe): this
+    {
         if (!this.middlewarePriority.includes(middleware)) {
             this.middlewarePriority.unshift(middleware);
         }
@@ -384,7 +406,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Append the given middleware to the middleware priority list. */
-    public appendToMiddlewarePriority(middleware: Pipe): this {
+    public appendToMiddlewarePriority(middleware: Pipe): this
+    {
         if (!this.middlewarePriority.includes(middleware)) {
             this.middlewarePriority.push(middleware);
         }
@@ -395,17 +418,20 @@ export class Kernel implements KernelContract {
     }
 
     /** Add the given middleware to the middleware priority list before other middleware. */
-    public addToMiddlewarePriorityBefore(before: Pipe | Array<Pipe>, middleware: Pipe): this {
+    public addToMiddlewarePriorityBefore(before: Pipe | Array<Pipe>, middleware: Pipe): this
+    {
         return this.addToMiddlewarePriorityRelative(before, middleware, false);
     }
 
     /** Add the given middleware to the middleware priority list after other middleware. */
-    public addToMiddlewarePriorityAfter(after: Pipe | Array<Pipe>, middleware: Pipe): this {
+    public addToMiddlewarePriorityAfter(after: Pipe | Array<Pipe>, middleware: Pipe): this
+    {
         return this.addToMiddlewarePriorityRelative(after, middleware);
     }
 
     /** Add the given middleware to the middleware priority list relative to other middleware. */
-    protected addToMiddlewarePriorityRelative(existing: Pipe | Array<Pipe>, middleware: Pipe, after = true): this {
+    protected addToMiddlewarePriorityRelative(existing: Pipe | Array<Pipe>, middleware: Pipe, after = true): this
+    {
         if (!this.middlewarePriority.includes(middleware)) {
             let index = after ? 0 : this.middlewarePriority.size();
 
@@ -436,7 +462,8 @@ export class Kernel implements KernelContract {
     }
 
     /** Sync the current state of the middleware to the router. */
-    protected syncMiddlewareToRouter(): void {
+    protected syncMiddlewareToRouter(): void
+    {
         this.router.middlewarePriority = this.middlewarePriority;
 
         for (const [group, middleware] of pairs(this.middlewareGroups)) {
@@ -449,12 +476,14 @@ export class Kernel implements KernelContract {
     }
 
     /** Get the priority-sorted list of middleware. */
-    public getMiddlewarePriority(): Array<Pipe> {
+    public getMiddlewarePriority(): Array<Pipe>
+    {
         return this.middlewarePriority;
     }
 
     /** Set the application's middleware priority. */
-    public setMiddlewarePriority(priority: Array<Pipe>): this {
+    public setMiddlewarePriority(priority: Array<Pipe>): this
+    {
         this.middlewarePriority = priority;
 
         this.syncMiddlewareToRouter();
@@ -463,12 +492,14 @@ export class Kernel implements KernelContract {
     }
 
     /** Get the application's global middleware. */
-    public getGlobalMiddleware(): Array<Pipe> {
+    public getGlobalMiddleware(): Array<Pipe>
+    {
         return this.middleware;
     }
 
     /** Set the application's global middleware. */
-    public setGlobalMiddleware(middleware: Array<Pipe>): this {
+    public setGlobalMiddleware(middleware: Array<Pipe>): this
+    {
         this.middleware = middleware;
 
         this.syncMiddlewareToRouter();
@@ -477,12 +508,14 @@ export class Kernel implements KernelContract {
     }
 
     /** Get the application's route middleware groups. */
-    public getMiddlewareGroups(): Record<string, Array<Pipe>> {
+    public getMiddlewareGroups(): Record<string, Array<Pipe>>
+    {
         return this.middlewareGroups;
     }
 
     /** Set the application's middleware groups. */
-    public setMiddlewareGroups(groups: Record<string, Array<Pipe>>): this {
+    public setMiddlewareGroups(groups: Record<string, Array<Pipe>>): this
+    {
         this.middlewareGroups = groups;
 
         this.syncMiddlewareToRouter();
@@ -491,12 +524,14 @@ export class Kernel implements KernelContract {
     }
 
     /** Get the application's route middleware aliases. */
-    public getMiddlewareAliases(): Record<string, Pipe> {
+    public getMiddlewareAliases(): Record<string, Pipe>
+    {
         return this.middlewareAliases;
     }
 
     /** Set the application's route middleware aliases. */
-    public setMiddlewareAliases(aliases: Record<string, Pipe>): this {
+    public setMiddlewareAliases(aliases: Record<string, Pipe>): this
+    {
         this.middlewareAliases = aliases;
 
         this.syncMiddlewareToRouter();
@@ -509,32 +544,38 @@ export class Kernel implements KernelContract {
     // -----------------------------------------------------------------
 
     /** Get the bootstrap classes for the application. */
-    protected bootstrappers(): Array<Constructor<Bootstrapper>> {
+    protected bootstrappers(): Array<Constructor<Bootstrapper>>
+    {
         return this.bootstrappersList;
     }
 
     /** Report the exception to the exception handler. */
-    protected reportException(e: unknown, app: Application = this.app): void {
+    protected reportException(e: unknown, app: Application = this.app): void
+    {
         app.make<Handler>(Handler).report(e);
     }
 
     /** Render the exception to a response. */
-    protected renderException(request: Request, e: unknown, app: Application = this.app): Response {
+    protected renderException(request: Request, e: unknown, app: Application = this.app): Response
+    {
         return app.make<Handler>(Handler).render(request, e);
     }
 
     /** The event dispatcher, which PHP reaches as `$this->app['events']`. */
-    protected events(app: Application = this.app): Dispatcher {
+    protected events(app: Application = this.app): Dispatcher
+    {
         return app.make<Dispatcher>('events');
     }
 
     /** Get the application instance. */
-    public getApplication(): Application {
+    public getApplication(): Application
+    {
         return this.app;
     }
 
     /** Set the application instance. */
-    public setApplication(app: Application): this {
+    public setApplication(app: Application): this
+    {
         this.app = app;
 
         return this;

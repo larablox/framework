@@ -41,7 +41,8 @@ const DEFAULT_TRANSPORTS: Array<Transport> = ['call', 'send'];
  * `block()`/`withoutBlocking()`/`locksFor()` (session locks), the Symfony
  * conversions and `prepareForSerialization()` (route caching needs a console).
  */
-export class Route {
+export class Route
+{
     /** PHP: `$uri`. */
     protected uriPattern = '';
 
@@ -94,7 +95,8 @@ export class Route {
     protected static validators?: Array<ValidatorInterface>;
 
     /** Create a new Route instance. */
-    public constructor(methods: string | Array<string>, uri: string, action?: ActionAttributes) {
+    public constructor(methods: string | Array<string>, uri: string, action?: ActionAttributes)
+    {
         this.httpMethods = Util.arrayWrap(methods);
         this.action = action ?? {};
 
@@ -124,7 +126,8 @@ export class Route {
     // -----------------------------------------------------------------
 
     /** Run the route action and return the response. */
-    public run(): unknown {
+    public run(): unknown
+    {
         this.container = this.container ?? new Container();
 
         try {
@@ -143,12 +146,14 @@ export class Route {
     }
 
     /** Checks whether the route's action is a controller. */
-    public isControllerAction(): boolean {
+    public isControllerAction(): boolean
+    {
         return this.action.controller !== undefined;
     }
 
     /** Run the route action and return the response. */
-    protected runCallable(): unknown {
+    protected runCallable(): unknown
+    {
         return this.callableDispatcher().dispatch(this, this.action.uses as Callback);
     }
 
@@ -163,7 +168,8 @@ export class Route {
      * `agent_docs/roblox-ts-constraints.md`), so the dispatcher has to be
      * constructed by hand when it is not bound.
      */
-    public callableDispatcher(): CallableDispatcherContract {
+    public callableDispatcher(): CallableDispatcherContract
+    {
         if (this.container !== undefined && this.container.bound(CallableDispatcher)) {
             return this.container.make<CallableDispatcher>(CallableDispatcher);
         }
@@ -172,12 +178,14 @@ export class Route {
     }
 
     /** Run the route action and return the response. */
-    protected runController(): unknown {
+    protected runController(): unknown
+    {
         return this.controllerDispatcher().dispatch(this, this.getController() as object, this.getControllerMethod());
     }
 
     /** Get the controller instance for the route. */
-    public getController(): object | undefined {
+    public getController(): object | undefined
+    {
         if (!this.isControllerAction()) {
             return undefined;
         }
@@ -190,22 +198,26 @@ export class Route {
     }
 
     /** Get the controller class used for the route. */
-    public getControllerClass(): ControllerAction[0] {
+    public getControllerClass(): ControllerAction[0]
+    {
         return (this.action.controller as ControllerAction)[0];
     }
 
     /** Get the controller method used for the route. */
-    public getControllerMethod(): string {
+    public getControllerMethod(): string
+    {
         return (this.action.controller as ControllerAction)[1];
     }
 
     /** Flush the cached container instance on the route. */
-    public flushController(): void {
+    public flushController(): void
+    {
         this.controller = undefined;
     }
 
     /** Get the dispatcher for the route's controller. */
-    public controllerDispatcher(): ControllerDispatcherContract {
+    public controllerDispatcher(): ControllerDispatcherContract
+    {
         if (this.container !== undefined && this.container.bound(ControllerDispatcher)) {
             return this.container.make<ControllerDispatcher>(ControllerDispatcher);
         }
@@ -218,7 +230,8 @@ export class Route {
     // -----------------------------------------------------------------
 
     /** Determine if the route matches a given request. */
-    public matches(request: Request, includingMethod = true): boolean {
+    public matches(request: Request, includingMethod = true): boolean
+    {
         this.compileRoute();
 
         for (const validator of Route.getValidators()) {
@@ -235,7 +248,8 @@ export class Route {
     }
 
     /** Compile the route into a matchable form. */
-    protected compileRoute(): CompiledRoute {
+    protected compileRoute(): CompiledRoute
+    {
         if (this.compiled === undefined) {
             this.compiled = CompiledRoute.compile(this.uriPattern);
         }
@@ -244,12 +258,14 @@ export class Route {
     }
 
     /** Get the compiled version of the route. */
-    public getCompiled(): CompiledRoute {
+    public getCompiled(): CompiledRoute
+    {
         return this.compileRoute();
     }
 
     /** Get the route validators for the instance. */
-    public static getValidators(): Array<ValidatorInterface> {
+    public static getValidators(): Array<ValidatorInterface>
+    {
         if (Route.validators === undefined) {
             Route.validators = [new UriValidator(), new MethodValidator(), new TransportValidator()];
         }
@@ -283,7 +299,8 @@ export class Route {
      * the controller (`controllerMiddleware()`), and the controller is exactly
      * the state a copy exists to keep apart.
      */
-    public forRequest(request: Request): Route {
+    public forRequest(request: Request): Route
+    {
         this.compileRoute();
         this.parameterNames();
 
@@ -298,7 +315,8 @@ export class Route {
     }
 
     /** Bind the route to a given request for execution. */
-    public bind(request: Request): this {
+    public bind(request: Request): this
+    {
         this.compileRoute();
 
         this.parameterValues = new RouteParameterBinder(this).parameters(request);
@@ -318,37 +336,44 @@ export class Route {
     }
 
     /** Determine if the route has parameters. */
-    public hasParameters(): boolean {
+    public hasParameters(): boolean
+    {
         return this.parameterValues !== undefined;
     }
 
     /** Determine a given parameter exists from the route. */
-    public hasParameter(name: string): boolean {
+    public hasParameter(name: string): boolean
+    {
         return this.hasParameters() && this.parameters().has(name);
     }
 
     /** Get a given parameter from the route. */
-    public parameter(name: string, defaultValue?: unknown): unknown {
+    public parameter(name: string, defaultValue?: unknown): unknown
+    {
         return this.parameters().get(name) ?? defaultValue;
     }
 
     /** Get original value of a given parameter from the route. */
-    public originalParameter(name: string, defaultValue?: unknown): unknown {
+    public originalParameter(name: string, defaultValue?: unknown): unknown
+    {
         return this.originalParameters().get(name) ?? defaultValue;
     }
 
     /** Set a parameter to the given value. */
-    public setParameter(name: string, value: defined): void {
+    public setParameter(name: string, value: defined): void
+    {
         this.parameters().set(name, value);
     }
 
     /** Unset a parameter on the route if it is set. */
-    public forgetParameter(name: string): void {
+    public forgetParameter(name: string): void
+    {
         this.parameters().delete(name);
     }
 
     /** Get the key / value list of parameters for the route. */
-    public parameters(): OrderedMap<string, defined> {
+    public parameters(): OrderedMap<string, defined>
+    {
         if (this.parameterValues === undefined) {
             throw new LogicException('Route is not bound.');
         }
@@ -357,7 +382,8 @@ export class Route {
     }
 
     /** Get the key / value list of original parameters for the route. */
-    public originalParameters(): OrderedMap<string, defined> {
+    public originalParameters(): OrderedMap<string, defined>
+    {
         if (this.originalParameterValues === undefined) {
             throw new LogicException('Route is not bound.');
         }
@@ -371,12 +397,14 @@ export class Route {
      * A Luau table holds no nulls to filter, so this is `parameters()` -- kept
      * because the dispatchers are written in terms of it in PHP.
      */
-    public parametersWithoutNulls(): OrderedMap<string, defined> {
+    public parametersWithoutNulls(): OrderedMap<string, defined>
+    {
         return this.parameters();
     }
 
     /** Get all of the parameter names for the route. */
-    public parameterNames(): Array<string> {
+    public parameterNames(): Array<string>
+    {
         if (this.compiledParameterNames === undefined) {
             this.compiledParameterNames = this.getCompiled().parameterNames;
         }
@@ -385,7 +413,8 @@ export class Route {
     }
 
     /** Get the parameters that are listed in the route / controller signature. */
-    public getOptionalParameterNames(): Array<string> {
+    public getOptionalParameterNames(): Array<string>
+    {
         const optional = new Array<string>();
 
         for (const segment of this.getCompiled().segments) {
@@ -398,31 +427,36 @@ export class Route {
     }
 
     /** Get the binding field for the given parameter. */
-    public bindingFieldFor(parameter: string): string | undefined {
+    public bindingFieldFor(parameter: string): string | undefined
+    {
         return this.bindingFieldMap[parameter];
     }
 
     /** Get the binding fields for the route. */
-    public bindingFields(): Record<string, string> {
+    public bindingFields(): Record<string, string>
+    {
         return this.bindingFieldMap;
     }
 
     /** Set the binding fields for the route. */
-    public setBindingFields(bindingFields: Record<string, string>): this {
+    public setBindingFields(bindingFields: Record<string, string>): this
+    {
         this.bindingFieldMap = bindingFields;
 
         return this;
     }
 
     /** Get the default value given to a parameter. */
-    public defaults(key: string, value: unknown): this {
+    public defaults(key: string, value: unknown): this
+    {
         this.defaultValues[key] = value;
 
         return this;
     }
 
     /** Set the default values for the route. */
-    public setDefaults(defaults: Record<string, unknown>): this {
+    public setDefaults(defaults: Record<string, unknown>): this
+    {
         this.defaultValues = defaults;
 
         return this;
@@ -439,7 +473,8 @@ export class Route {
      * spellings that happen to be valid Luau -- `[0-9]+`, `%a+` -- work as
      * they are; alternation and lookaround have no equivalent.
      */
-    public where(name: string | Record<string, string>, expression?: string): this {
+    public where(name: string | Record<string, string>, expression?: string): this
+    {
         for (const [key, pattern] of pairs(this.parseWhere(name, expression))) {
             this.wheres[key as string] = pattern as string;
         }
@@ -448,7 +483,8 @@ export class Route {
     }
 
     /** Parse arguments to the where method into an array. */
-    protected parseWhere(name: string | Record<string, string>, expression?: string): Record<string, string> {
+    protected parseWhere(name: string | Record<string, string>, expression?: string): Record<string, string>
+    {
         if (typeIs(name, 'table')) {
             return name;
         }
@@ -457,27 +493,32 @@ export class Route {
     }
 
     /** Set a list of regular expression requirements on the route. */
-    public setWheres(wheres: Record<string, string>): this {
+    public setWheres(wheres: Record<string, string>): this
+    {
         return this.where(wheres);
     }
 
     /** Specify that the given route parameters must be numeric. */
-    public whereNumber(parameters: string | Array<string>): this {
+    public whereNumber(parameters: string | Array<string>): this
+    {
         return this.assignExpressionToParameters(parameters, '%d+');
     }
 
     /** Specify that the given route parameters must be alphabetic. */
-    public whereAlpha(parameters: string | Array<string>): this {
+    public whereAlpha(parameters: string | Array<string>): this
+    {
         return this.assignExpressionToParameters(parameters, '%a+');
     }
 
     /** Specify that the given route parameters must be alphanumeric. */
-    public whereAlphaNumeric(parameters: string | Array<string>): this {
+    public whereAlphaNumeric(parameters: string | Array<string>): this
+    {
         return this.assignExpressionToParameters(parameters, '%w+');
     }
 
     /** Specify that the given route parameters must be UUIDs. */
-    public whereUuid(parameters: string | Array<string>): this {
+    public whereUuid(parameters: string | Array<string>): this
+    {
         return this.assignExpressionToParameters(
             parameters,
             '%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x',
@@ -491,12 +532,14 @@ export class Route {
      * is the top of the timestamp and cannot go past 7, and the remaining 25
      * are Crockford base32 in either case.
      */
-    public whereUlid(parameters: string | Array<string>): this {
+    public whereUlid(parameters: string | Array<string>): this
+    {
         return this.assignExpressionToParameters(parameters, `[0-7]${'[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]'.rep(25)}`);
     }
 
     /** Apply the given expression to the given parameters. */
-    protected assignExpressionToParameters(parameters: string | Array<string>, expression: string): this {
+    protected assignExpressionToParameters(parameters: string | Array<string>, expression: string): this
+    {
         for (const parameter of Util.arrayWrap(parameters)) {
             this.where(parameter, expression);
         }
@@ -509,31 +552,36 @@ export class Route {
     // -----------------------------------------------------------------
 
     /** Mark this route as a fallback route. */
-    public fallback(): this {
+    public fallback(): this
+    {
         this.isFallback = true;
 
         return this;
     }
 
     /** Set the fallback value. */
-    public setFallback(isFallback: boolean): this {
+    public setFallback(isFallback: boolean): this
+    {
         this.isFallback = isFallback;
 
         return this;
     }
 
     /** Get the HTTP verbs the route responds to. */
-    public methods(): Array<string> {
+    public methods(): Array<string>
+    {
         return this.httpMethods;
     }
 
     /** Get the remotes the route answers on. */
-    public transports(): Array<Transport> {
+    public transports(): Array<Transport>
+    {
         return this.transportList;
     }
 
     /** Set the remotes the route answers on. */
-    public setTransports(transports: Array<Transport>): this {
+    public setTransports(transports: Array<Transport>): this
+    {
         this.transportList = transports;
 
         return this;
@@ -544,17 +592,20 @@ export class Route {
      *
      * PHP: `httpsOnly()`.
      */
-    public reliable(): this {
+    public reliable(): this
+    {
         return this.setTransports(['call']);
     }
 
     /** Get the URI associated with the route. */
-    public uri(): string {
+    public uri(): string
+    {
         return this.uriPattern;
     }
 
     /** Set the URI that the route responds to. */
-    public setUri(uri: string): this {
+    public setUri(uri: string): this
+    {
         const parsed = RouteUri.parse(uri);
 
         this.bindingFieldMap = parsed.bindingFields;
@@ -566,7 +617,8 @@ export class Route {
     }
 
     /** Add a prefix to the route URI. */
-    public prefix(prefix: string): this {
+    public prefix(prefix: string): this
+    {
         this.updatePrefixOnAction(prefix);
 
         const uri = `${Str.rtrim(prefix, '/')}/${Str.ltrim(this.uriPattern, '/')}`;
@@ -575,7 +627,8 @@ export class Route {
     }
 
     /** Update the "prefix" attribute on the action array. */
-    protected updatePrefixOnAction(prefix: string): void {
+    protected updatePrefixOnAction(prefix: string): void
+    {
         const merged = Str.trim(`${Str.rtrim(prefix, '/')}/${Str.ltrim(this.action.prefix ?? '', '/')}`, '/');
 
         if (merged !== '') {
@@ -584,24 +637,28 @@ export class Route {
     }
 
     /** Get the prefix of the route instance. */
-    public getPrefix(): string | undefined {
+    public getPrefix(): string | undefined
+    {
         return this.action.prefix;
     }
 
     /** Get the name of the route instance. */
-    public getName(): string | undefined {
+    public getName(): string | undefined
+    {
         return this.action.as;
     }
 
     /** Add or change the route name. */
-    public name(name: string): this {
+    public name(name: string): this
+    {
         this.action.as = this.action.as !== undefined ? `${this.action.as}${name}` : name;
 
         return this;
     }
 
     /** Determine whether the route's name matches the given patterns. */
-    public named(...patterns: Array<string>): boolean {
+    public named(...patterns: Array<string>): boolean
+    {
         const name = this.getName();
 
         if (name === undefined) {
@@ -618,7 +675,8 @@ export class Route {
     }
 
     /** Set the handler for the route. */
-    public uses(action: ActionAttributes['uses']): this {
+    public uses(action: ActionAttributes['uses']): this
+    {
         return this.setAction({
             ...this.action,
             ...RouteAction.parse(this.uriPattern, action),
@@ -626,7 +684,8 @@ export class Route {
     }
 
     /** Get the action name for the route. */
-    public getActionName(): string {
+    public getActionName(): string
+    {
         const controller = this.action.controller;
 
         if (controller === undefined) {
@@ -637,12 +696,14 @@ export class Route {
     }
 
     /** Get the method name of the route action. */
-    public getActionMethod(): string {
+    public getActionMethod(): string
+    {
         return this.isControllerAction() ? this.getControllerMethod() : 'Closure';
     }
 
     /** Get the action array or one of its properties for the route. */
-    public getAction(): ActionAttributes {
+    public getAction(): ActionAttributes
+    {
         return this.action;
     }
 
@@ -654,7 +715,8 @@ export class Route {
      * `prefix` key is only what `getPrefix()` reports. PHP re-applies the
      * domain here, which has no counterpart.
      */
-    public setAction(action: ActionAttributes): this {
+    public setAction(action: ActionAttributes): this
+    {
         this.action = action;
 
         return this;
@@ -665,7 +727,8 @@ export class Route {
     // -----------------------------------------------------------------
 
     /** Get all middleware, including the ones from the controller. */
-    public gatherMiddleware(): Array<Pipe> {
+    public gatherMiddleware(): Array<Pipe>
+    {
         if (this.computedMiddleware !== undefined) {
             return this.computedMiddleware;
         }
@@ -688,7 +751,8 @@ export class Route {
     /** Get or set the middlewares attached to the route. */
     public middleware(): Array<Pipe>;
     public middleware(middleware: Pipe | Array<Pipe>): this;
-    public middleware(middleware?: Pipe | Array<Pipe>): this | Array<Pipe> {
+    public middleware(middleware?: Pipe | Array<Pipe>): this | Array<Pipe>
+    {
         if (middleware === undefined) {
             return this.action.middleware ?? [];
         }
@@ -712,12 +776,13 @@ export class Route {
      * ported. The instance form, registered in the controller's constructor,
      * is.
      */
-    public controllerMiddleware(): Array<Pipe> {
+    public controllerMiddleware(): Array<Pipe>
+    {
         if (!this.isControllerAction()) {
             return [];
         }
 
-        const controller = this.getController() as { getMiddleware?: (receiver: object) => Array<Pipe> } | undefined;
+        const controller = this.getController() as { getMiddleware?: (receiver: object) => Array<Pipe>; } | undefined;
 
         if (controller?.getMiddleware === undefined) {
             return [];
@@ -727,7 +792,8 @@ export class Route {
     }
 
     /** Specify middleware that should be removed from the given route. */
-    public withoutMiddleware(middleware: Pipe | Array<Pipe>): this {
+    public withoutMiddleware(middleware: Pipe | Array<Pipe>): this
+    {
         const merged = table.clone(this.action.excluded_middleware ?? new Array<Pipe>());
 
         for (const entry of Util.arrayWrap(middleware) as Array<Pipe>) {
@@ -740,7 +806,8 @@ export class Route {
     }
 
     /** Get the middleware should be removed from the route. */
-    public excludedMiddleware(): Array<Pipe> {
+    public excludedMiddleware(): Array<Pipe>
+    {
         return this.action.excluded_middleware ?? [];
     }
 
@@ -751,7 +818,8 @@ export class Route {
      * cycle of value imports and take both modules down, so the router calls
      * this instead.
      */
-    public static uniqueMiddleware(middleware: Array<Pipe>): Array<Pipe> {
+    public static uniqueMiddleware(middleware: Array<Pipe>): Array<Pipe>
+    {
         const seen = new Set<Pipe>();
         const unique = new Array<Pipe>();
 
@@ -772,14 +840,16 @@ export class Route {
     // -----------------------------------------------------------------
 
     /** Set the router instance on the route. */
-    public setRouter(router: Router): this {
+    public setRouter(router: Router): this
+    {
         this.router = router;
 
         return this;
     }
 
     /** Set the container instance on the route. */
-    public setContainer(container: ContainerContract): this {
+    public setContainer(container: ContainerContract): this
+    {
         this.container = container;
 
         return this;
@@ -794,7 +864,8 @@ export class Route {
      * route the thing that carries "the container of this request" down into
      * the dispatchers and the middleware pipeline.
      */
-    public getContainer(): ContainerContract | undefined {
+    public getContainer(): ContainerContract | undefined
+    {
         return this.container;
     }
 }

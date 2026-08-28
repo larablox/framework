@@ -51,7 +51,7 @@ export = (): void => {
             expect(c.sum((item) => item.foo)).to.equal(100);
 
             expect(new Collection([1, 2, 3, 4, 5]).sum()).to.equal(15);
-            expect(new Collection<number, { foo: number }>().sum('foo')).to.equal(0);
+            expect(new Collection<number, { foo: number; }>().sum('foo')).to.equal(0);
         });
 
         it('avg() / average() compute the mean, of the whole collection or a key', () => {

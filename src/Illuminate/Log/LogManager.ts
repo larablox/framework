@@ -39,7 +39,8 @@ export type LogTap = (logger: Logger, ...args: Array<string>) => void;
  * `ParsesLogConfiguration` is a trait in PHP; its `level()`, `actionLevel()`
  * and `parseChannel()` are folded in here.
  */
-export class LogManager implements LoggerContract {
+export class LogManager implements LoggerContract
+{
     /** The array of resolved channels. */
     protected channels = new OrderedMap<string, Logger>();
 
@@ -53,17 +54,20 @@ export class LogManager implements LoggerContract {
     protected dateFormat = '%Y-%m-%d %H:%M:%S';
 
     /** Create a new Log manager instance. */
-    public constructor(protected app: Application) {}
+    public constructor(protected app: Application)
+    {}
 
     /** Build an on-demand log channel. */
-    public build(config: ArrayAccessible): Logger {
+    public build(config: ArrayAccessible): Logger
+    {
         this.channels.delete('ondemand');
 
         return this.get('ondemand', config);
     }
 
     /** Create a new, on-demand aggregate logger instance. */
-    public stack(channels: Array<string>, channel?: string): Logger {
+    public stack(channels: Array<string>, channel?: string): Logger
+    {
         return new Logger(
             // PHP passes the channel name under `name`, which is the key
             // `parseChannel()` reads; under `channel` it would never be seen
@@ -77,17 +81,20 @@ export class LogManager implements LoggerContract {
     }
 
     /** Get a log channel instance. */
-    public channel(channel?: string): Logger {
+    public channel(channel?: string): Logger
+    {
         return this.driver(channel);
     }
 
     /** Get a log driver instance. */
-    public driver(driver?: string): Logger {
+    public driver(driver?: string): Logger
+    {
         return this.get(this.parseDriver(driver));
     }
 
     /** Attempt to get the log from the local cache. */
-    protected get(name: string, config?: ArrayAccessible): Logger {
+    protected get(name: string, config?: ArrayAccessible): Logger
+    {
         const cached = this.channels.get(name);
 
         if (cached !== undefined) {
@@ -128,7 +135,8 @@ export class LogManager implements LoggerContract {
      * written as `Class:argument,argument` in the channel configuration, and a
      * plain callback is accepted too.
      */
-    protected tap(name: string, logger: Logger): Logger {
+    protected tap(name: string, logger: Logger): Logger
+    {
         const taps = (this.configurationFor(name)?.tap ?? []) as Array<string | LogTap>;
 
         for (const entry of taps) {
@@ -165,19 +173,22 @@ export class LogManager implements LoggerContract {
     }
 
     /** Parse the given tap class string into a class name and arguments string. */
-    protected parseTap(tap: string): [string, string] {
+    protected parseTap(tap: string): [string, string]
+    {
         return Str.contains(tap, ':') ? [Str.before(tap, ':'), Str.after(tap, ':')] : [tap, ''];
     }
 
     /** Create an emergency log handler to avoid white screens of death. */
-    protected createEmergencyLogger(): Logger {
+    protected createEmergencyLogger(): Logger
+    {
         const handler = new RobloxConsoleHandler(Level.Debug);
 
         return new Logger(new Monolog('larablox', this.prepareHandlers([handler])), this.events());
     }
 
     /** Resolve the given log instance by name. */
-    protected resolve(name: string, config?: ArrayAccessible): LoggerContract {
+    protected resolve(name: string, config?: ArrayAccessible): LoggerContract
+    {
         const resolved = config ?? this.configurationFor(name);
 
         if (resolved === undefined) {
@@ -220,12 +231,14 @@ export class LogManager implements LoggerContract {
     }
 
     /** Call a custom driver creator. */
-    protected callCustomCreator(driver: string, config: ArrayAccessible): LoggerContract {
+    protected callCustomCreator(driver: string, config: ArrayAccessible): LoggerContract
+    {
         return (this.customCreators.get(driver) as LogDriverCreator)(this.app, config);
     }
 
     /** Create an instance of a custom-made driver. */
-    protected createCustomDriver(config: ArrayAccessible): LoggerContract {
+    protected createCustomDriver(config: ArrayAccessible): LoggerContract
+    {
         const via = config.via;
 
         if (typeIs(via, 'function')) {
@@ -243,14 +256,16 @@ export class LogManager implements LoggerContract {
      * Stands in for PHP's `single`, `daily` and `errorlog` drivers: those write
      * to a file or the platform log, and the output window is what a place has.
      */
-    protected createConsoleDriver(config: ArrayAccessible): LoggerContract {
+    protected createConsoleDriver(config: ArrayAccessible): LoggerContract
+    {
         const handler = new RobloxConsoleHandler(this.level(config), (config.bubble ?? true) === true);
 
         return new Monolog(this.parseChannel(config), [this.prepareHandler(handler, config)]);
     }
 
     /** Create an aggregate log driver instance. */
-    protected createStackDriver(config: ArrayAccessible): LoggerContract {
+    protected createStackDriver(config: ArrayAccessible): LoggerContract
+    {
         const names = Util.isArray(config.channels)
             ? (config.channels as Array<string>)
             : tostring(config.channels ?? '').split(',');
@@ -282,7 +297,8 @@ export class LogManager implements LoggerContract {
     }
 
     /** Create an instance of any handler available in Monolog. */
-    protected createMonologDriver(config: ArrayAccessible): LoggerContract {
+    protected createMonologDriver(config: ArrayAccessible): LoggerContract
+    {
         const handler = config.handler;
 
         if (handler === undefined) {
@@ -297,12 +313,14 @@ export class LogManager implements LoggerContract {
     }
 
     /** Create an instance of the null log driver. */
-    protected createNullDriver(config: ArrayAccessible): LoggerContract {
+    protected createNullDriver(config: ArrayAccessible): LoggerContract
+    {
         return new Monolog(this.parseChannel(config), [new NullHandler()]);
     }
 
     /** Prepare the handlers for usage by Monolog. */
-    protected prepareHandlers(handlers: Array<HandlerInterface>): Array<HandlerInterface> {
+    protected prepareHandlers(handlers: Array<HandlerInterface>): Array<HandlerInterface>
+    {
         const prepared = new Array<HandlerInterface>();
 
         for (const handler of handlers) {
@@ -313,7 +331,8 @@ export class LogManager implements LoggerContract {
     }
 
     /** Prepare the handler for usage by Monolog. */
-    protected prepareHandler(handler: HandlerInterface, config: ArrayAccessible = {}): HandlerInterface {
+    protected prepareHandler(handler: HandlerInterface, config: ArrayAccessible = {}): HandlerInterface
+    {
         let prepared = handler;
 
         if (config.action_level !== undefined) {
@@ -326,7 +345,7 @@ export class LogManager implements LoggerContract {
             );
         }
 
-        const formattable = prepared as unknown as { setFormatter?: Callback };
+        const formattable = prepared as unknown as { setFormatter?: Callback; };
 
         if (!typeIs(formattable.setFormatter, 'function')) {
             return prepared;
@@ -345,12 +364,14 @@ export class LogManager implements LoggerContract {
     }
 
     /** Get a Monolog formatter instance. */
-    protected formatter(): FormatterInterface {
+    protected formatter(): FormatterInterface
+    {
         return new LineFormatter(undefined, this.dateFormat, true);
     }
 
     /** Share context across channels and stacks. */
-    public shareContext(context: LogContext): this {
+    public shareContext(context: LogContext): this
+    {
         for (const channel of this.channels.values()) {
             channel.withContext(context);
         }
@@ -363,12 +384,14 @@ export class LogManager implements LoggerContract {
     }
 
     /** The context shared across channels and stacks. */
-    public sharedContext(): LogContext {
+    public sharedContext(): LogContext
+    {
         return this.sharedContextValues;
     }
 
     /** Flush the log context on all currently resolved channels. */
-    public withoutContext(keys?: Array<string>): this {
+    public withoutContext(keys?: Array<string>): this
+    {
         for (const channel of this.channels.values()) {
             channel.withoutContext(keys);
         }
@@ -377,19 +400,22 @@ export class LogManager implements LoggerContract {
     }
 
     /** Flush the shared context. */
-    public flushSharedContext(): this {
+    public flushSharedContext(): this
+    {
         this.sharedContextValues = {};
 
         return this;
     }
 
     /** Get fallback log channel name. */
-    protected getFallbackChannelName(): string {
+    protected getFallbackChannelName(): string
+    {
         return this.app.bound('env') ? (this.app.environment() as string) : 'production';
     }
 
     /** Parse the string level from the given configuration. */
-    protected level(config: ArrayAccessible): Level {
+    protected level(config: ArrayAccessible): Level
+    {
         const level = Levels.fromName((config.level ?? 'debug') as string);
 
         if (level === undefined) {
@@ -400,7 +426,8 @@ export class LogManager implements LoggerContract {
     }
 
     /** Parse the action level from the given configuration. */
-    protected actionLevel(config: ArrayAccessible): Level {
+    protected actionLevel(config: ArrayAccessible): Level
+    {
         const level = Levels.fromName((config.action_level ?? 'debug') as string);
 
         if (level === undefined) {
@@ -411,39 +438,46 @@ export class LogManager implements LoggerContract {
     }
 
     /** Extract the log channel from the given configuration. */
-    protected parseChannel(config: ArrayAccessible): string {
+    protected parseChannel(config: ArrayAccessible): string
+    {
         return (config.name ?? this.getFallbackChannelName()) as string;
     }
 
     /** Get the log connection configuration. */
-    protected configurationFor(name: string): ArrayAccessible | undefined {
+    protected configurationFor(name: string): ArrayAccessible | undefined
+    {
         return this.app.make<Repository>('config').get(`logging.channels.${name}`) as ArrayAccessible | undefined;
     }
 
     /** Get the default log driver name. */
-    public getDefaultDriver(): string | undefined {
+    public getDefaultDriver(): string | undefined
+    {
         return this.app.make<Repository>('config').get('logging.default') as string | undefined;
     }
 
     /** Set the default log driver name. */
-    public setDefaultDriver(name: string): void {
+    public setDefaultDriver(name: string): void
+    {
         this.app.make<Repository>('config').set('logging.default', name);
     }
 
     /** Register a custom driver creator Closure. */
-    public extend(driver: string, callback: LogDriverCreator): this {
+    public extend(driver: string, callback: LogDriverCreator): this
+    {
         this.customCreators.set(driver, callback);
 
         return this;
     }
 
     /** Unset the given channel instance. */
-    public forgetChannel(driver?: string): void {
+    public forgetChannel(driver?: string): void
+    {
         this.channels.delete(this.parseDriver(driver));
     }
 
     /** Parse the driver name. */
-    protected parseDriver(driver?: string): string {
+    protected parseDriver(driver?: string): string
+    {
         const resolved = driver ?? this.getDefaultDriver();
 
         if (resolved === undefined) {
@@ -457,53 +491,65 @@ export class LogManager implements LoggerContract {
     }
 
     /** Get all of the resolved log channels. */
-    public getChannels(): Array<[string, Logger]> {
+    public getChannels(): Array<[string, Logger]>
+    {
         return this.channels.entries();
     }
 
     /** Get the event dispatcher, if the container has one bound yet. */
-    protected events(): Dispatcher | undefined {
+    protected events(): Dispatcher | undefined
+    {
         return this.app.bound('events') ? this.app.make<Dispatcher>('events') : undefined;
     }
 
-    public emergency(message: unknown, context?: LogContext): void {
+    public emergency(message: unknown, context?: LogContext): void
+    {
         this.driver().emergency(message, context);
     }
 
-    public alert(message: unknown, context?: LogContext): void {
+    public alert(message: unknown, context?: LogContext): void
+    {
         this.driver().alert(message, context);
     }
 
-    public critical(message: unknown, context?: LogContext): void {
+    public critical(message: unknown, context?: LogContext): void
+    {
         this.driver().critical(message, context);
     }
 
-    public error(message: unknown, context?: LogContext): void {
+    public error(message: unknown, context?: LogContext): void
+    {
         this.driver().error(message, context);
     }
 
-    public warning(message: unknown, context?: LogContext): void {
+    public warning(message: unknown, context?: LogContext): void
+    {
         this.driver().warning(message, context);
     }
 
-    public notice(message: unknown, context?: LogContext): void {
+    public notice(message: unknown, context?: LogContext): void
+    {
         this.driver().notice(message, context);
     }
 
-    public info(message: unknown, context?: LogContext): void {
+    public info(message: unknown, context?: LogContext): void
+    {
         this.driver().info(message, context);
     }
 
-    public debug(message: unknown, context?: LogContext): void {
+    public debug(message: unknown, context?: LogContext): void
+    {
         this.driver().debug(message, context);
     }
 
-    public log(level: LogLevel, message: unknown, context?: LogContext): void {
+    public log(level: LogLevel, message: unknown, context?: LogContext): void
+    {
         this.driver().log(level, message, context);
     }
 
     /** Set the application instance used by the manager. */
-    public setApplication(app: Application): this {
+    public setApplication(app: Application): this
+    {
         this.app = app;
 
         return this;

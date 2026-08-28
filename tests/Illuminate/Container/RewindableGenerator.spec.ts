@@ -11,7 +11,7 @@ export = (): void => {
     describe('RewindableGenerator', () => {
         it('count() uses the provided value', () => {
             // PHP: RewindableGeneratorTest::testCountUsesProvidedValue
-            const generator = new RewindableGenerator<string>(function* () {
+            const generator = new RewindableGenerator<string>(function*() {
                 yield 'foo';
             }, 999);
 
@@ -23,7 +23,7 @@ export = (): void => {
             let called = 0;
 
             const generator = new RewindableGenerator<string>(
-                function* () {
+                function*() {
                     yield 'foo';
                 },
                 () => {

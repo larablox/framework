@@ -38,7 +38,8 @@ type ParseResult = Request | number;
  *
  * The player comes from the engine, never from the payload.
  */
-export class RemoteGateway {
+export class RemoteGateway
+{
     /** The connections made by `listen()`, kept so `stop()` can undo them. */
     protected connections = new Array<RBXScriptConnection>();
 
@@ -46,10 +47,12 @@ export class RemoteGateway {
     protected listening = false;
 
     /** Create a new gateway. */
-    public constructor(@Inject('app') protected readonly app: Application) {}
+    public constructor(@Inject('app') protected readonly app: Application)
+    {}
 
     /** Attach the gateway to the remotes and route what arrives to the handler. */
-    public listen(handler: RequestHandler): void {
+    public listen(handler: RequestHandler): void
+    {
         if (!RunService.IsServer()) {
             throw new RuntimeException('The remote gateway may only listen on the server.');
         }
@@ -77,7 +80,8 @@ export class RemoteGateway {
     }
 
     /** Detach the gateway from the remotes. */
-    public stop(): void {
+    public stop(): void
+    {
         Remote.call().OnServerInvoke = undefined;
 
         for (const connection of this.connections) {
@@ -89,12 +93,14 @@ export class RemoteGateway {
     }
 
     /** Determine whether the gateway is attached to the remotes. */
-    public isListening(): boolean {
+    public isListening(): boolean
+    {
         return this.listening;
     }
 
     /** Handle a request that expects a response. */
-    protected handleCall(handler: RequestHandler, player: Player, args: Array<unknown>): ResponseEnvelope {
+    protected handleCall(handler: RequestHandler, player: Player, args: Array<unknown>): ResponseEnvelope
+    {
         const parsed = this.parse(player, args, 'call');
 
         if (typeIs(parsed, 'number')) {
@@ -115,7 +121,8 @@ export class RemoteGateway {
         player: Player,
         args: Array<unknown>,
         transport: Transport,
-    ): void {
+    ): void
+    {
         const parsed = this.parse(player, args, transport);
 
         if (typeIs(parsed, 'number')) {
@@ -131,7 +138,8 @@ export class RemoteGateway {
      * The arguments arrive positionally -- `(method, path, data)` -- because a
      * wrapper table would be one more allocation on every call for nothing.
      */
-    protected parse(player: Player, args: Array<unknown>, transport: Transport): ParseResult {
+    protected parse(player: Player, args: Array<unknown>, transport: Transport): ParseResult
+    {
         if (!this.app.hasBeenBootstrapped()) {
             return Response.HTTP_SERVICE_UNAVAILABLE;
         }
@@ -163,7 +171,8 @@ export class RemoteGateway {
      * Keys are checked too: a Luau table may be keyed by anything, and only
      * strings and numbers mean anything to the code downstream.
      */
-    protected withinLimits(value: object, depth: number, counter: { count: number }): boolean {
+    protected withinLimits(value: object, depth: number, counter: { count: number; }): boolean
+    {
         if (depth > RemoteLimits.depth) {
             return false;
         }
@@ -188,7 +197,8 @@ export class RemoteGateway {
     }
 
     /** Run the handler, turning anything it throws into a 500. */
-    protected dispatch(handler: RequestHandler, request: Request, transport: Transport = 'call'): Response {
+    protected dispatch(handler: RequestHandler, request: Request, transport: Transport = 'call'): Response
+    {
         try {
             return handler(request);
         } catch (exception) {
@@ -204,7 +214,8 @@ export class RemoteGateway {
     }
 
     /** Flatten a response into something the remote can carry. */
-    protected envelope(response: Response): ResponseEnvelope {
+    protected envelope(response: Response): ResponseEnvelope
+    {
         const headers: Record<string, string> = {};
         let hasHeaders = false;
 
@@ -227,7 +238,8 @@ export class RemoteGateway {
      * is not ported, so the log takes it directly -- the same trade the queue
      * worker makes.
      */
-    protected report(request: Request, transport: Transport, exception: unknown): void {
+    protected report(request: Request, transport: Transport, exception: unknown): void
+    {
         if (!this.app.bound('log')) {
             warn(`[${transport}] ${request.method()} ${request.path()}`, exception);
 

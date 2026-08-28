@@ -10,7 +10,8 @@ import type { Container } from 'Illuminate/Contracts/Container/Container';
  * are called with the instance passed explicitly: a call through a
  * function-valued property compiles to a dot call and would drop `self`.
  */
-export interface ContextualAttribute {
+export interface ContextualAttribute
+{
     /** Resolve the value the annotated parameter should receive. */
     readonly resolve?: (attribute: never, container: Container) => unknown;
 

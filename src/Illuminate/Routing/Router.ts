@@ -23,7 +23,8 @@ import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 import type { Request } from 'Illuminate/Http/Request';
 
 /** What one coroutine is dispatching, if anything. */
-interface DispatchedOnThread {
+interface DispatchedOnThread
+{
     route?: Route;
     request?: Request;
 }
@@ -43,7 +44,8 @@ export type BinderCallback = (value: string, route: Route) => unknown;
  *   database; the explicit `bind()` callbacks work today;
  * - `respondWithRoute()`, `matched()`, `singularResourceParameters()`.
  */
-export class Router {
+export class Router
+{
     /** All of the verbs supported by the router. */
     public static readonly verbs: Array<string> = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 
@@ -99,49 +101,58 @@ export class Router {
     public constructor(
         protected readonly events: Dispatcher,
         protected readonly container: Container,
-    ) {}
+    )
+    {}
 
     // -----------------------------------------------------------------
     // Registration
     // -----------------------------------------------------------------
 
     /** Register a new GET route with the router. */
-    public get(uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public get(uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(['GET', 'HEAD'], uri, action);
     }
 
     /** Register a new POST route with the router. */
-    public post(uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public post(uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(['POST'], uri, action);
     }
 
     /** Register a new PUT route with the router. */
-    public put(uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public put(uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(['PUT'], uri, action);
     }
 
     /** Register a new PATCH route with the router. */
-    public patch(uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public patch(uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(['PATCH'], uri, action);
     }
 
     /** Register a new DELETE route with the router. */
-    public delete(uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public delete(uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(['DELETE'], uri, action);
     }
 
     /** Register a new OPTIONS route with the router. */
-    public options(uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public options(uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(['OPTIONS'], uri, action);
     }
 
     /** Register a new route responding to all verbs. */
-    public any(uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public any(uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(Router.verbs, uri, action);
     }
 
     /** Register a new route with the given verbs. */
-    public match(methods: string | Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public match(methods: string | Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         const upper = new Array<string>();
 
         for (const method of Util.arrayWrap(methods)) {
@@ -159,12 +170,14 @@ export class Router {
      * and says so at registration. It answers POST, and -- like any route -- a
      * verb and URI identify exactly one route, so give it a path of its own.
      */
-    public stream(uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public stream(uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(['POST'], uri, action).setTransports(['stream']);
     }
 
     /** Register a new fallback route with the router. */
-    public fallback(action: ActionTarget | ActionAttributes): Route {
+    public fallback(action: ActionTarget | ActionAttributes): Route
+    {
         return this.addRoute(['GET', 'HEAD'], '{fallbackPlaceholder}', action)
             .where('fallbackPlaceholder', '.*')
             .fallback();
@@ -182,37 +195,44 @@ export class Router {
     // -----------------------------------------------------------------
 
     /** Register middleware to be applied to a group of routes. */
-    public middleware(middleware: Pipe | Array<Pipe>): RouteRegistrar {
+    public middleware(middleware: Pipe | Array<Pipe>): RouteRegistrar
+    {
         return new RouteRegistrar(this).middleware(middleware);
     }
 
     /** Register middleware to be removed from a group of routes. */
-    public withoutMiddleware(middleware: Pipe | Array<Pipe>): RouteRegistrar {
+    public withoutMiddleware(middleware: Pipe | Array<Pipe>): RouteRegistrar
+    {
         return new RouteRegistrar(this).withoutMiddleware(middleware);
     }
 
     /** Register a name prefix for a group of routes. */
-    public as(name: string): RouteRegistrar {
+    public as(name: string): RouteRegistrar
+    {
         return new RouteRegistrar(this).as(name);
     }
 
     /** Register a name prefix for a group of routes. */
-    public name(name: string): RouteRegistrar {
+    public name(name: string): RouteRegistrar
+    {
         return new RouteRegistrar(this).as(name);
     }
 
     /** Register a URI prefix for a group of routes. */
-    public prefix(prefix: string): RouteRegistrar {
+    public prefix(prefix: string): RouteRegistrar
+    {
         return new RouteRegistrar(this).prefix(prefix);
     }
 
     /** Register parameter constraints for a group of routes. */
-    public where(where: Record<string, string>): RouteRegistrar {
+    public where(where: Record<string, string>): RouteRegistrar
+    {
         return new RouteRegistrar(this).where(where);
     }
 
     /** Create a route group with shared attributes. */
-    public group(attributes: ActionAttributes, routes: () => void): this {
+    public group(attributes: ActionAttributes, routes: () => void): this
+    {
         this.updateGroupStack(attributes);
 
         // Once we have updated the group stack, we'll load the provided routes and
@@ -226,22 +246,26 @@ export class Router {
     }
 
     /** Update the group stack with the given attributes. */
-    protected updateGroupStack(attributes: ActionAttributes): void {
+    protected updateGroupStack(attributes: ActionAttributes): void
+    {
         this.groupStack.push(this.hasGroupStack() ? this.mergeWithLastGroup(attributes) : attributes);
     }
 
     /** Merge the given array with the last group stack. */
-    public mergeWithLastGroup(attributes: ActionAttributes, prependExistingPrefix = true): ActionAttributes {
+    public mergeWithLastGroup(attributes: ActionAttributes, prependExistingPrefix = true): ActionAttributes
+    {
         return RouteGroup.merge(attributes, this.groupStack[this.groupStack.size() - 1], prependExistingPrefix);
     }
 
     /** Add a route to the underlying route collection. */
-    public addRoute(methods: Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route {
+    public addRoute(methods: Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         return this.routes.add(this.createRoute(methods, uri, action));
     }
 
     /** Create a new route instance. */
-    protected createRoute(methods: Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route {
+    protected createRoute(methods: Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route
+    {
         const route = this.newRoute(methods, this.prefixWithGroup(uri), RouteAction.parse(uri, action));
 
         // If we have groups that need to be merged, we will merge them now after this
@@ -257,19 +281,22 @@ export class Router {
     }
 
     /** Create a new Route object. */
-    public newRoute(methods: Array<string>, uri: string, action: ActionAttributes): Route {
+    public newRoute(methods: Array<string>, uri: string, action: ActionAttributes): Route
+    {
         return new Route(methods, uri, action).setRouter(this).setContainer(this.container);
     }
 
     /** Prefix the given URI with the last prefix. */
-    protected prefixWithGroup(uri: string): string {
+    protected prefixWithGroup(uri: string): string
+    {
         const prefixed = Str.trim(`${Str.trim(this.getLastGroupPrefix(), '/')}/${Str.trim(uri, '/')}`, '/');
 
         return prefixed === '' ? '/' : prefixed;
     }
 
     /** Add the necessary where clauses to the route based on its initial registration. */
-    protected addWhereClausesToRoute(route: Route): Route {
+    protected addWhereClausesToRoute(route: Route): Route
+    {
         return route.where({
             ...this.globalPatterns,
             ...(route.getAction().where ?? {}),
@@ -277,12 +304,14 @@ export class Router {
     }
 
     /** Merge the group stack with the controller action. */
-    protected mergeGroupAttributesIntoRoute(route: Route): void {
+    protected mergeGroupAttributesIntoRoute(route: Route): void
+    {
         route.setAction(this.mergeWithLastGroup(route.getAction(), false));
     }
 
     /** Get the prefix from the last group on the stack. */
-    public getLastGroupPrefix(): string {
+    public getLastGroupPrefix(): string
+    {
         if (!this.hasGroupStack()) {
             return '';
         }
@@ -291,12 +320,14 @@ export class Router {
     }
 
     /** Determine if the router currently has a group stack. */
-    public hasGroupStack(): boolean {
+    public hasGroupStack(): boolean
+    {
         return !this.groupStack.isEmpty();
     }
 
     /** Get the current group stack for the router. */
-    public getGroupStack(): Array<ActionAttributes> {
+    public getGroupStack(): Array<ActionAttributes>
+    {
         return this.groupStack;
     }
 
@@ -314,7 +345,8 @@ export class Router {
      * *this* request out of arrives with the request. It defaults to the
      * router's own, which is what every caller outside the kernel wants.
      */
-    public dispatch(request: Request, container: Container = this.container): Response {
+    public dispatch(request: Request, container: Container = this.container): Response
+    {
         // Replaced rather than written into: a coroutine that has dispatched
         // before still holds that route, and nothing would clear it until this
         // request matched -- which is after the global middleware has run and
@@ -327,12 +359,14 @@ export class Router {
     }
 
     /** Dispatch the request to a route and return the response. */
-    public dispatchToRoute(request: Request, container: Container = this.container): Response {
+    public dispatchToRoute(request: Request, container: Container = this.container): Response
+    {
         return this.runRoute(request, this.findRoute(request, container));
     }
 
     /** Find the route matching a given request. */
-    protected findRoute(request: Request, container: Container): Route {
+    protected findRoute(request: Request, container: Container): Route
+    {
         this.events.dispatch(new Routing(request));
 
         // A copy of the collection's route, owned by this request -- see
@@ -353,7 +387,8 @@ export class Router {
     }
 
     /** Return the response for the given route. */
-    protected runRoute(request: Request, route: Route): Response {
+    protected runRoute(request: Request, route: Route): Response
+    {
         request.setRouteResolver(() => route);
 
         this.events.dispatch(new RouteMatched(route, request));
@@ -362,13 +397,14 @@ export class Router {
     }
 
     /** Run the given route within a Stack "onion" instance. */
-    protected runRouteWithinStack(route: Route, request: Request): unknown {
+    protected runRouteWithinStack(route: Route, request: Request): unknown
+    {
         // The route was given this request's container in `findRoute()`; the
         // router's own is the fallback for a route dispatched by hand.
         const container = route.getContainer() ?? this.container;
 
-        const shouldSkipMiddleware =
-            container.bound('middleware.disable') && container.make('middleware.disable') === true;
+        const shouldSkipMiddleware = container.bound('middleware.disable')
+            && container.make('middleware.disable') === true;
 
         const middleware = shouldSkipMiddleware ? new Array<Pipe>() : this.gatherRouteMiddleware(route);
 
@@ -381,12 +417,14 @@ export class Router {
     }
 
     /** Gather the middleware for the given route with resolved class names. */
-    public gatherRouteMiddleware(route: Route): Array<Pipe> {
+    public gatherRouteMiddleware(route: Route): Array<Pipe>
+    {
         return this.resolveMiddleware(route.gatherMiddleware(), route.excludedMiddleware());
     }
 
     /** Resolve a flat array of middleware classes from the provided array. */
-    public resolveMiddleware(middleware: Array<Pipe>, excluded: Array<Pipe> = []): Array<Pipe> {
+    public resolveMiddleware(middleware: Array<Pipe>, excluded: Array<Pipe> = []): Array<Pipe>
+    {
         const resolvedExcluded = this.flatten(excluded);
         const resolved = new Array<Pipe>();
 
@@ -402,12 +440,14 @@ export class Router {
     }
 
     /** Sort the given middleware by priority. */
-    protected sortMiddleware(middleware: Array<Pipe>): Array<Pipe> {
+    protected sortMiddleware(middleware: Array<Pipe>): Array<Pipe>
+    {
         return new SortedMiddleware(this.middlewarePriority, middleware).all();
     }
 
     /** Resolve every name against the aliases and groups, flattening the result. */
-    protected flatten(middleware: Array<Pipe>): Array<Pipe> {
+    protected flatten(middleware: Array<Pipe>): Array<Pipe>
+    {
         const flattened = new Array<Pipe>();
 
         for (const entry of middleware) {
@@ -431,7 +471,8 @@ export class Router {
     }
 
     /** Create a response instance from the given value. */
-    public prepareResponse(request: Request, response: unknown): Response {
+    public prepareResponse(request: Request, response: unknown): Response
+    {
         this.events.dispatch(new PreparingResponse(request, response));
 
         const prepared = Router.toResponse(request, response);
@@ -451,7 +492,8 @@ export class Router {
      * metatable stripped, so anything `Arrayable` is asked for its array first,
      * which is where PHP's `Arrayable` branch was going anyway.
      */
-    public static toResponse(request: Request, response: unknown): Response {
+    public static toResponse(request: Request, response: unknown): Response
+    {
         let value = response;
 
         if (isResponsable(value)) {
@@ -484,17 +526,20 @@ export class Router {
     // -----------------------------------------------------------------
 
     /** Add a new route parameter binder. */
-    public bind(key: string, binder: BinderCallback): void {
+    public bind(key: string, binder: BinderCallback): void
+    {
         this.binders.set(Str.replace('-', '_', key), binder);
     }
 
     /** Get the binding callback for a given binding. */
-    public getBindingCallback(key: string): BinderCallback | undefined {
+    public getBindingCallback(key: string): BinderCallback | undefined
+    {
         return this.binders.get(Str.replace('-', '_', key));
     }
 
     /** Substitute the route bindings onto the route. */
-    public substituteBindings(route: Route): Route {
+    public substituteBindings(route: Route): Route
+    {
         for (const [key, value] of route.parameters().entries()) {
             const binder = this.binders.get(key);
 
@@ -507,22 +552,26 @@ export class Router {
     }
 
     /** Call the binding callback for the given key. */
-    protected performBinding(key: string, value: defined, route: Route): defined {
+    protected performBinding(key: string, value: defined, route: Route): defined
+    {
         return (this.binders.get(key) as BinderCallback)(value as string, route) as defined;
     }
 
     /** Get the global "where" patterns. */
-    public getPatterns(): Record<string, string> {
+    public getPatterns(): Record<string, string>
+    {
         return this.globalPatterns;
     }
 
     /** Set a global where pattern on all routes. */
-    public pattern(key: string, expression: string): void {
+    public pattern(key: string, expression: string): void
+    {
         this.globalPatterns[key] = expression;
     }
 
     /** Set a group of global where patterns on all routes. */
-    public patterns(patterns: Record<string, string>): void {
+    public patterns(patterns: Record<string, string>): void
+    {
         for (const [key, expression] of pairs(patterns)) {
             this.pattern(key as string, expression as string);
         }
@@ -533,36 +582,42 @@ export class Router {
     // -----------------------------------------------------------------
 
     /** Get all of the defined middleware short-hand names. */
-    public getMiddleware(): OrderedMap<string, Pipe> {
+    public getMiddleware(): OrderedMap<string, Pipe>
+    {
         return this.middlewareAliases;
     }
 
     /** Register a short-hand name for a middleware. */
-    public aliasMiddleware(name: string, middleware: Pipe): this {
+    public aliasMiddleware(name: string, middleware: Pipe): this
+    {
         this.middlewareAliases.set(name, middleware);
 
         return this;
     }
 
     /** Check if a middlewareGroup with the given name exists. */
-    public hasMiddlewareGroup(name: string): boolean {
+    public hasMiddlewareGroup(name: string): boolean
+    {
         return this.middlewareGroups.has(name);
     }
 
     /** Get all of the defined middleware groups. */
-    public getMiddlewareGroups(): OrderedMap<string, Array<Pipe>> {
+    public getMiddlewareGroups(): OrderedMap<string, Array<Pipe>>
+    {
         return this.middlewareGroups;
     }
 
     /** Register a group of middleware. */
-    public middlewareGroup(name: string, middleware: Array<Pipe>): this {
+    public middlewareGroup(name: string, middleware: Array<Pipe>): this
+    {
         this.middlewareGroups.set(name, middleware);
 
         return this;
     }
 
     /** Add a middleware to the beginning of a middleware group. */
-    public prependMiddlewareToGroup(group: string, middleware: Pipe): this {
+    public prependMiddlewareToGroup(group: string, middleware: Pipe): this
+    {
         const existing = this.middlewareGroups.get(group) ?? [];
 
         if (!existing.includes(middleware)) {
@@ -579,7 +634,8 @@ export class Router {
     }
 
     /** Add a middleware to the end of a middleware group. */
-    public pushMiddlewareToGroup(group: string, middleware: Pipe): this {
+    public pushMiddlewareToGroup(group: string, middleware: Pipe): this
+    {
         const existing = this.middlewareGroups.get(group) ?? new Array<Pipe>();
 
         if (!existing.includes(middleware)) {
@@ -592,7 +648,8 @@ export class Router {
     }
 
     /** Remove the given middleware from the specified group. */
-    public removeMiddlewareFromGroup(group: string, middleware: Pipe): this {
+    public removeMiddlewareFromGroup(group: string, middleware: Pipe): this
+    {
         if (!this.hasMiddlewareGroup(group)) {
             return this;
         }
@@ -611,14 +668,16 @@ export class Router {
     }
 
     /** Flush the router's middleware groups. */
-    public flushMiddlewareGroups(): this {
+    public flushMiddlewareGroups(): this
+    {
         this.middlewareGroups = new OrderedMap<string, Array<Pipe>>();
 
         return this;
     }
 
     /** Take only the first occurrence of each middleware. */
-    public static uniqueMiddleware(middleware: Array<Pipe>): Array<Pipe> {
+    public static uniqueMiddleware(middleware: Array<Pipe>): Array<Pipe>
+    {
         return Route.uniqueMiddleware(middleware);
     }
 
@@ -633,22 +692,26 @@ export class Router {
      * `dispatching` -- so what comes back is the route of the request asking,
      * not of whichever one matched most recently.
      */
-    public current(): Route | undefined {
+    public current(): Route | undefined
+    {
         return this.dispatching.get(coroutine.running())?.route;
     }
 
     /** Get the currently dispatched route instance. */
-    public getCurrentRoute(): Route | undefined {
+    public getCurrentRoute(): Route | undefined
+    {
         return this.current();
     }
 
     /** Get the request currently being dispatched. */
-    public getCurrentRequest(): Request | undefined {
+    public getCurrentRequest(): Request | undefined
+    {
         return this.dispatching.get(coroutine.running())?.request;
     }
 
     /** What this coroutine is dispatching, started if it is the first thing it dispatches. */
-    protected dispatchedHere(): DispatchedOnThread {
+    protected dispatchedHere(): DispatchedOnThread
+    {
         const thread = coroutine.running();
         const existing = this.dispatching.get(thread);
 
@@ -664,7 +727,8 @@ export class Router {
     }
 
     /** Check if a route with the given name exists. */
-    public has(name: string | Array<string>): boolean {
+    public has(name: string | Array<string>): boolean
+    {
         for (const value of Util.arrayWrap(name)) {
             if (!this.routes.hasNamedRoute(value)) {
                 return false;
@@ -675,27 +739,32 @@ export class Router {
     }
 
     /** Get the current route name. */
-    public currentRouteName(): string | undefined {
+    public currentRouteName(): string | undefined
+    {
         return this.current()?.getName();
     }
 
     /** Alias for the "currentRouteNamed" method. */
-    public is(...patterns: Array<string>): boolean {
+    public is(...patterns: Array<string>): boolean
+    {
         return this.currentRouteNamed(...patterns);
     }
 
     /** Determine if the current route matches a pattern. */
-    public currentRouteNamed(...patterns: Array<string>): boolean {
+    public currentRouteNamed(...patterns: Array<string>): boolean
+    {
         return this.current() !== undefined && (this.current() as Route).named(...patterns);
     }
 
     /** Get the current route action. */
-    public currentRouteAction(): string | undefined {
+    public currentRouteAction(): string | undefined
+    {
         return this.current()?.getActionName();
     }
 
     /** Determine if the current route action matches a given action. */
-    public uses(...patterns: Array<string>): boolean {
+    public uses(...patterns: Array<string>): boolean
+    {
         const action = this.currentRouteAction();
 
         if (action === undefined) {
@@ -712,12 +781,14 @@ export class Router {
     }
 
     /** Get the underlying route collection. */
-    public getRoutes(): RouteCollection {
+    public getRoutes(): RouteCollection
+    {
         return this.routes;
     }
 
     /** Set the route collection instance. */
-    public setRoutes(routes: RouteCollection): void {
+    public setRoutes(routes: RouteCollection): void
+    {
         for (const route of routes.getRoutes()) {
             route.setRouter(this).setContainer(this.container);
         }

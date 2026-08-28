@@ -1,4 +1,4 @@
-﻿/// <reference types="@rbxts/testez/globals" />
+/// <reference types="@rbxts/testez/globals" />
 import { DataStoreLock } from 'Illuminate/Cache/DataStoreLock';
 import { DataStoreStore, MAX_KEY_LENGTH } from 'Illuminate/Cache/DataStoreStore';
 import { InvalidArgumentException } from 'Illuminate/Exception';
@@ -52,7 +52,8 @@ import { InvalidArgumentException } from 'Illuminate/Exception';
 const HttpService = game.GetService('HttpService');
 
 /** A fresh store, isolated from every other test by a random store name. */
-function freshStore(prefix = 'prefix'): DataStoreStore {
+function freshStore(prefix = 'prefix'): DataStoreStore
+{
     return new DataStoreStore(HttpService.GenerateGUID(false), prefix);
 }
 

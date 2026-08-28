@@ -9,13 +9,15 @@ import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
  * already the middleware itself and passes through, which is what PHP does
  * with a `Closure`.
  */
-export class MiddlewareNameResolver {
+export class MiddlewareNameResolver
+{
     /** Resolve the middleware name to a class name(s) preserving passed parameters. */
     public static resolve(
         name: Pipe,
         map: OrderedMap<string, Pipe>,
         middlewareGroups: OrderedMap<string, Array<Pipe>>,
-    ): Pipe | Array<Pipe> {
+    ): Pipe | Array<Pipe>
+    {
         if (!typeIs(name, 'string')) {
             return name;
         }
@@ -53,7 +55,8 @@ export class MiddlewareNameResolver {
         name: string,
         map: OrderedMap<string, Pipe>,
         middlewareGroups: OrderedMap<string, Array<Pipe>>,
-    ): Array<Pipe> {
+    ): Array<Pipe>
+    {
         const results = new Array<Pipe>();
 
         for (const middleware of middlewareGroups.get(name) ?? []) {
@@ -74,7 +77,8 @@ export class MiddlewareNameResolver {
     }
 
     /** PHP: `array_pad(explode(':', $name, 2), 2, null)`. */
-    protected static split(name: string): [string, string | undefined] {
+    protected static split(name: string): [string, string | undefined]
+    {
         if (!Str.contains(name, ':')) {
             return [name, undefined];
         }

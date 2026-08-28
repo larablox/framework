@@ -13,7 +13,8 @@ import type { Application } from 'Illuminate/Contracts/Foundation/Application';
  *
  * Dynamic forwarding replaces `__callStatic`; see `Forwards`.
  */
-export abstract class Facade {
+export abstract class Facade
+{
     /** The application instance being facaded. */
     protected static app?: Application;
 
@@ -24,7 +25,8 @@ export abstract class Facade {
     protected static cached = true;
 
     /** Run a callback when the facade has been resolved. */
-    public static resolved(callback: (instance: never, app: Application) => void): void {
+    public static resolved(callback: (instance: never, app: Application) => void): void
+    {
         const accessor = this.getFacadeAccessor();
         const app = Facade.app;
 
@@ -42,7 +44,8 @@ export abstract class Facade {
     }
 
     /** Hotswap the underlying instance behind the facade. */
-    public static swap(instance: defined): void {
+    public static swap(instance: defined): void
+    {
         Facade.resolvedInstance.set(this.getFacadeAccessor(), instance);
 
         if (Facade.app !== undefined) {
@@ -51,17 +54,20 @@ export abstract class Facade {
     }
 
     /** Get the root object behind the facade. */
-    public static getFacadeRoot(): unknown {
+    public static getFacadeRoot(): unknown
+    {
         return this.resolveFacadeInstance(this.getFacadeAccessor());
     }
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         throw new RuntimeException('Facade does not implement getFacadeAccessor method.');
     }
 
     /** Resolve the facade root instance from the container. */
-    protected static resolveFacadeInstance(name: Abstract): unknown {
+    protected static resolveFacadeInstance(name: Abstract): unknown
+    {
         const resolved = Facade.resolvedInstance.get(name);
 
         if (resolved !== undefined) {
@@ -84,22 +90,26 @@ export abstract class Facade {
     }
 
     /** Clear a resolved facade instance. */
-    public static clearResolvedInstance(name?: Abstract): void {
+    public static clearResolvedInstance(name?: Abstract): void
+    {
         Facade.resolvedInstance.delete(name ?? this.getFacadeAccessor());
     }
 
     /** Clear all of the resolved instances. */
-    public static clearResolvedInstances(): void {
+    public static clearResolvedInstances(): void
+    {
         Facade.resolvedInstance.clear();
     }
 
     /** Get the application instance behind the facade. */
-    public static getFacadeApplication(): Application | undefined {
+    public static getFacadeApplication(): Application | undefined
+    {
         return Facade.app;
     }
 
     /** Set the application instance. */
-    public static setFacadeApplication(app?: Application): void {
+    public static setFacadeApplication(app?: Application): void
+    {
         Facade.app = app;
     }
 }

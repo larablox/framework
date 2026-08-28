@@ -9,7 +9,8 @@ import type { Repository as ConfigRepository } from 'Illuminate/Config/Repositor
  * @see Illuminate/Config/Repository
  */
 @Forwards()
-export class Config extends Facade {
+export class Config extends Facade
+{
     declare public static has: Forwarded<Repository['has']>;
     declare public static get: Forwarded<Repository['get']>;
     declare public static getMany: Forwarded<Repository['getMany']>;
@@ -23,7 +24,8 @@ export class Config extends Facade {
     declare public static array: Forwarded<ConfigRepository['array']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return 'config';
     }
 }

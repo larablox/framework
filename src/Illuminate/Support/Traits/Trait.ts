@@ -20,7 +20,7 @@
  *   argument list (to `Array<never>`, say) makes TypeScript reject the mixed
  *   class with "Base constructors must all have the same return type".
  */
-export type Constructor<T = object> = new (...args: Array<any>) => T;
+export type Constructor<T = object> = new(...args: Array<any>) => T;
 
 /**
  * Fails to compile unless `TKeys` is `never`, naming the offending key.
@@ -32,12 +32,11 @@ export type Constructor<T = object> = new (...args: Array<any>) => T;
  * `T extends never` constraint reports only `string`, which does not say what
  * to go and fix. See `agent_docs/roblox-ts-constraints.md`.
  */
-export type AssertNoExtraMembers<TKeys> = [TKeys] extends [never]
-    ? true
+export type AssertNoExtraMembers<TKeys> = [TKeys] extends [never] ? true
     : {
-          error: 'this member is public on the trait but missing from its declared shape';
-          member: TKeys;
-      };
+        error: 'this member is public on the trait but missing from its declared shape';
+        member: TKeys;
+    };
 
 /** Fails to compile unless `T` is `true`; pairs with {@link AssertNoExtraMembers}. */
 export type AssertTrue<T extends true> = T;
@@ -49,4 +48,5 @@ export type AssertTrue<T extends true> = T;
  * `super.constructor(self, ...)` roblox-ts emits into every subclass has
  * something to call.
  */
-export class Trait {}
+export class Trait
+{}

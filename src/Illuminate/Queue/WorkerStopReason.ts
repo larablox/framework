@@ -1,5 +1,6 @@
 /** PHP: `enum WorkerStopReason: string`. */
-export enum WorkerStopReason {
+export enum WorkerStopReason
+{
     Interrupted = 'interrupted',
     LostConnection = 'lost_connection',
     MaxJobsExceeded = 'max_jobs',

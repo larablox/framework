@@ -11,7 +11,8 @@ import type { Job } from 'Illuminate/Contracts/Queue/Job';
  * `RedisJob` base to extend for the sole purpose of skipping its constructor.
  */
 
-function fakeJob(name: string): Job {
+function fakeJob(name: string): Job
+{
     return { resolveName: () => name } as unknown as Job;
 }
 

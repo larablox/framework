@@ -13,7 +13,8 @@ import type { UpdatedBatchJobCounts } from 'Illuminate/Bus/UpdatedBatchJobCounts
 export type BatchCallback = (batch: Batch, e?: unknown) => void;
 
 /** Everything a batch was configured with. */
-export interface BatchOptions {
+export interface BatchOptions
+{
     connection?: string;
     queue?: string;
     allowFailures?: boolean;
@@ -39,7 +40,8 @@ export interface BatchOptions {
  * `toArray()`/`jsonSerialize()` are not ported: there is no JSON surface to
  * serve them to.
  */
-export class Batch {
+export class Batch
+{
     /** Create a new batch instance. */
     public constructor(
         protected readonly queue: QueueFactory,
@@ -54,15 +56,18 @@ export class Batch {
         public readonly createdAt: number,
         public readonly cancelledAt?: number,
         public readonly finishedAt?: number,
-    ) {}
+    )
+    {}
 
     /** Get a fresh instance of the batch represented by this ID. */
-    public fresh(): Batch | undefined {
+    public fresh(): Batch | undefined
+    {
         return this.repository.find(this.id);
     }
 
     /** Add additional jobs to the batch. */
-    public add(jobs: Array<Batchable> | Batchable): Batch | undefined {
+    public add(jobs: Array<Batchable> | Batchable): Batch | undefined
+    {
         const added = Util.isArray(jobs) ? (jobs as Array<Batchable>) : [jobs as Batchable];
 
         for (const job of added) {
@@ -79,17 +84,20 @@ export class Batch {
     }
 
     /** Get the total number of jobs that have been processed by the batch thus far. */
-    public processedJobs(): number {
+    public processedJobs(): number
+    {
         return this.totalJobs - this.pendingJobs;
     }
 
     /** Get the percentage of jobs that have been processed (between 0 and 100). */
-    public progress(): number {
+    public progress(): number
+    {
         return this.totalJobs > 0 ? math.round((this.processedJobs() / this.totalJobs) * 100) : 0;
     }
 
     /** Record that a job within the batch finished successfully. */
-    public recordSuccessfulJob(jobId: string): void {
+    public recordSuccessfulJob(jobId: string): void
+    {
         const counts = this.decrementPendingJobs(jobId);
 
         if (this.isFirstJobProcessed(counts)) {
@@ -116,42 +124,50 @@ export class Batch {
     }
 
     /** Decrement the pending jobs for the batch. */
-    public decrementPendingJobs(jobId: string): UpdatedBatchJobCounts {
+    public decrementPendingJobs(jobId: string): UpdatedBatchJobCounts
+    {
         return this.repository.decrementPendingJobs(this.id, jobId);
     }
 
     /** Determine if the batch has finished executing. */
-    public finished(): boolean {
+    public finished(): boolean
+    {
         return this.finishedAt !== undefined;
     }
 
     /** Determine if the batch has pending jobs. */
-    public hasPendingJobs(): boolean {
+    public hasPendingJobs(): boolean
+    {
         return this.pendingJobs > 0;
     }
 
     /** Determine if the batch has "progress" callbacks. */
-    public hasProgressCallbacks(): boolean {
+    public hasProgressCallbacks(): boolean
+    {
         return (this.options.progress ?? []).size() > 0;
     }
 
     /** Determine if the batch has "then" callbacks. */
-    public hasThenCallbacks(): boolean {
+    public hasThenCallbacks(): boolean
+    {
         return (this.options.then ?? []).size() > 0;
     }
 
     /** Determine if the batch allows jobs to fail without cancelling the batch. */
-    public allowsFailures(): boolean {
+    public allowsFailures(): boolean
+    {
         return this.options.allowFailures === true;
     }
 
     /** Determine if the batch has job failures. */
-    public hasFailures(): boolean {
+    public hasFailures(): boolean
+    {
         return this.failedJobs > 0;
     }
 
     /** Record that a job within the batch failed to finish successfully. */
-    public recordFailedJob(jobId: string, e: unknown): void {
+    public recordFailedJob(jobId: string, e: unknown): void
+    {
         const counts = this.incrementFailedJobs(jobId);
 
         if (this.isFirstJobProcessed(counts)) {
@@ -176,44 +192,52 @@ export class Batch {
     }
 
     /** Increment the failed jobs for the batch. */
-    public incrementFailedJobs(jobId: string): UpdatedBatchJobCounts {
+    public incrementFailedJobs(jobId: string): UpdatedBatchJobCounts
+    {
         return this.repository.incrementFailedJobs(this.id, jobId);
     }
 
     /** Determine if the batch has "catch" callbacks. */
-    public hasCatchCallbacks(): boolean {
+    public hasCatchCallbacks(): boolean
+    {
         return (this.options.catch ?? []).size() > 0;
     }
 
     /** Determine if the batch has "finally" callbacks. */
-    public hasFinallyCallbacks(): boolean {
+    public hasFinallyCallbacks(): boolean
+    {
         return (this.options.finally ?? []).size() > 0;
     }
 
     /** Cancel the batch. */
-    public cancel(e?: unknown): void {
+    public cancel(e?: unknown): void
+    {
         this.repository.cancel(this.id);
 
         this.dispatchEvent(new BatchCanceled(this, e));
     }
 
     /** Determine if the batch has been cancelled. */
-    public cancelled(): boolean {
+    public cancelled(): boolean
+    {
         return this.cancelledAt !== undefined;
     }
 
     /** Delete the batch from storage. */
-    public delete(): void {
+    public delete(): void
+    {
         this.repository.delete(this.id);
     }
 
     /** Determine if this is the first job processed by the batch. */
-    protected isFirstJobProcessed(counts: UpdatedBatchJobCounts): boolean {
+    protected isFirstJobProcessed(counts: UpdatedBatchJobCounts): boolean
+    {
         return this.totalJobs - counts.pendingJobs + counts.failedJobs === 1;
     }
 
     /** Invoke a batch callback handler. */
-    protected invokeCallbacks(kind: 'before' | 'progress' | 'then' | 'catch' | 'finally', e?: unknown): void {
+    protected invokeCallbacks(kind: 'before' | 'progress' | 'then' | 'catch' | 'finally', e?: unknown): void
+    {
         const batch = this.fresh() ?? this;
 
         for (const callback of this.options[kind] ?? []) {
@@ -222,7 +246,8 @@ export class Batch {
     }
 
     /** Dispatch one of the batch events, when there is a dispatcher to take it. */
-    protected dispatchEvent(event: object): void {
+    protected dispatchEvent(event: object): void
+    {
         const container = Container.getInstance();
 
         if (container.bound('events')) {

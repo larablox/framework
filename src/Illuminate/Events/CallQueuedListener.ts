@@ -26,7 +26,8 @@ import type { Job } from 'Illuminate/Contracts/Queue/Job';
  * left undone, not a wall.
  */
 @ShouldQueue()
-export class CallQueuedListener extends Queueable {
+export class CallQueuedListener extends Queueable
+{
     /** The number of times the job may be attempted. */
     public tries?: number;
 
@@ -53,12 +54,14 @@ export class CallQueuedListener extends Queueable {
         public readonly listenerClass: Abstract,
         public readonly method: string,
         public readonly data: EventPayload,
-    ) {
+    )
+    {
         super();
     }
 
     /** Handle the queued job. */
-    public handle(@Inject('app') container: ContainerContract): void {
+    public handle(@Inject('app') container: ContainerContract): void
+    {
         const handler = this.setJobInstanceIfNecessary(this.job, container.make(this.listenerClass) as object);
 
         const callable = (handler as Record<string, unknown>)[this.method];
@@ -67,7 +70,8 @@ export class CallQueuedListener extends Queueable {
     }
 
     /** Set the job instance of the given class if necessary. */
-    protected setJobInstanceIfNecessary(job: Job | undefined, instance: object): object {
+    protected setJobInstanceIfNecessary(job: Job | undefined, instance: object): object
+    {
         if (job !== undefined && Reflector.isInstanceOf(instance, InteractsWithQueue)) {
             (instance as InteractsWithQueue).setJob(job);
         }
@@ -76,7 +80,8 @@ export class CallQueuedListener extends Queueable {
     }
 
     /** Call the failed method on the job instance. */
-    public failed(e: unknown): void {
+    public failed(e: unknown): void
+    {
         const handler = Container.getInstance().make(this.listenerClass) as Record<string, unknown>;
 
         const callable = handler.failed;

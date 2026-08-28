@@ -37,17 +37,21 @@ import type { Abstract } from 'Illuminate/Container/Types';
  */
 export = (): void => {
     describe('Foundation.ProviderRepository', () => {
-        class EagerProviderStub extends ServiceProvider {
+        class EagerProviderStub extends ServiceProvider
+        {
             public static registered = false;
 
-            public register(): void {
+            public register(): void
+            {
                 EagerProviderStub.registered = true;
             }
         }
 
         @DeferrableProvider()
-        class DeferredProviderStub extends ServiceProvider {
-            public provides(): Array<Abstract> {
+        class DeferredProviderStub extends ServiceProvider
+        {
+            public provides(): Array<Abstract>
+            {
                 return ['foo.provides1', 'foo.provides2'];
             }
         }

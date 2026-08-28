@@ -4,9 +4,11 @@ import { Repository as ContextRepository } from 'Illuminate/Log/Context/Reposito
 import type { LogRecord, RecordBag } from '@larablox/monolog/out/Monolog/LogRecord';
 
 /** PHP: `Illuminate\Log\Context\ContextLogProcessor`. */
-export class ContextLogProcessor extends ContextLogProcessorContract {
+export class ContextLogProcessor extends ContextLogProcessorContract
+{
     /** Add contextual data to the log's "extra" parameter. */
-    public process(record: LogRecord): LogRecord {
+    public process(record: LogRecord): LogRecord
+    {
         const app = Container.getInstance();
 
         if (!app.bound(ContextRepository)) {

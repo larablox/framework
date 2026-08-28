@@ -11,7 +11,8 @@ import type { Response } from 'Illuminate/Http/Response';
  * container is keyed by -- the same trade every other contract in this port
  * makes.
  */
-export interface Kernel {
+export interface Kernel
+{
     /** Bootstrap the application for HTTP requests. */
     bootstrap(): void;
 

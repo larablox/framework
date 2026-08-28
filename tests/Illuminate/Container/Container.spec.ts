@@ -136,60 +136,69 @@ export = (): void => {
     describe('Container', () => {
         // ---- Shared fixtures --------------------------------------------
 
-        class ContainerConcreteStub {}
+        class ContainerConcreteStub
+        {}
 
-        abstract class IContainerContractStub {}
+        abstract class IContainerContractStub
+        {}
 
-        class ContainerImplementationStub extends IContainerContractStub {}
+        class ContainerImplementationStub extends IContainerContractStub
+        {}
 
-        class ContainerImplementationStubTwo extends IContainerContractStub {}
+        class ContainerImplementationStubTwo extends IContainerContractStub
+        {}
 
-        class ContainerDependentStub {
+        class ContainerDependentStub
+        {
             public constructor(
-                @Inject(IContainerContractStub)
-                public readonly impl: IContainerContractStub,
-            ) {}
+                @Inject(IContainerContractStub) public readonly impl: IContainerContractStub,
+            )
+            {}
         }
 
-        class ContainerNestedDependentStub {
+        class ContainerNestedDependentStub
+        {
             public constructor(
-                @Inject(ContainerDependentStub)
-                public readonly inner: ContainerDependentStub,
-            ) {}
+                @Inject(ContainerDependentStub) public readonly inner: ContainerDependentStub,
+            )
+            {}
         }
 
-        class ContainerDefaultValueStub {
+        class ContainerDefaultValueStub
+        {
             public constructor(
-                @Inject(ContainerConcreteStub)
-                public readonly stub: ContainerConcreteStub,
+                @Inject(ContainerConcreteStub) public readonly stub: ContainerConcreteStub,
                 public readonly defaultValue: unknown = 'taylor',
-            ) {}
+            )
+            {}
         }
 
-        class ContainerClassWithDefaultValueStub {
+        class ContainerClassWithDefaultValueStub
+        {
             public constructor(
-                @Inject(ContainerConcreteStub)
-                public readonly noDefault: ContainerConcreteStub,
-                @Inject(ContainerConcreteStub)
-                public readonly defaultValue: ContainerConcreteStub,
-            ) {}
+                @Inject(ContainerConcreteStub) public readonly noDefault: ContainerConcreteStub,
+                @Inject(ContainerConcreteStub) public readonly defaultValue: ContainerConcreteStub,
+            )
+            {}
         }
 
-        class ContainerInjectVariableStubWithInterfaceImplementation extends IContainerContractStub {
+        class ContainerInjectVariableStubWithInterfaceImplementation extends IContainerContractStub
+        {
             public constructor(
-                @Inject(ContainerConcreteStub)
-                public readonly concrete: ContainerConcreteStub,
+                @Inject(ContainerConcreteStub) public readonly concrete: ContainerConcreteStub,
                 @Inject('$something') public readonly something: unknown,
-            ) {
+            )
+            {
                 super();
             }
         }
 
-        class ContainerContextualBindingCallTarget {
+        class ContainerContextualBindingCallTarget
+        {
             public work(
-                @Inject(IContainerContractStub)
-                stub: IContainerContractStub,
-            ): IContainerContractStub {
+                @Inject(IContainerContractStub) stub: IContainerContractStub,
+            ): IContainerContractStub
+            {
                 return stub;
             }
         }
@@ -201,7 +210,8 @@ export = (): void => {
         // own contextual binding, exactly as PHP's `$attribute->resolve()`
         // returning `null` does. It exists purely so `afterResolvingAttribute()`
         // has something to key on.
-        function ContainerCurrentResolvingAttribute() {
+        function ContainerCurrentResolvingAttribute()
+        {
             const instance: ContainerCurrentResolvingAttribute = {
                 resolve: () => undefined,
             };
@@ -211,51 +221,66 @@ export = (): void => {
             };
         }
 
-        class ContainerCurrentResolvingConcrete {
+        class ContainerCurrentResolvingConcrete
+        {
             public constructor(
                 @Inject('$currentlyResolving')
                 @ContainerCurrentResolvingAttribute()
                 public readonly currentlyResolving: unknown,
-            ) {}
+            )
+            {}
         }
 
         @Singleton()
-        class ContainerSingletonAttribute {}
+        class ContainerSingletonAttribute
+        {}
 
         @Scoped()
-        class ContainerScopedAttribute {}
+        class ContainerScopedAttribute
+        {}
 
         @Bind(ContainerSingletonAttribute, ['foo', 'bar'])
-        abstract class ContainerBindSingletonTestInterface {}
+        abstract class ContainerBindSingletonTestInterface
+        {}
 
         @Bind(ContainerScopedAttribute, ['test'])
         @Bind(ContainerScopedAttribute, ['test2'])
-        abstract class ContainerBindScopedTestInterface {}
+        abstract class ContainerBindScopedTestInterface
+        {}
 
-        class WildcardConcrete {}
+        class WildcardConcrete
+        {}
 
         @Bind(WildcardConcrete)
-        abstract class WildcardOnlyInterface {}
+        abstract class WildcardOnlyInterface
+        {}
 
-        class FallbackConcrete {}
+        class FallbackConcrete
+        {}
 
-        class ProdConcrete {}
+        class ProdConcrete
+        {}
 
         // The order of these attributes matters upstream because the
         // wildcard should only win once nothing more specific matches; that
         // ordering does not affect this port's `getConcreteBindingFromAttributes()`
         // (`Container.ts`), which always collects the wildcard separately
         // from the first environment match regardless of declaration order.
+
         @Bind(FallbackConcrete)
         @Bind(ProdConcrete, 'prod')
-        abstract class WildcardAndProdInterface {}
+        abstract class WildcardAndProdInterface
+        {}
 
-        class CliConcrete {}
+        class CliConcrete
+        {}
 
         @Bind(CliConcrete, 'cli')
-        abstract class CliOnlyInterface {}
+        abstract class CliOnlyInterface
+        {}
 
-        class BadConcrete {}
+        class BadConcrete
+        {}
 
         // Not decorated `@Bind(BadConcrete, [])` at the class level: `Bind()`
         // (`Attributes/Bind.ts`) validates its `environments` argument
@@ -266,40 +291,53 @@ export = (): void => {
         // throws once `make()` reflects on it -- decorating eagerly here
         // would throw at module load, before any test runs. See the adapted
         // test below.
-        abstract class EmptyEnvInterface {}
+        abstract class EmptyEnvInterface
+        {}
 
         @Bind(ProdConcrete, 'prod')
-        abstract class ProdEnvOnlyInterface {}
+        abstract class ProdEnvOnlyInterface
+        {}
 
-        class DevConcrete {}
+        class DevConcrete
+        {}
 
         @Bind(ProdConcrete, 'prod')
         @Bind(DevConcrete, 'dev')
-        abstract class MultiEnvInterface {}
+        abstract class MultiEnvInterface
+        {}
 
-        class OriginalConcrete {}
+        class OriginalConcrete
+        {}
 
-        class AltConcrete {}
+        class AltConcrete
+        {}
 
         @Bind(OriginalConcrete)
-        abstract class OverrideInterface {}
+        abstract class OverrideInterface
+        {}
 
-        class IsScopedConcrete {}
+        class IsScopedConcrete
+        {}
 
         @Bind(IsScopedConcrete)
         @Scoped()
-        abstract class IsScoped {}
+        abstract class IsScoped
+        {}
 
         @Bind(IsScopedConcrete)
         @Singleton()
-        abstract class IsSingleton {}
+        abstract class IsSingleton
+        {}
 
-        abstract class RequestDtoDependencyContract {}
+        abstract class RequestDtoDependencyContract
+        {}
 
-        class RequestDtoDependency extends RequestDtoDependencyContract {
+        class RequestDtoDependency extends RequestDtoDependencyContract
+        {
             public readonly userId: number;
 
-            public constructor() {
+            public constructor()
+            {
                 super();
                 this.userId = RequestDtoDependency.configuredUserId;
             }
@@ -307,21 +345,23 @@ export = (): void => {
             public static configuredUserId = 0;
         }
 
-        class RequestDto {
+        class RequestDto
+        {
             public static configuredEmail = '';
 
             public constructor(
                 public readonly userId: number,
                 public readonly email: string,
-            ) {}
+            )
+            {}
 
             // PHP: `RequestDto implements SelfBuilding`; the interface has no
             // runtime trace here, so the static `newInstance()` is what
             // `Container.build()` actually looks for (`SelfBuilding.ts`).
             public static newInstance(
-                @Inject(RequestDtoDependencyContract)
-                dependency: RequestDtoDependency,
-            ): RequestDto {
+                @Inject(RequestDtoDependencyContract) dependency: RequestDtoDependency,
+            ): RequestDto
+            {
                 return new RequestDto(dependency.userId, RequestDto.configuredEmail);
             }
         }

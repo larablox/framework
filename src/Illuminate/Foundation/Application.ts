@@ -41,7 +41,8 @@ import type { Response } from 'Illuminate/Http/Response';
  * is absent: a place has none of those. What remains is the part that matters
  * here -- the container, the provider lifecycle and the bootstrap sequence.
  */
-export class Application extends Container implements ApplicationContract {
+export class Application extends Container implements ApplicationContract
+{
     /** The framework version. */
     public static readonly VERSION = '0.2.1';
 
@@ -93,7 +94,8 @@ export class Application extends Container implements ApplicationContract {
      * all must not take the global container instance away from the root
      * application, which `registerBaseBindings()` would do.
      */
-    public constructor(bare = false) {
+    public constructor(bare = false)
+    {
         super();
 
         if (bare) {
@@ -119,7 +121,8 @@ export class Application extends Container implements ApplicationContract {
      * maps holding them, and is thrown away by `flush()` when the response is
      * out. The root is neither flushed nor terminated.
      */
-    public sandbox(): Application {
+    public sandbox(): Application
+    {
         const sandbox = new Application(true);
 
         this.copyStateTo(sandbox);
@@ -134,7 +137,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Copy this application's state onto another one. */
-    protected copyStateTo(target: Container): void {
+    protected copyStateTo(target: Container): void
+    {
         super.copyStateTo(target);
 
         const app = target as Application;
@@ -158,17 +162,20 @@ export class Application extends Container implements ApplicationContract {
      * PHP takes a base path and infers one when omitted; there is no filesystem
      * here, so the configuration is handed over with `withConfig()` instead.
      */
-    public static configure(config: ArrayAccessible): ApplicationBuilder {
+    public static configure(config: ArrayAccessible): ApplicationBuilder
+    {
         return new Application.applicationBuilder(new Application()).withConfig(config).withKernels();
     }
 
     /** Get the version number of the application. */
-    public version(): string {
+    public version(): string
+    {
         return Application.VERSION;
     }
 
     /** Register the basic bindings into the container. */
-    protected registerBaseBindings(): void {
+    protected registerBaseBindings(): void
+    {
         Container.setInstance(this);
 
         this.instance('app', this);
@@ -177,7 +184,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Register all of the base service providers. */
-    protected registerBaseServiceProviders(): void {
+    protected registerBaseServiceProviders(): void
+    {
         this.register(new EventServiceProvider(this));
         this.register(new LogServiceProvider(this));
         this.register(new ContextServiceProvider(this));
@@ -198,7 +206,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Run the given array of bootstrap classes. */
-    public bootstrapWith(bootstrappers: Array<Constructor<Bootstrapper>>): void {
+    public bootstrapWith(bootstrappers: Array<Constructor<Bootstrapper>>): void
+    {
         this.bootstrapped = true;
 
         for (const bootstrapper of bootstrappers) {
@@ -214,27 +223,32 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Register a callback to run before a bootstrapper. */
-    public beforeBootstrapping(bootstrapper: Constructor<Bootstrapper>, callback: Callback): void {
+    public beforeBootstrapping(bootstrapper: Constructor<Bootstrapper>, callback: Callback): void
+    {
         this.make<DispatcherContract>('events').listen(`bootstrapping: ${Reflector.className(bootstrapper)}`, callback);
     }
 
     /** Register a callback to run after a bootstrapper. */
-    public afterBootstrapping(bootstrapper: Constructor<Bootstrapper>, callback: Callback): void {
+    public afterBootstrapping(bootstrapper: Constructor<Bootstrapper>, callback: Callback): void
+    {
         this.make<DispatcherContract>('events').listen(`bootstrapped: ${Reflector.className(bootstrapper)}`, callback);
     }
 
     /** Determine if the application has been bootstrapped before. */
-    public hasBeenBootstrapped(): boolean {
+    public hasBeenBootstrapped(): boolean
+    {
         return this.bootstrapped;
     }
 
     /** Determine if middleware has been disabled for the application. */
-    public shouldSkipMiddleware(): boolean {
+    public shouldSkipMiddleware(): boolean
+    {
         return this.bound('middleware.disable') && this.make('middleware.disable') === true;
     }
 
     /** Get or check the current application environment. */
-    public environment(...environments: Array<string | Array<string>>): string | boolean {
+    public environment(...environments: Array<string | Array<string>>): string | boolean
+    {
         const current = this.make<string>('env');
 
         if (!environments.isEmpty()) {
@@ -249,22 +263,26 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Detect the application's current environment. */
-    public detectEnvironment(callback: () => string): string {
+    public detectEnvironment(callback: () => string): string
+    {
         return this.instance('env', callback());
     }
 
     /** Determine if the application is in the local environment. */
-    public isLocal(): boolean {
+    public isLocal(): boolean
+    {
         return this.make<string>('env') === 'local';
     }
 
     /** Determine if the application is in the production environment. */
-    public isProduction(): boolean {
+    public isProduction(): boolean
+    {
         return this.make<string>('env') === 'production';
     }
 
     /** Register a new registered listener. */
-    public registered(callback: Callback): void {
+    public registered(callback: Callback): void
+    {
         this.registeredCallbacks.push(callback);
     }
 
@@ -275,7 +293,8 @@ export class Application extends Container implements ApplicationContract {
      * the packages Composer discovered; there is no package manifest here, so the
      * configured order is the order.
      */
-    public registerConfiguredProviders(): void {
+    public registerConfiguredProviders(): void
+    {
         const providers = (this.make<ConfigRepository>('config').get('app.providers', []) ?? []) as Array<
             Constructor<ServiceProvider>
         >;
@@ -286,7 +305,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Register a service provider with the application. */
-    public register(provider: ServiceProvider | Constructor<ServiceProvider>, force = false): ServiceProvider {
+    public register(provider: ServiceProvider | Constructor<ServiceProvider>, force = false): ServiceProvider
+    {
         const registered = this.getProvider(provider);
 
         if (registered !== undefined && !force) {
@@ -336,12 +356,14 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Get the registered service provider instance if it exists. */
-    public getProvider(provider: ServiceProvider | Constructor<ServiceProvider>): ServiceProvider | undefined {
+    public getProvider(provider: ServiceProvider | Constructor<ServiceProvider>): ServiceProvider | undefined
+    {
         return this.serviceProviders.get(this.providerClass(provider));
     }
 
     /** Get the registered service provider instances if any exist. */
-    public getProviders(provider: ServiceProvider | Constructor<ServiceProvider>): Array<ServiceProvider> {
+    public getProviders(provider: ServiceProvider | Constructor<ServiceProvider>): Array<ServiceProvider>
+    {
         const klass = this.providerClass(provider);
         const found = new Array<ServiceProvider>();
 
@@ -355,12 +377,14 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Resolve a service provider instance from the class. */
-    public resolveProvider(provider: Constructor<ServiceProvider>): ServiceProvider {
-        return new (provider as new (app: ApplicationContract) => ServiceProvider)(this);
+    public resolveProvider(provider: Constructor<ServiceProvider>): ServiceProvider
+    {
+        return new (provider as new(app: ApplicationContract) => ServiceProvider)(this);
     }
 
     /** Mark the given provider as registered. */
-    protected markAsRegistered(provider: ServiceProvider): void {
+    protected markAsRegistered(provider: ServiceProvider): void
+    {
         const klass = this.providerClass(provider);
 
         this.serviceProviders.set(klass, provider);
@@ -369,14 +393,16 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** PHP: `is_string($provider) ? $provider : get_class($provider)`. */
-    protected providerClass(provider: ServiceProvider | Constructor<ServiceProvider>): Constructor<ServiceProvider> {
+    protected providerClass(provider: ServiceProvider | Constructor<ServiceProvider>): Constructor<ServiceProvider>
+    {
         return (
             Reflector.isInstance(provider) ? Reflector.classOf(provider as object) : provider
         ) as Constructor<ServiceProvider>;
     }
 
     /** Load and boot all of the remaining deferred providers. */
-    public loadDeferredProviders(): void {
+    public loadDeferredProviders(): void
+    {
         // We will simply spin through each of the deferred providers and register each
         // one and boot them if the application has booted. This should make each of
         // the remaining services available to this application for immediate use.
@@ -388,7 +414,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Load the provider for a deferred service. */
-    public loadDeferredProvider(service: Abstract): void {
+    public loadDeferredProvider(service: Abstract): void
+    {
         if (!this.isDeferredService(service)) {
             return;
         }
@@ -404,7 +431,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Register a deferred provider and service. */
-    public registerDeferredProvider(provider: Constructor<ServiceProvider>, service?: Abstract): void {
+    public registerDeferredProvider(provider: Constructor<ServiceProvider>, service?: Abstract): void
+    {
         // Once the provider that provides the deferred service has been registered we
         // will remove it from our local list of the deferred services with related
         // providers so that this container does not try to resolve it out again.
@@ -427,38 +455,44 @@ export class Application extends Container implements ApplicationContract {
     public make<T extends object>(abstract: AbstractClass<T>, parameters?: ParameterList): T;
     public make<T = unknown>(abstract: string, parameters?: ParameterList): T;
     public make(abstract: Abstract, parameters?: ParameterList): unknown;
-    public make(abstract: Abstract, parameters?: ParameterList): unknown {
-        this.loadDeferredProviderIfNeeded((abstract = this.getAlias(abstract)));
+    public make(abstract: Abstract, parameters?: ParameterList): unknown
+    {
+        this.loadDeferredProviderIfNeeded(abstract = this.getAlias(abstract));
 
         return super.make(abstract, parameters);
     }
 
     /** Resolve the given type from the container. */
-    protected resolve(abstract: Abstract, parameters?: ParameterOverrides, raiseEvents = true): unknown {
-        this.loadDeferredProviderIfNeeded((abstract = this.getAlias(abstract)));
+    protected resolve(abstract: Abstract, parameters?: ParameterOverrides, raiseEvents = true): unknown
+    {
+        this.loadDeferredProviderIfNeeded(abstract = this.getAlias(abstract));
 
         return super.resolve(abstract, parameters, raiseEvents);
     }
 
     /** Load the deferred provider if the given type is a deferred service and is not loaded. */
-    protected loadDeferredProviderIfNeeded(abstract: Abstract): void {
+    protected loadDeferredProviderIfNeeded(abstract: Abstract): void
+    {
         if (this.isDeferredService(abstract) && !this.instances.has(abstract)) {
             this.loadDeferredProvider(abstract);
         }
     }
 
     /** Determine if the given abstract type has been bound. */
-    public bound(abstract: Abstract): boolean {
+    public bound(abstract: Abstract): boolean
+    {
         return this.isDeferredService(abstract) || super.bound(abstract);
     }
 
     /** Determine if the application has booted. */
-    public isBooted(): boolean {
+    public isBooted(): boolean
+    {
         return this.hasBooted;
     }
 
     /** Boot the application's service providers. */
-    public boot(): void {
+    public boot(): void
+    {
         if (this.isBooted()) {
             return;
         }
@@ -478,7 +512,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Boot the given service provider. */
-    protected bootProvider(provider: ServiceProvider): void {
+    protected bootProvider(provider: ServiceProvider): void
+    {
         provider.callBootingCallbacks();
 
         if (typeIs((provider as unknown as Record<string, unknown>).boot, 'function')) {
@@ -489,12 +524,14 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Register a new boot listener. */
-    public booting(callback: Callback): void {
+    public booting(callback: Callback): void
+    {
         this.bootingCallbacks.push(callback);
     }
 
     /** Register a new "booted" listener. */
-    public booted(callback: Callback): void {
+    public booted(callback: Callback): void
+    {
         this.bootedCallbacks.push(callback);
 
         if (this.isBooted()) {
@@ -503,7 +540,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Call the booting callbacks for the application. */
-    protected fireAppCallbacks(callbacks: Array<Callback>): void {
+    protected fireAppCallbacks(callbacks: Array<Callback>): void
+    {
         let index = 0;
 
         while (index < callbacks.size()) {
@@ -522,19 +560,22 @@ export class Application extends Container implements ApplicationContract {
      * answered on a `sandbox()` -- and "send" means "return", so the response
      * comes back instead of going out.
      */
-    public handleRequest(request: Request): Response {
+    public handleRequest(request: Request): Response
+    {
         return this.make<Worker>(Worker).handle(request);
     }
 
     /** Register a terminating callback with the application. */
-    public terminating(callback: CallableTarget): this {
+    public terminating(callback: CallableTarget): this
+    {
         this.terminatingCallbacks.push(callback);
 
         return this;
     }
 
     /** Terminate the application. */
-    public terminate(): void {
+    public terminate(): void
+    {
         let index = 0;
 
         while (index < this.terminatingCallbacks.size()) {
@@ -545,39 +586,46 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Get the service providers that have been loaded. */
-    public getLoadedProviders(): Array<[Constructor<ServiceProvider>, boolean]> {
+    public getLoadedProviders(): Array<[Constructor<ServiceProvider>, boolean]>
+    {
         return this.loadedProviders.entries();
     }
 
     /** Determine if the given service provider is loaded. */
-    public providerIsLoaded(provider: Constructor<ServiceProvider>): boolean {
+    public providerIsLoaded(provider: Constructor<ServiceProvider>): boolean
+    {
         return this.loadedProviders.has(provider);
     }
 
     /** Get the application's deferred services. */
-    public getDeferredServices(): OrderedMap<Abstract, Constructor<ServiceProvider>> {
+    public getDeferredServices(): OrderedMap<Abstract, Constructor<ServiceProvider>>
+    {
         return this.deferredServices;
     }
 
     /** Set the application's deferred services. */
-    public setDeferredServices(services: OrderedMap<Abstract, Constructor<ServiceProvider>>): void {
+    public setDeferredServices(services: OrderedMap<Abstract, Constructor<ServiceProvider>>): void
+    {
         this.deferredServices = services;
     }
 
     /** Determine if the given service is a deferred service. */
-    public isDeferredService(service: Abstract): boolean {
+    public isDeferredService(service: Abstract): boolean
+    {
         return this.deferredServices.has(service);
     }
 
     /** Add an array of services to the application's deferred services. */
-    public addDeferredServices(services: OrderedMap<Abstract, Constructor<ServiceProvider>>): void {
+    public addDeferredServices(services: OrderedMap<Abstract, Constructor<ServiceProvider>>): void
+    {
         for (const [service, provider] of services.entries()) {
             this.deferredServices.set(service, provider);
         }
     }
 
     /** Remove an array of services from the application's deferred services. */
-    public removeDeferredServices(services: Array<Abstract>): void {
+    public removeDeferredServices(services: Array<Abstract>): void
+    {
         for (const service of services) {
             this.deferredServices.delete(service);
         }
@@ -590,7 +638,8 @@ export class Application extends Container implements ApplicationContract {
      * contracts; an erased contract appears here once it has a `Contract`
      * token, the concrete classes stand in for the rest.
      */
-    public registerCoreContainerAliases(): void {
+    public registerCoreContainerAliases(): void
+    {
         const aliases: Array<[string, Array<Abstract>]> = [
             ['app', [Application, Container, ContainerContract]],
             ['config', [ConfigRepository]],
@@ -607,7 +656,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Flush the container of all bindings and resolved instances. */
-    public flush(): void {
+    public flush(): void
+    {
         super.flush();
 
         this.buildStack.clear();

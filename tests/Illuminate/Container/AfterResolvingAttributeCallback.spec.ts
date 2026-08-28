@@ -32,11 +32,13 @@ export = (): void => {
         };
 
         /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] final readonly class ContainerTestOnTenant`. */
-        interface ContainerTestOnTenant extends ContextualAttribute {
+        interface ContainerTestOnTenant extends ContextualAttribute
+        {
             readonly tenant: Tenant;
         }
 
-        function ContainerTestOnTenant(tenant: Tenant) {
+        function ContainerTestOnTenant(tenant: Tenant)
+        {
             const instance: ContainerTestOnTenant = {
                 tenant,
                 resolve: () => undefined,
@@ -47,58 +49,71 @@ export = (): void => {
             };
         }
 
-        class HasTenantImpl {
+        class HasTenantImpl
+        {
             public tenant?: Tenant;
 
-            public onTenant(tenant: Tenant): void {
+            public onTenant(tenant: Tenant): void
+            {
                 this.tenant = tenant;
             }
         }
 
-        class ContainerTestHasTenantImplPropertyWithTenantA {
+        class ContainerTestHasTenantImplPropertyWithTenantA
+        {
             public constructor(
                 @Inject(HasTenantImpl)
                 @ContainerTestOnTenant(Tenant.TenantA)
                 public readonly property: HasTenantImpl,
-            ) {}
+            )
+            {}
         }
 
-        class ContainerTestHasTenantImplPropertyWithTenantB {
+        class ContainerTestHasTenantImplPropertyWithTenantB
+        {
             public constructor(
                 @Inject(HasTenantImpl)
                 @ContainerTestOnTenant(Tenant.TenantB)
                 public readonly property: HasTenantImpl,
-            ) {}
+            )
+            {}
         }
 
         /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] final readonly class ContainerTestConfiguresClass`. */
-        function ContainerTestConfiguresClass(value: string) {
+        function ContainerTestConfiguresClass(value: string)
+        {
             return (target: object): void => {
                 Attributes.add(target, ContainerTestConfiguresClass, { value });
             };
         }
 
-        interface ContainerTestConfiguresClassAttribute {
+        interface ContainerTestConfiguresClassAttribute
+        {
             readonly value: string;
         }
 
         @ContainerTestConfiguresClass('the-right-value')
-        class ContainerTestHasSelfConfiguringAttributeAndConstructor {
-            public constructor(@Inject('$value') public value: string) {}
+        class ContainerTestHasSelfConfiguringAttributeAndConstructor
+        {
+            public constructor(@Inject('$value') public value: string)
+            {}
         }
 
         /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] final class ContainerTestBootable`. */
-        function ContainerTestBootable() {
+        function ContainerTestBootable()
+        {
             return (target: object): void => {
                 Attributes.add(target, ContainerTestBootable, {});
             };
         }
 
         @ContainerTestBootable()
-        class ContainerTestHasBootable {
+        class ContainerTestHasBootable
+        {
             public hasBooted = false;
 
-            public booting(): void {
+            public booting(): void
+            {
                 this.hasBooted = true;
             }
         }

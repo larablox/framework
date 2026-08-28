@@ -44,7 +44,8 @@ import type { ArrayAccessible } from 'Illuminate/Support/Arr';
  */
 
 /** Builds an `Application` out of a real `Container`, config included. */
-function makeApp(config: ArrayAccessible): Application {
+function makeApp(config: ArrayAccessible): Application
+{
     const container = new Container();
     container.singleton('config', () => new ConfigRepository(config));
 

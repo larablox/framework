@@ -8,7 +8,8 @@ import type { Forwarded } from 'Illuminate/Support/Facades/Forwards';
  * @see Illuminate/Log/Context/Repository
  */
 @Forwards()
-export class Context extends Facade {
+export class Context extends Facade
+{
     declare public static has: Forwarded<Repository['has']>;
     declare public static missing: Forwarded<Repository['missing']>;
     declare public static hasHidden: Forwarded<Repository['hasHidden']>;
@@ -48,7 +49,8 @@ export class Context extends Facade {
     declare public static hydrate: Forwarded<Repository['hydrate']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return Repository;
     }
 }

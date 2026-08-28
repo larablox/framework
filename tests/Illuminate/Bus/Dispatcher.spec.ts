@@ -26,81 +26,100 @@ import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
  * second calls `Dispatcher::bulk()`, a method `Bus/Dispatcher.ts` does not
  * declare at all -- there is no bulk-dispatch entry point to exercise.
  */
-class FakeQueue implements Queue {
+class FakeQueue implements Queue
+{
     public pushCalls = new Array<[unknown, unknown, string | undefined]>();
     public laterCalls = new Array<[DelayValue, unknown, unknown, string | undefined]>();
 
-    public size(): number {
+    public size(): number
+    {
         return 0;
     }
 
-    public pendingSize(): number {
+    public pendingSize(): number
+    {
         return 0;
     }
 
-    public delayedSize(): number {
+    public delayedSize(): number
+    {
         return 0;
     }
 
-    public reservedSize(): number {
+    public reservedSize(): number
+    {
         return 0;
     }
 
-    public creationTimeOfOldestPendingJob(): number | undefined {
+    public creationTimeOfOldestPendingJob(): number | undefined
+    {
         return undefined;
     }
 
-    public push(job: unknown, data?: unknown, queue?: string): unknown {
+    public push(job: unknown, data?: unknown, queue?: string): unknown
+    {
         this.pushCalls.push([job, data, queue]);
 
         return undefined;
     }
 
-    public pushOn(queue: string, job: unknown, data?: unknown): unknown {
+    public pushOn(queue: string, job: unknown, data?: unknown): unknown
+    {
         return this.push(job, data, queue);
     }
 
-    public pushRaw(): unknown {
+    public pushRaw(): unknown
+    {
         throw 'not expected';
     }
 
-    public later(delay: DelayValue, job: unknown, data?: unknown, queue?: string): unknown {
+    public later(delay: DelayValue, job: unknown, data?: unknown, queue?: string): unknown
+    {
         this.laterCalls.push([delay, job, data, queue]);
 
         return undefined;
     }
 
-    public laterOn(queue: string, delay: DelayValue, job: unknown, data?: unknown): unknown {
+    public laterOn(queue: string, delay: DelayValue, job: unknown, data?: unknown): unknown
+    {
         return this.later(delay, job, data, queue);
     }
 
-    public bulk(): void {
+    public bulk(): void
+    {
         throw 'not expected';
     }
 
-    public pop(): Job | undefined {
+    public pop(): Job | undefined
+    {
         return undefined;
     }
 
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return 'fake';
     }
 
-    public setConnectionName(): this {
+    public setConnectionName(): this
+    {
         return this;
     }
 }
 
 @ShouldQueue()
-class BusDispatcherBasicCommand {
-    public handle(): void {
+class BusDispatcherBasicCommand
+{
+    public handle(): void
+    {
         //
     }
 }
 
 @ShouldQueue()
-class BusDispatcherTestCustomQueueCommand {
-    public queue(queue: Queue, command: object): unknown {
+class BusDispatcherTestCustomQueueCommand
+{
+    public queue(queue: Queue, command: object): unknown
+    {
         return queue.push(command);
     }
 }
@@ -108,19 +127,25 @@ class BusDispatcherTestCustomQueueCommand {
 @ShouldQueue()
 @QueueAttribute('foo')
 @Delay(10)
-class BusDispatcherTestSpecificQueueAndDelayCommand {}
+class BusDispatcherTestSpecificQueueAndDelayCommand
+{}
 
-class StandAloneCommand {}
+class StandAloneCommand
+{}
 
-class StandAloneHandler {
-    public handle(command: StandAloneCommand): StandAloneCommand {
+class StandAloneHandler
+{
+    public handle(command: StandAloneCommand): StandAloneCommand
+    {
         return command;
     }
 }
 
 @ShouldQueue()
-class ShouldNotBeDispatched extends Queueable {
-    public handle(): void {
+class ShouldNotBeDispatched extends Queueable
+{
+    public handle(): void
+    {
         throw new RuntimeException('This should not be run');
     }
 }

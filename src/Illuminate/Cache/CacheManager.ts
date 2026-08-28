@@ -27,7 +27,8 @@ export type CacheDriverCreator = (app: Application, config: ArrayAccessible) => 
  * `memo()`, which wraps a store in `MemoizedStore`, and the Mockery helpers are
  * not ported either.
  */
-export class CacheManager implements Factory {
+export class CacheManager implements Factory
+{
     /** The array of resolved cache stores. */
     protected stores = new OrderedMap<string, RepositoryContract>();
 
@@ -35,10 +36,12 @@ export class CacheManager implements Factory {
     protected customCreators = new OrderedMap<string, CacheDriverCreator>();
 
     /** Create a new Cache manager instance. */
-    public constructor(protected readonly app: Application) {}
+    public constructor(protected readonly app: Application)
+    {}
 
     /** Get a cache store instance by name, wrapped in a repository. */
-    public store(name?: string): RepositoryContract {
+    public store(name?: string): RepositoryContract
+    {
         const store = name ?? this.getDefaultDriver();
 
         let resolved = this.stores.get(store);
@@ -53,12 +56,14 @@ export class CacheManager implements Factory {
     }
 
     /** Get a cache driver instance. */
-    public driver(driver?: string): RepositoryContract {
+    public driver(driver?: string): RepositoryContract
+    {
         return this.store(driver);
     }
 
     /** Resolve the given store. */
-    public resolve(name: string): RepositoryContract {
+    public resolve(name: string): RepositoryContract
+    {
         const config = this.getConfig(name);
 
         if (config === undefined) {
@@ -71,7 +76,8 @@ export class CacheManager implements Factory {
     }
 
     /** Build a cache repository from the given configuration. */
-    public build(config: ArrayAccessible): RepositoryContract {
+    public build(config: ArrayAccessible): RepositoryContract
+    {
         const driver = config.driver as string;
 
         const custom = this.customCreators.get(driver);
@@ -100,12 +106,14 @@ export class CacheManager implements Factory {
     }
 
     /** Create an instance of the array cache driver. */
-    protected createArrayDriver(config: ArrayAccessible): RepositoryContract {
+    protected createArrayDriver(config: ArrayAccessible): RepositoryContract
+    {
         return this.repository(new ArrayStore(), config);
     }
 
     /** Create an instance of the MemoryStore cache driver. */
-    protected createMemorystoreDriver(config: ArrayAccessible): RepositoryContract {
+    protected createMemorystoreDriver(config: ArrayAccessible): RepositoryContract
+    {
         return this.repository(
             new MemoryStoreStore(
                 (config.map as string | undefined) ?? 'cache',
@@ -116,7 +124,8 @@ export class CacheManager implements Factory {
     }
 
     /** Create an instance of the DataStore cache driver. */
-    protected createDatastoreDriver(config: ArrayAccessible): RepositoryContract {
+    protected createDatastoreDriver(config: ArrayAccessible): RepositoryContract
+    {
         return this.repository(
             new DataStoreStore(
                 (config.store_name as string | undefined) ?? 'cache',
@@ -128,12 +137,14 @@ export class CacheManager implements Factory {
     }
 
     /** Create an instance of the null cache driver. */
-    protected createNullDriver(config: ArrayAccessible): RepositoryContract {
+    protected createNullDriver(config: ArrayAccessible): RepositoryContract
+    {
         return this.repository(new NullStore(), config);
     }
 
     /** Create a new cache repository with the given implementation. */
-    public repository(store: Store, config: ArrayAccessible = {}): RepositoryContract {
+    public repository(store: Store, config: ArrayAccessible = {}): RepositoryContract
+    {
         const repository = new Repository(store, config);
 
         if (this.app.bound('events') && config.events !== false) {
@@ -144,34 +155,40 @@ export class CacheManager implements Factory {
     }
 
     /** Get the cache connection configuration. */
-    protected getConfig(name: string): ArrayAccessible | undefined {
+    protected getConfig(name: string): ArrayAccessible | undefined
+    {
         return this.app.make<ConfigRepository>('config').get(`cache.stores.${name}`) as ArrayAccessible | undefined;
     }
 
     /** Get the default cache driver name. */
-    public getDefaultDriver(): string {
+    public getDefaultDriver(): string
+    {
         return this.app.make<ConfigRepository>('config').get('cache.default') as string;
     }
 
     /** Set the default cache driver name. */
-    public setDefaultDriver(name: string): void {
+    public setDefaultDriver(name: string): void
+    {
         this.app.make<ConfigRepository>('config').set('cache.default', name);
     }
 
     /** Unset the given driver instances. */
-    public forgetDriver(name?: string): this {
+    public forgetDriver(name?: string): this
+    {
         this.stores.delete(name ?? this.getDefaultDriver());
 
         return this;
     }
 
     /** Disconnect the given driver and remove from local cache. */
-    public purge(name?: string): void {
+    public purge(name?: string): void
+    {
         this.stores.delete(name ?? this.getDefaultDriver());
     }
 
     /** Register a custom driver creator Closure. */
-    public extend(driver: string, creator: CacheDriverCreator): this {
+    public extend(driver: string, creator: CacheDriverCreator): this
+    {
         this.customCreators.set(driver, creator);
 
         return this;

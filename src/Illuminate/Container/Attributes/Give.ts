@@ -4,13 +4,15 @@ import type { Container } from 'Illuminate/Contracts/Container/Container';
 import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] class Give`. */
-export interface Give extends ContextualAttribute {
+export interface Give extends ContextualAttribute
+{
     readonly class: Abstract;
     readonly params?: ParameterList;
 }
 
 /** Resolve the annotated parameter from the given concrete implementation. */
-export function Give(target: Abstract, params?: ParameterList) {
+export function Give(target: Abstract, params?: ParameterList)
+{
     const instance: Give = {
         class: target,
         params,

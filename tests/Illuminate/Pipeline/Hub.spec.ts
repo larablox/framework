@@ -32,8 +32,9 @@ export = (): void => {
 
         it('sends an object through a named pipeline', () => {
             // PHP: HubTest::testPipeSendsObjectThroughNamedPipeline
-            hub.pipeline('named', (pipeline: Pipeline, object: Passable) =>
-                pipeline.send(object).through([]).thenReturn(),
+            hub.pipeline(
+                'named',
+                (pipeline: Pipeline, object: Passable) => pipeline.send(object).through([]).thenReturn(),
             );
 
             expect(hub.pipe('foo', 'named')).to.equal('foo');

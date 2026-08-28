@@ -10,12 +10,14 @@
  * effect, and a suite that runs it fills the console with debugging output
  * nobody asked for.
  */
-export class VarDumper {
+export class VarDumper
+{
     /** Where a dumped value goes, when something has been put here. */
     private static handler?: (value: unknown) => void;
 
     /** Dump a value. */
-    public static dump(value: unknown): void {
+    public static dump(value: unknown): void
+    {
         const handler = VarDumper.handler;
 
         if (handler === undefined) {
@@ -32,7 +34,8 @@ export class VarDumper {
      *
      * Passing nothing restores the default, exactly as PHP's `null` does.
      */
-    public static setHandler(handler?: (value: unknown) => void): ((value: unknown) => void) | undefined {
+    public static setHandler(handler?: (value: unknown) => void): ((value: unknown) => void) | undefined
+    {
         const previous = VarDumper.handler;
 
         VarDumper.handler = handler;

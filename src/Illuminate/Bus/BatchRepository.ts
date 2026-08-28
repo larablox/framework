@@ -10,7 +10,8 @@ import type { UpdatedBatchJobCounts } from 'Illuminate/Bus/UpdatedBatchJobCounts
  * `pendingJobs`, and whoever brings it to zero fires the `then` callbacks.
  * PHP gets that from a database transaction with `lockForUpdate()`.
  */
-export interface BatchRepository {
+export interface BatchRepository
+{
     /** Retrieve a list of batches. */
     get(limit: number, before?: string): Array<Batch>;
 

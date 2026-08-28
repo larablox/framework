@@ -11,13 +11,15 @@ import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
  * `array_merge_recursive`), and a `controller` set by the inner group replaces
  * the outer one.
  */
-export class RouteGroup {
+export class RouteGroup
+{
     /** Merge route groups into a new array. */
     public static merge(
         attributes: ActionAttributes,
         old: ActionAttributes,
         prependExistingPrefix = true,
-    ): ActionAttributes {
+    ): ActionAttributes
+    {
         const merged: ActionAttributes = {
             ...old,
             ...attributes,
@@ -46,7 +48,8 @@ export class RouteGroup {
         attributes: ActionAttributes,
         old: ActionAttributes,
         prependExistingPrefix: boolean,
-    ): string | undefined {
+    ): string | undefined
+    {
         const previous = old.prefix ?? '';
 
         if (attributes.prefix === undefined) {
@@ -62,7 +65,8 @@ export class RouteGroup {
     protected static formatWhere(
         attributes: ActionAttributes,
         old: ActionAttributes,
-    ): Record<string, string> | undefined {
+    ): Record<string, string> | undefined
+    {
         if (attributes.where === undefined && old.where === undefined) {
             return undefined;
         }
@@ -71,7 +75,8 @@ export class RouteGroup {
     }
 
     /** Format the "as" clause of the new group attributes. */
-    protected static formatAs(attributes: ActionAttributes, old: ActionAttributes): string | undefined {
+    protected static formatAs(attributes: ActionAttributes, old: ActionAttributes): string | undefined
+    {
         if (old.as === undefined) {
             return attributes.as;
         }
@@ -80,7 +85,8 @@ export class RouteGroup {
     }
 
     /** Append one middleware list to another, keeping both. */
-    protected static formatMiddleware(middleware?: Array<Pipe>, old?: Array<Pipe>): Array<Pipe> | undefined {
+    protected static formatMiddleware(middleware?: Array<Pipe>, old?: Array<Pipe>): Array<Pipe> | undefined
+    {
         if (middleware === undefined) {
             return old;
         }

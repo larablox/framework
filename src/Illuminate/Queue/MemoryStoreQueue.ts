@@ -51,7 +51,8 @@ const MAX_PAGE = 100;
  * Two limits are the platform's, not Laravel's: an item may not exceed 32 KB,
  * and the game's whole memory quota is `64 KB + 1.2 KB * players`.
  */
-export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQueue {
+export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQueue
+{
     /** Create a new MemoryStore queue instance. */
     public constructor(
         protected readonly defaultQueue = 'default',
@@ -60,24 +61,28 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
         protected readonly expiration = 604800,
         protected readonly prefix = 'queue:',
         dispatchAfterCommit = false,
-    ) {
+    )
+    {
         super();
 
         this.dispatchAfterCommit = dispatchAfterCommit;
     }
 
     /** Get the queue or return the default. */
-    public getQueue(queue?: string): string {
+    public getQueue(queue?: string): string
+    {
         return queue ?? this.defaultQueue;
     }
 
     /** The MemoryStore queue backing the given name. */
-    protected queueFor(queue?: string): ReturnType<MemoryStoreService['GetQueue']> {
+    protected queueFor(queue?: string): ReturnType<MemoryStoreService['GetQueue']>
+    {
         return MemoryStoreService.GetQueue(`${this.prefix}${this.getQueue(queue)}`, this.retryAfter);
     }
 
     /** The sorted map holding the jobs that are not due yet. */
-    protected delayedFor(queue?: string): MemoryStoreSortedMap {
+    protected delayedFor(queue?: string): MemoryStoreSortedMap
+    {
         return MemoryStoreService.GetSortedMap(`${this.prefix}${this.getQueue(queue)}:delayed`);
     }
 
@@ -90,17 +95,20 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
      * together -- an item that was read but not removed is still in the queue,
      * only invisible -- which leaves the delayed map to add.
      */
-    public size(queue?: string): number {
+    public size(queue?: string): number
+    {
         return this.queueFor(queue).GetSizeAsync(false) + this.delayedSize(queue);
     }
 
     /** Get the number of pending jobs. */
-    public pendingSize(queue?: string): number {
+    public pendingSize(queue?: string): number
+    {
         return this.queueFor(queue).GetSizeAsync(true);
     }
 
     /** Get the number of delayed jobs. */
-    public delayedSize(queue?: string): number {
+    public delayedSize(queue?: string): number
+    {
         return this.delayedFor(queue).GetSizeAsync();
     }
 
@@ -113,7 +121,8 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
      * only place MemoryStore draws that line, so the count is what the two
      * calls differ by.
      */
-    public reservedSize(queue?: string): number {
+    public reservedSize(queue?: string): number
+    {
         const memoryStoreQueue = this.queueFor(queue);
 
         return memoryStoreQueue.GetSizeAsync(false) - memoryStoreQueue.GetSizeAsync(true);
@@ -133,14 +142,16 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
      * outlives `clear()` until its invisibility timeout puts it back. PHP has
      * no such gap, its `:reserved` set being an ordinary key.
      */
-    public clear(queue?: string): number {
+    public clear(queue?: string): number
+    {
         const name = this.getQueue(queue);
 
         return this.clearQueue(name) + this.clearDelayed(name);
     }
 
     /** Remove every visible item from the queue itself. */
-    protected clearQueue(queue: string): number {
+    protected clearQueue(queue: string): number
+    {
         const memoryStoreQueue = this.queueFor(queue);
         let removed = 0;
 
@@ -163,7 +174,8 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     }
 
     /** Remove every job that is not due yet. */
-    protected clearDelayed(queue: string): number {
+    protected clearDelayed(queue: string): number
+    {
         const delayed = this.delayedFor(queue);
         let removed = 0;
 
@@ -189,44 +201,52 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
        and it reserves what it reads. */
 
     /** Get the pending jobs for the given queue. */
-    public pendingJobs(queue?: string): Collection<number, defined> {
+    public pendingJobs(queue?: string): Collection<number, defined>
+    {
         return new Collection<number, defined>();
     }
 
     /** Get the delayed jobs for the given queue. */
-    public delayedJobs(queue?: string): Collection<number, defined> {
+    public delayedJobs(queue?: string): Collection<number, defined>
+    {
         return new Collection<number, defined>();
     }
 
     /** Get the reserved jobs for the given queue. */
-    public reservedJobs(queue?: string): Collection<number, defined> {
+    public reservedJobs(queue?: string): Collection<number, defined>
+    {
         return new Collection<number, defined>();
     }
 
     /** Get all pending jobs across every queue. */
-    public allPendingJobs(): Collection<number, defined> {
+    public allPendingJobs(): Collection<number, defined>
+    {
         return new Collection<number, defined>();
     }
 
     /** Get all delayed jobs across every queue. */
-    public allDelayedJobs(): Collection<number, defined> {
+    public allDelayedJobs(): Collection<number, defined>
+    {
         return new Collection<number, defined>();
     }
 
     /** Get all reserved jobs across every queue. */
-    public allReservedJobs(): Collection<number, defined> {
+    public allReservedJobs(): Collection<number, defined>
+    {
         return new Collection<number, defined>();
     }
 
     /** Get the creation timestamp of the oldest pending job, excluding delayed jobs. */
-    public creationTimeOfOldestPendingJob(queue?: string): number | undefined {
+    public creationTimeOfOldestPendingJob(queue?: string): number | undefined
+    {
         return undefined;
     }
 
     /* eslint-enable @typescript-eslint/no-unused-vars */
 
     /** Create a payload array, counting attempts the way the Redis driver does. */
-    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ''): JobPayload {
+    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ''): JobPayload
+    {
         const payload = super.createPayloadArray(job, queue, data);
 
         payload.attempts = 0;
@@ -245,7 +265,8 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
      * `Instance` is handled -- rather than inside `pop()`, where it would leave
      * the job in storage to be read again forever.
      */
-    protected createObjectPayload(job: object, queue: string | undefined): JobPayload {
+    protected createObjectPayload(job: object, queue: string | undefined): JobPayload
+    {
         const payload = super.createObjectPayload(job, queue);
 
         const data = payload.data as JobPayloadData;
@@ -268,7 +289,8 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     }
 
     /** Push a new job onto the queue. */
-    public push(job: JobTarget, data: unknown = '', queue?: string): unknown {
+    public push(job: JobTarget, data: unknown = '', queue?: string): unknown
+    {
         return this.enqueueUsing(
             job,
             this.createPayload(job, this.getQueue(queue), data),
@@ -284,14 +306,16 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
         queue?: string,
         /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Redis reads no options here either */
         options?: ArrayAccessible,
-    ): unknown {
+    ): unknown
+    {
         this.queueFor(queue).AddAsync(this.encode(payload), this.expiration, 0);
 
         return payload.uuid;
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(delay: Delay, job: JobTarget, data: unknown = '', queue?: string): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = '', queue?: string): unknown
+    {
         return this.enqueueUsing(
             job,
             this.createPayload(job, this.getQueue(queue), data, delay),
@@ -302,7 +326,8 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     }
 
     /** Push a raw payload into the delayed map. */
-    protected laterRaw(delay: Delay, payload: JobPayload, queue?: string): string {
+    protected laterRaw(delay: Delay, payload: JobPayload, queue?: string): string
+    {
         const availableAt = InteractsWithTime.availableAt(delay);
 
         this.delayedFor(queue).SetAsync(
@@ -315,26 +340,30 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     }
 
     /** Release a reserved job back onto the queue. */
-    public release(queue: string, payload: JobPayload, delay: Delay): unknown {
+    public release(queue: string, payload: JobPayload, delay: Delay): unknown
+    {
         return InteractsWithTime.secondsUntil(delay) > 0
             ? this.laterRaw(delay, payload, queue)
             : this.pushRaw(payload, queue);
     }
 
     /** Delete a reserved job from the queue. */
-    public deleteReserved(queue: string, job: MemoryStoreJob): void {
+    public deleteReserved(queue: string, job: MemoryStoreJob): void
+    {
         this.queueFor(queue).RemoveAsync(job.getReservedId());
     }
 
     /** Delete a reserved job from the queue and release it. */
-    public deleteAndRelease(queue: string, job: MemoryStoreJob, delay: Delay): void {
+    public deleteAndRelease(queue: string, job: MemoryStoreJob, delay: Delay): void
+    {
         this.deleteReserved(queue, job);
 
         this.release(queue, job.payload(), delay);
     }
 
     /** Pop the next job off of the queue. */
-    public pop(queue?: string): Job | undefined {
+    public pop(queue?: string): Job | undefined
+    {
         const name = this.getQueue(queue);
 
         this.migrate(name);
@@ -352,7 +381,8 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     }
 
     /** Move the delayed jobs that are ready onto the queue. */
-    protected migrate(queue: string): void {
+    protected migrate(queue: string): void
+    {
         const delayed = this.delayedFor(queue);
 
         const now = InteractsWithTime.currentTime();
@@ -380,22 +410,27 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     protected migrationBatchSize = 20;
 
     /** The key a delayed job is stored under, ordered by when it is due. */
-    protected delayedKey(availableAt: number, uuid: string): string {
+    protected delayedKey(availableAt: number, uuid: string): string
+    {
         return `${string.format(`%0${SORT_KEY_DIGITS}d`, availableAt)}:${uuid}`;
     }
 
     /** Read the timestamp back out of a delayed key. */
-    protected timestampOf(key: string): number {
+    protected timestampOf(key: string): number
+    {
         return tonumber(key.sub(1, SORT_KEY_DIGITS)) ?? 0;
     }
 
     /** Turn a payload into the string that is stored. */
-    protected encode(payload: JobPayload): string {
+    protected encode(payload: JobPayload): string
+    {
         const encoded = Serializer.serialize(payload);
 
         if (encoded.size() > MAX_ITEM_BYTES) {
             throw new InvalidPayloadException(
-                `The payload for [${payload.displayName ?? Str.random(8)}] is ${encoded.size()} bytes; MemoryStore accepts at most ${MAX_ITEM_BYTES}.`,
+                `The payload for [${
+                    payload.displayName ?? Str.random(8)
+                }] is ${encoded.size()} bytes; MemoryStore accepts at most ${MAX_ITEM_BYTES}.`,
                 payload,
             );
         }

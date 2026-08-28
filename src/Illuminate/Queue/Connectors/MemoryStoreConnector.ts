@@ -4,9 +4,11 @@ import type { ConnectorInterface } from 'Illuminate/Queue/Connectors/ConnectorIn
 import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /** PHP: `Illuminate\Queue\Connectors\RedisConnector`. */
-export class MemoryStoreConnector implements ConnectorInterface {
+export class MemoryStoreConnector implements ConnectorInterface
+{
     /** Establish a queue connection. */
-    public connect(config: ArrayAccessible): Queue {
+    public connect(config: ArrayAccessible): Queue
+    {
         return new MemoryStoreQueue(
             (config.queue as string | undefined) ?? 'default',
             (config.retry_after as number | undefined) ?? 60,

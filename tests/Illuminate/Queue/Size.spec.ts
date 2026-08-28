@@ -21,7 +21,8 @@ const HttpService = game.GetService('HttpService');
 const made: Array<MemoryStoreQueue> = [];
 
 /** Give back what this run pushed rather than waiting the expiration out. */
-function drain(): void {
+function drain(): void
+{
     for (const queue of made) {
         queue.clear();
     }
@@ -36,7 +37,8 @@ function drain(): void {
  * quota until the next Tuesday. See `MemoryStoreQueue.spec.ts` for the same
  * reasoning at length.
  */
-function memoryStoreQueue(): MemoryStoreQueue {
+function memoryStoreQueue(): MemoryStoreQueue
+{
     const queue = new MemoryStoreQueue(HttpService.GenerateGUID(false), 60, 0, 30, 'queue-test:');
     made.push(queue);
 

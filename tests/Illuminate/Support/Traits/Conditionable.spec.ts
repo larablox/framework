@@ -13,10 +13,12 @@ import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
  */
 export = (): void => {
     describe('Conditionable', () => {
-        class ConditionableLogger extends Conditionable() {
+        class ConditionableLogger extends Conditionable()
+        {
             public values = new Array<unknown>();
 
-            public log(...values: Array<unknown>): this {
+            public log(...values: Array<unknown>): this
+            {
                 for (const each of values) {
                     this.values[this.values.size()] = each;
                 }
@@ -24,7 +26,8 @@ export = (): void => {
                 return this;
             }
 
-            public has(value: unknown): boolean {
+            public has(value: unknown): boolean
+            {
                 return (this.values as Array<defined>).includes(value as defined);
             }
         }

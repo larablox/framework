@@ -14,9 +14,11 @@ import type { Factory } from 'Illuminate/Contracts/Queue/Factory';
  * with the interfaces: `Dispatcher` is the key, and it is a class.
  */
 @DeferrableProvider()
-export class BusServiceProvider extends ServiceProvider implements DeferrableProvider {
+export class BusServiceProvider extends ServiceProvider implements DeferrableProvider
+{
     /** Register the service provider. */
-    public register(): void {
+    public register(): void
+    {
         const app: Application = this.app;
 
         this.app.singleton(
@@ -28,14 +30,16 @@ export class BusServiceProvider extends ServiceProvider implements DeferrablePro
     }
 
     /** Register the batch services. */
-    protected registerBatchServices(): void {
+    protected registerBatchServices(): void
+    {
         const app: Application = this.app;
 
         this.app.singleton('bus.batches', () => new ArrayBatchRepository(app.make<Factory>('queue')));
     }
 
     /** Get the services provided by the provider. */
-    public provides(): Array<Abstract> {
+    public provides(): Array<Abstract>
+    {
         return [Dispatcher, 'bus.batches'];
     }
 }

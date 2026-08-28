@@ -27,33 +27,41 @@ import type { Job } from 'Illuminate/Contracts/Queue/Job';
  * transaction manager.
  */
 
-const box: { syncTest?: [Job, unknown]; syncFailed?: unknown } = {};
+const box: { syncTest?: [Job, unknown]; syncFailed?: unknown; } = {};
 
-class SyncQueueTestHandler {
-    public fire(job: Job, data: unknown): void {
+class SyncQueueTestHandler
+{
+    public fire(job: Job, data: unknown): void
+    {
         box.syncTest = [job, data];
     }
 }
 
-class FailingSyncQueueTestHandler {
-    public fire(): void {
+class FailingSyncQueueTestHandler
+{
+    public fire(): void
+    {
         throw new RuntimeException();
     }
 
-    public failed(): void {
+    public failed(): void
+    {
         box.syncFailed = true;
     }
 }
 
-class FailingSyncQueueJob extends InteractsWithQueue {
-    public handle(): void {
+class FailingSyncQueueJob extends InteractsWithQueue
+{
+    public handle(): void
+    {
         throw new LogicException();
     }
 
-    public failed(): void {
+    public failed(): void
+    {
         const payload = this.job!.payload();
 
-        box.syncFailed = (payload.data as { extra?: unknown }).extra;
+        box.syncFailed = (payload.data as { extra?: unknown; }).extra;
     }
 }
 
@@ -74,7 +82,7 @@ export = (): void => {
 
             expect(box.syncTest).to.be.ok();
             expect(box.syncTest![0] instanceof SyncJob).to.equal(true);
-            expect((box.syncTest![1] as { foo: string }).foo).to.equal('bar');
+            expect((box.syncTest![1] as { foo: string; }).foo).to.equal('bar');
         });
 
         // PHP: QueueSyncQueueTest::testFailedJobGetsHandledWhenAnExceptionIsThrown

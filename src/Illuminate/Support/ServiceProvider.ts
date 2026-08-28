@@ -11,7 +11,8 @@ import type { Application } from 'Illuminate/Contracts/Foundation/Application';
  * loading and the `optimize` hooks are not ported: they address a filesystem and
  * a console that do not exist here.
  */
-export abstract class ServiceProvider {
+export abstract class ServiceProvider
+{
     /** All of the container bindings that should be registered. */
     public bindings?: Array<[Abstract, Concrete]>;
 
@@ -25,25 +26,30 @@ export abstract class ServiceProvider {
     protected bootedCallbacks = new Array<Callback>();
 
     /** Create a new service provider instance. */
-    public constructor(protected readonly app: Application) {}
+    public constructor(protected readonly app: Application)
+    {}
 
     /** Register any application services. */
-    public register(): void {
+    public register(): void
+    {
         //
     }
 
     /** Register a booting callback to be run before the "boot" method is called. */
-    public booting(callback: Callback): void {
+    public booting(callback: Callback): void
+    {
         this.bootingCallbacks.push(callback);
     }
 
     /** Register a booted callback to be run after the "boot" method is called. */
-    public booted(callback: Callback): void {
+    public booted(callback: Callback): void
+    {
         this.bootedCallbacks.push(callback);
     }
 
     /** Call the registered booting callbacks. */
-    public callBootingCallbacks(): void {
+    public callBootingCallbacks(): void
+    {
         let index = 0;
 
         while (index < this.bootingCallbacks.size()) {
@@ -54,7 +60,8 @@ export abstract class ServiceProvider {
     }
 
     /** Call the registered booted callbacks. */
-    public callBootedCallbacks(): void {
+    public callBootedCallbacks(): void
+    {
         let index = 0;
 
         while (index < this.bootedCallbacks.size()) {
@@ -65,7 +72,8 @@ export abstract class ServiceProvider {
     }
 
     /** Setup an after resolving listener, or fire immediately if already resolved. */
-    protected callAfterResolving(name: Abstract, callback: ResolvingCallback): void {
+    protected callAfterResolving(name: Abstract, callback: ResolvingCallback): void
+    {
         this.app.afterResolving(name, callback);
 
         if (this.app.resolved(name)) {
@@ -74,12 +82,14 @@ export abstract class ServiceProvider {
     }
 
     /** Get the services provided by the provider. */
-    public provides(): Array<Abstract> {
+    public provides(): Array<Abstract>
+    {
         return [];
     }
 
     /** Get the events that trigger this service provider to register. */
-    public when(): Array<string> {
+    public when(): Array<string>
+    {
         return [];
     }
 
@@ -90,7 +100,8 @@ export abstract class ServiceProvider {
      * the mark is the `DeferrableProvider` class decorator, found up the class
      * chain the way `instanceof` honours inheritance.
      */
-    public isDeferred(): boolean {
+    public isDeferred(): boolean
+    {
         let current = Reflector.classOf(this);
 
         while (current !== undefined) {

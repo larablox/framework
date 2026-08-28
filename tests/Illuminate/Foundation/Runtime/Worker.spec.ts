@@ -23,7 +23,8 @@ export = (): void => {
          * so `Kernel::bootstrap()` becomes a no-op; `boot([])` warms nothing,
          * which is what keeps this from needing a configuration repository.
          */
-        function booted(terminated: Array<string>): Application {
+        function booted(terminated: Array<string>): Application
+        {
             const app = new Application();
 
             app.singleton(Kernel);

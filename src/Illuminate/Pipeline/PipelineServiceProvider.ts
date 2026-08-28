@@ -6,16 +6,25 @@ import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
 import type { Abstract } from 'Illuminate/Container/Types';
 
 @DeferrableProvider()
-export class PipelineServiceProvider extends ServiceProvider implements DeferrableProvider {
+export class PipelineServiceProvider extends ServiceProvider implements DeferrableProvider
+{
     /** Register the service provider. */
-    public register(): void {
-        this.app.singleton(PipelineHubContract, Hub);
+    public register(): void
+    {
+        this.app.singleton(
+            PipelineHubContract,
+            Hub,
+        );
 
         this.app.bind('pipeline', (app) => new Pipeline(app));
     }
 
     /** Get the services provided by the provider. */
-    public provides(): Array<Abstract> {
-        return [PipelineHubContract, 'pipeline'];
+    public provides(): Array<Abstract>
+    {
+        return [
+            PipelineHubContract,
+            'pipeline',
+        ];
     }
 }

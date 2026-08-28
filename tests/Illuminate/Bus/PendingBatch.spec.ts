@@ -45,76 +45,95 @@ import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
  *   overload and the `failureCallbacks()` accessor it feeds do not exist.
  *   Only the two boolean cases below have anything to assert.
  */
-class TestJob extends Batchable {}
+class TestJob extends Batchable
+{}
 
 /** A `Queue` whose `bulk()` is a harmless no-op; everything else is unused. */
-class FakeQueue implements Queue {
-    public size(): number {
+class FakeQueue implements Queue
+{
+    public size(): number
+    {
         return 0;
     }
 
-    public pendingSize(): number {
+    public pendingSize(): number
+    {
         return 0;
     }
 
-    public delayedSize(): number {
+    public delayedSize(): number
+    {
         return 0;
     }
 
-    public reservedSize(): number {
+    public reservedSize(): number
+    {
         return 0;
     }
 
-    public creationTimeOfOldestPendingJob(): number | undefined {
+    public creationTimeOfOldestPendingJob(): number | undefined
+    {
         return undefined;
     }
 
-    public push(): unknown {
+    public push(): unknown
+    {
         return undefined;
     }
 
-    public pushOn(): unknown {
+    public pushOn(): unknown
+    {
         return undefined;
     }
 
-    public pushRaw(): unknown {
+    public pushRaw(): unknown
+    {
         return undefined;
     }
 
-    public later(): unknown {
+    public later(): unknown
+    {
         return undefined;
     }
 
-    public laterOn(): unknown {
+    public laterOn(): unknown
+    {
         return undefined;
     }
 
-    public bulk(): void {
+    public bulk(): void
+    {
         //
     }
 
-    public pop(): undefined {
+    public pop(): undefined
+    {
         return undefined;
     }
 
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return 'fake';
     }
 
-    public setConnectionName(): this {
+    public setConnectionName(): this
+    {
         return this;
     }
 }
 
-class FakeQueueFactory implements QueueFactory {
+class FakeQueueFactory implements QueueFactory
+{
     protected readonly queue = new FakeQueue();
 
-    public connection(): Queue {
+    public connection(): Queue
+    {
         return this.queue;
     }
 }
 
-function repository(): ArrayBatchRepository {
+function repository(): ArrayBatchRepository
+{
     return new ArrayBatchRepository(new FakeQueueFactory());
 }
 
@@ -166,8 +185,10 @@ export = (): void => {
             // PHP: BusPendingBatchTest::test_batch_is_deleted_from_storage_if_exception_thrown_during_batching
             const container = new Container();
 
-            class ThrowingQueueFactory implements QueueFactory {
-                public connection(): Queue {
+            class ThrowingQueueFactory implements QueueFactory
+            {
+                public connection(): Queue
+                {
                     throw 'Failed to add jobs...';
                 }
             }

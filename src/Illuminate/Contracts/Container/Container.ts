@@ -16,7 +16,8 @@ import type {
 import type { ContextualBindingBuilder } from 'Illuminate/Contracts/Container/ContextualBindingBuilder';
 import { Contract } from 'Illuminate/Container/Contract';
 
-export interface Container {
+export interface Container
+{
     /** Resolve the given type from the container. */
     get<T extends object>(id: AbstractClass<T>): T;
     get<T>(id: Contract<T>): T;

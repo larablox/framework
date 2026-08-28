@@ -56,7 +56,8 @@ export type DataTarget = object;
 export function value<TValue extends defined>(
     value: TValue | ((...args: Array<never>) => TValue),
     ...args: Array<unknown>
-): TValue {
+): TValue
+{
     return Util.unwrapIfClosure(value, ...args) as TValue;
 }
 
@@ -69,7 +70,8 @@ export function value<TValue extends defined>(
 export function _with<TValue extends defined, TReturn>(
     value: TValue,
     callback?: (value: TValue) => TReturn,
-): TValue | TReturn {
+): TValue | TReturn
+{
     return callback === undefined ? value : callback(value);
 }
 
@@ -80,7 +82,8 @@ export function _with<TValue extends defined, TReturn>(
  * method call to the target and hands the target back through `__call`. There
  * is no `__call`, so the callback is required.
  */
-export function tap<TValue extends defined>(value: TValue, callback: (value: TValue) => unknown): TValue {
+export function tap<TValue extends defined>(value: TValue, callback: (value: TValue) => unknown): TValue
+{
     callback(value);
 
     return value;
@@ -91,7 +94,8 @@ export function transform<TValue extends defined, TReturn, TDefault>(
     value: TValue | undefined,
     callback: (value: TValue) => TReturn,
     defaultValue?: TDefault | ((value: TValue | undefined) => TDefault),
-): TReturn | TDefault | undefined {
+): TReturn | TDefault | undefined
+{
     if (filled(value)) {
         return callback(value as TValue);
     }
@@ -114,7 +118,8 @@ export function transform<TValue extends defined, TReturn, TDefault>(
 export function optional<TValue extends defined, TReturn>(
     value: TValue | undefined,
     callback: (value: TValue) => TReturn,
-): TReturn | undefined {
+): TReturn | undefined
+{
     return value !== undefined ? callback(value) : undefined;
 }
 
@@ -123,7 +128,8 @@ export function when<TValue extends defined, TDefault extends defined>(
     condition: unknown,
     value: TValue | ((condition: unknown) => TValue),
     defaultValue?: TDefault | ((condition: unknown) => TDefault),
-): TValue | TDefault | undefined {
+): TValue | TDefault | undefined
+{
     const resolved = typeIs(condition, 'function') ? (condition as Callback)() : condition;
 
     if (Util.truthy(resolved)) {
@@ -145,7 +151,8 @@ export function when<TValue extends defined, TDefault extends defined>(
  * metamethod, and every compiled class carries one, so the test would answer
  * for all of them. The class itself is asked for instead.
  */
-export function blank(value: unknown): boolean {
+export function blank(value: unknown): boolean
+{
     if (value === undefined) {
         return true;
     }
@@ -187,7 +194,8 @@ export function blank(value: unknown): boolean {
 }
 
 /** PHP: `filled($value)`. */
-export function filled(value: unknown): boolean {
+export function filled(value: unknown): boolean
+{
     return !blank(value);
 }
 
@@ -214,7 +222,8 @@ export function throw_if<TValue>(
     condition: TValue,
     exception: Throwable = RuntimeException,
     ...parameters: Array<unknown>
-): TValue {
+): TValue
+{
     if (!Util.truthy(condition)) {
         return condition;
     }
@@ -239,7 +248,8 @@ export function throw_unless<TValue>(
     condition: TValue,
     exception: Throwable = RuntimeException,
     ...parameters: Array<unknown>
-): TValue {
+): TValue
+{
     throw_if(!Util.truthy(condition), exception, ...parameters);
 
     return condition;
@@ -260,7 +270,8 @@ export function retry<TReturn>(
     callback: (attempts: number) => TReturn,
     sleepMilliseconds: number | ((attempts: number, exception: unknown) => number) = 0,
     when?: (exception: unknown) => boolean,
-): TReturn {
+): TReturn
+{
     const backoff = typeIs(times, 'table') ? times : new Array<number>();
     let remaining = typeIs(times, 'table') ? times.size() + 1 : times;
     let attempts = 0;
@@ -304,7 +315,8 @@ export function retry<TReturn>(
  * PHP strips the namespace off the name; a compiled class never carried one,
  * so the name it reports is already the basename.
  */
-export function class_basename(target: unknown): string {
+export function class_basename(target: unknown): string
+{
     return Reflector.className(Reflector.isInstance(target) ? Reflector.classOf(target as object) : target);
 }
 
@@ -319,7 +331,8 @@ export function class_basename(target: unknown): string {
  * every call to `Str` through `__call`. There is no `__call`, so the string is
  * required here; call `Str` directly for what that form was for.
  */
-export function str(value: string | number | Stringable): Stringable {
+export function str(value: string | number | Stringable): Stringable
+{
     return new Stringable(value);
 }
 
@@ -334,12 +347,14 @@ export function str(value: string | number | Stringable): Stringable {
  * absence with `false`, and a `T | false` return would poison every call site,
  * so this answers `undefined`, as `Arr::first()` does.
  */
-export function head<T extends defined>(list: Array<T>): T | undefined {
+export function head<T extends defined>(list: Array<T>): T | undefined
+{
     return Arr.first(list);
 }
 
 /** PHP: `last($array)`. Answers `undefined` rather than `false`; see `head`. */
-export function last<T extends defined>(list: Array<T>): T | undefined {
+export function last<T extends defined>(list: Array<T>): T | undefined
+{
     return Arr.last(list);
 }
 
@@ -360,7 +375,8 @@ export function last<T extends defined>(list: Array<T>): T | undefined {
  * list. And `*` drops the misses instead of collecting nulls: a Luau array
  * cannot hold a hole, and a hole would cut the array short.
  */
-export function data_get(target: unknown, key: string | Array<string> | undefined, defaultValue?: unknown): unknown {
+export function data_get(target: unknown, key: string | Array<string> | undefined, defaultValue?: unknown): unknown
+{
     if (key === undefined) {
         return target;
     }
@@ -410,7 +426,8 @@ export function data_get(target: unknown, key: string | Array<string> | undefine
  * Plain segments only -- PHP's `data_has` understands neither `*` nor
  * `{first}` either.
  */
-export function data_has(target: unknown, key: string | Array<string> | undefined): boolean {
+export function data_has(target: unknown, key: string | Array<string> | undefined): boolean
+{
     if (key === undefined) {
         return false;
     }
@@ -450,7 +467,8 @@ export function data_set(
     key: string | Array<string>,
     value: unknown,
     overwrite = true,
-): DataTarget {
+): DataTarget
+{
     const rest = typeIs(key, 'string') ? key.split('.') : [...key];
     const segment = rest.remove(0) as string;
 
@@ -496,7 +514,8 @@ export function data_set(
 }
 
 /** PHP: `data_fill(&$target, $key, $value)`. */
-export function data_fill(target: DataTarget, key: string | Array<string>, value: unknown): DataTarget {
+export function data_fill(target: DataTarget, key: string | Array<string>, value: unknown): DataTarget
+{
     return data_set(target, key, value, false);
 }
 
@@ -506,7 +525,8 @@ export function data_fill(target: DataTarget, key: string | Array<string>, value
  * Dropping a key from a list re-indexes it: `unset($list[1])` leaves a hole in
  * PHP, and a Luau array has no holes to leave.
  */
-export function data_forget(target: DataTarget, key: string | Array<string>): DataTarget {
+export function data_forget(target: DataTarget, key: string | Array<string>): DataTarget
+{
     const rest = typeIs(key, 'string') ? key.split('.') : [...key];
     const segment = rest.remove(0) as string;
 
@@ -540,7 +560,8 @@ export function data_forget(target: DataTarget, key: string | Array<string>): Da
 // ---------------------------------------------------------------------
 
 /** The segments left after the one being handled. */
-function remainingSegments(parts: Array<string>, from: number): Array<string> {
+function remainingSegments(parts: Array<string>, from: number): Array<string>
+{
     const rest = new Array<string>();
 
     for (let index = from; index < parts.size(); index++) {
@@ -551,7 +572,8 @@ function remainingSegments(parts: Array<string>, from: number): Array<string> {
 }
 
 /** Read one key, exactly as given. */
-function readRawKey(target: unknown, key: string | number): unknown {
+function readRawKey(target: unknown, key: string | number): unknown
+{
     if (target instanceof Collection) {
         return (target as Collection<defined, defined>).get(key);
     }
@@ -568,7 +590,8 @@ function readRawKey(target: unknown, key: string | number): unknown {
 }
 
 /** A target that keeps its own keys, and can therefore hold numeric ones. */
-function isKeyed(target: unknown): boolean {
+function isKeyed(target: unknown): boolean
+{
     return target instanceof Collection || target instanceof OrderedMap;
 }
 
@@ -580,7 +603,8 @@ function isKeyed(target: unknown): boolean {
  * keys are the numbers `getArrayableItems()` gave them. In a plain table the
  * keys came from an object literal and are strings, so the string is final.
  */
-function readKey(target: unknown, segment: string): unknown {
+function readKey(target: unknown, segment: string): unknown
+{
     const direct = readRawKey(target, segment);
 
     if (direct !== undefined) {
@@ -597,7 +621,8 @@ function readKey(target: unknown, segment: string): unknown {
 }
 
 /** PHP: the `match ($segment)` inside `data_get`. */
-function resolveSegment(target: unknown, segment: string): unknown {
+function resolveSegment(target: unknown, segment: string): unknown
+{
     if (segment === '\\*') {
         return readKey(target, '*');
     }
@@ -620,7 +645,8 @@ function resolveSegment(target: unknown, segment: string): unknown {
 }
 
 /** Write one key, in whatever way the target takes writes. */
-function writeKey(target: unknown, key: string | number, value: unknown): void {
+function writeKey(target: unknown, key: string | number, value: unknown): void
+{
     if (target instanceof Collection) {
         (target as Collection<defined, defined>).put(key, value as defined);
 
@@ -647,7 +673,8 @@ function writeKey(target: unknown, key: string | number, value: unknown): void {
 }
 
 /** Drop one key. */
-function deleteKey(target: unknown, key: string | number): void {
+function deleteKey(target: unknown, key: string | number): void
+{
     if (target instanceof Collection) {
         (target as Collection<defined, defined>).forget(key);
 
@@ -674,7 +701,8 @@ function deleteKey(target: unknown, key: string | number): void {
 }
 
 /** A list is keyed by number; everything else keeps the segment as written. */
-function keyFor(target: unknown, segment: string): string | number {
+function keyFor(target: unknown, segment: string): string | number
+{
     const numeric = tonumber(segment);
 
     if (numeric === undefined) {
@@ -692,7 +720,8 @@ function keyFor(target: unknown, segment: string): string | number {
 }
 
 /** PHP: `is_iterable($target)`, answering the items to walk. */
-function itemsOf(target: unknown): Array<defined> | undefined {
+function itemsOf(target: unknown): Array<defined> | undefined
+{
     if (target instanceof Collection) {
         return (target as Collection<defined, defined>).all();
     }
@@ -719,7 +748,8 @@ function itemsOf(target: unknown): Array<defined> | undefined {
 }
 
 /** Every key of the target, in whatever order it can offer. */
-function keysOf(target: unknown): Array<string | number> {
+function keysOf(target: unknown): Array<string | number>
+{
     if (target instanceof Collection) {
         return (target as Collection<defined, defined>).keys().all() as Array<string | number>;
     }
@@ -755,7 +785,8 @@ function keysOf(target: unknown): Array<string | number> {
  * A plain table has no first key -- `pairs` picks its own order -- which is
  * the whole reason `OrderedMap` exists. `{first}` over one is arbitrary.
  */
-function keyAt(target: unknown, wantLast: boolean): string | number | undefined {
+function keyAt(target: unknown, wantLast: boolean): string | number | undefined
+{
     const keys = keysOf(target);
 
     if (keys.size() === 0) {

@@ -22,30 +22,37 @@ import { Variadic } from 'Illuminate/Container/Attributes/Variadic';
  */
 export = (): void => {
     describe('Container resolve non-instantiable', () => {
-        abstract class TestInterface {}
+        abstract class TestInterface
+        {}
 
-        class ChildClass {
+        class ChildClass
+        {
             public readonly objects: Array<TestInterface>;
 
             // A rest parameter, not a single array one: a variadic dependency
             // is spread into separate arguments, the same way PHP's
             // `TestInterface ...$objects` receives them.
-            public constructor(@Variadic(TestInterface) ...objects: Array<TestInterface>) {
+            public constructor(@Variadic(TestInterface) ...objects: Array<TestInterface>)
+            {
                 this.objects = objects;
             }
         }
 
-        class VariadicParentClass {
+        class VariadicParentClass
+        {
             public constructor(
                 @Inject(ChildClass) public readonly child: ChildClass,
                 @Inject('$i') public readonly i = 0,
-            ) {}
+            )
+            {}
         }
 
-        class VariadicPrimitive {
+        class VariadicPrimitive
+        {
             public readonly params: Array<unknown>;
 
-            public constructor(@Variadic('$params') ...params: Array<unknown>) {
+            public constructor(@Variadic('$params') ...params: Array<unknown>)
+            {
                 this.params = params;
             }
         }

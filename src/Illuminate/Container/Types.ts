@@ -8,10 +8,10 @@ import type { Contract } from 'Illuminate/Container/Contract';
  * its constructor signature; the container rebuilds the argument list from the
  * `Inject` metadata rather than from the type.
  */
-export type Constructor<T extends object = object> = new (...args: never[]) => T;
+export type Constructor<T extends object = object> = new(...args: never[]) => T;
 
 /** A class that may be abstract -- usable as a key, but never instantiated. */
-export type AbstractClass<T extends object = object> = abstract new (...args: never[]) => T;
+export type AbstractClass<T extends object = object> = abstract new(...args: never[]) => T;
 
 /**
  * PHP: `string`, in practice either a plain key such as `"config"`, a
@@ -62,7 +62,8 @@ export type ParameterOverrides = Map<Abstract | number, unknown>;
 export type BuildStackEntry = Abstract | ContainerClosure;
 
 /** A binding as stored in `Container::$bindings`. */
-export interface Binding {
+export interface Binding
+{
     readonly concrete: ContainerClosure;
     readonly shared: boolean;
 }

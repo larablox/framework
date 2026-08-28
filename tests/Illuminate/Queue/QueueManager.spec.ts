@@ -30,7 +30,8 @@ import type { ArrayAccessible } from 'Illuminate/Support/Arr';
  * below.
  */
 
-function makeApp(config: ArrayAccessible): Application {
+function makeApp(config: ArrayAccessible): Application
+{
     const container = new Container();
 
     // The fixtures below are written with dotted keys for readability, but
@@ -122,8 +123,10 @@ export = (): void => {
 
             let fired = false;
 
-            class Handler {
-                public fire(): void {
+            class Handler
+            {
+                public fire(): void
+                {
                     fired = true;
                 }
             }

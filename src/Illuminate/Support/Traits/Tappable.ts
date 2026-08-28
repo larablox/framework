@@ -12,10 +12,12 @@ import type { Constructor } from 'Illuminate/Support/Traits/Trait';
  * `Support/Helpers`, which imports the classes using this trait, so the two
  * lines are inlined rather than closing a require cycle.
  */
-export function Tappable<TBase extends Constructor>(Base: TBase = Trait as never) {
+export function Tappable<TBase extends Constructor>(Base: TBase = Trait as never)
+{
     return class extends Base {
         /** Call the given closure with this instance then return the instance. */
-        public tap(callback: (target: this) => unknown): this {
+        public tap(callback: (target: this) => unknown): this
+        {
             callback(this);
 
             return this;

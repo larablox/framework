@@ -19,7 +19,8 @@ export type PipeWithParameters = [Abstract, ...Array<string>];
 export type Passable = unknown;
 
 /** PHP: `Illuminate\Contracts\Pipeline\Pipeline`. */
-export interface Pipeline {
+export interface Pipeline
+{
     /** Set the traveler object being sent on the pipeline. */
     send(passable: Passable): this;
 

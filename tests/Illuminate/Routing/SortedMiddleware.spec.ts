@@ -80,8 +80,10 @@ export = (): void => {
 
         // PHP: RoutingSortedMiddlewareTest::testItSortsUsingParentsAndContracts
         it('sorts using classes and their parent chain', () => {
-            class SecondStub {}
-            class SecondChildStub extends SecondStub {}
+            class SecondStub
+            {}
+            class SecondChildStub extends SecondStub
+            {}
 
             // PHP's `FirstContractStub`/`FirstStub` pair exercises interface
             // walking, which leaves no runtime trace here (see
@@ -91,7 +93,8 @@ export = (): void => {
             // here, since a middleware carries its arguments beside it rather
             // than encoded into a string (see `SortedMiddleware.ts`'s class
             // comment).
-            class FirstStub {}
+            class FirstStub
+            {}
 
             const withApi: [typeof FirstStub, string] = [FirstStub, 'api'];
             const withFooBar: [typeof FirstStub, string, string] = [FirstStub, 'foo', 'bar'];

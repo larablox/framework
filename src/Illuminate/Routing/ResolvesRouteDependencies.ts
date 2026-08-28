@@ -17,7 +17,8 @@ import type { OrderedMap } from 'Illuminate/Support/OrderedMap';
  * which explains the whole pattern, including why the shape is in two halves
  * and which half the compiler can check for you.
  */
-export declare class ResolvesRouteDependenciesPublicShape {
+export declare class ResolvesRouteDependenciesPublicShape
+{
     /** Type-only: there is no such value in the compiled Luau. */
     protected constructor();
 
@@ -40,7 +41,8 @@ export declare class ResolvesRouteDependenciesPublicShape {
  * The full shape: {@link ResolvesRouteDependenciesPublicShape} plus what
  * Laravel hides.
  */
-export declare class ResolvesRouteDependenciesShape extends ResolvesRouteDependenciesPublicShape {
+export declare class ResolvesRouteDependenciesShape extends ResolvesRouteDependenciesPublicShape
+{
     /** Type-only: there is no such value in the compiled Luau. */
     private constructor();
 
@@ -64,7 +66,8 @@ export declare class ResolvesRouteDependenciesShape extends ResolvesRouteDepende
  * that the two checks on the shape have something concrete to look at -- see
  * the note on `conditionable` in `Illuminate/Support/Traits/Conditionable`.
  */
-function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
+function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase)
+{
     return class extends Base {
         /** The container instance, set by the class using the trait. */
         protected container!: ContainerContract;
@@ -76,7 +79,8 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
          * class rather than on the contract -- in PHP too, where the container
          * the router hands around is always the real one.
          */
-        private concreteContainer(): Container {
+        private concreteContainer(): Container
+        {
             return this.container as unknown as Container;
         }
 
@@ -85,7 +89,8 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
             parameters: OrderedMap<string, defined>,
             instance: object,
             method: string,
-        ): Array<defined> {
+        ): Array<defined>
+        {
             return this.resolveMethodDependencies(parameters, Reflector.classOf(instance), method);
         }
 
@@ -94,7 +99,8 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
             parameters: OrderedMap<string, defined>,
             target: object | undefined,
             method: string,
-        ): Array<defined> {
+        ): Array<defined>
+        {
             const declared = target !== undefined ? getInjectedDependencies(target, method) : [];
 
             const values = new Array<defined>();
@@ -166,6 +172,7 @@ type ResolvesRouteDependenciesIsExact = AssertTrue<AssertNoExtraMembers<Resolves
  */
 export function ResolvesRouteDependencies<TBase extends Constructor>(
     Base: TBase = Trait as never,
-): TBase & Constructor<ResolvesRouteDependenciesShape> {
+): TBase & Constructor<ResolvesRouteDependenciesShape>
+{
     return resolvesRouteDependencies(Base) as never;
 }

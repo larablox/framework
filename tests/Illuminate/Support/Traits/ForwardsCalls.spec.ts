@@ -20,30 +20,38 @@ import { ForwardsCalls, throwBadMethodCallException } from 'Illuminate/Support/T
  */
 export = (): void => {
     describe('ForwardsCalls', () => {
-        class ForwardsCallsBase {
-            public forwardedBase(...parameters: Array<unknown>): Array<unknown> {
+        class ForwardsCallsBase
+        {
+            public forwardedBase(...parameters: Array<unknown>): Array<unknown>
+            {
                 return parameters;
             }
         }
 
-        class ForwardsCallsTwo extends ForwardsCalls(ForwardsCallsBase) {
-            public forwardedTwo(...parameters: Array<unknown>): Array<unknown> {
+        class ForwardsCallsTwo extends ForwardsCalls(ForwardsCallsBase)
+        {
+            public forwardedTwo(...parameters: Array<unknown>): Array<unknown>
+            {
                 return parameters;
             }
 
-            public call(method: string, parameters: Array<unknown>): unknown {
+            public call(method: string, parameters: Array<unknown>): unknown
+            {
                 return this.forwardCallTo(this, method, parameters);
             }
         }
 
-        class ForwardsCallsOne extends ForwardsCalls() {
+        class ForwardsCallsOne extends ForwardsCalls()
+        {
             private readonly target = new ForwardsCallsTwo();
 
-            public call(method: string, parameters: Array<unknown>): unknown {
+            public call(method: string, parameters: Array<unknown>): unknown
+            {
                 return this.forwardCallTo(this.target, method, parameters);
             }
 
-            public throwTestException(method: string): never {
+            public throwTestException(method: string): never
+            {
                 throwBadMethodCallException(this, method);
             }
         }

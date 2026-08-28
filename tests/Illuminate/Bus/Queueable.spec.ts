@@ -10,7 +10,8 @@ import { Queueable } from 'Illuminate/Bus/Queueable';
  * is no backed-enum concept to hand them, so only the string and `undefined`
  * cases of each provider are ported; the enum cases have no analogue.
  */
-class FakeJob extends Queueable {}
+class FakeJob extends Queueable
+{}
 
 export = (): void => {
     describe('Queueable', () => {

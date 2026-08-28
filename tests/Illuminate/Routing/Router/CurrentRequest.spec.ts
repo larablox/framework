@@ -6,7 +6,8 @@ import { Response } from 'Illuminate/Http/Response';
 import { Router } from 'Illuminate/Routing/Router';
 import type { Route } from 'Illuminate/Routing/Route';
 
-function router(): Router {
+function router(): Router
+{
     const container = new Container();
     const built = new Router(new Dispatcher(), container);
 
@@ -42,7 +43,8 @@ export = (): void => {
          * Answers what each of them saw `Router::current()` say, by the id in
          * the route's own parameters.
          */
-        function whileOverlapping(): Map<string, unknown> {
+        function whileOverlapping(): Map<string, unknown>
+        {
             const r = router();
             const seen = new Map<string, unknown>();
 

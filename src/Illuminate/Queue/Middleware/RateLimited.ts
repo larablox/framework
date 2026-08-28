@@ -7,7 +7,8 @@ import type { Limit } from 'Illuminate/Cache/RateLimiting/Limit';
 import type { Next } from 'Illuminate/Pipeline/Pipeline';
 
 /** One limit, reduced to what the middleware needs. */
-interface ResolvedLimit {
+interface ResolvedLimit
+{
     key: string;
     maxAttempts: number;
     decaySeconds: number;
@@ -23,7 +24,8 @@ interface ResolvedLimit {
  * name and the limit key are joined as they are. `RateLimitedWithRedis` is a
  * Lua-script variant of the same middleware and has nothing to port to.
  */
-export class RateLimited {
+export class RateLimited
+{
     /** The rate limiter instance. */
     protected limiter: RateLimiter;
 
@@ -34,12 +36,14 @@ export class RateLimited {
     public shouldRelease = true;
 
     /** Create a new middleware instance. */
-    public constructor(protected readonly limiterName: string) {
+    public constructor(protected readonly limiterName: string)
+    {
         this.limiter = Container.getInstance().make<RateLimiter>(RateLimiter);
     }
 
     /** Process the job. */
-    public handle(job: InteractsWithQueue, _next: Next): unknown {
+    public handle(job: InteractsWithQueue, _next: Next): unknown
+    {
         const limiter = this.limiter.limiter(this.limiterName);
 
         if (limiter === undefined) {
@@ -62,7 +66,8 @@ export class RateLimited {
     }
 
     /** Process the job, given the resolved limits. */
-    protected handleJob(job: InteractsWithQueue, _next: Next, limits: Array<ResolvedLimit>): unknown {
+    protected handleJob(job: InteractsWithQueue, _next: Next, limits: Array<ResolvedLimit>): unknown
+    {
         for (const limit of limits) {
             if (this.limiter.tooManyAttempts(limit.key, limit.maxAttempts)) {
                 if (!this.shouldRelease) {
@@ -81,21 +86,24 @@ export class RateLimited {
     }
 
     /** Set the number of seconds the job should be released for. */
-    public releaseAfter(seconds: number): this {
+    public releaseAfter(seconds: number): this
+    {
         this.releaseAfterSeconds = seconds;
 
         return this;
     }
 
     /** Do not release the job back to the queue when the limit is hit. */
-    public dontRelease(): this {
+    public dontRelease(): this
+    {
         this.shouldRelease = false;
 
         return this;
     }
 
     /** Get the number of seconds that should elapse before the job is retried. */
-    protected getTimeUntilNextRetry(key: string): number {
+    protected getTimeUntilNextRetry(key: string): number
+    {
         return this.limiter.availableIn(key) + 3;
     }
 }

@@ -181,8 +181,10 @@ export = (): void => {
 
         it('defer() with an event-name list holds back object events too', () => {
             // PHP: EventsDispatcherTest::testDeferSpecificObjectEvents
-            class DeferTestEvent {}
-            class ImmediateTestEvent {}
+            class DeferTestEvent
+            {}
+            class ImmediateTestEvent
+            {}
 
             const eventTest = new Array<string>();
             const d = new Dispatcher();
@@ -278,19 +280,24 @@ export = (): void => {
         it('a Class@method listener string resolves the class through the container (adapted -- see class comment)', () => {
             // PHP: EventsDispatcherTest::testContainerResolutionOfEventHandlers +
             // EventsDispatcherTest::testContainerResolutionOfEventHandlersWithDefaultMethods
-            class TestEventListener {
-                public handle(): string {
+            class TestEventListener
+            {
+                public handle(): string
+                {
                     return 'baz';
                 }
 
-                public onFooEvent(): string {
+                public onFooEvent(): string
+                {
                     return 'baz';
                 }
             }
 
             let makeCallCount = 0;
-            class CountingContainer extends Container {
-                public make(abstract: Abstract, parameters?: ParameterList): unknown {
+            class CountingContainer extends Container
+            {
+                public make(abstract: Abstract, parameters?: ParameterList): unknown
+                {
                     makeCallCount++;
 
                     return super.make(abstract, parameters);
@@ -369,7 +376,8 @@ export = (): void => {
             // which also accept a class reference -- upstream uses
             // `ExampleEvent::class`, itself just a string, for both roles at
             // once. The port keeps that same string as the shared key here.
-            class ExampleEvent {}
+            class ExampleEvent
+            {}
 
             let eventTest: ExampleEvent | undefined;
             const d = new Dispatcher();
@@ -531,7 +539,8 @@ export = (): void => {
 
         it('a class event dispatches by its own class name', () => {
             // PHP: EventsDispatcherTest::testClassesWork
-            class ExampleEvent {}
+            class ExampleEvent
+            {}
 
             let eventTest: string | undefined;
             const d = new Dispatcher();
@@ -545,7 +554,8 @@ export = (): void => {
 
         it('dispatching a class event with no explicit payload hands the event itself as the payload', () => {
             // PHP: EventsDispatcherTest::testEventClassesArePayload
-            class ExampleEvent {}
+            class ExampleEvent
+            {}
 
             let eventTest: ExampleEvent | undefined;
             const d = new Dispatcher();
@@ -579,8 +589,10 @@ export = (): void => {
             let eventTest1: string | undefined;
             let eventTest2: string | undefined;
 
-            class SomeBaseEvent {}
-            class AnotherEvent extends SomeBaseEvent {}
+            class SomeBaseEvent
+            {}
+            class AnotherEvent extends SomeBaseEvent
+            {}
 
             const d = new Dispatcher();
             d.listen(AnotherEvent, (p: unknown) => {
@@ -622,10 +634,12 @@ export = (): void => {
 
         it('the same class listener registered twice fires twice', () => {
             // PHP: EventsDispatcherTest::testDuplicateListenersWillFire
-            class TestListener {
+            class TestListener
+            {
                 public static counter = 0;
 
-                public handle(): void {
+                public handle(): void
+                {
                     TestListener.counter++;
                 }
             }
@@ -644,7 +658,8 @@ export = (): void => {
 
         it('getListeners() counts every registered listener for an event', () => {
             // PHP: EventsDispatcherTest::testGetListeners
-            class ExampleEvent {}
+            class ExampleEvent
+            {}
 
             const d = new Dispatcher();
             d.listen(ExampleEvent, 'Listener1');
@@ -661,36 +676,45 @@ export = (): void => {
             // PHP: EventsDispatcherTest::testListenersObjectsCreationOrder
             const eventTest = new Array<string>();
 
-            class TestListener1 {
-                public constructor() {
+            class TestListener1
+            {
+                public constructor()
+                {
                     eventTest.push('cons-1');
                 }
 
-                public handle(): string {
+                public handle(): string
+                {
                     eventTest.push('handle-1');
 
                     return 'resp-1';
                 }
             }
 
-            class TestListener2 {
-                public constructor() {
+            class TestListener2
+            {
+                public constructor()
+                {
                     eventTest.push('cons-2');
                 }
 
-                public handle(): string {
+                public handle(): string
+                {
                     eventTest.push('handle-2');
 
                     return 'resp-2';
                 }
             }
 
-            class TestListener3 {
-                public constructor() {
+            class TestListener3
+            {
+                public constructor()
+                {
                     eventTest.push('cons-3');
                 }
 
-                public handle(): void {
+                public handle(): void
+                {
                     eventTest.push('handle-3');
                 }
             }
@@ -738,48 +762,60 @@ export = (): void => {
             // PHP: EventsDispatcherTest::test_Listener_object_creation_is_lazy
             let eventTest = new Array<string>();
 
-            class TestListener1 {
-                public constructor() {
+            class TestListener1
+            {
+                public constructor()
+                {
                     eventTest.push('cons-1');
                 }
 
-                public handle(): string {
+                public handle(): string
+                {
                     eventTest.push('handle-1');
 
                     return 'resp-1';
                 }
             }
 
-            class TestListener2Falser {
-                public constructor() {
+            class TestListener2Falser
+            {
+                public constructor()
+                {
                     eventTest.push('cons-2-falser');
                 }
 
-                public handle(): boolean {
+                public handle(): boolean
+                {
                     eventTest.push('handle-2-falser');
 
                     return false;
                 }
             }
 
-            class TestListener3 {
-                public constructor() {
+            class TestListener3
+            {
+                public constructor()
+                {
                     eventTest.push('cons-3');
                 }
 
-                public handle(): string {
+                public handle(): string
+                {
                     eventTest.push('handle-3');
 
                     return 'resp-3';
                 }
             }
 
-            class TestListener2 {
-                public constructor() {
+            class TestListener2
+            {
+                public constructor()
+                {
                     eventTest.push('cons-2');
                 }
 
-                public handle(): string {
+                public handle(): string
+                {
                     eventTest.push('handle-2');
 
                     return 'resp-2';
@@ -825,12 +861,15 @@ export = (): void => {
             // method is simply never reached the way `__invoke` would be.
             let eventTest = new Array<string>();
 
-            class TestListenerHandler {
-                public constructor() {
+            class TestListenerHandler
+            {
+                public constructor()
+                {
                     eventTest.push('__construct');
                 }
 
-                public handle(): void {
+                public handle(): void
+                {
                     eventTest.push('handle');
                 }
             }

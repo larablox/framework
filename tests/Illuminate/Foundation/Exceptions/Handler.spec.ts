@@ -80,16 +80,19 @@ import type { LogManager } from 'Illuminate/Log/LogManager';
  */
 export = (): void => {
     describe('Foundation.Exceptions.Handler', () => {
-        interface LogRecord {
+        interface LogRecord
+        {
             level: LogLevel;
             message: string;
             context: LogContext;
         }
 
-        class FakeLogger {
+        class FakeLogger
+        {
             public records = new Array<LogRecord>();
 
-            public log(level: LogLevel, message: unknown, context?: LogContext): void {
+            public log(level: LogLevel, message: unknown, context?: LogContext): void
+            {
                 this.records.push({
                     level: level,
                     message: message as string,
@@ -98,50 +101,64 @@ export = (): void => {
             }
         }
 
-        abstract class ReportingService {
+        abstract class ReportingService
+        {
             public abstract send(message: string): void;
         }
 
-        class SpyingReporter extends ReportingService {
+        class SpyingReporter extends ReportingService
+        {
             public sent = new Array<string>();
 
-            public send(message: string): void {
+            public send(message: string): void
+            {
                 this.sent.push(message);
             }
         }
 
-        class CustomException extends Exception {}
+        class CustomException extends Exception
+        {}
 
-        class ResponsableException extends Exception {
-            public toResponse(): Response {
+        class ResponsableException extends Exception
+        {
+            public toResponse(): Response
+            {
                 return new Response({
                     response: 'My responsable exception response',
                 });
             }
         }
 
-        class ReportableException extends Exception {
-            public report(@Inject(ReportingService) service: ReportingService): void {
+        class ReportableException extends Exception
+        {
+            public report(@Inject(ReportingService) service: ReportingService): void
+            {
                 service.send(this.getMessage());
             }
         }
 
-        class UnReportableException extends Exception {
-            public report(): boolean {
+        class UnReportableException extends Exception
+        {
+            public report(): boolean
+            {
                 return false;
             }
         }
 
-        class RenderableException extends Exception {
-            public render(): Response {
+        class RenderableException extends Exception
+        {
+            public render(): Response
+            {
                 return new Response({
                     response: 'My renderable exception response',
                 });
             }
         }
 
-        class ContextProvidingException extends Exception {
-            public context(): LogContext {
+        class ContextProvidingException extends Exception
+        {
+            public context(): LogContext
+            {
                 return { foo: 'bar' };
             }
         }
@@ -153,9 +170,11 @@ export = (): void => {
          * thing the test needs from it is a class distinct from
          * `RuntimeException`, which is exercised unlevelled in the same case.
          */
-        class CustomLevelException extends LogicException {}
+        class CustomLevelException extends LogicException
+        {}
 
-        function handlerWithFakeLogger(): [Handler, FakeLogger] {
+        function handlerWithFakeLogger(): [Handler, FakeLogger]
+        {
             const container = new Container();
             container.instance('config', new ConfigRepository({}));
 

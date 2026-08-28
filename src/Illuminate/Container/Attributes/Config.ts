@@ -4,13 +4,15 @@ import type { ContextualAttribute } from 'Illuminate/Contracts/Container/Context
 import type { Repository } from 'Illuminate/Contracts/Config/Repository';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] class Config`. */
-export interface Config extends ContextualAttribute {
+export interface Config extends ContextualAttribute
+{
     readonly key: string;
     readonly default?: unknown;
 }
 
 /** Resolve the annotated parameter from the configuration repository. */
-export function Config(key: string, defaultValue?: unknown) {
+export function Config(key: string, defaultValue?: unknown)
+{
     const instance: Config = {
         key,
         default: defaultValue,

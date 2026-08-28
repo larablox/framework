@@ -14,25 +14,30 @@ import type { Next } from 'Illuminate/Pipeline/Pipeline';
  * below for why a handle to the instance is still available even for the
  * tests that hand `Pipeline` the class itself, not `new PipelineTestPipeOne`.
  */
-class PipelineTestPipeOne {
+class PipelineTestPipeOne
+{
     public received?: unknown;
 
-    public handle(piped: unknown, _next: Next): unknown {
+    public handle(piped: unknown, _next: Next): unknown
+    {
         this.received = piped;
 
         return _next(piped);
     }
 
-    public differentMethod(piped: unknown, _next: Next): unknown {
+    public differentMethod(piped: unknown, _next: Next): unknown
+    {
         return _next(piped);
     }
 }
 
 /** PHP: `Illuminate\Tests\Pipeline\PipelineTestParameterPipe`. */
-class PipelineTestParameterPipe {
+class PipelineTestParameterPipe
+{
     public parameters?: [string | undefined, string | undefined];
 
-    public handle(piped: unknown, _next: Next, parameter1?: string, parameter2?: string): unknown {
+    public handle(piped: unknown, _next: Next, parameter1?: string, parameter2?: string): unknown
+    {
         this.parameters = [parameter1, parameter2];
 
         return _next(piped);
@@ -260,7 +265,7 @@ export = (): void => {
                 new Pipeline()
                     .send('data')
                     .through(PipelineTestPipeOne)
-                    .then((piped) => piped),
+                    .then((piped) => piped)
             );
 
             expect(ok).to.equal(false);
@@ -414,8 +419,10 @@ export = (): void => {
             // `handleCarry()` runs inside it -- Routing overrides it with
             // `toResponse()`, and what that throws must become a rendered
             // response, not an exception through the stack.
-            class CarryHandlingPipeline extends Pipeline {
-                protected handleCarry(carry: unknown): unknown {
+            class CarryHandlingPipeline extends Pipeline
+            {
+                protected handleCarry(carry: unknown): unknown
+                {
                     if (carry === 'boom') {
                         throw new RuntimeException('carry exploded');
                     }
@@ -423,7 +430,8 @@ export = (): void => {
                     return carry;
                 }
 
-                protected handleException(_passable: unknown, e: unknown): unknown {
+                protected handleException(_passable: unknown, e: unknown): unknown
+                {
                     expect(e instanceof RuntimeException).to.equal(true);
 
                     return 'handled';

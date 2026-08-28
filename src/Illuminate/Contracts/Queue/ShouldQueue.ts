@@ -16,16 +16,19 @@ import { Reflector } from 'Illuminate/Support/Reflector';
  * ```
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ShouldQueue {}
+export interface ShouldQueue
+{}
 
-export function ShouldQueue() {
+export function ShouldQueue()
+{
     return (target: object): void => {
         Attributes.add(target, ShouldQueue, {});
     };
 }
 
 /** PHP: `$job instanceof ShouldQueue`. */
-export function isShouldQueue(job: unknown): job is ShouldQueue {
+export function isShouldQueue(job: unknown): job is ShouldQueue
+{
     if (!typeIs(job, 'table')) {
         return false;
     }

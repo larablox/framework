@@ -34,13 +34,16 @@ import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
  */
 export = (): void => {
     describe('Foundation.Http.Kernel', () => {
-        class ValidateSignatureStub {}
+        class ValidateSignatureStub
+        {}
 
-        function application(): Application {
+        function application(): Application
+        {
             return new Application();
         }
 
-        function router(): Router {
+        function router(): Router
+        {
             return new Router(new Dispatcher(), new Container());
         }
 
@@ -98,12 +101,15 @@ export = (): void => {
 
             const kernel = new Kernel(app, router());
 
-            class TerminatingMiddlewareStub {
-                public handle(request: Request, _next: (request: Request) => Response): Response {
+            class TerminatingMiddlewareStub
+            {
+                public handle(request: Request, _next: (request: Request) => Response): Response
+                {
                     return _next(request);
                 }
 
-                public terminate(): void {
+                public terminate(): void
+                {
                     called.push('terminating middleware');
                 }
             }

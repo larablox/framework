@@ -15,7 +15,8 @@ import type { Pipe, PipeWithParameters } from 'Illuminate/Contracts/Pipeline/Pip
  * that leads with a string is a list of binding names, and a binding name
  * still spells its own arguments inline, exactly as PHP does.
  */
-export function isPipeWithParameters(value: unknown): value is PipeWithParameters {
+export function isPipeWithParameters(value: unknown): value is PipeWithParameters
+{
     if (!Util.isArray(value)) {
         return false;
     }
@@ -26,7 +27,8 @@ export function isPipeWithParameters(value: unknown): value is PipeWithParameter
 }
 
 /** Read a `Pipe | Array<Pipe>` argument as a list of pipes. */
-export function wrapPipes(pipes: Pipe | Array<Pipe>): Array<Pipe> {
+export function wrapPipes(pipes: Pipe | Array<Pipe>): Array<Pipe>
+{
     if (isPipeWithParameters(pipes)) {
         return [pipes as Pipe];
     }

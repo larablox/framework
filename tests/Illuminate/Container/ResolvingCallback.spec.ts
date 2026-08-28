@@ -11,15 +11,19 @@ import { Container } from 'Illuminate/Container/Container';
  */
 export = (): void => {
     describe('Resolving callbacks', () => {
-        class Std {
+        class Std
+        {
             public name?: string;
         }
 
-        abstract class ResolvingContractStub {}
+        abstract class ResolvingContractStub
+        {}
 
-        class ResolvingImplementationStub extends ResolvingContractStub {}
+        class ResolvingImplementationStub extends ResolvingContractStub
+        {}
 
-        class ResolvingImplementationStubTwo extends ResolvingContractStub {}
+        class ResolvingImplementationStubTwo extends ResolvingContractStub
+        {}
 
         it('resolving() callbacks are called for specific abstracts', () => {
             // PHP: ResolvingCallbackTest::testResolvingCallbacksAreCalledForSpecificAbstracts

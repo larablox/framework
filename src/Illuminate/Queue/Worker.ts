@@ -54,7 +54,8 @@ type StopDecision = [number, WorkerStopReason] | undefined;
  * is the place to call it. `queueShouldRestart()` and `getPausedQueues()` still
  * wait on the cache-backed restart and pause flags.
  */
-export class Worker {
+export class Worker
+{
     public static readonly EXIT_SUCCESS = 0;
     public static readonly EXIT_ERROR = 1;
     public static readonly EXIT_MEMORY_LIMIT = 12;
@@ -83,10 +84,12 @@ export class Worker {
         protected readonly events: Dispatcher,
         protected readonly exceptions: ExceptionReporter,
         protected readonly resetScope?: () => void,
-    ) {}
+    )
+    {}
 
     /** Listen to the given queue in a loop. */
-    public daemon(connectionName: string, queue: string, options: WorkerOptions): number {
+    public daemon(connectionName: string, queue: string, options: WorkerOptions): number
+    {
         const startTime = InteractsWithTime.currentTime();
 
         let jobsProcessed = 0;
@@ -155,7 +158,8 @@ export class Worker {
     }
 
     /** Determine if the daemon should process on this iteration. */
-    protected daemonShouldRun(options: WorkerOptions, connectionName: string, queue: string): boolean {
+    protected daemonShouldRun(options: WorkerOptions, connectionName: string, queue: string): boolean
+    {
         return !(this.paused || this.events.until(new Looping(connectionName, queue, options)) === false);
     }
 
@@ -165,7 +169,8 @@ export class Worker {
         startTime: number,
         jobsProcessed: number,
         lastJobProcessedAt: number,
-    ): StopDecision {
+    ): StopDecision
+    {
         this.sleep(options.sleep > 0 ? options.sleep : 1);
 
         return this.stopIfNecessary(options, startTime, jobsProcessed, undefined, lastJobProcessedAt);
@@ -178,7 +183,8 @@ export class Worker {
         jobsProcessed: number,
         job: Job | undefined,
         lastJobProcessedAt: number,
-    ): StopDecision {
+    ): StopDecision
+    {
         if (this.shouldQuit) {
             return [Worker.EXIT_SUCCESS, WorkerStopReason.Interrupted];
         }
@@ -192,9 +198,9 @@ export class Worker {
         }
 
         if (
-            options.stopWhenEmptyFor > 0 &&
-            job === undefined &&
-            InteractsWithTime.currentTime() - lastJobProcessedAt >= options.stopWhenEmptyFor
+            options.stopWhenEmptyFor > 0
+            && job === undefined
+            && InteractsWithTime.currentTime() - lastJobProcessedAt >= options.stopWhenEmptyFor
         ) {
             return [Worker.EXIT_SUCCESS, WorkerStopReason.QueueEmptyFor];
         }
@@ -211,7 +217,8 @@ export class Worker {
     }
 
     /** Process the next job on the queue. */
-    public runNextJob(connectionName: string, queue: string, options: WorkerOptions): void {
+    public runNextJob(connectionName: string, queue: string, options: WorkerOptions): void
+    {
         const job = this.getNextJob(this.manager.connection(connectionName), queue);
 
         if (job !== undefined) {
@@ -224,7 +231,8 @@ export class Worker {
     }
 
     /** Get the next job from the queue connection. */
-    protected getNextJob(connection: Queue, queue: string): Job | undefined {
+    protected getNextJob(connection: Queue, queue: string): Job | undefined
+    {
         this.raiseBeforeJobPopEvent(connection.getConnectionName(), queue);
 
         const [ok, result] = pcall(() => {
@@ -257,7 +265,8 @@ export class Worker {
     }
 
     /** Process the given job. */
-    protected runJob(job: Job, connectionName: string, options: WorkerOptions): void {
+    protected runJob(job: Job, connectionName: string, options: WorkerOptions): void
+    {
         this.currentJob = job;
 
         try {
@@ -270,7 +279,8 @@ export class Worker {
     }
 
     /** Process the given job from the queue. */
-    public process(connectionName: string, job: Job, options: WorkerOptions): void {
+    public process(connectionName: string, job: Job, options: WorkerOptions): void
+    {
         let exceptionOccurred: unknown;
 
         try {
@@ -304,10 +314,11 @@ export class Worker {
      * it only while it is suspended -- which covers everything that waits on a
      * DataStore, a MemoryStore or a remote, and nothing that spins.
      */
-    protected fireJob(connectionName: string, job: Job, options: WorkerOptions): void {
+    protected fireJob(connectionName: string, job: Job, options: WorkerOptions): void
+    {
         const timeout = job.timeout() ?? options.timeout;
 
-        const state: { done: boolean; ok: boolean; error: unknown } = {
+        const state: { done: boolean; ok: boolean; error: unknown; } = {
             done: false,
             ok: true,
             error: undefined,
@@ -351,7 +362,8 @@ export class Worker {
     }
 
     /** Handle an exception that occurred while the job was running. */
-    protected handleJobException(connectionName: string, job: Job, options: WorkerOptions, e: unknown): never {
+    protected handleJobException(connectionName: string, job: Job, options: WorkerOptions, e: unknown): never
+    {
         try {
             if (!job.hasFailed()) {
                 this.markJobAsFailedIfWillExceedMaxAttempts(connectionName, job, options.maxTries, e);
@@ -374,7 +386,8 @@ export class Worker {
     }
 
     /** Mark the given job as failed if it has exceeded the maximum allowed attempts. */
-    protected markJobAsFailedIfAlreadyExceedsMaxAttempts(connectionName: string, job: Job, maxTries: number): void {
+    protected markJobAsFailedIfAlreadyExceedsMaxAttempts(connectionName: string, job: Job, maxTries: number): void
+    {
         const tries = job.maxTries() ?? maxTries;
 
         const retryUntil = job.retryUntil();
@@ -400,7 +413,8 @@ export class Worker {
         job: Job,
         maxTries: number,
         e: unknown,
-    ): void {
+    ): void
+    {
         const tries = job.maxTries() ?? maxTries;
 
         const retryUntil = job.retryUntil();
@@ -421,7 +435,8 @@ export class Worker {
      * The count lives in the cache, keyed by the job's uuid, so it survives the
      * job being released and picked up again -- possibly by another server.
      */
-    protected markJobAsFailedIfWillExceedMaxExceptions(connectionName: string, job: Job, e: unknown): void {
+    protected markJobAsFailedIfWillExceedMaxExceptions(connectionName: string, job: Job, e: unknown): void
+    {
         const uuid = job.uuid();
 
         const maxExceptions = job.maxExceptions();
@@ -446,15 +461,17 @@ export class Worker {
     }
 
     /** Set the cache repository implementation. */
-    public setCache(cache: Cache): this {
+    public setCache(cache: Cache): this
+    {
         this.cache = cache;
 
         return this;
     }
 
     /** Mark the given job as failed if it should fail on timeouts. */
-    protected markJobAsFailedIfItShouldFailOnTimeout(connectionName: string, job: Job, e: unknown): void {
-        const shouldFail = (job as { shouldFailOnTimeout?: unknown }).shouldFailOnTimeout;
+    protected markJobAsFailedIfItShouldFailOnTimeout(connectionName: string, job: Job, e: unknown): void
+    {
+        const shouldFail = (job as { shouldFailOnTimeout?: unknown; }).shouldFailOnTimeout;
 
         if (typeIs(shouldFail, 'function') && (shouldFail as (self: Job) => boolean)(job)) {
             this.failJob(job, e);
@@ -462,13 +479,15 @@ export class Worker {
     }
 
     /** Mark the given job as failed and raise the relevant event. */
-    protected failJob(job: Job, e: unknown): void {
+    protected failJob(job: Job, e: unknown): void
+    {
         job.fail(e);
     }
 
     /** Calculate the backoff for the given job. */
-    protected calculateBackoff(job: Job, options: WorkerOptions): number {
-        const declared = (job as { backoff?: unknown }).backoff;
+    protected calculateBackoff(job: Job, options: WorkerOptions): number
+    {
+        const declared = (job as { backoff?: unknown; }).backoff;
 
         const value = typeIs(declared, 'function')
             ? ((declared as (self: Job) => unknown)(job) ?? options.backoff)
@@ -482,42 +501,50 @@ export class Worker {
     }
 
     /** Raise the before job has been popped event. */
-    protected raiseBeforeJobPopEvent(connectionName: string, queue: string): void {
+    protected raiseBeforeJobPopEvent(connectionName: string, queue: string): void
+    {
         this.events.dispatch(new JobPopping(connectionName, queue));
     }
 
     /** Raise the after job has been popped event. */
-    protected raiseAfterJobPopEvent(connectionName: string, job: Job): void {
+    protected raiseAfterJobPopEvent(connectionName: string, job: Job): void
+    {
         this.events.dispatch(new JobPopped(connectionName, job));
     }
 
     /** Raise the before queue job event. */
-    protected raiseBeforeJobEvent(connectionName: string, job: Job): void {
+    protected raiseBeforeJobEvent(connectionName: string, job: Job): void
+    {
         this.events.dispatch(new JobProcessing(connectionName, job));
     }
 
     /** Raise the after queue job event. */
-    protected raiseAfterJobEvent(connectionName: string, job: Job): void {
+    protected raiseAfterJobEvent(connectionName: string, job: Job): void
+    {
         this.events.dispatch(new JobProcessed(connectionName, job));
     }
 
     /** Raise the exception occurred queue job event. */
-    protected raiseExceptionOccurredJobEvent(connectionName: string, job: Job, e: unknown): void {
+    protected raiseExceptionOccurredJobEvent(connectionName: string, job: Job, e: unknown): void
+    {
         this.events.dispatch(new JobExceptionOccurred(connectionName, job, e));
     }
 
     /** Raise the worker starting event. */
-    protected raiseWorkerStartingEvent(connectionName: string, queue: string, options: WorkerOptions): void {
+    protected raiseWorkerStartingEvent(connectionName: string, queue: string, options: WorkerOptions): void
+    {
         this.events.dispatch(new WorkerStarting(connectionName, queue, options));
     }
 
     /** Create an instance of MaxAttemptsExceededException. */
-    protected maxAttemptsExceededException(job: Job): MaxAttemptsExceededException {
+    protected maxAttemptsExceededException(job: Job): MaxAttemptsExceededException
+    {
         return MaxAttemptsExceededException.forJob(job);
     }
 
     /** Sleep the script for a given number of seconds. */
-    public sleep(seconds: number): void {
+    public sleep(seconds: number): void
+    {
         task.wait(seconds);
     }
 
@@ -527,39 +554,46 @@ export class Worker {
      * PHP measures one process against the limit; the closest figure here is
      * the whole server's, which is why the default limit is off.
      */
-    public memoryExceeded(memoryLimit: number): boolean {
+    public memoryExceeded(memoryLimit: number): boolean
+    {
         return memoryLimit > 0 && Stats.GetTotalMemoryUsageMb() >= memoryLimit;
     }
 
     /** Stop listening and bail out of the script. */
-    public stop(status = 0, options?: WorkerOptions, reason?: WorkerStopReason): number {
+    public stop(status = 0, options?: WorkerOptions, reason?: WorkerStopReason): number
+    {
         this.events.dispatch(new WorkerStopping(status, options, reason));
 
         return status;
     }
 
     /** Tell the worker to leave the loop after the current job. */
-    public shutdown(): void {
+    public shutdown(): void
+    {
         this.shouldQuit = true;
     }
 
     /** Pause the worker without leaving the loop. */
-    public pause(): void {
+    public pause(): void
+    {
         this.paused = true;
     }
 
     /** Resume a paused worker. */
-    public resume(): void {
+    public resume(): void
+    {
         this.paused = false;
     }
 
     /** Get the job the worker is currently running. */
-    public getCurrentJob(): Job | undefined {
+    public getCurrentJob(): Job | undefined
+    {
         return this.currentJob;
     }
 
     /** Set the name of the worker. */
-    public setName(name: string): this {
+    public setName(name: string): this
+    {
         this.name = name;
 
         return this;

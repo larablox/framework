@@ -1,7 +1,6 @@
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import robloxTs from "eslint-plugin-roblox-ts";
-import prettierPlugin from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
 
 /**
@@ -38,13 +37,11 @@ export default [
 		plugins: {
 			"@typescript-eslint": tseslint,
 			"roblox-ts": robloxTs,
-			prettier: prettierPlugin,
 		},
 		rules: {
 			...tseslint.configs.recommended.rules,
 			...robloxTs.configs.recommended.rules,
 			...prettierConfig.rules,
-			"prettier/prettier": "warn",
 
 			// The framework's rule, and this is the project it was written for:
 			// `server/`, `client/` and `shared/` are separate DataModel

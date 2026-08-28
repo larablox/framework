@@ -23,10 +23,12 @@ import type { Abstract } from 'Illuminate/Container/Types';
  */
 export = (): void => {
     describe('Facade', () => {
-        class RootStub {
+        class RootStub
+        {
             public calls = 0;
 
-            public bar(): string {
+            public bar(): string
+            {
                 this.calls += 1;
 
                 return 'baz';
@@ -34,10 +36,12 @@ export = (): void => {
         }
 
         @Forwards()
-        class FacadeStub extends Facade {
+        class FacadeStub extends Facade
+        {
             declare public static bar: Forwarded<RootStub['bar']>;
 
-            protected static getFacadeAccessor(): Abstract {
+            protected static getFacadeAccessor(): Abstract
+            {
                 return 'foo';
             }
         }

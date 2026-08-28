@@ -7,20 +7,24 @@ import type { ParameterDependency } from 'Illuminate/Container/Attributes/Inject
 import type { Abstract, CallableTarget, ParameterOverrides } from 'Illuminate/Container/Types';
 import type { Container } from 'Illuminate/Container/Container';
 
-export class BoundMethod {
+export class BoundMethod
+{
     /** Call the given Closure / class@method and inject its dependencies. */
     public static call(
         container: Container,
         callback: CallableTarget,
         parameters: ParameterOverrides = new Map(),
         defaultMethod?: string,
-    ): unknown {
+    ): unknown
+    {
         if (typeIs(callback, 'string') && (BoundMethod.isCallableWithAtSign(callback) || defaultMethod !== undefined)) {
             return BoundMethod.callClass(container, callback, parameters, defaultMethod);
         }
 
-        return BoundMethod.callBoundMethod(container, callback, () =>
-            BoundMethod.invoke(callback, BoundMethod.getMethodDependencies(container, callback, parameters)),
+        return BoundMethod.callBoundMethod(
+            container,
+            callback,
+            () => BoundMethod.invoke(callback, BoundMethod.getMethodDependencies(container, callback, parameters)),
         );
     }
 
@@ -30,7 +34,8 @@ export class BoundMethod {
         target: string,
         parameters: ParameterOverrides,
         defaultMethod?: string,
-    ): unknown {
+    ): unknown
+    {
         const segments = target.split('@');
 
         // We will assume an @ sign is used to delimit the class name from the method
@@ -46,7 +51,8 @@ export class BoundMethod {
     }
 
     /** Call a method that has been bound to the container. */
-    private static callBoundMethod(container: Container, callback: CallableTarget, fallback: () => unknown): unknown {
+    private static callBoundMethod(container: Container, callback: CallableTarget, fallback: () => unknown): unknown
+    {
         if (!Util.isArray(callback)) {
             return fallback();
         }
@@ -69,14 +75,16 @@ export class BoundMethod {
      * PHP flattens this into a `Class@method` string; the target is kept as
      * itself here so two same-named classes cannot share a key.
      */
-    private static normalizeMethod(callback: [object | Abstract, string]): [Abstract, string] {
+    private static normalizeMethod(callback: [object | Abstract, string]): [Abstract, string]
+    {
         const [target, method] = callback;
 
         return [(BoundMethod.classOfTarget(target) ?? target) as Abstract, method];
     }
 
     /** The class a callable's first element refers to, if it can be determined. */
-    private static classOfTarget(target: object | Abstract): object | undefined {
+    private static classOfTarget(target: object | Abstract): object | undefined
+    {
         if (typeIs(target, 'string')) {
             return undefined;
         }
@@ -95,7 +103,8 @@ export class BoundMethod {
         container: Container,
         callback: CallableTarget,
         parameters: ParameterOverrides,
-    ): Array<defined> {
+    ): Array<defined>
+    {
         const dependencies = new Array<defined>();
         const consumed = new Set<Abstract | number>();
         const declared = BoundMethod.getCallDependencies(callback);
@@ -120,12 +129,11 @@ export class BoundMethod {
 
             const attribute = Util.getContextualAttributeFromDependency(dependency);
 
-            const resolved =
-                attribute !== undefined
-                    ? container.resolveFromAttribute(attribute)
-                    : abstract !== undefined
-                      ? container.make(abstract)
-                      : undefined;
+            const resolved = attribute !== undefined
+                ? container.resolveFromAttribute(attribute)
+                : abstract !== undefined
+                ? container.make(abstract)
+                : undefined;
 
             if (resolved === undefined && abstract === undefined) {
                 throw new BindingResolutionException(
@@ -167,7 +175,8 @@ export class BoundMethod {
     }
 
     /** What the callable's parameters were annotated with. */
-    private static getCallDependencies(callback: CallableTarget): Array<ParameterDependency> {
+    private static getCallDependencies(callback: CallableTarget): Array<ParameterDependency>
+    {
         if (!Util.isArray(callback)) {
             return [];
         }
@@ -185,7 +194,8 @@ export class BoundMethod {
      * `function Class:method()`, so the receiver is always passed first, whether
      * it is an instance or the class itself.
      */
-    private static invoke(callback: CallableTarget, args: Array<defined>): unknown {
+    private static invoke(callback: CallableTarget, args: Array<defined>): unknown
+    {
         if (!Util.isArray(callback)) {
             return (callback as Callback)(...args);
         }
@@ -195,9 +205,11 @@ export class BoundMethod {
 
         if (!typeIs(fn, 'function')) {
             throw new BindingResolutionException(
-                `Method [${method}] does not exist on [${Reflector.className(
-                    Reflector.isInstance(target) ? Reflector.classOf(target) : target,
-                )}].`,
+                `Method [${method}] does not exist on [${
+                    Reflector.className(
+                        Reflector.isInstance(target) ? Reflector.classOf(target) : target,
+                    )
+                }].`,
             );
         }
 
@@ -205,7 +217,8 @@ export class BoundMethod {
     }
 
     /** Determine if the given string is in Class@method syntax. */
-    private static isCallableWithAtSign(callback: string): boolean {
+    private static isCallableWithAtSign(callback: string): boolean
+    {
         const [position] = callback.find('@', 1, true);
 
         return position !== undefined;

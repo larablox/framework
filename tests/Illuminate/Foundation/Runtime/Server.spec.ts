@@ -20,7 +20,8 @@ export = (): void => {
          * so `Kernel::bootstrap()` becomes a no-op and no configuration
          * repository is needed.
          */
-        function application(): Application {
+        function application(): Application
+        {
             const app = new Application();
 
             app.singleton(Kernel);
@@ -38,7 +39,8 @@ export = (): void => {
          * -- and would block on `WaitForChild` looking for them -- but what is
          * under test is only what the server does when attaching fails.
          */
-        function gateway(refuses: () => boolean): RemoteGateway {
+        function gateway(refuses: () => boolean): RemoteGateway
+        {
             return {
                 listen: (): void => {
                     if (refuses()) {

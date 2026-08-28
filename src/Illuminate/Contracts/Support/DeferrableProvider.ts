@@ -18,12 +18,14 @@ import type { Abstract } from 'Illuminate/Container/Types';
  * export class PipelineServiceProvider extends ServiceProvider { ... }
  * ```
  */
-export interface DeferrableProvider {
+export interface DeferrableProvider
+{
     /** Get the services provided by the provider. */
     provides(): Array<Abstract>;
 }
 
-export function DeferrableProvider() {
+export function DeferrableProvider()
+{
     return (target: object): void => {
         // Every class of the chain except the root: for a provider the root
         // is the base ServiceProvider, whose empty `provides()` must not

@@ -4,14 +4,16 @@ import type { Container } from 'Illuminate/Contracts/Container/Container';
 import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] class Context`. */
-export interface Context extends ContextualAttribute {
+export interface Context extends ContextualAttribute
+{
     readonly key: string;
     readonly default?: unknown;
     readonly hidden: boolean;
 }
 
 /** Resolve the annotated parameter from the log context repository. */
-export function Context(key: string, defaultValue?: unknown, hidden = false) {
+export function Context(key: string, defaultValue?: unknown, hidden = false)
+{
     const instance: Context = {
         key,
         default: defaultValue,

@@ -18,7 +18,8 @@ export type Next = (passable: Passable) => unknown;
  * `withinTransaction()` is not ported -- it wraps the run in a database
  * transaction, and there is no database. `Macroable` needs `__call`.
  */
-export class Pipeline implements PipelineContract {
+export class Pipeline implements PipelineContract
+{
     /** The object being passed through the pipeline. */
     protected passable: Passable;
 
@@ -32,24 +33,28 @@ export class Pipeline implements PipelineContract {
     protected _finally?: (passable: Passable) => void;
 
     /** Create a new class instance. */
-    public constructor(protected container?: Container) {}
+    public constructor(protected container?: Container)
+    {}
 
     /** Set the object being sent through the pipeline. */
-    public send(passable: Passable): this {
+    public send(passable: Passable): this
+    {
         this.passable = passable;
 
         return this;
     }
 
     /** Set the array of pipes. */
-    public through(pipes: Pipe | Array<Pipe>): this {
+    public through(pipes: Pipe | Array<Pipe>): this
+    {
         this._pipes = this.asList(pipes);
 
         return this;
     }
 
     /** Push additional pipes onto the pipeline. */
-    public pipe(pipes: Pipe | Array<Pipe>): this {
+    public pipe(pipes: Pipe | Array<Pipe>): this
+    {
         for (const entry of this.asList(pipes)) {
             this._pipes.push(entry);
         }
@@ -64,19 +69,22 @@ export class Pipeline implements PipelineContract {
      * `wrapPipes()` has to tell `[Throttle, "60"]` -- one pipe -- from
      * `[Throttle, Substitute]` -- two.
      */
-    protected asList(pipes: Pipe | Array<Pipe>): Array<Pipe> {
+    protected asList(pipes: Pipe | Array<Pipe>): Array<Pipe>
+    {
         return wrapPipes(pipes);
     }
 
     /** Set the method to call on the pipes. */
-    public via(method: string): this {
+    public via(method: string): this
+    {
         this.method = method;
 
         return this;
     }
 
     /** Run the pipeline with a final destination callback. */
-    public then(destination: (passable: Passable) => unknown): unknown {
+    public then(destination: (passable: Passable) => unknown): unknown
+    {
         const pipes = this.pipes();
 
         let stack: Next = this.prepareDestination(destination);
@@ -95,19 +103,22 @@ export class Pipeline implements PipelineContract {
     }
 
     /** Run the pipeline and return the result. */
-    public thenReturn(): unknown {
+    public thenReturn(): unknown
+    {
         return this.then((passable) => passable);
     }
 
     /** Set a callback to run when the pipeline finishes, whatever happened. */
-    public finally(callback: (passable: Passable) => void): this {
+    public finally(callback: (passable: Passable) => void): this
+    {
         this._finally = callback;
 
         return this;
     }
 
     /** Get the final piece of the pipeline onion. */
-    protected prepareDestination(destination: (passable: Passable) => unknown): Next {
+    protected prepareDestination(destination: (passable: Passable) => unknown): Next
+    {
         return (passable: Passable) => {
             const [ok, result] = pcall(() => destination(passable));
 
@@ -120,7 +131,8 @@ export class Pipeline implements PipelineContract {
     }
 
     /** Wrap one pipe around the rest of the stack. */
-    protected carry(stack: Next, pipe: Pipe): Next {
+    protected carry(stack: Next, pipe: Pipe): Next
+    {
         return (passable: Passable) => {
             // `handleCarry` runs inside the protected region, as it does in
             // PHP's try: Routing overrides it with `toResponse()`, and what
@@ -136,7 +148,8 @@ export class Pipeline implements PipelineContract {
     }
 
     /** Call one pipe, whichever of the three shapes it is. */
-    protected callPipe(pipe: Pipe, passable: Passable, stack: Next): unknown {
+    protected callPipe(pipe: Pipe, passable: Passable, stack: Next): unknown
+    {
         // If the pipe is a callable, then we will call it directly, but otherwise we
         // will resolve the pipes out of the dependency container and call it with
         // the appropriate method and arguments, returning the results back out.
@@ -176,7 +189,8 @@ export class Pipeline implements PipelineContract {
      * PHP asks `is_object($pipe)`; a class is a table here too, so the question
      * is whether it is an instance of one.
      */
-    protected isPipeInstance(pipe: Pipe): boolean {
+    protected isPipeInstance(pipe: Pipe): boolean
+    {
         if (!typeIs(pipe, 'table')) {
             return false;
         }
@@ -192,7 +206,8 @@ export class Pipeline implements PipelineContract {
      * A class cannot be spelled `"Class:60,1"` the way PHP spells one, so the
      * same thing is said with a list: the class first, its arguments after.
      */
-    protected parsePipeString(pipe: Pipe): [Abstract, Array<string>] {
+    protected parsePipeString(pipe: Pipe): [Abstract, Array<string>]
+    {
         if (Util.isArray(pipe)) {
             const list = pipe as Array<defined>;
             const parameters = new Array<string>();
@@ -218,12 +233,14 @@ export class Pipeline implements PipelineContract {
     }
 
     /** Get the array of configured pipes. */
-    protected pipes(): Array<Pipe> {
+    protected pipes(): Array<Pipe>
+    {
         return this._pipes;
     }
 
     /** Get the container instance. */
-    protected getContainer(): Container {
+    protected getContainer(): Container
+    {
         if (this.container === undefined) {
             throw new RuntimeException('A container instance has not been passed to the Pipeline.');
         }
@@ -232,19 +249,22 @@ export class Pipeline implements PipelineContract {
     }
 
     /** Set the container instance. */
-    public setContainer(container: Container): this {
+    public setContainer(container: Container): this
+    {
         this.container = container;
 
         return this;
     }
 
     /** Handle the value returned from each pipe before passing it to the next. */
-    protected handleCarry(carry: unknown): unknown {
+    protected handleCarry(carry: unknown): unknown
+    {
         return carry;
     }
 
     /** Handle the given exception. */
-    protected handleException(passable: Passable, e: unknown): unknown {
+    protected handleException(passable: Passable, e: unknown): unknown
+    {
         throw e;
     }
 }

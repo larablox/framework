@@ -1,4 +1,4 @@
-﻿/// <reference types="@rbxts/testez/globals" />
+/// <reference types="@rbxts/testez/globals" />
 import { ArrayLock } from 'Illuminate/Cache/ArrayLock';
 import { ArrayStore } from 'Illuminate/Cache/ArrayStore';
 
@@ -125,10 +125,12 @@ export = (): void => {
         // PHP: CacheArrayStoreTest::testStoreItemForeverProperlyStoresInArray
         // (Mockery partial mock -> recording subclass, see class comment)
         it('forever() calls put() with a zero TTL', () => {
-            class RecordingArrayStore extends ArrayStore {
+            class RecordingArrayStore extends ArrayStore
+            {
                 public putCalls = new Array<[string, unknown, number]>();
 
-                public put(key: string, value: unknown, seconds: number): boolean {
+                public put(key: string, value: unknown, seconds: number): boolean
+                {
                     this.putCalls.push([key, value, seconds]);
 
                     return super.put(key, value, seconds);
@@ -331,7 +333,7 @@ export = (): void => {
         // PHP: CacheArrayStoreTest::testValuesAreStoredByReferenceIfSerializationIsDisabled
         it('values are stored by reference (the only behaviour this port has)', () => {
             const store = new ArrayStore();
-            const object: { foo?: boolean; bar?: boolean } = { foo: true };
+            const object: { foo?: boolean; bar?: boolean; } = { foo: true };
 
             store.put('object', object, 10);
             object.bar = true;

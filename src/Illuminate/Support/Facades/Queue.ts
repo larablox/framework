@@ -8,7 +8,8 @@ import type { QueueManager } from 'Illuminate/Queue/QueueManager';
  * @see Illuminate/Queue/QueueManager
  */
 @Forwards()
-export class Queue extends Facade {
+export class Queue extends Facade
+{
     declare public static connection: Forwarded<QueueManager['connection']>;
     declare public static connected: Forwarded<QueueManager['connected']>;
     declare public static extend: Forwarded<QueueManager['extend']>;
@@ -30,7 +31,8 @@ export class Queue extends Facade {
     declare public static pop: Forwarded<QueueManager['pop']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return 'queue';
     }
 }

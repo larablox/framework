@@ -10,15 +10,18 @@
  * PHP invokes the handler through `__invoke`. There is no `__invoke` here, so
  * the call is spelled out.
  */
-export class ReportableHandler {
+export class ReportableHandler
+{
     /** Indicates if reporting should stop after invoking this handler. */
     protected shouldStop = false;
 
     /** Create a new reportable handler instance. */
-    public constructor(protected readonly callback: (e: unknown) => unknown) {}
+    public constructor(protected readonly callback: (e: unknown) => unknown)
+    {}
 
     /** Invoke the handler. */
-    public invoke(e: unknown): boolean {
+    public invoke(e: unknown): boolean
+    {
         const result = this.callback(e);
 
         if (result === false) {
@@ -29,7 +32,8 @@ export class ReportableHandler {
     }
 
     /** Indicate that report handling should stop after invoking this callback. */
-    public stop(): this {
+    public stop(): this
+    {
         this.shouldStop = true;
 
         return this;

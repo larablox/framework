@@ -75,7 +75,8 @@ import type { LoggerInterface } from '@larablox/monolog/out/Monolog/LoggerInterf
  */
 
 /** Build a bare `Application` with a `logging.*` config repository bound in. */
-function makeApp(config: ArrayAccessible = {}): Application {
+function makeApp(config: ArrayAccessible = {}): Application
+{
     const app = new Application();
     app.instance('config', new ConfigRepository({ logging: { channels: config } }));
 
@@ -399,7 +400,7 @@ export = (): void => {
             const channel = manager.channel('single');
 
             let context: Record<string, unknown> | undefined;
-            channel.listen((message: { context: Record<string, unknown> }) => {
+            channel.listen((message: { context: Record<string, unknown>; }) => {
                 context = message.context;
             });
 
@@ -418,7 +419,7 @@ export = (): void => {
 
             let context: Record<string, unknown> | undefined;
             manager.shareContext({ 'invocation-id': 'expected-id' });
-            manager.channel('single').listen((message: { context: Record<string, unknown> }) => {
+            manager.channel('single').listen((message: { context: Record<string, unknown>; }) => {
                 context = message.context;
             });
             manager.channel('single').info('xxxx');
@@ -448,7 +449,7 @@ export = (): void => {
             let context: Record<string, unknown> | undefined;
             manager.shareContext({ 'invocation-id': 'expected-id' });
             const stack = manager.stack(['single']);
-            stack.listen((message: { context: Record<string, unknown> }) => {
+            stack.listen((message: { context: Record<string, unknown>; }) => {
                 context = message.context;
             });
             stack.info('xxxx');
@@ -466,7 +467,7 @@ export = (): void => {
             let context: Record<string, unknown> | undefined;
             manager.shareContext({ 'invocation-id': 'expected-id' });
             manager.shareContext({ 'invocation-start': 1651800456 });
-            manager.channel('single').listen((message: { context: Record<string, unknown> }) => {
+            manager.channel('single').listen((message: { context: Record<string, unknown>; }) => {
                 context = message.context;
             });
             manager.channel('single').info('xxxx', { logged: 'context' });
@@ -498,8 +499,10 @@ export = (): void => {
 
         it('applies a class-based tap resolved from the container, formatting every handler', () => {
             // PHP: LogManagerTest::testLogManagerCreateCustomFormatterWithTap
-            class CustomizeFormatter {
-                public __invoke(logger: Logger): void {
+            class CustomizeFormatter
+            {
+                public __invoke(logger: Logger): void
+                {
                     for (const handler of (logger.getLogger() as Monolog).getHandlers()) {
                         (handler as AbstractProcessingHandler).setFormatter(
                             new LineFormatter('[%datetime%] %channel%.%level_name%: %message% %context% %extra%'),
@@ -549,19 +552,29 @@ export = (): void => {
 
         it('extend() registers a custom driver creator used by channel()', () => {
             // PHP: LogManagerTest::testDriverUsersPsrLoggerManagerReturnsLogger
-            class LoggerSpy {
-                public logs = new Array<{ level: string; message: string }>();
+            class LoggerSpy
+            {
+                public logs = new Array<{ level: string; message: string; }>();
 
-                public emergency(): void {}
-                public alert(): void {}
-                public critical(): void {}
-                public error(): void {}
-                public warning(): void {}
-                public notice(): void {}
-                public info(): void {}
-                public debug(): void {}
+                public emergency(): void
+                {}
+                public alert(): void
+                {}
+                public critical(): void
+                {}
+                public error(): void
+                {}
+                public warning(): void
+                {}
+                public notice(): void
+                {}
+                public info(): void
+                {}
+                public debug(): void
+                {}
 
-                public log(level: string, message: unknown): void {
+                public log(level: string, message: unknown): void
+                {
                     this.logs.push({ level, message: tostring(message) });
                 }
             }

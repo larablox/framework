@@ -42,7 +42,8 @@ const EMPTY_PAYLOAD: JobPayload = {
  * itself with `withChain()`. `dispatchAfterResponse()` has no response to come
  * after -- `DeferredQueue` is the thing that resembles it here.
  */
-export class Dispatcher implements QueueingDispatcher {
+export class Dispatcher implements QueueingDispatcher
+{
     /** The pipeline instance for the bus. */
     protected readonly pipeline: Pipeline;
 
@@ -56,12 +57,14 @@ export class Dispatcher implements QueueingDispatcher {
     public constructor(
         protected readonly container: Container,
         protected readonly queueResolver?: QueueResolver,
-    ) {
+    )
+    {
         this.pipeline = new Pipeline(container);
     }
 
     /** Dispatch a command to its appropriate handler. */
-    public dispatch(command: object): unknown {
+    public dispatch(command: object): unknown
+    {
         return this.queueResolver !== undefined && this.commandShouldBeQueued(command)
             ? this.dispatchToQueue(command)
             : this.dispatchNow(command);
@@ -72,13 +75,14 @@ export class Dispatcher implements QueueingDispatcher {
      *
      * Queueable jobs will be dispatched to the "sync" queue.
      */
-    public dispatchSync(command: object, handler?: object): unknown {
-        const onConnection = (command as { onConnection?: unknown }).onConnection;
+    public dispatchSync(command: object, handler?: object): unknown
+    {
+        const onConnection = (command as { onConnection?: unknown; }).onConnection;
 
         if (
-            this.queueResolver !== undefined &&
-            this.commandShouldBeQueued(command) &&
-            typeIs(onConnection, 'function')
+            this.queueResolver !== undefined
+            && this.commandShouldBeQueued(command)
+            && typeIs(onConnection, 'function')
         ) {
             // Reached through the table rather than the method, so the receiver
             // is passed by hand: a dot call would leave `self` behind.
@@ -91,7 +95,8 @@ export class Dispatcher implements QueueingDispatcher {
     }
 
     /** Dispatch a command to its appropriate handler in the current process without using the synchronous queue. */
-    public dispatchNow(command: object, handler?: object): unknown {
+    public dispatchNow(command: object, handler?: object): unknown
+    {
         if (Reflector.isInstanceOf(command, InteractsWithQueue) && (command as InteractsWithQueue).job === undefined) {
             (command as InteractsWithQueue).setJob(new SyncJob(this.container, EMPTY_PAYLOAD, 'sync', 'sync'));
         }
@@ -109,24 +114,28 @@ export class Dispatcher implements QueueingDispatcher {
     }
 
     /** PHP: `method_exists($target, 'handle') ? 'handle' : '__invoke'`. */
-    protected methodOf(target: object): string {
-        return typeIs((target as { handle?: unknown }).handle, 'function') ? 'handle' : '__invoke';
+    protected methodOf(target: object): string
+    {
+        return typeIs((target as { handle?: unknown; }).handle, 'function') ? 'handle' : '__invoke';
     }
 
     /** Determine if the given command has a handler. */
-    public hasCommandHandler(command: object): boolean {
+    public hasCommandHandler(command: object): boolean
+    {
         return this.handlerFor(command) !== undefined;
     }
 
     /** Retrieve the handler for a command. */
-    public getCommandHandler(command: object): object | undefined {
+    public getCommandHandler(command: object): object | undefined
+    {
         const handler = this.handlerFor(command);
 
         return handler !== undefined ? (this.container.make(handler) as object) : undefined;
     }
 
     /** The registered handler for the command's class, if any. */
-    protected handlerFor(command: object): Abstract | undefined {
+    protected handlerFor(command: object): Abstract | undefined
+    {
         const klass = Reflector.classOf(command);
 
         for (const [mapped, handler] of this.handlers) {
@@ -139,14 +148,17 @@ export class Dispatcher implements QueueingDispatcher {
     }
 
     /** Determine if the given command should be queued. */
-    protected commandShouldBeQueued(command: object): boolean {
+    protected commandShouldBeQueued(command: object): boolean
+    {
         return isShouldQueue(command);
     }
 
     /** Dispatch a command to its appropriate handler behind a queue. */
-    public dispatchToQueue(command: object): unknown {
+    public dispatchToQueue(command: object): unknown
+    {
         const connection = ReadsClassAttributes.getAttributeValue(command, Connection, 'connection') as
-            string | undefined;
+            | string
+            | undefined;
 
         const queue = (this.queueResolver as QueueResolver)(connection);
 
@@ -154,7 +166,7 @@ export class Dispatcher implements QueueingDispatcher {
             throw new RuntimeException('Queue resolver did not return a Queue implementation.');
         }
 
-        const custom = (command as { queue?: unknown }).queue;
+        const custom = (command as { queue?: unknown; }).queue;
 
         if (typeIs(custom, 'function')) {
             return (custom as (self: object, queue: Queue, command: object) => unknown)(command, queue, command);
@@ -164,9 +176,11 @@ export class Dispatcher implements QueueingDispatcher {
     }
 
     /** Push the command onto the given queue instance. */
-    protected pushCommandToQueue(queue: Queue, command: object): unknown {
+    protected pushCommandToQueue(queue: Queue, command: object): unknown
+    {
         const queueName = ReadsClassAttributes.getAttributeValue(command, QueueAttribute, 'queue') as
-            string | undefined;
+            | string
+            | undefined;
 
         const delay = ReadsClassAttributes.getAttributeValue(command, Delay, 'delaySeconds') as DelayValue | undefined;
 
@@ -178,24 +192,28 @@ export class Dispatcher implements QueueingDispatcher {
     }
 
     /** Create a new batch of queueable jobs. */
-    public batch(jobs: Array<Batchable>): PendingBatch {
+    public batch(jobs: Array<Batchable>): PendingBatch
+    {
         return new PendingBatch(this.container, jobs);
     }
 
     /** Attempt to find the batch with the given ID. */
-    public findBatch(batchId: string): Batch | undefined {
+    public findBatch(batchId: string): Batch | undefined
+    {
         return this.container.make<BatchRepository>('bus.batches').find(batchId);
     }
 
     /** Set the pipes through which commands should be piped before dispatching. */
-    public pipeThrough(pipes: Array<Pipe>): this {
+    public pipeThrough(pipes: Array<Pipe>): this
+    {
         this.pipes = pipes;
 
         return this;
     }
 
     /** Map a command to a handler. */
-    public map(map: Array<[object, Abstract]>): this {
+    public map(map: Array<[object, Abstract]>): this
+    {
         for (const entry of map) {
             this.handlers.push(entry);
         }

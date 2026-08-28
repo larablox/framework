@@ -114,7 +114,7 @@
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
-        "ts_hash": "a38f5239fad77b779cef5818a0976fb08a32e22f",
+        "ts_hash": "a53fb59c4640e950c80e5015383a7d3001c27c02",
         "approved_at": "2026-08-28"
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {

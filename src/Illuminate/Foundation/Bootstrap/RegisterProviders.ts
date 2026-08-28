@@ -10,19 +10,22 @@ import type { Repository as ConfigRepository } from 'Illuminate/Contracts/Config
  * the filesystem; `merge()` remains, so packages can still contribute providers
  * before the application registers them.
  */
-export class RegisterProviders implements Bootstrapper {
+export class RegisterProviders implements Bootstrapper
+{
     /** The service providers that should be merged before registration. */
     protected static merged = new Array<Constructor<ServiceProvider>>();
 
     /** Bootstrap the given application. */
-    public bootstrap(app: Application): void {
+    public bootstrap(app: Application): void
+    {
         this.mergeAdditionalProviders(app);
 
         app.registerConfiguredProviders();
     }
 
     /** Merge the additional configured providers into the configuration. */
-    protected mergeAdditionalProviders(app: Application): void {
+    protected mergeAdditionalProviders(app: Application): void
+    {
         const config = app.make<ConfigRepository>('config');
 
         const providers = (config.get('app.providers', []) ?? []) as Array<Constructor<ServiceProvider>>;
@@ -37,7 +40,8 @@ export class RegisterProviders implements Bootstrapper {
     }
 
     /** Merge the given providers into the provider configuration before registration. */
-    public static merge(providers: Array<Constructor<ServiceProvider>>): void {
+    public static merge(providers: Array<Constructor<ServiceProvider>>): void
+    {
         for (const provider of providers) {
             if (!RegisterProviders.merged.includes(provider)) {
                 RegisterProviders.merged.push(provider);
@@ -46,7 +50,8 @@ export class RegisterProviders implements Bootstrapper {
     }
 
     /** Flush the bootstrapper's global state. */
-    public static flushState(): void {
+    public static flushState(): void
+    {
         RegisterProviders.merged.clear();
     }
 }

@@ -19,18 +19,22 @@ import { Tappable } from 'Illuminate/Support/Traits/Tappable';
  */
 export = (): void => {
     describe('Tappable', () => {
-        class TappableClass extends Tappable() {
+        class TappableClass extends Tappable()
+        {
             private name = '';
 
-            public static make(): TappableClass {
+            public static make(): TappableClass
+            {
                 return new TappableClass();
             }
 
-            public setName(name: string): void {
+            public setName(name: string): void
+            {
                 this.name = name;
             }
 
-            public getName(): string {
+            public getName(): string
+            {
                 return this.name;
             }
         }

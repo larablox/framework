@@ -38,25 +38,30 @@ import type { Abstract } from 'Illuminate/Container/Types';
  */
 export = (): void => {
     describe('Container::call()', () => {
-        class ContainerCallConcreteStub {}
+        class ContainerCallConcreteStub
+        {}
 
         /** Stands in for PHP's `stdClass` -- a second, unrelated concrete class. */
-        class ContainerCallOtherStub {}
+        class ContainerCallOtherStub
+        {}
 
-        class ContainerTestCallStub {
-            public work(...args: Array<unknown>): Array<unknown> {
+        class ContainerTestCallStub
+        {
+            public work(...args: Array<unknown>): Array<unknown>
+            {
                 return args;
             }
 
             public inject(
-                @Inject(ContainerCallConcreteStub)
-                stub: ContainerCallConcreteStub,
+                @Inject(ContainerCallConcreteStub) stub: ContainerCallConcreteStub,
                 default_ = 'taylor',
-            ): [ContainerCallConcreteStub, unknown] {
+            ): [ContainerCallConcreteStub, unknown]
+            {
                 return [stub, default_];
             }
 
-            public unresolvable(@Inject('$foo') foo: unknown, @Inject('$bar') bar: unknown): Array<unknown> {
+            public unresolvable(@Inject('$foo') foo: unknown, @Inject('$bar') bar: unknown): Array<unknown>
+            {
                 return [foo, bar];
             }
         }
@@ -121,16 +126,18 @@ export = (): void => {
             // that lookup can never match (see `BoundMethod.ts`).
             let container = new Container();
             container.bind('ContainerTestCallStub', ContainerTestCallStub);
-            container.bindMethod([ContainerTestCallStub, 'unresolvable'], (stub: ContainerTestCallStub) =>
-                stub.unresolvable('foo', 'bar'),
+            container.bindMethod(
+                [ContainerTestCallStub, 'unresolvable'],
+                (stub: ContainerTestCallStub) => stub.unresolvable('foo', 'bar'),
             );
             let result = container.call('ContainerTestCallStub@unresolvable');
             expect((result as Array<unknown>)[0]).to.equal('foo');
             expect((result as Array<unknown>)[1]).to.equal('bar');
 
             container = new Container();
-            container.bindMethod([ContainerTestCallStub, 'unresolvable'], (stub: ContainerTestCallStub) =>
-                stub.unresolvable('foo', 'bar'),
+            container.bindMethod(
+                [ContainerTestCallStub, 'unresolvable'],
+                (stub: ContainerTestCallStub) => stub.unresolvable('foo', 'bar'),
             );
             result = container.call([new ContainerTestCallStub(), 'unresolvable']);
             expect((result as Array<unknown>)[0]).to.equal('foo');
@@ -159,16 +166,18 @@ export = (): void => {
             // PHP: ContainerCallTest::testBindMethodAcceptsAnArray
             let container = new Container();
             container.bind('ContainerTestCallStub', ContainerTestCallStub);
-            container.bindMethod([ContainerTestCallStub, 'unresolvable'], (stub: ContainerTestCallStub) =>
-                stub.unresolvable('foo', 'bar'),
+            container.bindMethod(
+                [ContainerTestCallStub, 'unresolvable'],
+                (stub: ContainerTestCallStub) => stub.unresolvable('foo', 'bar'),
             );
             let result = container.call('ContainerTestCallStub@unresolvable');
             expect((result as Array<unknown>)[0]).to.equal('foo');
             expect((result as Array<unknown>)[1]).to.equal('bar');
 
             container = new Container();
-            container.bindMethod([ContainerTestCallStub, 'unresolvable'], (stub: ContainerTestCallStub) =>
-                stub.unresolvable('foo', 'bar'),
+            container.bindMethod(
+                [ContainerTestCallStub, 'unresolvable'],
+                (stub: ContainerTestCallStub) => stub.unresolvable('foo', 'bar'),
             );
             result = container.call([new ContainerTestCallStub(), 'unresolvable']);
             expect((result as Array<unknown>)[0]).to.equal('foo');
@@ -181,27 +190,28 @@ export = (): void => {
         // `testCallWithoutRequiredParamsOnClosureThrowsException`,
         // `testCallWithNullableClassParameterDefaultValue{,WithBinding}` all
         // become static methods here -- see class comment.
-        class ContainerCallClosureStub {
+        class ContainerCallClosureStub
+        {
             public static injected(
-                @Inject(ContainerCallConcreteStub)
-                stub: ContainerCallConcreteStub,
-            ): ContainerCallConcreteStub {
+                @Inject(ContainerCallConcreteStub) stub: ContainerCallConcreteStub,
+            ): ContainerCallConcreteStub
+            {
                 return stub;
             }
 
             public static withDefault(
-                @Inject(ContainerCallConcreteStub)
-                foo: ContainerCallConcreteStub,
+                @Inject(ContainerCallConcreteStub) foo: ContainerCallConcreteStub,
                 bar: unknown = [],
-            ): [ContainerCallConcreteStub, unknown] {
+            ): [ContainerCallConcreteStub, unknown]
+            {
                 return [foo, bar];
             }
 
             public static withConcreteOverride(
                 @Inject(ContainerCallOtherStub) foo: ContainerCallOtherStub,
-                @Inject(ContainerCallConcreteStub)
-                bar: ContainerCallConcreteStub,
-            ): [ContainerCallOtherStub, ContainerCallConcreteStub] {
+                @Inject(ContainerCallConcreteStub) bar: ContainerCallConcreteStub,
+            ): [ContainerCallOtherStub, ContainerCallConcreteStub]
+            {
                 return [foo, bar];
             }
 
@@ -211,9 +221,9 @@ export = (): void => {
                 // test is that the *variadic* is the one bound to a list, so
                 // the two classes have to stay distinct.
                 @Inject(ContainerCallOtherStub) foo: ContainerCallOtherStub,
-                @Variadic(ContainerCallConcreteStub)
-                ...bar: Array<ContainerCallConcreteStub>
-            ): Array<unknown> {
+                @Variadic(ContainerCallConcreteStub) ...bar: Array<ContainerCallConcreteStub>
+            ): Array<unknown>
+            {
                 return [foo, ...bar];
             }
 
@@ -221,14 +231,15 @@ export = (): void => {
                 @Inject('$foo') foo: unknown,
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- exists only to exercise the tail-parameter-default substitution path
                 _bar = 'default',
-            ): unknown {
+            ): unknown
+            {
                 return foo;
             }
 
             public static nullableDefault(
-                @Inject(ContainerCallConcreteStub)
-                stub?: ContainerCallConcreteStub,
-            ): ContainerCallConcreteStub | undefined {
+                @Inject(ContainerCallConcreteStub) stub?: ContainerCallConcreteStub,
+            ): ContainerCallConcreteStub | undefined
+            {
                 return stub;
             }
         }

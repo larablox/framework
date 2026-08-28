@@ -10,7 +10,8 @@ import type { Request } from 'Illuminate/Http/Request';
  * one, `CompiledRouteCollection`, is Symfony's compiler and route caching,
  * neither of which exists here.
  */
-export abstract class AbstractRouteCollection {
+export abstract class AbstractRouteCollection
+{
     /** Find the first route matching a given request. */
     public abstract match(request: Request): Route;
 
@@ -27,7 +28,8 @@ export abstract class AbstractRouteCollection {
     public abstract hasNamedRoute(name: string): boolean;
 
     /** Determine the first route matching the given request. */
-    protected matchAgainstRoutes(routes: Array<Route>, request: Request, includingMethod = true): Route | undefined {
+    protected matchAgainstRoutes(routes: Array<Route>, request: Request, includingMethod = true): Route | undefined
+    {
         let fallbackRoute: Route | undefined;
 
         for (const route of routes) {
@@ -48,7 +50,8 @@ export abstract class AbstractRouteCollection {
     }
 
     /** Handle the matched route. */
-    protected handleMatchedRoute(request: Request, route?: Route): Route {
+    protected handleMatchedRoute(request: Request, route?: Route): Route
+    {
         if (route !== undefined) {
             // PHP binds the collection's own route, because nothing else will
             // ever run through it. Here it is a template and the request gets a
@@ -78,7 +81,8 @@ export abstract class AbstractRouteCollection {
      * registered under -- and spares the collection a value import of the
      * router, which imports it back.
      */
-    protected checkForAlternateVerbs(request: Request): Array<string> {
+    protected checkForAlternateVerbs(request: Request): Array<string>
+    {
         const others = new Array<string>();
 
         for (const method of this.alternateVerbOrder()) {
@@ -103,7 +107,8 @@ export abstract class AbstractRouteCollection {
      * `GET,POST,HEAD`. Spelled out here rather than imported: `Router`
      * imports the collection back.
      */
-    protected alternateVerbOrder(): Array<string> {
+    protected alternateVerbOrder(): Array<string>
+    {
         const verbs = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
         const registered = this.registeredMethods();
 
@@ -114,7 +119,8 @@ export abstract class AbstractRouteCollection {
     }
 
     /** Get a route (if necessary) that responds when other available methods are present. */
-    protected getRouteForMethods(request: Request, methods: Array<string>): Route {
+    protected getRouteForMethods(request: Request, methods: Array<string>): Route
+    {
         if (request.isMethod('OPTIONS')) {
             return new Route('OPTIONS', request.path(), {
                 uses: () =>
@@ -128,10 +134,13 @@ export abstract class AbstractRouteCollection {
     }
 
     /** Throw a method not allowed HTTP exception. */
-    protected requestMethodNotAllowed(request: Request, others: Array<string>, method: string): never {
+    protected requestMethodNotAllowed(request: Request, others: Array<string>, method: string): never
+    {
         throw new MethodNotAllowedHttpException(
             others,
-            `The ${method} method is not supported for route ${request.path()}. Supported methods: ${others.join(', ')}.`,
+            `The ${method} method is not supported for route ${request.path()}. Supported methods: ${
+                others.join(', ')
+            }.`,
         );
     }
 }

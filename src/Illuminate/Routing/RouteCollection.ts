@@ -10,7 +10,8 @@ import type { Route } from 'Illuminate/Routing/Route';
  * `toCompiledRouteCollection()` -- route caching needs a console and Symfony's
  * compiler.
  */
-export class RouteCollection extends AbstractRouteCollection {
+export class RouteCollection extends AbstractRouteCollection
+{
     /** An array of the routes keyed by method. */
     protected routes = new OrderedMap<string, OrderedMap<string, Route>>();
 
@@ -24,7 +25,8 @@ export class RouteCollection extends AbstractRouteCollection {
     protected actionList = new OrderedMap<string, Route>();
 
     /** Add a Route instance to the collection. */
-    public add(route: Route): Route {
+    public add(route: Route): Route
+    {
         this.addToCollections(route);
 
         this.addLookups(route);
@@ -33,7 +35,8 @@ export class RouteCollection extends AbstractRouteCollection {
     }
 
     /** Add the given route to the arrays of routes. */
-    protected addToCollections(route: Route): void {
+    protected addToCollections(route: Route): void
+    {
         const uri = route.uri();
 
         for (const method of route.methods()) {
@@ -51,7 +54,8 @@ export class RouteCollection extends AbstractRouteCollection {
     }
 
     /** Add the route to any look-up tables if necessary. */
-    protected addLookups(route: Route): void {
+    protected addLookups(route: Route): void
+    {
         const name = route.getName();
 
         if (name !== undefined) {
@@ -64,12 +68,14 @@ export class RouteCollection extends AbstractRouteCollection {
     }
 
     /** Add a route to the controller action dictionary. */
-    protected addToActionList(route: Route): void {
+    protected addToActionList(route: Route): void
+    {
         this.actionList.set(route.getActionName(), route);
     }
 
     /** Refresh the name look-up table. */
-    public refreshNameLookups(): void {
+    public refreshNameLookups(): void
+    {
         this.nameList = new OrderedMap<string, Route>();
 
         for (const route of this.getRoutes()) {
@@ -82,7 +88,8 @@ export class RouteCollection extends AbstractRouteCollection {
     }
 
     /** Refresh the action look-up table. */
-    public refreshActionLookups(): void {
+    public refreshActionLookups(): void
+    {
         this.actionList = new OrderedMap<string, Route>();
 
         for (const route of this.getRoutes()) {
@@ -93,7 +100,8 @@ export class RouteCollection extends AbstractRouteCollection {
     }
 
     /** Find the first route matching a given request. */
-    public match(request: Request): Route {
+    public match(request: Request): Route
+    {
         const routes = this.get(request.method());
 
         // First, we will see if we can find a matching route for this current request
@@ -103,7 +111,8 @@ export class RouteCollection extends AbstractRouteCollection {
     }
 
     /** Get routes from the collection by method. */
-    public get(method?: string): Array<Route> {
+    public get(method?: string): Array<Route>
+    {
         if (method === undefined) {
             return this.getRoutes();
         }
@@ -112,42 +121,50 @@ export class RouteCollection extends AbstractRouteCollection {
     }
 
     /** The verbs the collection holds routes for. */
-    protected registeredMethods(): Array<string> {
+    protected registeredMethods(): Array<string>
+    {
         return this.routes.keys();
     }
 
     /** Determine if the route collection contains a given named route. */
-    public hasNamedRoute(name: string): boolean {
+    public hasNamedRoute(name: string): boolean
+    {
         return this.nameList.has(name);
     }
 
     /** Get a route instance by its name. */
-    public getByName(name: string): Route | undefined {
+    public getByName(name: string): Route | undefined
+    {
         return this.nameList.get(name);
     }
 
     /** Get a route instance by its controller action. */
-    public getByAction(action: string): Route | undefined {
+    public getByAction(action: string): Route | undefined
+    {
         return this.actionList.get(action);
     }
 
     /** Get all of the routes in the collection. */
-    public getRoutes(): Array<Route> {
+    public getRoutes(): Array<Route>
+    {
         return this.allRoutes.values();
     }
 
     /** Get all of the routes keyed by their HTTP verb / method. */
-    public getRoutesByMethod(): OrderedMap<string, OrderedMap<string, Route>> {
+    public getRoutesByMethod(): OrderedMap<string, OrderedMap<string, Route>>
+    {
         return this.routes;
     }
 
     /** Get all of the routes keyed by their name. */
-    public getRoutesByName(): OrderedMap<string, Route> {
+    public getRoutesByName(): OrderedMap<string, Route>
+    {
         return this.nameList;
     }
 
     /** Count the number of items in the collection. */
-    public count(): number {
+    public count(): number
+    {
         return this.allRoutes.size();
     }
 }

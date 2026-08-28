@@ -487,9 +487,9 @@ export = (): void => {
             const context = new Repository(new Dispatcher());
             let contextInClosure:
                 | {
-                      data: Record<string, unknown>;
-                      hidden: Record<string, unknown>;
-                  }
+                    data: Record<string, unknown>;
+                    hidden: Record<string, unknown>;
+                }
                 | undefined;
 
             const callback = () => {

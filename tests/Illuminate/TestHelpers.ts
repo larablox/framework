@@ -13,7 +13,8 @@
  */
 
 /** Renders a value the way TestEZ's own failure messages do. */
-function describeValue(value: unknown): string {
+function describeValue(value: unknown): string
+{
     return `${tostring(value)} (${typeOf(value)})`;
 }
 
@@ -32,7 +33,8 @@ function compare(
     path: string,
     seen: Map<object, Set<object>>,
     depth: number,
-): void {
+): void
+{
     if (typeIs(expected, 'table')) {
         if (!typeIs(actual, 'table')) {
             error(`${path}: expected a table, got ${describeValue(actual)}`, 0);
@@ -95,12 +97,13 @@ function compare(
  * Failures name the path to the first mismatching leaf (`value[2][name]: ...`)
  * rather than printing two table addresses.
  */
-export function expectDeepEqual(actual: unknown, expected: unknown): void {
+export function expectDeepEqual(actual: unknown, expected: unknown): void
+{
     compare(actual, expected, 'value', new Map<object, Set<object>>(), 0);
 }
 
 /** An `Illuminate/Exception` subclass, as passed to `expectThrows()`. */
-type ExceptionClass = new (...args: never[]) => object;
+type ExceptionClass = new(...args: never[]) => object;
 
 /**
  * Asserts that `fn` throws -- optionally that the thrown value is an instance
@@ -114,7 +117,8 @@ type ExceptionClass = new (...args: never[]) => object;
  * `ClassName: message` (`Exception.toString()` is mapped onto `__tostring`),
  * so a substring search covers both the class name and the message text.
  */
-export function expectThrows(fn: () => unknown, expected?: string | ExceptionClass): void {
+export function expectThrows(fn: () => unknown, expected?: string | ExceptionClass): void
+{
     const [ok, thrown] = pcall(fn);
 
     if (ok) {

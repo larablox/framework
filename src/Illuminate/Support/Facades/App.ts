@@ -8,7 +8,8 @@ import type { Application } from 'Illuminate/Contracts/Foundation/Application';
  * @see Illuminate/Foundation/Application
  */
 @Forwards()
-export class App extends Facade {
+export class App extends Facade
+{
     declare public static version: Forwarded<Application['version']>;
     declare public static environment: Forwarded<Application['environment']>;
     declare public static bound: Forwarded<Application['bound']>;
@@ -26,7 +27,8 @@ export class App extends Facade {
     declare public static hasBeenBootstrapped: Forwarded<Application['hasBeenBootstrapped']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return 'app';
     }
 }

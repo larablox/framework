@@ -19,7 +19,8 @@ const MAGIC = '([%^%$%(%)%%%.%[%]%*%+%-%?])';
  * `0` -- and letting the float through instead poisons every arithmetic
  * downstream of it.
  */
-function parseFinite(value: string, base?: number): number | undefined {
+function parseFinite(value: string, base?: number): number | undefined
+{
     const parsed = base === undefined ? tonumber(value) : tonumber(value, base);
 
     if (parsed === undefined) {
@@ -45,11 +46,67 @@ function parseFinite(value: string, base?: number): number | undefined {
  * codepoints against this set instead.
  */
 const INVISIBLE_CODEPOINTS = new Set<number>([
-    0x0000, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x00a0, 0x00ad, 0x034f, 0x061c, 0x115f, 0x1160, 0x17b4,
-    0x17b5, 0x180e, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a, 0x200b,
-    0x200c, 0x200d, 0x200e, 0x200f, 0x202f, 0x205f, 0x2060, 0x2061, 0x2062, 0x2063, 0x2064, 0x2065, 0x206a, 0x206b,
-    0x206c, 0x206d, 0x206e, 0x206f, 0x2800, 0x3000, 0x3164, 0xfeff, 0xffa0, 0x1d159, 0x1d173, 0x1d174, 0x1d175, 0x1d176,
-    0x1d177, 0x1d178, 0x1d179, 0x1d17a, 0xe0020,
+    0x0000,
+    0x0009,
+    0x000a,
+    0x000b,
+    0x000c,
+    0x000d,
+    0x0020,
+    0x00a0,
+    0x00ad,
+    0x034f,
+    0x061c,
+    0x115f,
+    0x1160,
+    0x17b4,
+    0x17b5,
+    0x180e,
+    0x2000,
+    0x2001,
+    0x2002,
+    0x2003,
+    0x2004,
+    0x2005,
+    0x2006,
+    0x2007,
+    0x2008,
+    0x2009,
+    0x200a,
+    0x200b,
+    0x200c,
+    0x200d,
+    0x200e,
+    0x200f,
+    0x202f,
+    0x205f,
+    0x2060,
+    0x2061,
+    0x2062,
+    0x2063,
+    0x2064,
+    0x2065,
+    0x206a,
+    0x206b,
+    0x206c,
+    0x206d,
+    0x206e,
+    0x206f,
+    0x2800,
+    0x3000,
+    0x3164,
+    0xfeff,
+    0xffa0,
+    0x1d159,
+    0x1d173,
+    0x1d174,
+    0x1d175,
+    0x1d176,
+    0x1d177,
+    0x1d178,
+    0x1d179,
+    0x1d17a,
+    0xe0020,
 ]);
 
 const LOWER_ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
@@ -156,7 +213,8 @@ const ASCII_TABLE: Array<[string, string]> = [
  * than in one of its own -- the two classes call each other, and a cyclic
  * value import is fatal here. Its own doc block has the detail.
  */
-export class Str {
+export class Str
+{
     protected static snakeCache = new Map<string, string>();
 
     protected static camelCache = new Map<string, string>();
@@ -164,7 +222,8 @@ export class Str {
     protected static studlyCache = new Map<string, string>();
 
     /** Get a new `Stringable` object from the given string. */
-    public static of(value: string | number | Stringable = ''): Stringable {
+    public static of(value: string | number | Stringable = ''): Stringable
+    {
         return new Stringable(value);
     }
 
@@ -173,22 +232,23 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Return the length of the given string, in codepoints. */
-    public static length(value: string): number {
+    public static length(value: string): number
+    {
         const [count] = utf8.len(value);
 
         return typeIs(count, 'number') ? count : value.size();
     }
 
     /** Returns the portion of the string specified by the start and length. */
-    public static substr(value: string, start: number, length?: number): string {
+    public static substr(value: string, start: number, length?: number): string
+    {
         const total = Str.length(value);
         const from = start < 0 ? math.max(total + start, 0) : math.min(start, total);
-        const take =
-            length === undefined
-                ? total - from
-                : length < 0
-                  ? math.max(total - from + length, 0)
-                  : math.min(length, total - from);
+        const take = length === undefined
+            ? total - from
+            : length < 0
+            ? math.max(total - from + length, 0)
+            : math.min(length, total - from);
 
         if (take <= 0) {
             return '';
@@ -205,7 +265,8 @@ export class Str {
     }
 
     /** Get the character at the specified index. */
-    public static charAt(value: string, index: number): string | undefined {
+    public static charAt(value: string, index: number): string | undefined
+    {
         const total = Str.length(value);
 
         if (index < 0 ? index < -total : index > total - 1) {
@@ -216,12 +277,14 @@ export class Str {
     }
 
     /** Take the first or last given number of characters. */
-    public static take(value: string, limit: number): string {
+    public static take(value: string, limit: number): string
+    {
         return limit < 0 ? Str.substr(value, limit) : Str.substr(value, 0, limit);
     }
 
     /** Reverse the given string. */
-    public static reverse(value: string): string {
+    public static reverse(value: string): string
+    {
         const characters = new Array<string>();
 
         for (const [, code] of utf8.codes(value)) {
@@ -242,7 +305,8 @@ export class Str {
      * as well as in the position it answers. Luau's `string.find()` counts
      * bytes, so both ends are converted; the two only agree on ASCII.
      */
-    public static position(haystack: string, needle: string, offset = 0): number | undefined {
+    public static position(haystack: string, needle: string, offset = 0): number | undefined
+    {
         const total = Str.length(haystack);
         const from = offset < 0 ? math.max(total + offset, 0) : offset;
 
@@ -267,7 +331,8 @@ export class Str {
     }
 
     /** Determine if a given string contains a given substring. */
-    public static contains(haystack: string, needles: string | Array<string>, ignoreCase = false): boolean {
+    public static contains(haystack: string, needles: string | Array<string>, ignoreCase = false): boolean
+    {
         // PHP folds case with `mb_strtolower()`, not with the byte-wise
         // `strtolower()`, so `Str.lower()` is the one to use here.
         const subject = ignoreCase ? Str.lower(haystack) : haystack;
@@ -285,7 +350,8 @@ export class Str {
     }
 
     /** Determine if a given string contains all array values. */
-    public static containsAll(haystack: string, needles: Array<string>, ignoreCase = false): boolean {
+    public static containsAll(haystack: string, needles: Array<string>, ignoreCase = false): boolean
+    {
         // PHP returns the `$any` flag, so an empty needle list is `false` --
         // "contains all of nothing" is not vacuously true here.
         let any = false;
@@ -302,12 +368,14 @@ export class Str {
     }
 
     /** Determine if a given string doesn't contain a given substring. */
-    public static doesntContain(haystack: string, needles: string | Array<string>, ignoreCase = false): boolean {
+    public static doesntContain(haystack: string, needles: string | Array<string>, ignoreCase = false): boolean
+    {
         return !Str.contains(haystack, needles, ignoreCase);
     }
 
     /** Determine if a given string starts with a given substring. */
-    public static startsWith(haystack: string, needles: string | Array<string>): boolean {
+    public static startsWith(haystack: string, needles: string | Array<string>): boolean
+    {
         for (const needle of Util.arrayWrap(needles)) {
             if (needle !== '' && haystack.sub(1, needle.size()) === needle) {
                 return true;
@@ -318,12 +386,14 @@ export class Str {
     }
 
     /** Determine if a given string doesn't start with a given substring. */
-    public static doesntStartWith(haystack: string, needles: string | Array<string>): boolean {
+    public static doesntStartWith(haystack: string, needles: string | Array<string>): boolean
+    {
         return !Str.startsWith(haystack, needles);
     }
 
     /** Determine if a given string ends with a given substring. */
-    public static endsWith(haystack: string, needles: string | Array<string>): boolean {
+    public static endsWith(haystack: string, needles: string | Array<string>): boolean
+    {
         for (const needle of Util.arrayWrap(needles)) {
             if (needle !== '' && needle.size() <= haystack.size() && haystack.sub(-needle.size()) === needle) {
                 return true;
@@ -334,12 +404,14 @@ export class Str {
     }
 
     /** Determine if a given string doesn't end with a given substring. */
-    public static doesntEndWith(haystack: string, needles: string | Array<string>): boolean {
+    public static doesntEndWith(haystack: string, needles: string | Array<string>): boolean
+    {
         return !Str.endsWith(haystack, needles);
     }
 
     /** Count the number of substring occurrences. */
-    public static substrCount(haystack: string, needle: string): number {
+    public static substrCount(haystack: string, needle: string): number
+    {
         if (needle === '') {
             return 0;
         }
@@ -366,7 +438,8 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Return the remainder of a string after the first occurrence. */
-    public static after(subject: string, search: string): string {
+    public static after(subject: string, search: string): string
+    {
         if (search === '') {
             return subject;
         }
@@ -377,7 +450,8 @@ export class Str {
     }
 
     /** Return the remainder of a string after the last occurrence. */
-    public static afterLast(subject: string, search: string): string {
+    public static afterLast(subject: string, search: string): string
+    {
         if (search === '') {
             return subject;
         }
@@ -388,7 +462,8 @@ export class Str {
     }
 
     /** Get the portion of a string before the first occurrence. */
-    public static before(subject: string, search: string): string {
+    public static before(subject: string, search: string): string
+    {
         if (search === '') {
             return subject;
         }
@@ -399,7 +474,8 @@ export class Str {
     }
 
     /** Get the portion of a string before the last occurrence. */
-    public static beforeLast(subject: string, search: string): string {
+    public static beforeLast(subject: string, search: string): string
+    {
         if (search === '') {
             return subject;
         }
@@ -410,7 +486,8 @@ export class Str {
     }
 
     /** Get the portion of a string between two values. */
-    public static between(subject: string, from: string, to: string): string {
+    public static between(subject: string, from: string, to: string): string
+    {
         if (from === '' || to === '') {
             return subject;
         }
@@ -419,7 +496,8 @@ export class Str {
     }
 
     /** Get the smallest possible portion of a string between two values. */
-    public static betweenFirst(subject: string, from: string, to: string): string {
+    public static betweenFirst(subject: string, from: string, to: string): string
+    {
         if (from === '' || to === '') {
             return subject;
         }
@@ -428,15 +506,15 @@ export class Str {
     }
 
     /** Extract an excerpt from text that matches the first instance of a phrase. */
-    public static excerpt(text: string, phrase = '', radius = 100, omission = '...'): string | undefined {
-        const position =
-            phrase === ''
-                ? 0
-                : // PHP matches with `/iu`, so the fold is the Unicode one.
-                  // Simple case mapping is 1:1 on codepoints, which keeps the
-                  // position of the match the same in the folded string as in
-                  // `text` itself.
-                  Str.position(Str.lower(text), Str.lower(phrase));
+    public static excerpt(text: string, phrase = '', radius = 100, omission = '...'): string | undefined
+    {
+        const position = phrase === ''
+            ? 0
+            // PHP matches with `/iu`, so the fold is the Unicode one.
+            // Simple case mapping is 1:1 on codepoints, which keeps the
+            // position of the match the same in the folded string as in
+            // `text` itself.
+            : Str.position(Str.lower(text), Str.lower(phrase));
 
         if (position === undefined) {
             return undefined;
@@ -461,7 +539,8 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Replace all occurrences of the search string with the replacement. */
-    public static replace(search: string | Array<string>, replace: string | Array<string>, subject: string): string {
+    public static replace(search: string | Array<string>, replace: string | Array<string>, subject: string): string
+    {
         const searches = Util.arrayWrap(search);
         const replacements = Util.arrayWrap(replace);
         let result = subject;
@@ -476,7 +555,8 @@ export class Str {
     }
 
     /** Replace a given value in the string sequentially with an array. */
-    public static replaceArray(search: string, replace: Array<string>, subject: string): string {
+    public static replaceArray(search: string, replace: Array<string>, subject: string): string
+    {
         const segments = subject.split(search);
         let result = segments[0];
 
@@ -488,7 +568,8 @@ export class Str {
     }
 
     /** Replace the first occurrence of a given value in the string. */
-    public static replaceFirst(search: string, replace: string, subject: string): string {
+    public static replaceFirst(search: string, replace: string, subject: string): string
+    {
         if (search === '') {
             return subject;
         }
@@ -503,7 +584,8 @@ export class Str {
     }
 
     /** Replace the first occurrence of the given value if it starts the string. */
-    public static replaceStart(search: string, replace: string, subject: string): string {
+    public static replaceStart(search: string, replace: string, subject: string): string
+    {
         if (search === '' || !Str.startsWith(subject, search)) {
             return subject;
         }
@@ -512,7 +594,8 @@ export class Str {
     }
 
     /** Replace the last occurrence of a given value in the string. */
-    public static replaceLast(search: string, replace: string, subject: string): string {
+    public static replaceLast(search: string, replace: string, subject: string): string
+    {
         if (search === '') {
             return subject;
         }
@@ -527,7 +610,8 @@ export class Str {
     }
 
     /** Replace the last occurrence of the given value if it ends the string. */
-    public static replaceEnd(search: string, replace: string, subject: string): string {
+    public static replaceEnd(search: string, replace: string, subject: string): string
+    {
         if (search === '' || !Str.endsWith(subject, search)) {
             return subject;
         }
@@ -541,7 +625,8 @@ export class Str {
         replace: string | ((match: string) => string),
         subject: string,
         limit?: number,
-    ): string {
+    ): string
+    {
         const [result] = typeIs(replace, 'function')
             ? subject.gsub(pattern, (match: string) => (replace as (match: string) => string)(match), limit)
             : subject.gsub(pattern, replace as string, limit);
@@ -550,12 +635,14 @@ export class Str {
     }
 
     /** Remove any occurrence of the given string in the subject. */
-    public static remove(search: string | Array<string>, subject: string): string {
+    public static remove(search: string | Array<string>, subject: string): string
+    {
         return Str.replace(search, '', subject);
     }
 
     /** Swap keys with their values within the given string. */
-    public static swap(map: Array<[string, string]>, subject: string): string {
+    public static swap(map: Array<[string, string]>, subject: string): string
+    {
         let result = subject;
 
         for (const [search, replace] of map) {
@@ -566,7 +653,8 @@ export class Str {
     }
 
     /** Replace consecutive instances of a given character with a single one. */
-    public static deduplicate(value: string, characters: string | Array<string> = ' '): string {
+    public static deduplicate(value: string, characters: string | Array<string> = ' '): string
+    {
         let result = value;
 
         for (const character of Util.arrayWrap(characters)) {
@@ -588,7 +676,8 @@ export class Str {
      * a whole codepoint rather than a byte. A Luau pattern class cannot hold
      * a multi-byte character at all, so the run is walked by hand instead.
      */
-    private static collapseRuns(value: string, character: string): string {
+    private static collapseRuns(value: string, character: string): string
+    {
         const lastOffset = utf8.offset(character, -1) ?? character.size();
         const prefix = character.sub(1, lastOffset - 1);
         const last = character.sub(lastOffset);
@@ -629,7 +718,8 @@ export class Str {
      * PHP strips the repeated prefix with `(?:...)+`; a Luau pattern cannot
      * quantify a group, so the repetition is peeled off in a loop.
      */
-    public static start(value: string, prefix: string): string {
+    public static start(value: string, prefix: string): string
+    {
         if (prefix === '') {
             return value;
         }
@@ -644,7 +734,8 @@ export class Str {
     }
 
     /** Cap a string with a single instance of a given value. */
-    public static finish(value: string, cap: string): string {
+    public static finish(value: string, cap: string): string
+    {
         if (cap === '') {
             return value;
         }
@@ -659,12 +750,14 @@ export class Str {
     }
 
     /** Wrap the string with the given strings. */
-    public static wrap(value: string, before: string, after?: string): string {
+    public static wrap(value: string, before: string, after?: string): string
+    {
         return `${before}${value}${after ?? before}`;
     }
 
     /** Unwrap the string with the given strings. */
-    public static unwrap(value: string, before: string, after?: string): string {
+    public static unwrap(value: string, before: string, after?: string): string
+    {
         let result = value;
         const suffix = after ?? before;
 
@@ -680,7 +773,8 @@ export class Str {
     }
 
     /** Remove the given string(s) from the start of the subject. */
-    public static chopStart(subject: string, needle: string | Array<string>): string {
+    public static chopStart(subject: string, needle: string | Array<string>): string
+    {
         for (const candidate of Util.arrayWrap(needle)) {
             if (candidate !== '' && Str.startsWith(subject, candidate)) {
                 return Str.substr(subject, Str.length(candidate));
@@ -691,7 +785,8 @@ export class Str {
     }
 
     /** Remove the given string(s) from the end of the subject. */
-    public static chopEnd(subject: string, needle: string | Array<string>): string {
+    public static chopEnd(subject: string, needle: string | Array<string>): string
+    {
         for (const candidate of Util.arrayWrap(needle)) {
             if (candidate !== '' && Str.endsWith(subject, candidate)) {
                 return Str.substr(subject, 0, Str.length(subject) - Str.length(candidate));
@@ -702,7 +797,8 @@ export class Str {
     }
 
     /** Pad both sides of a string with another. */
-    public static padBoth(value: string, length: number, pad = ' '): string {
+    public static padBoth(value: string, length: number, pad = ' '): string
+    {
         const short = math.max(0, length - Str.length(value));
         const left = math.floor(short / 2);
 
@@ -710,22 +806,26 @@ export class Str {
     }
 
     /** Pad the left side of a string with another. */
-    public static padLeft(value: string, length: number, pad = ' '): string {
+    public static padLeft(value: string, length: number, pad = ' '): string
+    {
         return `${Str.buildPad(pad, math.max(0, length - Str.length(value)))}${value}`;
     }
 
     /** Pad the right side of a string with another. */
-    public static padRight(value: string, length: number, pad = ' '): string {
+    public static padRight(value: string, length: number, pad = ' '): string
+    {
         return `${value}${Str.buildPad(pad, math.max(0, length - Str.length(value)))}`;
     }
 
     /** Repeat the given string. */
-    public static repeat(value: string, times: number): string {
+    public static repeat(value: string, times: number): string
+    {
         return value.rep(times);
     }
 
     /** Masks a portion of a string with a repeated character. */
-    public static mask(value: string, character: string, index: number, length?: number): string {
+    public static mask(value: string, character: string, index: number, length?: number): string
+    {
         if (character === '') {
             return value;
         }
@@ -740,11 +840,14 @@ export class Str {
 
         const segmentLength = Str.length(segment);
 
-        return `${Str.substr(value, 0, startIndex)}${Str.substr(character, 0, 1).rep(segmentLength)}${Str.substr(value, startIndex + segmentLength)}`;
+        return `${Str.substr(value, 0, startIndex)}${Str.substr(character, 0, 1).rep(segmentLength)}${
+            Str.substr(value, startIndex + segmentLength)
+        }`;
     }
 
     /** Replace text within a portion of a string. */
-    public static substrReplace(value: string, replace: string, offset = 0, length?: number): string {
+    public static substrReplace(value: string, replace: string, offset = 0, length?: number): string
+    {
         const total = Str.length(value);
         const take = length ?? total;
 
@@ -756,12 +859,14 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Remove all whitespace, or the given characters, from both ends. */
-    public static trim(value: string, characters?: string): string {
+    public static trim(value: string, characters?: string): string
+    {
         return Str.rtrim(Str.ltrim(value, characters), characters);
     }
 
     /** Remove all whitespace, or the given characters, from the beginning. */
-    public static ltrim(value: string, characters?: string): string {
+    public static ltrim(value: string, characters?: string): string
+    {
         if (characters === undefined) {
             return Str.trimInvisible(value, true, false);
         }
@@ -778,7 +883,8 @@ export class Str {
     }
 
     /** Remove all whitespace, or the given characters, from the end. */
-    public static rtrim(value: string, characters?: string): string {
+    public static rtrim(value: string, characters?: string): string
+    {
         if (characters === undefined) {
             return Str.trimInvisible(value, false, true);
         }
@@ -799,7 +905,8 @@ export class Str {
      * `trim()`/`ltrim()`/`rtrim()` take when no character list is given, where
      * `...` is `Str::INVISIBLE_CHARACTERS` plus `" \n\r\t\v\0"`.
      */
-    private static trimInvisible(value: string, fromStart: boolean, fromEnd: boolean): string {
+    private static trimInvisible(value: string, fromStart: boolean, fromEnd: boolean): string
+    {
         const offsets = new Array<number>();
         const codepoints = new Array<number>();
 
@@ -834,7 +941,8 @@ export class Str {
     }
 
     /** Remove all extraneous whitespace, collapsing runs into one space. */
-    public static squish(value: string): string {
+    public static squish(value: string): string
+    {
         // PHP collapses the same invisible set `trim()` strips, not just
         // `%s` -- `laravel\u{3164}\u{3164}php` has to squish to `laravel php`.
         const parts = new Array<string>();
@@ -862,17 +970,20 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Convert the given string to lower case. */
-    public static lower(value: string): string {
+    public static lower(value: string): string
+    {
         return Unicode.lower(value);
     }
 
     /** Convert the given string to upper case. */
-    public static upper(value: string): string {
+    public static upper(value: string): string
+    {
         return Unicode.upper(value);
     }
 
     /** Convert the given string to the given case. */
-    public static convertCase(value: string, mode: 'lower' | 'upper' | 'title' = 'lower'): string {
+    public static convertCase(value: string, mode: 'lower' | 'upper' | 'title' = 'lower'): string
+    {
         if (mode === 'upper') {
             return Str.upper(value);
         }
@@ -885,7 +996,8 @@ export class Str {
     }
 
     /** Convert the given string to title case. */
-    public static title(value: string): string {
+    public static title(value: string): string
+    {
         // PHP: `mb_convert_case($value, MB_CASE_TITLE, 'UTF-8')`, which upper
         // cases the first *cased letter* of each word and lower cases the
         // rest. `ucwords(lower($value))` is not the same thing: it only looks
@@ -917,17 +1029,20 @@ export class Str {
     }
 
     /** Make a string's first character lower case. */
-    public static lcfirst(value: string): string {
+    public static lcfirst(value: string): string
+    {
         return `${Str.lower(Str.substr(value, 0, 1))}${Str.substr(value, 1)}`;
     }
 
     /** Make a string's first character upper case. */
-    public static ucfirst(value: string): string {
+    public static ucfirst(value: string): string
+    {
         return `${Str.upper(Str.substr(value, 0, 1))}${Str.substr(value, 1)}`;
     }
 
     /** Upper case the first character of each word. */
-    public static ucwords(value: string, separators = ' \t\r\n\f\v'): string {
+    public static ucwords(value: string, separators = ' \t\r\n\f\v'): string
+    {
         const set = Str.characterClass(separators);
         const characters = new Array<string>();
         let atBoundary = true;
@@ -943,7 +1058,8 @@ export class Str {
     }
 
     /** Split a string into pieces by upper case characters. */
-    public static ucsplit(value: string): Array<string> {
+    public static ucsplit(value: string): Array<string>
+    {
         const parts = new Array<string>();
         let current = '';
 
@@ -966,7 +1082,8 @@ export class Str {
     }
 
     /** Convert a value to camel case. */
-    public static camel(value: string): string {
+    public static camel(value: string): string
+    {
         const cached = Str.camelCache.get(value);
 
         if (cached !== undefined) {
@@ -981,7 +1098,8 @@ export class Str {
     }
 
     /** Convert a value to studly caps case. */
-    public static studly(value: string): string {
+    public static studly(value: string): string
+    {
         const cached = Str.studlyCache.get(value);
 
         if (cached !== undefined) {
@@ -1002,7 +1120,8 @@ export class Str {
     }
 
     /** Convert a value to pascal case. */
-    public static pascal(value: string): string {
+    public static pascal(value: string): string
+    {
         return Str.studly(value);
     }
 
@@ -1024,7 +1143,8 @@ export class Str {
      *   walk does not go through `Unicode.isUpperCodepoint()` the way
      *   `ucsplit()` does.
      */
-    private static delimitBeforeUpperAscii(value: string, delimiter: string): string {
+    private static delimitBeforeUpperAscii(value: string, delimiter: string): string
+    {
         const parts = new Array<string>();
         let previous: string | undefined;
 
@@ -1051,7 +1171,8 @@ export class Str {
      * routing `snake()` through the Unicode version would make `żółtaŁódka`
      * snake into `żółta_łódka`, where upstream leaves it `żółtałódka`.
      */
-    private static asciiUcwords(value: string): string {
+    private static asciiUcwords(value: string): string
+    {
         const parts = new Array<string>();
         let atBoundary = true;
 
@@ -1066,7 +1187,8 @@ export class Str {
     }
 
     /** Convert a string to snake case. */
-    public static snake(value: string, delimiter = '_'): string {
+    public static snake(value: string, delimiter = '_'): string
+    {
         const key = `${value} ${delimiter}`;
         const cached = Str.snakeCache.get(key);
 
@@ -1090,12 +1212,14 @@ export class Str {
     }
 
     /** Convert a string to kebab case. */
-    public static kebab(value: string): string {
+    public static kebab(value: string): string
+    {
         return Str.snake(value, '-');
     }
 
     /** Convert the given string to a headline. */
-    public static headline(value: string): string {
+    public static headline(value: string): string
+    {
         const words = new Array<string>();
 
         for (const [word] of value.gmatch('%S+')) {
@@ -1115,7 +1239,8 @@ export class Str {
     }
 
     /** Get the initials of the words in the given string. */
-    public static initials(value: string, capitalize = false): string {
+    public static initials(value: string, capitalize = false): string
+    {
         const parts = new Array<string>();
 
         for (const [word] of value.gmatch('%S+')) {
@@ -1128,7 +1253,8 @@ export class Str {
     }
 
     /** Convert the given string to APA-style title case. */
-    public static apa(value: string): string {
+    public static apa(value: string): string
+    {
         if (Str.trim(value) === '') {
             return value;
         }
@@ -1181,12 +1307,11 @@ export class Str {
 
             const previous = index > 0 ? Str.substr(words[index - 1], -1) : '';
 
-            words[index] =
-                minorWords.includes(lowered) &&
-                Str.length(lowered) <= 3 &&
-                !(index === 0 || endPunctuation.includes(previous))
-                    ? lowered
-                    : Str.ucfirst(lowered);
+            words[index] = minorWords.includes(lowered)
+                    && Str.length(lowered) <= 3
+                    && !(index === 0 || endPunctuation.includes(previous))
+                ? lowered
+                : Str.ucfirst(lowered);
         }
 
         return words.join(' ');
@@ -1208,7 +1333,8 @@ export class Str {
      * ported -- there is no HTML on this runtime -- but the newline collapsing
      * and the outer trim beside it are.
      */
-    public static limit(value: string, limit = 100, last = '...', preserveWords = false): string {
+    public static limit(value: string, limit = 100, last = '...', preserveWords = false): string
+    {
         if (Str.width(value) <= limit) {
             return value;
         }
@@ -1253,7 +1379,8 @@ export class Str {
      * PHP: `mb_strwidth()`. The wide ranges are the ones `mbfl_charwidth()`
      * lists; everything else counts as one.
      */
-    private static width(value: string): number {
+    private static width(value: string): number
+    {
         let total = 0;
 
         for (const [, code] of utf8.codes(value)) {
@@ -1264,19 +1391,20 @@ export class Str {
     }
 
     /** Whether a codepoint spends two columns of `mb_strwidth()`'s budget. */
-    private static isWideCodepoint(code: number): boolean {
+    private static isWideCodepoint(code: number): boolean
+    {
         return (
-            (code >= 0x1100 && code <= 0x115f) ||
-            code === 0x2329 ||
-            code === 0x232a ||
-            (code >= 0x2e80 && code <= 0xa4cf && code !== 0x303f) ||
-            (code >= 0xac00 && code <= 0xd7a3) ||
-            (code >= 0xf900 && code <= 0xfaff) ||
-            (code >= 0xfe30 && code <= 0xfe6f) ||
-            (code >= 0xff00 && code <= 0xff60) ||
-            (code >= 0xffe0 && code <= 0xffe6) ||
-            (code >= 0x20000 && code <= 0x2fffd) ||
-            (code >= 0x30000 && code <= 0x3fffd)
+            (code >= 0x1100 && code <= 0x115f)
+            || code === 0x2329
+            || code === 0x232a
+            || (code >= 0x2e80 && code <= 0xa4cf && code !== 0x303f)
+            || (code >= 0xac00 && code <= 0xd7a3)
+            || (code >= 0xf900 && code <= 0xfaff)
+            || (code >= 0xfe30 && code <= 0xfe6f)
+            || (code >= 0xff00 && code <= 0xff60)
+            || (code >= 0xffe0 && code <= 0xffe6)
+            || (code >= 0x20000 && code <= 0x2fffd)
+            || (code >= 0x30000 && code <= 0x3fffd)
         );
     }
 
@@ -1286,7 +1414,8 @@ export class Str {
      * PHP: `mb_strimwidth($value, 0, $width, '', 'UTF-8')`. A character that
      * would overrun the budget is left out whole.
      */
-    private static strimwidth(value: string, width: number): string {
+    private static strimwidth(value: string, width: number): string
+    {
         let taken = 0;
 
         for (const [offset, code] of utf8.codes(value)) {
@@ -1312,7 +1441,8 @@ export class Str {
      * match keeps is why `words(' Taylor Otwell ', 1)` answers `' Taylor...'`
      * rather than trimming both ends.
      */
-    public static words(value: string, words = 100, last = '...'): string {
+    public static words(value: string, words = 100, last = '...'): string
+    {
         if (words < 1) {
             return value;
         }
@@ -1351,7 +1481,8 @@ export class Str {
     }
 
     /** Get the number of words a string contains. */
-    public static wordCount(value: string): number {
+    public static wordCount(value: string): number
+    {
         let count = 0;
 
         for (const [] of value.gmatch('%S+')) {
@@ -1362,7 +1493,8 @@ export class Str {
     }
 
     /** Wrap a string to a given number of characters. */
-    public static wordWrap(value: string, characters = 75, brk = '\n', cutLongWords = false): string {
+    public static wordWrap(value: string, characters = 75, brk = '\n', cutLongWords = false): string
+    {
         const lines = new Array<string>();
         let current = '';
 
@@ -1399,7 +1531,8 @@ export class Str {
     }
 
     /** Remove all non-numeric characters from a string. */
-    public static numbers(value: string): string {
+    public static numbers(value: string): string
+    {
         const [result] = value.gsub('%D', '');
 
         return result;
@@ -1410,7 +1543,8 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Determine if a given string matches a given pattern, with `*` wildcards. */
-    public static is(patterns: string | Array<string>, value: string, ignoreCase = false): boolean {
+    public static is(patterns: string | Array<string>, value: string, ignoreCase = false): boolean
+    {
         const subject = ignoreCase ? value.lower() : value;
 
         // Not `Util.arrayWrap()`: it leans on `Util.isArray()`, which treats an
@@ -1443,14 +1577,16 @@ export class Str {
     }
 
     /** Get the string matching the given Luau pattern. */
-    public static match(pattern: string, subject: string): string {
+    public static match(pattern: string, subject: string): string
+    {
         const [matched] = subject.match(pattern);
 
         return matched !== undefined ? tostring(matched) : '';
     }
 
     /** Determine if a given string matches a given Luau pattern. */
-    public static isMatch(patterns: string | Array<string>, value: string): boolean {
+    public static isMatch(patterns: string | Array<string>, value: string): boolean
+    {
         for (const pattern of Util.arrayWrap(patterns)) {
             const [matched] = value.match(pattern);
 
@@ -1463,7 +1599,8 @@ export class Str {
     }
 
     /** Get all strings matching the given Luau pattern. */
-    public static matchAll(pattern: string, subject: string): Collection<number, string> {
+    public static matchAll(pattern: string, subject: string): Collection<number, string>
+    {
         const matches = new Array<string>();
 
         for (const [matched] of subject.gmatch(pattern)) {
@@ -1474,19 +1611,22 @@ export class Str {
     }
 
     /** Determine if the given string is 7-bit ASCII. */
-    public static isAscii(value: string): boolean {
+    public static isAscii(value: string): boolean
+    {
         return value.match('^[\x00-\x7F]*$')[0] !== undefined;
     }
 
     /** Determine if the given string is valid JSON. */
-    public static isJson(value: string): boolean {
+    public static isJson(value: string): boolean
+    {
         const [ok] = pcall(() => game.GetService('HttpService').JSONDecode(value));
 
         return ok;
     }
 
     /** Determine if the given string looks like a URL. */
-    public static isUrl(value: string, protocols: Array<string> = []): boolean {
+    public static isUrl(value: string, protocols: Array<string> = []): boolean
+    {
         const [scheme, rest] = value.match('^(%a[%w+.-]*)://(.+)$');
 
         if (scheme === undefined || rest === undefined) {
@@ -1501,14 +1641,16 @@ export class Str {
     }
 
     /** Determine if the given string is a valid UUID. */
-    public static isUuid(value: string): boolean {
+    public static isUuid(value: string): boolean
+    {
         return (
             value.match('^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$')[0] !== undefined
         );
     }
 
     /** Determine if the given string is a valid ULID. */
-    public static isUlid(value: string): boolean {
+    public static isUlid(value: string): boolean
+    {
         if (value.size() !== 26) {
             return false;
         }
@@ -1521,7 +1663,8 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Generate a more truly "random" alpha-numeric string. */
-    public static random(length = 16): string {
+    public static random(length = 16): string
+    {
         const alphabet = `${LOWER_ALPHABET}${UPPER_ALPHABET}${DIGITS}`;
         const characters = new Array<string>();
 
@@ -1535,7 +1678,8 @@ export class Str {
     }
 
     /** Generate a random, secure password. */
-    public static password(length = 32, letters = true, numbers = true, symbols = true, spaces = false): string {
+    public static password(length = 32, letters = true, numbers = true, symbols = true, spaces = false): string
+    {
         const pools = new Array<string>();
 
         if (letters) {
@@ -1587,7 +1731,8 @@ export class Str {
     }
 
     /** Generate a UUID (version 4). */
-    public static uuid(): string {
+    public static uuid(): string
+    {
         return Str.lower(game.GetService('HttpService').GenerateGUID(false));
     }
 
@@ -1597,16 +1742,20 @@ export class Str {
      * PHP uses a COMB codec over a proper v4; this replaces the leading bytes
      * with a millisecond timestamp, which sorts the same way.
      */
-    public static orderedUuid(): string {
+    public static orderedUuid(): string
+    {
         const milliseconds = math.floor(os.clock() * 1000) % 0xffffffffff;
         const prefix = string.format('%012x', milliseconds);
         const random = Str.remove('-', Str.uuid());
 
-        return `${prefix.sub(1, 8)}-${prefix.sub(9, 12)}-${random.sub(13, 16)}-${random.sub(17, 20)}-${random.sub(21, 32)}`;
+        return `${prefix.sub(1, 8)}-${prefix.sub(9, 12)}-${random.sub(13, 16)}-${random.sub(17, 20)}-${
+            random.sub(21, 32)
+        }`;
     }
 
     /** Generate a ULID. */
-    public static ulid(): string {
+    public static ulid(): string
+    {
         const characters = new Array<string>();
         let timestamp = math.floor(os.time() * 1000);
 
@@ -1631,7 +1780,8 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Convert the given string to base64. */
-    public static toBase64(value: string): string {
+    public static toBase64(value: string): string
+    {
         const output = new Array<string>();
 
         for (let index = 0; index < value.size(); index += 3) {
@@ -1659,7 +1809,8 @@ export class Str {
     }
 
     /** Decode the given base64 encoded string. */
-    public static fromBase64(value: string): string {
+    public static fromBase64(value: string): string
+    {
         const [cleaned] = value.gsub('[^%w+/=]', '');
         const output = new Array<string>();
 
@@ -1698,7 +1849,8 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Transliterate a string to its closest ASCII representation. */
-    public static ascii(value: string): string {
+    public static ascii(value: string): string
+    {
         let result = value;
 
         for (const [from, to] of ASCII_TABLE) {
@@ -1711,7 +1863,8 @@ export class Str {
     }
 
     /** Generate a URL friendly "slug" from a given string. */
-    public static slug(title: string, separator = '-', dictionary: Array<[string, string]> = [['@', 'at']]): string {
+    public static slug(title: string, separator = '-', dictionary: Array<[string, string]> = [['@', 'at']]): string
+    {
         let result = Str.ascii(title);
 
         // Convert all dashes/underscores into the separator.
@@ -1737,17 +1890,20 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Get the plural form of an English word. */
-    public static plural(value: string, count = 2): string {
+    public static plural(value: string, count = 2): string
+    {
         return Pluralizer.plural(value, count);
     }
 
     /** Get the singular form of an English word. */
-    public static singular(value: string): string {
+    public static singular(value: string): string
+    {
         return Pluralizer.singular(value);
     }
 
     /** Pluralize the last word of an English, studly caps case string. */
-    public static pluralStudly(value: string, count = 2): string {
+    public static pluralStudly(value: string, count = 2): string
+    {
         const parts = Str.ucsplit(value);
 
         if (parts.isEmpty()) {
@@ -1760,7 +1916,8 @@ export class Str {
     }
 
     /** Pluralize the last word of an English, pascal case string. */
-    public static pluralPascal(value: string, count = 2): string {
+    public static pluralPascal(value: string, count = 2): string
+    {
         return Str.pluralStudly(value, count);
     }
 
@@ -1769,7 +1926,8 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Parse a Class@method style callback into class and method. */
-    public static parseCallback(callback: string, defaultMethod?: string): [string, string | undefined] {
+    public static parseCallback(callback: string, defaultMethod?: string): [string, string | undefined]
+    {
         if (!Str.contains(callback, '@')) {
             return [callback, defaultMethod];
         }
@@ -1780,7 +1938,8 @@ export class Str {
     }
 
     /** Remove all strings from the casing caches. */
-    public static flushCache(): void {
+    public static flushCache(): void
+    {
         Str.snakeCache.clear();
         Str.camelCache.clear();
         Str.studlyCache.clear();
@@ -1791,7 +1950,8 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Find the byte position of the last occurrence, 1-based. */
-    private static lastIndexOf(haystack: string, needle: string): number | undefined {
+    private static lastIndexOf(haystack: string, needle: string): number | undefined
+    {
         let position: number | undefined;
         let from = 1;
 
@@ -1814,7 +1974,8 @@ export class Str {
     }
 
     /** Replace every plain (non-pattern) occurrence of a substring. */
-    private static replaceAllPlain(subject: string, search: string, replace: string): string {
+    private static replaceAllPlain(subject: string, search: string, replace: string): string
+    {
         if (search === '') {
             return subject;
         }
@@ -1825,7 +1986,8 @@ export class Str {
     }
 
     /** Build a pad of the given length out of the given filler. */
-    private static buildPad(pad: string, length: number): string {
+    private static buildPad(pad: string, length: number): string
+    {
         if (length <= 0 || pad === '') {
             return '';
         }
@@ -1834,7 +1996,8 @@ export class Str {
     }
 
     /** Escape the given characters for use inside a Luau character class. */
-    private static characterClass(characters: string): string {
+    private static characterClass(characters: string): string
+    {
         const [escaped] = characters.gsub('([%%%]%^%-])', '%%%1');
 
         return escaped;
@@ -1870,7 +2033,8 @@ export type WhenCallback<TReturn extends defined> = (target: Stringable, value: 
  * and `class_basename` lives in `Helpers`, which imports this module), the
  * `ArrayAccess` methods and `__get` (no operator overloading), `Macroable`.
  */
-export class Stringable extends Tappable(Conditionable()) implements JsonSerializable {
+export class Stringable extends Tappable(Conditionable()) implements JsonSerializable
+{
     /**
      * The underlying string value.
      *
@@ -1881,7 +2045,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     protected stringValue: string;
 
     /** Create a new instance of the class. */
-    public constructor(value: string | number | Stringable = '') {
+    public constructor(value: string | number | Stringable = '')
+    {
         super();
 
         this.stringValue = tostring(value);
@@ -1892,47 +2057,56 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Return the remainder of the string after the first occurrence of a value. */
-    public after(search: string): Stringable {
+    public after(search: string): Stringable
+    {
         return new Stringable(Str.after(this.stringValue, search));
     }
 
     /** Return the remainder of the string after the last occurrence of a value. */
-    public afterLast(search: string): Stringable {
+    public afterLast(search: string): Stringable
+    {
         return new Stringable(Str.afterLast(this.stringValue, search));
     }
 
     /** Get the portion of the string before the first occurrence of a value. */
-    public before(search: string): Stringable {
+    public before(search: string): Stringable
+    {
         return new Stringable(Str.before(this.stringValue, search));
     }
 
     /** Get the portion of the string before the last occurrence of a value. */
-    public beforeLast(search: string): Stringable {
+    public beforeLast(search: string): Stringable
+    {
         return new Stringable(Str.beforeLast(this.stringValue, search));
     }
 
     /** Get the portion of the string between two given values. */
-    public between(from: string, to: string): Stringable {
+    public between(from: string, to: string): Stringable
+    {
         return new Stringable(Str.between(this.stringValue, from, to));
     }
 
     /** Get the smallest possible portion of the string between two values. */
-    public betweenFirst(from: string, to: string): Stringable {
+    public betweenFirst(from: string, to: string): Stringable
+    {
         return new Stringable(Str.betweenFirst(this.stringValue, from, to));
     }
 
     /** Get the character at the specified index. */
-    public charAt(index: number): string | undefined {
+    public charAt(index: number): string | undefined
+    {
         return Str.charAt(this.stringValue, index);
     }
 
     /** Returns the portion of the string specified by the start and length. */
-    public substr(start: number, length?: number): Stringable {
+    public substr(start: number, length?: number): Stringable
+    {
         return new Stringable(Str.substr(this.stringValue, start, length));
     }
 
     /** Take the first or last given number of characters. */
-    public take(limit: number): Stringable {
+    public take(limit: number): Stringable
+    {
         if (limit < 0) {
             return this.substr(limit);
         }
@@ -1941,17 +2115,20 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Reverse the string. */
-    public reverse(): Stringable {
+    public reverse(): Stringable
+    {
         return new Stringable(Str.reverse(this.stringValue));
     }
 
     /** Return the length of the string, in codepoints. */
-    public length(): number {
+    public length(): number
+    {
         return Str.length(this.stringValue);
     }
 
     /** Find the position of the first occurrence of a substring. */
-    public position(needle: string, offset = 0): number | undefined {
+    public position(needle: string, offset = 0): number | undefined
+    {
         return Str.position(this.stringValue, needle, offset);
     }
 
@@ -1960,92 +2137,110 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Determine if the string contains a given substring. */
-    public contains(needles: string | Array<string>, ignoreCase = false): boolean {
+    public contains(needles: string | Array<string>, ignoreCase = false): boolean
+    {
         return Str.contains(this.stringValue, needles, ignoreCase);
     }
 
     /** Determine if the string contains all of the given values. */
-    public containsAll(needles: Array<string>, ignoreCase = false): boolean {
+    public containsAll(needles: Array<string>, ignoreCase = false): boolean
+    {
         return Str.containsAll(this.stringValue, needles, ignoreCase);
     }
 
     /** Determine if the string doesn't contain a given substring. */
-    public doesntContain(needles: string | Array<string>, ignoreCase = false): boolean {
+    public doesntContain(needles: string | Array<string>, ignoreCase = false): boolean
+    {
         return Str.doesntContain(this.stringValue, needles, ignoreCase);
     }
 
     /** Determine if the string starts with a given substring. */
-    public startsWith(needles: string | Array<string>): boolean {
+    public startsWith(needles: string | Array<string>): boolean
+    {
         return Str.startsWith(this.stringValue, needles);
     }
 
     /** Determine if the string doesn't start with a given substring. */
-    public doesntStartWith(needles: string | Array<string>): boolean {
+    public doesntStartWith(needles: string | Array<string>): boolean
+    {
         return Str.doesntStartWith(this.stringValue, needles);
     }
 
     /** Determine if the string ends with a given substring. */
-    public endsWith(needles: string | Array<string>): boolean {
+    public endsWith(needles: string | Array<string>): boolean
+    {
         return Str.endsWith(this.stringValue, needles);
     }
 
     /** Determine if the string doesn't end with a given substring. */
-    public doesntEndWith(needles: string | Array<string>): boolean {
+    public doesntEndWith(needles: string | Array<string>): boolean
+    {
         return Str.doesntEndWith(this.stringValue, needles);
     }
 
     /** Count the number of substring occurrences. */
-    public substrCount(needle: string): number {
+    public substrCount(needle: string): number
+    {
         return Str.substrCount(this.stringValue, needle);
     }
 
     /** Extract an excerpt matching the first instance of a phrase. */
-    public excerpt(phrase = '', radius = 100, omission = '...'): string | undefined {
+    public excerpt(phrase = '', radius = 100, omission = '...'): string | undefined
+    {
         return Str.excerpt(this.stringValue, phrase, radius, omission);
     }
 
     /** Determine if the string is an exact match with the given value. */
-    public exactly(value: string | Stringable): boolean {
+    public exactly(value: string | Stringable): boolean
+    {
         return this.stringValue === tostring(value);
     }
 
     /** Determine if the string matches a given pattern, with `*` wildcards. */
-    public is(pattern: string | Array<string>, ignoreCase = false): boolean {
+    public is(pattern: string | Array<string>, ignoreCase = false): boolean
+    {
         return Str.is(pattern, this.stringValue, ignoreCase);
     }
 
     /** Determine if the string is empty. */
-    public isEmpty(): boolean {
+    public isEmpty(): boolean
+    {
         return this.stringValue === '';
     }
 
     /** Determine if the string is not empty. */
-    public isNotEmpty(): boolean {
+    public isNotEmpty(): boolean
+    {
         return !this.isEmpty();
     }
 
     /** Determine if the string is 7-bit ASCII. */
-    public isAscii(): boolean {
+    public isAscii(): boolean
+    {
         return Str.isAscii(this.stringValue);
     }
 
     /** Determine if the string is valid JSON. */
-    public isJson(): boolean {
+    public isJson(): boolean
+    {
         return Str.isJson(this.stringValue);
     }
 
     /** Determine if the string is a valid URL. */
-    public isUrl(protocols: Array<string> = []): boolean {
+    public isUrl(protocols: Array<string> = []): boolean
+    {
         return Str.isUrl(this.stringValue, protocols);
     }
 
     /** Determine if the string is a valid UUID. */
-    public isUuid(): boolean {
+    public isUuid(): boolean
+    {
         return Str.isUuid(this.stringValue);
     }
 
     /** Determine if the string is a valid ULID. */
-    public isUlid(): boolean {
+    public isUlid(): boolean
+    {
         return Str.isUlid(this.stringValue);
     }
 
@@ -2054,52 +2249,62 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Replace all occurrences of the search string with the replacement. */
-    public replace(search: string | Array<string>, replace: string | Array<string>): Stringable {
+    public replace(search: string | Array<string>, replace: string | Array<string>): Stringable
+    {
         return new Stringable(Str.replace(search, replace, this.stringValue));
     }
 
     /** Replace a given value in the string sequentially with an array. */
-    public replaceArray(search: string, replace: Array<string>): Stringable {
+    public replaceArray(search: string, replace: Array<string>): Stringable
+    {
         return new Stringable(Str.replaceArray(search, replace, this.stringValue));
     }
 
     /** Replace the first occurrence of a given value in the string. */
-    public replaceFirst(search: string, replace: string): Stringable {
+    public replaceFirst(search: string, replace: string): Stringable
+    {
         return new Stringable(Str.replaceFirst(search, replace, this.stringValue));
     }
 
     /** Replace the first occurrence of the given value if it starts the string. */
-    public replaceStart(search: string, replace: string): Stringable {
+    public replaceStart(search: string, replace: string): Stringable
+    {
         return new Stringable(Str.replaceStart(search, replace, this.stringValue));
     }
 
     /** Replace the last occurrence of a given value in the string. */
-    public replaceLast(search: string, replace: string): Stringable {
+    public replaceLast(search: string, replace: string): Stringable
+    {
         return new Stringable(Str.replaceLast(search, replace, this.stringValue));
     }
 
     /** Replace the last occurrence of the given value if it ends the string. */
-    public replaceEnd(search: string, replace: string): Stringable {
+    public replaceEnd(search: string, replace: string): Stringable
+    {
         return new Stringable(Str.replaceEnd(search, replace, this.stringValue));
     }
 
     /** Replace the patterns matching the given Luau pattern. */
-    public replaceMatches(pattern: string, replace: string | ((match: string) => string), limit?: number): Stringable {
+    public replaceMatches(pattern: string, replace: string | ((match: string) => string), limit?: number): Stringable
+    {
         return new Stringable(Str.replaceMatches(pattern, replace, this.stringValue, limit));
     }
 
     /** Remove any occurrence of the given string. */
-    public remove(search: string | Array<string>): Stringable {
+    public remove(search: string | Array<string>): Stringable
+    {
         return new Stringable(Str.remove(search, this.stringValue));
     }
 
     /** Swap keys with their values within the string. */
-    public swap(map: Array<[string, string]>): Stringable {
+    public swap(map: Array<[string, string]>): Stringable
+    {
         return new Stringable(Str.swap(map, this.stringValue));
     }
 
     /** Replace consecutive instances of a given character with a single one. */
-    public deduplicate(characters: string | Array<string> = ' '): Stringable {
+    public deduplicate(characters: string | Array<string> = ' '): Stringable
+    {
         return new Stringable(Str.deduplicate(this.stringValue, characters));
     }
 
@@ -2108,72 +2313,86 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Begin the string with a single instance of a given value. */
-    public start(prefix: string): Stringable {
+    public start(prefix: string): Stringable
+    {
         return new Stringable(Str.start(this.stringValue, prefix));
     }
 
     /** Cap the string with a single instance of a given value. */
-    public finish(cap: string): Stringable {
+    public finish(cap: string): Stringable
+    {
         return new Stringable(Str.finish(this.stringValue, cap));
     }
 
     /** Wrap the string with the given strings. */
-    public wrap(before: string, after?: string): Stringable {
+    public wrap(before: string, after?: string): Stringable
+    {
         return new Stringable(Str.wrap(this.stringValue, before, after));
     }
 
     /** Unwrap the string with the given strings. */
-    public unwrap(before: string, after?: string): Stringable {
+    public unwrap(before: string, after?: string): Stringable
+    {
         return new Stringable(Str.unwrap(this.stringValue, before, after));
     }
 
     /** Remove the given string(s) from the start of the subject. */
-    public chopStart(needle: string | Array<string>): Stringable {
+    public chopStart(needle: string | Array<string>): Stringable
+    {
         return new Stringable(Str.chopStart(this.stringValue, needle));
     }
 
     /** Remove the given string(s) from the end of the subject. */
-    public chopEnd(needle: string | Array<string>): Stringable {
+    public chopEnd(needle: string | Array<string>): Stringable
+    {
         return new Stringable(Str.chopEnd(this.stringValue, needle));
     }
 
     /** Pad both sides of the string with another. */
-    public padBoth(length: number, pad = ' '): Stringable {
+    public padBoth(length: number, pad = ' '): Stringable
+    {
         return new Stringable(Str.padBoth(this.stringValue, length, pad));
     }
 
     /** Pad the left side of the string with another. */
-    public padLeft(length: number, pad = ' '): Stringable {
+    public padLeft(length: number, pad = ' '): Stringable
+    {
         return new Stringable(Str.padLeft(this.stringValue, length, pad));
     }
 
     /** Pad the right side of the string with another. */
-    public padRight(length: number, pad = ' '): Stringable {
+    public padRight(length: number, pad = ' '): Stringable
+    {
         return new Stringable(Str.padRight(this.stringValue, length, pad));
     }
 
     /** Repeat the string. */
-    public repeat(times: number): Stringable {
+    public repeat(times: number): Stringable
+    {
         return new Stringable(this.stringValue.rep(times));
     }
 
     /** Mask a portion of the string with a repeated character. */
-    public mask(character: string, index: number, length?: number): Stringable {
+    public mask(character: string, index: number, length?: number): Stringable
+    {
         return new Stringable(Str.mask(this.stringValue, character, index, length));
     }
 
     /** Replace text within a portion of the string. */
-    public substrReplace(replace: string, offset = 0, length?: number): Stringable {
+    public substrReplace(replace: string, offset = 0, length?: number): Stringable
+    {
         return new Stringable(Str.substrReplace(this.stringValue, replace, offset, length));
     }
 
     /** Append the given values to the string. */
-    public append(...values: Array<string>): Stringable {
+    public append(...values: Array<string>): Stringable
+    {
         return new Stringable(`${this.stringValue}${values.join('')}`);
     }
 
     /** Prepend the given values to the string. */
-    public prepend(...values: Array<string>): Stringable {
+    public prepend(...values: Array<string>): Stringable
+    {
         return new Stringable(`${values.join('')}${this.stringValue}`);
     }
 
@@ -2183,7 +2402,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
      * PHP appends `PHP_EOL`, which is what the platform ends a line with;
      * Roblox has one platform, and it ends a line with `\n`.
      */
-    public newLine(count = 1): Stringable {
+    public newLine(count = 1): Stringable
+    {
         return this.append('\n'.rep(count));
     }
 
@@ -2192,22 +2412,26 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Remove all whitespace, or the given characters, from both ends. */
-    public trim(characters?: string): Stringable {
+    public trim(characters?: string): Stringable
+    {
         return new Stringable(Str.trim(this.stringValue, characters));
     }
 
     /** Remove all whitespace, or the given characters, from the beginning. */
-    public ltrim(characters?: string): Stringable {
+    public ltrim(characters?: string): Stringable
+    {
         return new Stringable(Str.ltrim(this.stringValue, characters));
     }
 
     /** Remove all whitespace, or the given characters, from the end. */
-    public rtrim(characters?: string): Stringable {
+    public rtrim(characters?: string): Stringable
+    {
         return new Stringable(Str.rtrim(this.stringValue, characters));
     }
 
     /** Remove all extraneous whitespace from the string. */
-    public squish(): Stringable {
+    public squish(): Stringable
+    {
         return new Stringable(Str.squish(this.stringValue));
     }
 
@@ -2216,82 +2440,98 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Convert the string to lower case. */
-    public lower(): Stringable {
+    public lower(): Stringable
+    {
         return new Stringable(Str.lower(this.stringValue));
     }
 
     /** Convert the string to upper case. */
-    public upper(): Stringable {
+    public upper(): Stringable
+    {
         return new Stringable(Str.upper(this.stringValue));
     }
 
     /** Convert the case of the string. */
-    public convertCase(mode: 'lower' | 'upper' | 'title' = 'lower'): Stringable {
+    public convertCase(mode: 'lower' | 'upper' | 'title' = 'lower'): Stringable
+    {
         return new Stringable(Str.convertCase(this.stringValue, mode));
     }
 
     /** Convert the string to title case. */
-    public title(): Stringable {
+    public title(): Stringable
+    {
         return new Stringable(Str.title(this.stringValue));
     }
 
     /** Convert the string to title case for each word. */
-    public headline(): Stringable {
+    public headline(): Stringable
+    {
         return new Stringable(Str.headline(this.stringValue));
     }
 
     /** Convert the string to APA-style title case. */
-    public apa(): Stringable {
+    public apa(): Stringable
+    {
         return new Stringable(Str.apa(this.stringValue));
     }
 
     /** Get the initials of the words in the string. */
-    public initials(capitalize = false): Stringable {
+    public initials(capitalize = false): Stringable
+    {
         return new Stringable(Str.initials(this.stringValue, capitalize));
     }
 
     /** Make the first character of the string lower case. */
-    public lcfirst(): Stringable {
+    public lcfirst(): Stringable
+    {
         return new Stringable(Str.lcfirst(this.stringValue));
     }
 
     /** Make the first character of the string upper case. */
-    public ucfirst(): Stringable {
+    public ucfirst(): Stringable
+    {
         return new Stringable(Str.ucfirst(this.stringValue));
     }
 
     /** Make the first character of each word upper case. */
-    public ucwords(separators = ' \t\r\n\f\v'): Stringable {
+    public ucwords(separators = ' \t\r\n\f\v'): Stringable
+    {
         return new Stringable(Str.ucwords(this.stringValue, separators));
     }
 
     /** Split the string into pieces by upper case characters. */
-    public ucsplit(): Collection<number, string> {
+    public ucsplit(): Collection<number, string>
+    {
         return new Collection(Str.ucsplit(this.stringValue));
     }
 
     /** Convert the string to camel case. */
-    public camel(): Stringable {
+    public camel(): Stringable
+    {
         return new Stringable(Str.camel(this.stringValue));
     }
 
     /** Convert the string to studly caps case. */
-    public studly(): Stringable {
+    public studly(): Stringable
+    {
         return new Stringable(Str.studly(this.stringValue));
     }
 
     /** Convert the string to pascal case. */
-    public pascal(): Stringable {
+    public pascal(): Stringable
+    {
         return new Stringable(Str.pascal(this.stringValue));
     }
 
     /** Convert the string to snake case. */
-    public snake(delimiter = '_'): Stringable {
+    public snake(delimiter = '_'): Stringable
+    {
         return new Stringable(Str.snake(this.stringValue, delimiter));
     }
 
     /** Convert the string to kebab case. */
-    public kebab(): Stringable {
+    public kebab(): Stringable
+    {
         return new Stringable(Str.kebab(this.stringValue));
     }
 
@@ -2300,27 +2540,32 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Limit the number of characters in the string. */
-    public limit(limit = 100, last = '...', preserveWords = false): Stringable {
+    public limit(limit = 100, last = '...', preserveWords = false): Stringable
+    {
         return new Stringable(Str.limit(this.stringValue, limit, last, preserveWords));
     }
 
     /** Limit the number of words in the string. */
-    public words(words = 100, last = '...'): Stringable {
+    public words(words = 100, last = '...'): Stringable
+    {
         return new Stringable(Str.words(this.stringValue, words, last));
     }
 
     /** Get the number of words the string contains. */
-    public wordCount(): number {
+    public wordCount(): number
+    {
         return Str.wordCount(this.stringValue);
     }
 
     /** Wrap the string to a given number of characters. */
-    public wordWrap(characters = 75, brk = '\n', cutLongWords = false): Stringable {
+    public wordWrap(characters = 75, brk = '\n', cutLongWords = false): Stringable
+    {
         return new Stringable(Str.wordWrap(this.stringValue, characters, brk, cutLongWords));
     }
 
     /** Remove all non-numeric characters from the string. */
-    public numbers(): Stringable {
+    public numbers(): Stringable
+    {
         return new Stringable(Str.numbers(this.stringValue));
     }
 
@@ -2329,22 +2574,26 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Get the string matching the given Luau pattern. */
-    public match(pattern: string): Stringable {
+    public match(pattern: string): Stringable
+    {
         return new Stringable(Str.match(pattern, this.stringValue));
     }
 
     /** Determine if the string matches the given Luau pattern. */
-    public isMatch(pattern: string | Array<string>): boolean {
+    public isMatch(pattern: string | Array<string>): boolean
+    {
         return Str.isMatch(pattern, this.stringValue);
     }
 
     /** Get all strings matching the given Luau pattern. */
-    public matchAll(pattern: string): Collection<number, string> {
+    public matchAll(pattern: string): Collection<number, string>
+    {
         return Str.matchAll(pattern, this.stringValue);
     }
 
     /** Determine if the string matches the given Luau pattern. */
-    public test(pattern: string): boolean {
+    public test(pattern: string): boolean
+    {
         return this.isMatch(pattern);
     }
 
@@ -2360,7 +2609,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
      * a negative limit drops that many pieces off the end, and zero counts as
      * one. `PHP_INT_MAX` becomes `math.huge`.
      */
-    public explode(delimiter: string, limit = math.huge): Collection<number, string> {
+    public explode(delimiter: string, limit = math.huge): Collection<number, string>
+    {
         const segments = this.stringValue.split(delimiter);
 
         if (limit === math.huge) {
@@ -2408,7 +2658,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
      * the expression. The flags of `preg_split` have no counterpart -- an
      * empty piece is always kept.
      */
-    public split(pattern: string | number, limit = -1): Collection<number, string> {
+    public split(pattern: string | number, limit = -1): Collection<number, string>
+    {
         if (typeIs(pattern, 'number')) {
             const chunks = new Array<string>();
             const size = math.max(pattern, 1);
@@ -2460,12 +2711,14 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Convert the string to base64. */
-    public toBase64(): Stringable {
+    public toBase64(): Stringable
+    {
         return new Stringable(Str.toBase64(this.stringValue));
     }
 
     /** Decode the base64 encoded string. */
-    public fromBase64(): Stringable {
+    public fromBase64(): Stringable
+    {
         return new Stringable(Str.fromBase64(this.stringValue));
     }
 
@@ -2474,32 +2727,38 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Get the plural form of the English word. */
-    public plural(count = 2): Stringable {
+    public plural(count = 2): Stringable
+    {
         return new Stringable(Str.plural(this.stringValue, count));
     }
 
     /** Get the singular form of the English word. */
-    public singular(): Stringable {
+    public singular(): Stringable
+    {
         return new Stringable(Str.singular(this.stringValue));
     }
 
     /** Pluralize the last word of an English, studly caps case string. */
-    public pluralStudly(count = 2): Stringable {
+    public pluralStudly(count = 2): Stringable
+    {
         return new Stringable(Str.pluralStudly(this.stringValue, count));
     }
 
     /** Pluralize the last word of an English, pascal case string. */
-    public pluralPascal(count = 2): Stringable {
+    public pluralPascal(count = 2): Stringable
+    {
         return new Stringable(Str.pluralPascal(this.stringValue, count));
     }
 
     /** Transliterate the string to its closest ASCII representation. */
-    public ascii(): Stringable {
+    public ascii(): Stringable
+    {
         return new Stringable(Str.ascii(this.stringValue));
     }
 
     /** Generate a URL friendly "slug" from the string. */
-    public slug(separator = '-', dictionary: Array<[string, string]> = [['@', 'at']]): Stringable {
+    public slug(separator = '-', dictionary: Array<[string, string]> = [['@', 'at']]): Stringable
+    {
         return new Stringable(Str.slug(this.stringValue, separator, dictionary));
     }
 
@@ -2512,7 +2771,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         needles: string | Array<string>,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.contains(needles), callback, defaultCallback);
     }
 
@@ -2521,7 +2781,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         needles: Array<string>,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.containsAll(needles), callback, defaultCallback);
     }
 
@@ -2529,7 +2790,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     public whenEmpty<TReturn extends defined>(
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.isEmpty(), callback, defaultCallback);
     }
 
@@ -2537,7 +2799,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     public whenNotEmpty<TReturn extends defined>(
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.isNotEmpty(), callback, defaultCallback);
     }
 
@@ -2546,7 +2809,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         needles: string | Array<string>,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.endsWith(needles), callback, defaultCallback);
     }
 
@@ -2555,7 +2819,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         needles: string | Array<string>,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.doesntEndWith(needles), callback, defaultCallback);
     }
 
@@ -2564,7 +2829,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         value: string | Stringable,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.exactly(value), callback, defaultCallback);
     }
 
@@ -2573,7 +2839,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         value: string | Stringable,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(!this.exactly(value), callback, defaultCallback);
     }
 
@@ -2582,7 +2849,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         pattern: string | Array<string>,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.is(pattern), callback, defaultCallback);
     }
 
@@ -2590,7 +2858,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     public whenIsAscii<TReturn extends defined>(
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.isAscii(), callback, defaultCallback);
     }
 
@@ -2598,7 +2867,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     public whenIsUuid<TReturn extends defined>(
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.isUuid(), callback, defaultCallback);
     }
 
@@ -2606,7 +2876,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     public whenIsUlid<TReturn extends defined>(
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.isUlid(), callback, defaultCallback);
     }
 
@@ -2615,7 +2886,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         needles: string | Array<string>,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.startsWith(needles), callback, defaultCallback);
     }
 
@@ -2624,7 +2896,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         needles: string | Array<string>,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.doesntStartWith(needles), callback, defaultCallback);
     }
 
@@ -2633,7 +2906,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
         pattern: string,
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
-    ): this | TReturn {
+    ): this | TReturn
+    {
         return this.when(this.test(pattern), callback, defaultCallback);
     }
 
@@ -2642,22 +2916,26 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Pass the string to the given callback and get a new instance back. */
-    public pipe(callback: (target: Stringable) => string | number | Stringable): Stringable {
+    public pipe(callback: (target: Stringable) => string | number | Stringable): Stringable
+    {
         return new Stringable(callback(this));
     }
 
     /** Parse a Class@method style callback into class and method. */
-    public parseCallback(defaultMethod?: string): [string, string | undefined] {
+    public parseCallback(defaultMethod?: string): [string, string | undefined]
+    {
         return Str.parseCallback(this.stringValue, defaultMethod);
     }
 
     /** Get the underlying string value. */
-    public value(): string {
+    public value(): string
+    {
         return this.toString();
     }
 
     /** Get the underlying string value. */
-    public toString(): string {
+    public toString(): string
+    {
         return this.stringValue;
     }
 
@@ -2668,7 +2946,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
      * wants the whole string to be a number, so `"12abc"` is `0` here where
      * PHP says `12`.
      */
-    public toInteger(base = 10): number {
+    public toInteger(base = 10): number
+    {
         const parsed = parseFinite(this.stringValue, base === 10 ? undefined : base);
 
         if (parsed === undefined) {
@@ -2679,7 +2958,8 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Get the underlying string value as a float. */
-    public toFloat(): number {
+    public toFloat(): number
+    {
         return parseFinite(this.stringValue) ?? 0;
     }
 
@@ -2689,14 +2969,16 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
      * PHP: `filter_var($value, FILTER_VALIDATE_BOOLEAN)` -- true for `"1"`,
      * `"true"`, `"on"` and `"yes"`, false for anything else.
      */
-    public toBoolean(): boolean {
+    public toBoolean(): boolean
+    {
         const normalized = Str.lower(Str.trim(this.stringValue));
 
         return normalized === '1' || normalized === 'true' || normalized === 'on' || normalized === 'yes';
     }
 
     /** Specify data which should be serialized to JSON. */
-    public jsonSerialize(): string {
+    public jsonSerialize(): string
+    {
         return this.toString();
     }
 }

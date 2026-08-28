@@ -79,7 +79,8 @@ import type { ResponseEnvelope } from 'Illuminate/Http/Remote';
  */
 
 /** Build a Client\Response the way a handled remote call would answer it. */
-function response(envelope: ResponseEnvelope): Response {
+function response(envelope: ResponseEnvelope): Response
+{
     return new Response(envelope);
 }
 

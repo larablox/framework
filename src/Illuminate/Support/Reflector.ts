@@ -9,9 +9,11 @@
  * anything resembling `ReflectionParameter` -- constructor and method
  * signatures are erased, which is why dependencies are declared with `Inject`.
  */
-export class Reflector {
+export class Reflector
+{
     /** PHP: `get_class($instance)`. */
-    public static classOf(instance: object): object | undefined {
+    public static classOf(instance: object): object | undefined
+    {
         return getmetatable(instance) as object | undefined;
     }
 
@@ -22,19 +24,22 @@ export class Reflector {
      * no metatable and therefore has no name to report; it renders as its
      * table address.
      */
-    public static className(target: unknown): string {
+    public static className(target: unknown): string
+    {
         return tostring(target);
     }
 
     /** The superclass of a compiled class, or `undefined` for a root class. */
-    public static parentClass(target: object): object | undefined {
-        const metatable = getmetatable(target) as { __index?: object } | undefined;
+    public static parentClass(target: object): object | undefined
+    {
+        const metatable = getmetatable(target) as { __index?: object; } | undefined;
 
         return metatable?.__index;
     }
 
     /** PHP: `is_a($target, $parent, true)` -- true when the classes are equal. */
-    public static isSubclassOf(target: unknown, parent: unknown): boolean {
+    public static isSubclassOf(target: unknown, parent: unknown): boolean
+    {
         if (!typeIs(target, 'table') || !typeIs(parent, 'table')) {
             return false;
         }
@@ -60,7 +65,8 @@ export class Reflector {
      * holding `__tostring` and the superclass, whose `__index` is the parent.
      * So `__index === metatable` holds for instances only.
      */
-    public static isInstance(value: unknown): boolean {
+    public static isInstance(value: unknown): boolean
+    {
         if (!typeIs(value, 'table')) {
             return false;
         }
@@ -71,7 +77,8 @@ export class Reflector {
     }
 
     /** PHP: `$value instanceof $class`. */
-    public static isInstanceOf(value: unknown, klass: unknown): boolean {
+    public static isInstanceOf(value: unknown, klass: unknown): boolean
+    {
         if (!Reflector.isInstance(value)) {
             return false;
         }

@@ -11,7 +11,8 @@ export type Ttl = Delay | undefined;
  * the methods it contributed (`set`, `delete`, `getMultiple`, ...) are on the
  * class rather than in this contract.
  */
-export interface Repository {
+export interface Repository
+{
     /** Determine if an item exists in the cache. */
     has(key: string): boolean;
 

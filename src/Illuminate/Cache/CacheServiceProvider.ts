@@ -14,9 +14,11 @@ import type { Repository as ConfigRepository } from 'Illuminate/Contracts/Config
  * `cache.psr6` and `memcached.connector` have nothing to bind here.
  */
 @DeferrableProvider()
-export class CacheServiceProvider extends ServiceProvider implements DeferrableProvider {
+export class CacheServiceProvider extends ServiceProvider implements DeferrableProvider
+{
     /** Register the service provider. */
-    public register(): void {
+    public register(): void
+    {
         const app: Application = this.app;
 
         this.app.singleton('cache', () => new CacheManager(app));
@@ -37,7 +39,8 @@ export class CacheServiceProvider extends ServiceProvider implements DeferrableP
     }
 
     /** Get the services provided by the provider. */
-    public provides(): Array<Abstract> {
+    public provides(): Array<Abstract>
+    {
         return ['cache', 'cache.store', RateLimiter];
     }
 }

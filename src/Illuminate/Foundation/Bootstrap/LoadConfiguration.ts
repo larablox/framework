@@ -9,17 +9,20 @@ import type { Application, Bootstrapper } from 'Illuminate/Contracts/Foundation/
  * is no filesystem here, so the configuration is handed to the bootstrapper up
  * front with `using()`, the way `RegisterProviders::merge()` takes providers.
  */
-export class LoadConfiguration implements Bootstrapper {
+export class LoadConfiguration implements Bootstrapper
+{
     /** The configuration items to load. */
     protected static items: ArrayAccessible = {};
 
     /** Set the configuration the application should be bootstrapped with. */
-    public static using(items: ArrayAccessible): void {
+    public static using(items: ArrayAccessible): void
+    {
         LoadConfiguration.items = items;
     }
 
     /** Bootstrap the given application. */
-    public bootstrap(app: Application): void {
+    public bootstrap(app: Application): void
+    {
         const config = new Repository(LoadConfiguration.items);
 
         app.instance('config', config);

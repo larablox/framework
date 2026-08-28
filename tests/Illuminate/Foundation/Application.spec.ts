@@ -57,35 +57,44 @@ import type { Abstract, Concrete, Constructor } from 'Illuminate/Container/Types
  */
 export = (): void => {
     describe('Foundation.Application', () => {
-        class ApplicationBasicServiceProviderStub extends ServiceProvider {
+        class ApplicationBasicServiceProviderStub extends ServiceProvider
+        {
             public registerCalls = 0;
 
-            public register(): void {
+            public register(): void
+            {
                 this.registerCalls += 1;
             }
         }
 
-        abstract class AbstractClass {}
+        abstract class AbstractClass
+        {}
 
-        class ConcreteClass extends AbstractClass {}
+        class ConcreteClass extends AbstractClass
+        {}
 
-        class NonContractBackedClass {}
+        class NonContractBackedClass
+        {}
 
-        class BindingsProviderStub extends ServiceProvider {
+        class BindingsProviderStub extends ServiceProvider
+        {
             public bindings: Array<[Abstract, Concrete]> = [[AbstractClass, ConcreteClass]];
         }
 
-        class SingletonsProviderStub extends ServiceProvider {
+        class SingletonsProviderStub extends ServiceProvider
+        {
             public singletons: Array<[Abstract, Concrete] | Abstract> = [
                 NonContractBackedClass,
                 [AbstractClass, ConcreteClass],
             ];
         }
 
-        class ApplicationDeferredServiceProviderStub extends ServiceProvider {
+        class ApplicationDeferredServiceProviderStub extends ServiceProvider
+        {
             public static initialized = false;
 
-            public register(): void {
+            public register(): void
+            {
                 ApplicationDeferredServiceProviderStub.initialized = true;
 
                 // PHP writes `$this->app['foo'] = 'foo'`, and
@@ -94,36 +103,45 @@ export = (): void => {
                 this.app.bind('foo', () => 'foo');
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return ['foo'];
             }
         }
 
-        class ApplicationDeferredSharedServiceProviderStub extends ServiceProvider {
-            public register(): void {
+        class ApplicationDeferredSharedServiceProviderStub extends ServiceProvider
+        {
+            public register(): void
+            {
                 this.app.singleton('foo', () => ({}));
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return ['foo'];
             }
         }
 
-        class ApplicationDeferredServiceProviderCountStub extends ServiceProvider {
+        class ApplicationDeferredServiceProviderCountStub extends ServiceProvider
+        {
             public static count = 0;
 
-            public register(): void {
+            public register(): void
+            {
                 ApplicationDeferredServiceProviderCountStub.count += 1;
                 this.app.instance('foo', {});
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return ['foo'];
             }
         }
 
-        class ApplicationFactoryProviderStub extends ServiceProvider {
-            public register(): void {
+        class ApplicationFactoryProviderStub extends ServiceProvider
+        {
+            public register(): void
+            {
                 let count = 0;
 
                 this.app.bind('foo', () => {
@@ -133,73 +151,90 @@ export = (): void => {
                 });
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return ['foo'];
             }
         }
 
-        class ApplicationMultiProviderStub extends ServiceProvider {
-            public register(): void {
+        class ApplicationMultiProviderStub extends ServiceProvider
+        {
+            public register(): void
+            {
                 this.app.singleton('foo', () => 'foo');
                 this.app.singleton('bar', (app: Container) => `${app.make<string>('foo')}bar`);
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return ['foo', 'bar'];
             }
         }
 
-        abstract class SampleInterface {
+        abstract class SampleInterface
+        {
             public abstract getPrimitive(): unknown;
         }
 
-        class SampleImplementation extends SampleInterface {
+        class SampleImplementation extends SampleInterface
+        {
             // PHP reads the parameter's *name* off its reflection, which is
             // what `needs('$primitive')` matches; roblox-ts erases it, so the
             // dependency is declared with `@Inject` instead.
-            public constructor(@Inject('$primitive') private readonly primitive: unknown) {
+            public constructor(@Inject('$primitive') private readonly primitive: unknown)
+            {
                 super();
             }
 
-            public getPrimitive(): unknown {
+            public getPrimitive(): unknown
+            {
                 return this.primitive;
             }
         }
 
-        class InterfaceToImplementationDeferredServiceProvider extends ServiceProvider {
-            public register(): void {
+        class InterfaceToImplementationDeferredServiceProvider extends ServiceProvider
+        {
+            public register(): void
+            {
                 this.app.bind(SampleInterface, SampleImplementation);
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return [SampleInterface];
             }
         }
 
-        class SampleImplementationDeferredServiceProvider extends ServiceProvider {
-            public register(): void {
+        class SampleImplementationDeferredServiceProvider extends ServiceProvider
+        {
+            public register(): void
+            {
                 this.app
                     .when(SampleImplementation)
                     .needs('$primitive')
                     .give(() => 'foo');
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return [SampleImplementation];
             }
         }
 
-        class ConcreteTerminator {
+        class ConcreteTerminator
+        {
             public static counter = 0;
 
-            public terminate(): void {
+            public terminate(): void
+            {
                 ConcreteTerminator.counter += 1;
             }
         }
 
         function deferredServices(
             entries: Array<[Abstract, Constructor<ServiceProvider>]>,
-        ): OrderedMap<Abstract, Constructor<ServiceProvider>> {
+        ): OrderedMap<Abstract, Constructor<ServiceProvider>>
+        {
             const services = new OrderedMap<Abstract, Constructor<ServiceProvider>>();
 
             for (const [service, provider] of entries) {
@@ -209,7 +244,8 @@ export = (): void => {
             return services;
         }
 
-        function hasLoadedProvider(app: Application, ctor: Constructor<ServiceProvider>): boolean {
+        function hasLoadedProvider(app: Application, ctor: Constructor<ServiceProvider>): boolean
+        {
             for (const [provider] of app.getLoadedProviders()) {
                 if (provider === ctor) {
                     return true;
@@ -261,7 +297,8 @@ export = (): void => {
 
         it("register()'s default `register()` is a no-op, and the provider still loads", () => {
             // PHP: FoundationApplicationTest::testServiceProvidersAreCorrectlyRegisteredWhenRegisterMethodIsNotFilled
-            class BareProviderStub extends ServiceProvider {}
+            class BareProviderStub extends ServiceProvider
+            {}
 
             const app = new Application();
             app.register(new BareProviderStub(app));

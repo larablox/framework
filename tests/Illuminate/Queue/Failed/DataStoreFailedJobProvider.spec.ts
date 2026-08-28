@@ -37,7 +37,8 @@ import type { JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 const HttpService = game.GetService('HttpService');
 
-function freshProvider(): DataStoreFailedJobProvider {
+function freshProvider(): DataStoreFailedJobProvider
+{
     return new DataStoreFailedJobProvider(HttpService.GenerateGUID(false), '');
 }
 
@@ -48,7 +49,8 @@ function freshProvider(): DataStoreFailedJobProvider {
  * there is no JSON step here -- `log()` takes the live payload table and
  * serializes it itself (see `DataStoreFailedJobProvider.serializePayload()`).
  */
-function payloadFor(uuid: string): JobPayload {
+function payloadFor(uuid: string): JobPayload
+{
     return { uuid } as unknown as JobPayload;
 }
 

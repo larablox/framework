@@ -18,7 +18,8 @@ import { OrderedMap } from 'Illuminate/Support/OrderedMap';
  * protocol version, caching directives (`setCache`, `setEtag`, ...),
  * `RedirectResponse`, `StreamedResponse`, `BinaryFileResponse`.
  */
-export class Response {
+export class Response
+{
     public static readonly HTTP_OK = 200;
 
     public static readonly HTTP_CREATED = 201;
@@ -58,7 +59,8 @@ export class Response {
     protected responseException?: unknown;
 
     /** Create a new response instance. */
-    public constructor(content?: unknown, status: number = Response.HTTP_OK, headers?: Record<string, string>) {
+    public constructor(content?: unknown, status: number = Response.HTTP_OK, headers?: Record<string, string>)
+    {
         this.responseContent = content;
         this.statusCode = status;
 
@@ -68,19 +70,22 @@ export class Response {
     }
 
     /** Set the content on the response. */
-    public setContent(content: unknown): this {
+    public setContent(content: unknown): this
+    {
         this.responseContent = content;
 
         return this;
     }
 
     /** Get the content of the response. */
-    public getContent(): unknown {
+    public getContent(): unknown
+    {
         return this.responseContent;
     }
 
     /** Get the content of the response. */
-    public content(): unknown {
+    public content(): unknown
+    {
         return this.getContent();
     }
 
@@ -93,7 +98,8 @@ export class Response {
      * use for; the one rule that carries over is that a HEAD request answers
      * with the headers of a GET and no body at all.
      */
-    public prepare(request: { method(): string }): this {
+    public prepare(request: { method(): string; }): this
+    {
         if (request.method() === 'HEAD') {
             this.setContent(undefined);
         }
@@ -102,24 +108,28 @@ export class Response {
     }
 
     /** Get the status code for the response. */
-    public getStatusCode(): number {
+    public getStatusCode(): number
+    {
         return this.statusCode;
     }
 
     /** Get the status code for the response. */
-    public status(): number {
+    public status(): number
+    {
         return this.getStatusCode();
     }
 
     /** Set the status code for the response. */
-    public setStatusCode(code: number): this {
+    public setStatusCode(code: number): this
+    {
         this.statusCode = code;
 
         return this;
     }
 
     /** Set a header on the response. */
-    public header(key: string, value: string, replace = true): this {
+    public header(key: string, value: string, replace = true): this
+    {
         if (replace || !this.responseHeaders.has(key)) {
             this.responseHeaders.set(key, value);
         }
@@ -128,7 +138,8 @@ export class Response {
     }
 
     /** Add an array of headers to the response. */
-    public withHeaders(headers: Record<string, string>): this {
+    public withHeaders(headers: Record<string, string>): this
+    {
         for (const [key, value] of pairs(headers)) {
             this.responseHeaders.set(key as string, value as string);
         }
@@ -141,7 +152,8 @@ export class Response {
      *
      * PHP reads them off the public `headers` property, a `ParameterBag`.
      */
-    public getHeaders(): OrderedMap<string, string> {
+    public getHeaders(): OrderedMap<string, string>
+    {
         return this.responseHeaders;
     }
 
@@ -153,39 +165,46 @@ export class Response {
      * `RequestHandled` -- or a middleware the response passes on its way out --
      * can tell an answered request from a failed one.
      */
-    public withException(e: unknown): this {
+    public withException(e: unknown): this
+    {
         this.responseException = e;
 
         return this;
     }
 
     /** The exception that caused the response, if any. */
-    public exception(): unknown {
+    public exception(): unknown
+    {
         return this.responseException;
     }
 
     /** Is the response successful? */
-    public isSuccessful(): boolean {
+    public isSuccessful(): boolean
+    {
         return this.statusCode >= 200 && this.statusCode < 300;
     }
 
     /** Is the response OK? */
-    public isOk(): boolean {
+    public isOk(): boolean
+    {
         return this.statusCode === Response.HTTP_OK;
     }
 
     /** Is there a client error? */
-    public isClientError(): boolean {
+    public isClientError(): boolean
+    {
         return this.statusCode >= 400 && this.statusCode < 500;
     }
 
     /** Was there a server side error? */
-    public isServerError(): boolean {
+    public isServerError(): boolean
+    {
         return this.statusCode >= 500 && this.statusCode < 600;
     }
 
     /** Is the response empty? */
-    public isEmpty(): boolean {
+    public isEmpty(): boolean
+    {
         return this.statusCode === Response.HTTP_NO_CONTENT || this.statusCode === 304;
     }
 }

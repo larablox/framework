@@ -26,8 +26,10 @@ import type { AbstractClass } from 'Illuminate/Container/Types';
  */
 export = (): void => {
     describe('Foundation.Configuration.Exceptions', () => {
-        class ExposedHandler extends Handler {
-            public getDontReport(): Array<AbstractClass> {
+        class ExposedHandler extends Handler
+        {
+            public getDontReport(): Array<AbstractClass>
+            {
                 return [...this.dontReportTypes, ...this.internalDontReport];
             }
         }

@@ -26,7 +26,8 @@ import type { Repository as Cache } from 'Illuminate/Cache/Repository';
  * that came from storage carries an `Instance` as an identifier, and an
  * identifier that no longer resolves raises `InstanceNotFoundException`.
  */
-export class CallQueuedHandler {
+export class CallQueuedHandler
+{
     /** The command currently being processed. */
     protected runningCommand?: object;
 
@@ -39,10 +40,12 @@ export class CallQueuedHandler {
     public constructor(
         @Inject(Dispatcher) protected readonly dispatcher: Dispatcher,
         @Inject('app') protected readonly container: Container,
-    ) {}
+    )
+    {}
 
     /** Handle the queued job. */
-    public call(job: Job, data: JobPayloadData): void {
+    public call(job: Job, data: JobPayloadData): void
+    {
         let command: object;
 
         try {
@@ -84,7 +87,8 @@ export class CallQueuedHandler {
      * Here a command that never left the server is handed back as it is, and
      * only one that did comes back as a string to be read.
      */
-    protected getCommand(data: JobPayloadData): object {
+    protected getCommand(data: JobPayloadData): object
+    {
         if (typeIs(data.command, 'string')) {
             return Serializer.unserialize(data.command) as object;
         }
@@ -93,11 +97,12 @@ export class CallQueuedHandler {
     }
 
     /** Dispatch the given job / command through its specified middleware. */
-    protected dispatchThroughMiddleware(job: Job, command: object): unknown {
+    protected dispatchThroughMiddleware(job: Job, command: object): unknown
+    {
         const pipeline = new Pipeline(this.container).send(command).through(this.middlewareFor(command));
 
         return pipeline.then((passable) =>
-            this.dispatcher.dispatchNow(passable as object, this.resolveHandler(job, passable as object)),
+            this.dispatcher.dispatchNow(passable as object, this.resolveHandler(job, passable as object))
         );
     }
 
@@ -107,8 +112,9 @@ export class CallQueuedHandler {
      * PHP merges what `middleware()` returns with the `$middleware` property;
      * a Luau table holds one value per key, so a job declares one or the other.
      */
-    protected middlewareFor(command: object): Array<Pipe> {
-        const declared = (command as { middleware?: unknown }).middleware;
+    protected middlewareFor(command: object): Array<Pipe>
+    {
+        const declared = (command as { middleware?: unknown; }).middleware;
 
         if (typeIs(declared, 'function')) {
             return (declared as (self: object) => Array<Pipe>)(command);
@@ -118,7 +124,8 @@ export class CallQueuedHandler {
     }
 
     /** Resolve the handler for the given command. */
-    protected resolveHandler(job: Job, command: object): object | undefined {
+    protected resolveHandler(job: Job, command: object): object | undefined
+    {
         const handler = this.dispatcher.getCommandHandler(command);
 
         if (handler !== undefined) {
@@ -129,7 +136,8 @@ export class CallQueuedHandler {
     }
 
     /** Release the unique lock a job marked `ShouldBeUnique` was holding. */
-    protected ensureUniqueJobLockIsReleased(command: object): void {
+    protected ensureUniqueJobLockIsReleased(command: object): void
+    {
         if (!isShouldBeUnique(command) || !this.container.bound('cache.store')) {
             return;
         }
@@ -138,7 +146,8 @@ export class CallQueuedHandler {
     }
 
     /** Tell the batch this job belongs to that it finished. */
-    protected ensureSuccessfulBatchJobIsRecorded(command: object): void {
+    protected ensureSuccessfulBatchJobIsRecorded(command: object): void
+    {
         const batchable = command as Batchable;
 
         if (!typeIs(batchable.batch, 'function')) {
@@ -149,7 +158,8 @@ export class CallQueuedHandler {
     }
 
     /** Tell the batch this job belongs to that it failed. */
-    protected ensureFailedBatchJobIsRecorded(command: object, e: unknown): void {
+    protected ensureFailedBatchJobIsRecorded(command: object, e: unknown): void
+    {
         const batchable = command as Batchable;
 
         if (!typeIs(batchable.batch, 'function')) {
@@ -160,8 +170,9 @@ export class CallQueuedHandler {
     }
 
     /** Ensure the next job in the chain is dispatched if applicable. */
-    protected ensureNextJobInChainIsDispatched(command: object): void {
-        const dispatchNext = (command as { dispatchNextJobInChain?: unknown }).dispatchNextJobInChain;
+    protected ensureNextJobInChainIsDispatched(command: object): void
+    {
+        const dispatchNext = (command as { dispatchNextJobInChain?: unknown; }).dispatchNextJobInChain;
 
         if (typeIs(dispatchNext, 'function')) {
             (dispatchNext as (self: object) => void)(command);
@@ -169,7 +180,8 @@ export class CallQueuedHandler {
     }
 
     /** Set the job instance of the given class if necessary. */
-    protected setJobInstanceIfNecessary(job: Job, instance: object): object {
+    protected setJobInstanceIfNecessary(job: Job, instance: object): object
+    {
         if (Reflector.isInstanceOf(instance, InteractsWithQueue)) {
             (instance as InteractsWithQueue).setJob(job);
         }
@@ -183,7 +195,8 @@ export class CallQueuedHandler {
      * PHP: `handleModelNotFound()`. The batch bookkeeping it does first waits
      * on batches.
      */
-    protected handleInstanceNotFound(job: Job, e: InstanceNotFoundException): void {
+    protected handleInstanceNotFound(job: Job, e: InstanceNotFoundException): void
+    {
         if (job.payload().deleteWhenMissingModels === true) {
             job.delete();
 
@@ -198,7 +211,8 @@ export class CallQueuedHandler {
      *
      * `uuid` identifies the batch and the chain PHP notifies from here.
      */
-    public failed(data: JobPayloadData, e: unknown, uuid: string, job?: Job): void {
+    public failed(data: JobPayloadData, e: unknown, uuid: string, job?: Job): void
+    {
         // The command may be exactly what could not be read back -- that is
         // often why the job failed. PHP gets a `__PHP_Incomplete_Class` and
         // returns early; there is nothing to notify here either.
@@ -224,7 +238,8 @@ export class CallQueuedHandler {
     }
 
     /** Get the command currently being processed. */
-    public getRunningCommand(): object | undefined {
+    public getRunningCommand(): object | undefined
+    {
         return this.runningCommand;
     }
 }

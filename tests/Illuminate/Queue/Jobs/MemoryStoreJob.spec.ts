@@ -19,28 +19,34 @@ import type { MemoryStoreQueue } from 'Illuminate/Queue/MemoryStoreQueue';
  * way `SyncQueue.spec.ts` exercises `SyncJob.fire()`.
  */
 
-class FakeMemoryStoreQueue {
+class FakeMemoryStoreQueue
+{
     public deleteReservedCalls = new Array<[string, MemoryStoreJob]>();
     public deleteAndReleaseCalls = new Array<[string, MemoryStoreJob, number]>();
 
-    public deleteReserved(queue: string, job: MemoryStoreJob): void {
+    public deleteReserved(queue: string, job: MemoryStoreJob): void
+    {
         this.deleteReservedCalls.push([queue, job]);
     }
 
-    public deleteAndRelease(queue: string, job: MemoryStoreJob, delay: number): void {
+    public deleteAndRelease(queue: string, job: MemoryStoreJob, delay: number): void
+    {
         this.deleteAndReleaseCalls.push([queue, job, delay]);
     }
 }
 
-class FooHandler {
+class FooHandler
+{
     public called?: [unknown, unknown];
 
-    public fire(job: unknown, data: unknown): void {
+    public fire(job: unknown, data: unknown): void
+    {
         this.called = [job, data];
     }
 }
 
-function getJob(memoryStore: FakeMemoryStoreQueue): [MemoryStoreJob, FooHandler] {
+function getJob(memoryStore: FakeMemoryStoreQueue): [MemoryStoreJob, FooHandler]
+{
     const container = new Container();
     const handler = new FooHandler();
     container.instance('foo', handler);

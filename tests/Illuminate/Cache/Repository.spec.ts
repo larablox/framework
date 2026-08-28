@@ -12,7 +12,8 @@ import type { Store } from 'Illuminate/Contracts/Cache/Store';
  * `defaultGetReturn` covers the `->andReturn(null)` calls that don't care
  * which key was asked for.
  */
-class FakeStore implements Store {
+class FakeStore implements Store
+{
     public getCalls = new Array<string>();
     public getReturns = new Map<string, unknown>();
     public defaultGetReturn: unknown = undefined;
@@ -42,13 +43,15 @@ class FakeStore implements Store {
     public flushCalls = 0;
     public flushReturn = true;
 
-    public get(key: string): unknown {
+    public get(key: string): unknown
+    {
         this.getCalls.push(key);
 
         return this.getReturns.has(key) ? this.getReturns.get(key) : this.defaultGetReturn;
     }
 
-    public many(keys: Array<string>): Map<string, unknown> {
+    public many(keys: Array<string>): Map<string, unknown>
+    {
         this.manyCalls.push(keys);
 
         const values = new Map<string, unknown>();
@@ -60,55 +63,64 @@ class FakeStore implements Store {
         return values;
     }
 
-    public put(key: string, value: unknown, seconds: number): boolean {
+    public put(key: string, value: unknown, seconds: number): boolean
+    {
         this.putCalls.push([key, value, seconds]);
 
         return this.putReturn;
     }
 
-    public putMany(values: Map<string, unknown>, seconds: number): boolean {
+    public putMany(values: Map<string, unknown>, seconds: number): boolean
+    {
         this.putManyCalls.push([values, seconds]);
 
         return true;
     }
 
-    public increment(key: string, value = 1): number | false {
+    public increment(key: string, value = 1): number | false
+    {
         this.incrementCalls.push([key, value]);
 
         return this.incrementReturn;
     }
 
-    public decrement(key: string, value = 1): number | false {
+    public decrement(key: string, value = 1): number | false
+    {
         this.decrementCalls.push([key, value]);
 
         return this.decrementReturn;
     }
 
-    public forever(key: string, value: unknown): boolean {
+    public forever(key: string, value: unknown): boolean
+    {
         this.foreverCalls.push([key, value]);
 
         return this.foreverReturn;
     }
 
-    public touch(key: string, seconds: number): boolean {
+    public touch(key: string, seconds: number): boolean
+    {
         this.touchCalls.push([key, seconds]);
 
         return this.touchReturn;
     }
 
-    public forget(key: string): boolean {
+    public forget(key: string): boolean
+    {
         this.forgetCalls.push(key);
 
         return this.forgetReturn;
     }
 
-    public flush(): boolean {
+    public flush(): boolean
+    {
         this.flushCalls++;
 
         return this.flushReturn;
     }
 
-    public getPrefix(): string {
+    public getPrefix(): string
+    {
         return '';
     }
 }
@@ -120,11 +132,13 @@ class FakeStore implements Store {
  * probes for one dynamically, exactly the way PHP tests distinguish a store
  * mock that defines `add` from one that does not.
  */
-class FakeStoreWithAdd extends FakeStore {
+class FakeStoreWithAdd extends FakeStore
+{
     public addCalls = new Array<[string, unknown, number]>();
     public addReturn = true;
 
-    public add(key: string, value: unknown, seconds: number): boolean {
+    public add(key: string, value: unknown, seconds: number): boolean
+    {
         this.addCalls.push([key, value, seconds]);
 
         return this.addReturn;

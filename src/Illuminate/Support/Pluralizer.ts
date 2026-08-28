@@ -109,12 +109,14 @@ const SINGULAR_RULES: Array<[string, string]> = [
     ['s$', ''],
 ];
 
-export class Pluralizer {
+export class Pluralizer
+{
     /** Words that should not be inflected. */
     public static uncountable = UNCOUNTABLE;
 
     /** Get the plural form of an English word. */
-    public static plural(value: string, count = 2): string {
+    public static plural(value: string, count = 2): string
+    {
         if (math.abs(count) === 1 || Pluralizer.isUncountable(value)) {
             return value;
         }
@@ -123,7 +125,8 @@ export class Pluralizer {
     }
 
     /** Get the singular form of an English word. */
-    public static singular(value: string): string {
+    public static singular(value: string): string
+    {
         if (Pluralizer.isUncountable(value)) {
             return value;
         }
@@ -132,12 +135,14 @@ export class Pluralizer {
     }
 
     /** Determine if the given value is uncountable. */
-    protected static isUncountable(value: string): boolean {
+    protected static isUncountable(value: string): boolean
+    {
         return Pluralizer.uncountable.includes(value.lower());
     }
 
     /** Apply the first rule that matches, irregulars first. */
-    protected static inflect(value: string, rules: Array<[string, string]>): string {
+    protected static inflect(value: string, rules: Array<[string, string]>): string
+    {
         const lowered = value.lower();
         const plural = rules === PLURAL_RULES;
 
@@ -165,7 +170,8 @@ export class Pluralizer {
     }
 
     /** Attempt to match the case of the inflected word to the original. */
-    protected static matchCase(value: string, comparison: string): string {
+    protected static matchCase(value: string, comparison: string): string
+    {
         if (comparison.lower() === comparison) {
             return value.lower();
         }

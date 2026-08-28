@@ -47,7 +47,8 @@ export type EnqueueCallback = (payload: JobPayload, queue: string | undefined, d
  * methods below may call them; PHP reaches them through the `Queue` contract
  * that every concrete queue implements.
  */
-export abstract class Queue {
+export abstract class Queue
+{
     /** The IoC container instance. */
     protected container!: Container;
 
@@ -73,24 +74,28 @@ export abstract class Queue {
     public abstract pop(queue?: string): Job | undefined;
 
     /** Push a new job onto the queue. */
-    public pushOn(queue: string, job: JobTarget, data: unknown = ''): unknown {
+    public pushOn(queue: string, job: JobTarget, data: unknown = ''): unknown
+    {
         return this.push(job, data, queue);
     }
 
     /** Push a new job onto a specific queue after (n) seconds. */
-    public laterOn(queue: string, delay: Delay, job: JobTarget, data: unknown = ''): unknown {
+    public laterOn(queue: string, delay: Delay, job: JobTarget, data: unknown = ''): unknown
+    {
         return this.later(delay, job, data, queue);
     }
 
     /** Push an array of jobs onto the queue. */
-    public bulk(jobs: JobTarget | Array<JobTarget>, data: unknown = '', queue?: string): void {
+    public bulk(jobs: JobTarget | Array<JobTarget>, data: unknown = '', queue?: string): void
+    {
         for (const job of Util.isArray(jobs) ? (jobs as Array<JobTarget>) : [jobs as JobTarget]) {
             this.push(job, data, queue);
         }
     }
 
     /** Create a payload from the given job and data. */
-    protected createPayload(job: JobTarget, queue: string | undefined, data: unknown = '', delay?: Delay): JobPayload {
+    protected createPayload(job: JobTarget, queue: string | undefined, data: unknown = '', delay?: Delay): JobPayload
+    {
         const value = this.createPayloadArray(job, queue, data);
 
         value.delay = delay !== undefined ? InteractsWithTime.secondsUntil(delay) : undefined;
@@ -99,34 +104,38 @@ export abstract class Queue {
     }
 
     /** Create a payload array from the given job and data. */
-    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ''): JobPayload {
+    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ''): JobPayload
+    {
         return Reflector.isInstance(job)
             ? this.createObjectPayload(job as object, queue)
             : this.createStringPayload(job, queue, data);
     }
 
     /** Create a payload for an object-based queue handler. */
-    protected createObjectPayload(job: object, queue: string | undefined): JobPayload {
+    protected createObjectPayload(job: object, queue: string | undefined): JobPayload
+    {
         const payload = this.withCreatePayloadHooks(queue, {
             uuid: Str.uuid(),
             displayName: this.getDisplayName(job),
             job: [CallQueuedHandler, 'call'],
             maxTries: this.getJobTries(job) as number | undefined,
             maxExceptions: ReadsClassAttributes.getAttributeValue(job, MaxExceptions, 'maxExceptions') as
-                number | undefined,
+                | number
+                | undefined,
             failOnTimeout:
-                (ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, 'failOnTimeout') as boolean | undefined) ??
-                false,
+                (ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, 'failOnTimeout') as boolean | undefined)
+                    ?? false,
             backoff: this.getJobBackoff(job),
             timeout: ReadsClassAttributes.getAttributeValue(job, Timeout, 'timeout') as number | undefined,
             retryUntil: this.getJobExpiration(job),
             deleteWhenMissingModels:
                 (ReadsClassAttributes.getAttributeValue(job, DeleteWhenMissingModels, 'deleteWhenMissingModels') as
-                    boolean | undefined) ?? false,
+                    | boolean
+                    | undefined) ?? false,
             data: {
                 commandName: Reflector.classOf(job) ?? Reflector.className(job),
                 command: job,
-                batchId: (job as { batchId?: string }).batchId,
+                batchId: (job as { batchId?: string; }).batchId,
             },
             createdAt: InteractsWithTime.currentTime(),
         });
@@ -152,8 +161,9 @@ export abstract class Queue {
     }
 
     /** Get the display name for the given job. */
-    protected getDisplayName(job: object): string {
-        const displayName = (job as { displayName?: unknown }).displayName;
+    protected getDisplayName(job: object): string
+    {
+        const displayName = (job as { displayName?: unknown; }).displayName;
 
         return typeIs(displayName, 'function')
             ? (displayName as (self: object) => string)(job)
@@ -161,10 +171,11 @@ export abstract class Queue {
     }
 
     /** Get the maximum number of attempts for an object-based queue handler. */
-    public getJobTries(job: object): unknown {
+    public getJobTries(job: object): unknown
+    {
         let tries = ReadsClassAttributes.getAttributeValue(job, Tries, 'tries');
 
-        const method = (job as { tries?: unknown }).tries;
+        const method = (job as { tries?: unknown; }).tries;
 
         if (typeIs(method, 'function')) {
             tries = (method as (self: object) => number)(job);
@@ -174,10 +185,11 @@ export abstract class Queue {
     }
 
     /** Get the backoff for an object-based queue handler. */
-    public getJobBackoff(job: object): string | undefined {
+    public getJobBackoff(job: object): string | undefined
+    {
         let backoff = ReadsClassAttributes.getAttributeValue(job, Backoff, 'backoff');
 
-        const method = (job as { backoff?: unknown }).backoff;
+        const method = (job as { backoff?: unknown; }).backoff;
 
         if (typeIs(method, 'function')) {
             backoff = (method as (self: object) => unknown)(job);
@@ -193,8 +205,9 @@ export abstract class Queue {
     }
 
     /** Get the expiration timestamp for an object-based queue handler. */
-    public getJobExpiration(job: object): number | undefined {
-        const retryUntil = (job as { retryUntil?: unknown }).retryUntil;
+    public getJobExpiration(job: object): number | undefined
+    {
+        const retryUntil = (job as { retryUntil?: unknown; }).retryUntil;
 
         if (retryUntil === undefined) {
             return undefined;
@@ -206,7 +219,8 @@ export abstract class Queue {
     }
 
     /** Create a typical, string based queue payload array. */
-    protected createStringPayload(job: JobTarget, queue: string | undefined, data: unknown): JobPayload {
+    protected createStringPayload(job: JobTarget, queue: string | undefined, data: unknown): JobPayload
+    {
         return this.withCreatePayloadHooks(queue, {
             uuid: Str.uuid(),
             displayName: typeIs(job, 'string') ? Str.parseCallback(job)[0] : undefined,
@@ -222,7 +236,8 @@ export abstract class Queue {
     }
 
     /** Register a callback to be executed when creating job payloads. */
-    public static createPayloadUsing(callback?: CreatePayloadCallback): void {
+    public static createPayloadUsing(callback?: CreatePayloadCallback): void
+    {
         if (callback === undefined) {
             Queue.createPayloadCallbacks = new Array<CreatePayloadCallback>();
         } else {
@@ -231,7 +246,8 @@ export abstract class Queue {
     }
 
     /** Create the given payload using any registered payload hooks. */
-    protected withCreatePayloadHooks(queue: string | undefined, payload: JobPayload): JobPayload {
+    protected withCreatePayloadHooks(queue: string | undefined, payload: JobPayload): JobPayload
+    {
         for (const callback of Queue.createPayloadCallbacks) {
             const extra = callback(this.getConnectionName(), queue, payload);
 
@@ -255,7 +271,8 @@ export abstract class Queue {
         queue: string | undefined,
         delay: Delay | undefined,
         callback: EnqueueCallback,
-    ): unknown {
+    ): unknown
+    {
         this.raiseJobQueueingEvent(queue, job, payload, delay);
 
         const jobId = callback(payload, queue, delay);
@@ -266,9 +283,10 @@ export abstract class Queue {
     }
 
     /** Determine if the job should be dispatched after all database transactions have committed. */
-    protected shouldDispatchAfterCommit(job: JobTarget): boolean {
+    protected shouldDispatchAfterCommit(job: JobTarget): boolean
+    {
         if (typeIs(job, 'table')) {
-            const afterCommit = (job as { afterCommit?: boolean }).afterCommit;
+            const afterCommit = (job as { afterCommit?: boolean; }).afterCommit;
 
             if (afterCommit !== undefined) {
                 return afterCommit;
@@ -284,7 +302,8 @@ export abstract class Queue {
         job: JobTarget,
         payload: JobPayload,
         delay: Delay | undefined,
-    ): void {
+    ): void
+    {
         if (this.container.bound('events')) {
             this.container
                 .make<Dispatcher>('events')
@@ -307,7 +326,8 @@ export abstract class Queue {
         job: JobTarget,
         payload: JobPayload,
         delay: Delay | undefined,
-    ): void {
+    ): void
+    {
         if (this.container.bound('events')) {
             this.container
                 .make<Dispatcher>('events')
@@ -325,36 +345,42 @@ export abstract class Queue {
     }
 
     /** Get the connection name for the queue. */
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return this.connectionName;
     }
 
     /** Set the connection name for the queue. */
-    public setConnectionName(name: string): this {
+    public setConnectionName(name: string): this
+    {
         this.connectionName = name;
 
         return this;
     }
 
     /** Get the original configuration for the queue. */
-    public getConfig(): ArrayAccessible {
+    public getConfig(): ArrayAccessible
+    {
         return this.config;
     }
 
     /** Set the original configuration for the queue. */
-    public setConfig(config: ArrayAccessible): this {
+    public setConfig(config: ArrayAccessible): this
+    {
         this.config = config;
 
         return this;
     }
 
     /** Get the container instance being used by the connection. */
-    public getContainer(): Container {
+    public getContainer(): Container
+    {
         return this.container;
     }
 
     /** Set the IoC container instance. */
-    public setContainer(container: Container): void {
+    public setContainer(container: Container): void
+    {
         this.container = container;
     }
 }

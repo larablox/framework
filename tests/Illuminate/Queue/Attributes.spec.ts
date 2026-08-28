@@ -34,9 +34,11 @@ import { Tries } from 'Illuminate/Queue/Attributes/Tries';
 @MaxExceptions(3)
 @Timeout(40)
 @Tries(2)
-abstract class ParentJobWithAttributes {}
+abstract class ParentJobWithAttributes
+{}
 
-class ChildJobWithPropertiesOverridingParentAttributes extends ParentJobWithAttributes {
+class ChildJobWithPropertiesOverridingParentAttributes extends ParentJobWithAttributes
+{
     public backoff = 13;
     public failOnTimeout = false;
     public maxExceptions = 11;
@@ -49,7 +51,8 @@ class ChildJobWithPropertiesOverridingParentAttributes extends ParentJobWithAttr
 @MaxExceptions(3)
 @Timeout(40)
 @Tries(2)
-class JobWithAttributesAndDefaultProperties {
+class JobWithAttributesAndDefaultProperties
+{
     public backoff = 13;
     public failOnTimeout = false;
     public maxExceptions = 11;
@@ -58,16 +61,19 @@ class JobWithAttributesAndDefaultProperties {
 }
 
 @Timeout(40)
-class JobWithOnlyAttribute {}
+class JobWithOnlyAttribute
+{}
 
-class JobWithNothing {}
+class JobWithNothing
+{}
 
 export = (): void => {
     describe('Attributes', () => {
         // PHP: QueueAttributesTest::test_queue_attribute_keeps_string_as_string
         it('Queue() records the queue name', () => {
             @Queue('high')
-            class Job {}
+            class Job
+            {}
 
             expect(ReadsClassAttributes.getAttributeValue(new Job(), Queue, 'queue')).to.equal('high');
         });
@@ -75,14 +81,16 @@ export = (): void => {
         // PHP: QueueAttributesTest::test_connection_attribute_keeps_string_as_string
         it('Connection() records the connection name', () => {
             @Connection('redis')
-            class Job {}
+            class Job
+            {}
 
             expect(ReadsClassAttributes.getAttributeValue(new Job(), Connection, 'connection')).to.equal('redis');
         });
 
         it('Delay() records the delay', () => {
             @Delay(15)
-            class Job {}
+            class Job
+            {}
 
             expect(ReadsClassAttributes.getAttributeValue(new Job(), Delay, 'delay')).to.equal(15);
         });

@@ -39,9 +39,11 @@ const BACKOFF = [1000, 2000, 4000];
  * result through a table, and `{ nil, keyInfo }` -- which is exactly what
  * `GetAsync` answers for a key that holds nothing -- has no defined length.
  */
-export class DataStoreRequest {
+export class DataStoreRequest
+{
     /** Whether the platform, rather than the caller, refused the call. */
-    public static isTransient(exception: unknown): boolean {
+    public static isTransient(exception: unknown): boolean
+    {
         const message = tostring(exception).lower();
 
         for (const fragment of TRANSIENT) {
@@ -54,7 +56,8 @@ export class DataStoreRequest {
     }
 
     /** Make a DataStore call, repeating it while it is worth repeating. */
-    public static run<TReturn>(call: () => TReturn): TReturn {
+    public static run<TReturn>(call: () => TReturn): TReturn
+    {
         return retry(BACKOFF, call, 0, (exception) => DataStoreRequest.isTransient(exception));
     }
 }

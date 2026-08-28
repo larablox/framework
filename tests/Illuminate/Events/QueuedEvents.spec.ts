@@ -52,7 +52,8 @@ import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
  */
 
 /** Minimal `Queue` fake that just records what was pushed onto it. */
-class RecordingQueue implements Queue {
+class RecordingQueue implements Queue
+{
     public pushCalls = new Array<{
         job: unknown;
         data: unknown;
@@ -81,67 +82,81 @@ class RecordingQueue implements Queue {
 
     private connectionName = '';
 
-    public size(): number {
+    public size(): number
+    {
         return 0;
     }
 
-    public pendingSize(): number {
+    public pendingSize(): number
+    {
         return 0;
     }
 
-    public delayedSize(): number {
+    public delayedSize(): number
+    {
         return 0;
     }
 
-    public reservedSize(): number {
+    public reservedSize(): number
+    {
         return 0;
     }
 
-    public creationTimeOfOldestPendingJob(): number | undefined {
+    public creationTimeOfOldestPendingJob(): number | undefined
+    {
         return undefined;
     }
 
-    public push(job: unknown, data?: unknown, queue?: string): unknown {
+    public push(job: unknown, data?: unknown, queue?: string): unknown
+    {
         this.pushCalls.push({ job, data, queue });
 
         return undefined;
     }
 
-    public pushOn(queue: string, job: unknown, data?: unknown): unknown {
+    public pushOn(queue: string, job: unknown, data?: unknown): unknown
+    {
         this.pushOnCalls.push({ queue, job, data });
 
         return undefined;
     }
 
-    public pushRaw(): unknown {
+    public pushRaw(): unknown
+    {
         return undefined;
     }
 
-    public later(delay: DelayValue, job: unknown, data?: unknown, queue?: string): unknown {
+    public later(delay: DelayValue, job: unknown, data?: unknown, queue?: string): unknown
+    {
         this.laterCalls.push({ delay, job, data, queue });
 
         return undefined;
     }
 
-    public laterOn(queue: string, delay: DelayValue, job: unknown, data?: unknown): unknown {
+    public laterOn(queue: string, delay: DelayValue, job: unknown, data?: unknown): unknown
+    {
         this.laterOnCalls.push({ queue, delay, job, data });
 
         return undefined;
     }
 
-    public bulk(): void {
+    public bulk(): void
+    {
         //
     }
 
-    public pop(): Job | undefined {
+    public pop(): Job | undefined
+    {
         return undefined;
     }
 
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return this.connectionName;
     }
 
-    public setConnectionName(name: string): this {
+    public setConnectionName(name: string): this
+    {
         this.connectionName = name;
 
         return this;
@@ -149,11 +164,13 @@ class RecordingQueue implements Queue {
 }
 
 /** `Factory` fake that hands out one `RecordingQueue` per connection name, and records which name was asked for. */
-class RecordingQueueFactory implements QueueFactory {
+class RecordingQueueFactory implements QueueFactory
+{
     public readonly queue = new RecordingQueue();
     public connectionCalls = new Array<string | undefined>();
 
-    public connection(name?: string): Queue {
+    public connection(name?: string): Queue
+    {
         this.connectionCalls[this.connectionCalls.size()] = name;
 
         return this.queue;
@@ -165,8 +182,10 @@ export = (): void => {
         it('a @ShouldQueue() listener is pushed onto the resolved connection as a CallQueuedListener', () => {
             // PHP: QueuedEventsTest::testQueuedEventHandlersAreQueued
             @ShouldQueue()
-            class TestDispatcherQueuedHandler {
-                public handle(): void {
+            class TestDispatcherQueuedHandler
+            {
+                public handle(): void
+                {
                     //
                 }
             }
@@ -197,12 +216,14 @@ export = (): void => {
             // decorator (see its class comment), so a plain property works
             // here exactly as it does in PHP.
             @ShouldQueue()
-            class TestDispatcherConnectionQueuedHandler {
+            class TestDispatcherConnectionQueuedHandler
+            {
                 public connection = 'redis';
                 public delaySeconds: DelayValue = 10;
                 public queue = 'my_queue';
 
-                public handle(): void {
+                public handle(): void
+                {
                     //
                 }
             }
@@ -227,14 +248,17 @@ export = (): void => {
         it('viaQueue() overrides the queue property', () => {
             // PHP: QueuedEventsTest::testQueueIsSetByGetQueue
             @ShouldQueue()
-            class TestDispatcherGetQueue {
+            class TestDispatcherGetQueue
+            {
                 public queue = 'my_queue';
 
-                public handle(): void {
+                public handle(): void
+                {
                     //
                 }
 
-                public viaQueue(): string {
+                public viaQueue(): string
+                {
                     return 'some_other_queue';
                 }
             }
@@ -255,14 +279,17 @@ export = (): void => {
         it('viaConnection() overrides the connection property', () => {
             // PHP: QueuedEventsTest::testQueueIsSetByGetConnection
             @ShouldQueue()
-            class TestDispatcherGetConnection {
+            class TestDispatcherGetConnection
+            {
                 public connection = 'my_connection';
 
-                public handle(): void {
+                public handle(): void
+                {
                     //
                 }
 
-                public viaConnection(): string {
+                public viaConnection(): string
+                {
                     return 'some_other_connection';
                 }
             }
@@ -282,14 +309,17 @@ export = (): void => {
         it('withDelay() overrides the delay property', () => {
             // PHP: QueuedEventsTest::testDelayIsSetByWithDelay
             @ShouldQueue()
-            class TestDispatcherGetDelay {
+            class TestDispatcherGetDelay
+            {
                 public delaySeconds: DelayValue = 10;
 
-                public handle(): void {
+                public handle(): void
+                {
                     //
                 }
 
-                public withDelay(): number {
+                public withDelay(): number
+                {
                     return 20;
                 }
             }
@@ -310,14 +340,17 @@ export = (): void => {
         it('viaQueue(event) can branch on the event payload', () => {
             // PHP: QueuedEventsTest::testQueueIsSetByGetQueueDynamically
             @ShouldQueue()
-            class TestDispatcherGetQueueDynamically {
+            class TestDispatcherGetQueueDynamically
+            {
                 public queue = 'my_queue';
 
-                public handle(): void {
+                public handle(): void
+                {
                     //
                 }
 
-                public viaQueue(event: { useHighPriorityQueue?: boolean }): string {
+                public viaQueue(event: { useHighPriorityQueue?: boolean; }): string
+                {
                     if (event.useHighPriorityQueue) {
                         return 'p0';
                     }
@@ -342,12 +375,15 @@ export = (): void => {
         it('viaConnection(event) can branch on the event payload', () => {
             // PHP: QueuedEventsTest::testQueueIsSetByGetConnectionDynamically
             @ShouldQueue()
-            class TestDispatcherGetConnectionDynamically {
-                public handle(): void {
+            class TestDispatcherGetConnectionDynamically
+            {
+                public handle(): void
+                {
                     //
                 }
 
-                public viaConnection(event: { shouldUseRedisConnection?: boolean }): string {
+                public viaConnection(event: { shouldUseRedisConnection?: boolean; }): string
+                {
                     if (event.shouldUseRedisConnection) {
                         return 'redis';
                     }
@@ -371,14 +407,17 @@ export = (): void => {
         it('withDelay(event) can branch on the event payload', () => {
             // PHP: QueuedEventsTest::testDelayIsSetByWithDelayDynamically
             @ShouldQueue()
-            class TestDispatcherGetDelayDynamically {
+            class TestDispatcherGetDelayDynamically
+            {
                 public delaySeconds: DelayValue = 10;
 
-                public handle(): void {
+                public handle(): void
+                {
                     //
                 }
 
-                public withDelay(event: { useHighDelay?: boolean }): number {
+                public withDelay(event: { useHighDelay?: boolean; }): number
+                {
                     if (event.useHighDelay) {
                         return 60;
                     }
@@ -406,16 +445,20 @@ export = (): void => {
             // the exact same listener and inspect the same pushed job)
             @ShouldQueue()
             @MaxExceptions(1)
-            class TestDispatcherOptions {
-                public retryUntil(): number {
+            class TestDispatcherOptions
+            {
+                public retryUntil(): number
+                {
                     return os.time() + 3600;
                 }
 
-                public tries(): number {
+                public tries(): number
+                {
                     return 5;
                 }
 
-                public handle(): void {
+                public handle(): void
+                {
                     //
                 }
             }
@@ -438,24 +481,30 @@ export = (): void => {
 
         it('middleware() is propagated onto the queued job', () => {
             // PHP: QueuedEventsTest::testQueuePropagateMiddleware
-            class TestMiddleware {
+            class TestMiddleware
+            {
                 public constructor(
                     public readonly a: unknown,
                     public readonly b: unknown,
-                ) {}
+                )
+                {}
 
-                public handle(job: unknown, _next: (job: unknown) => void): void {
+                public handle(job: unknown, _next: (job: unknown) => void): void
+                {
                     _next(job);
                 }
             }
 
             @ShouldQueue()
-            class TestDispatcherMiddleware {
-                public middleware(a: unknown, b: unknown): Array<unknown> {
+            class TestDispatcherMiddleware
+            {
+                public middleware(a: unknown, b: unknown): Array<unknown>
+                {
                     return [new TestMiddleware(a, b)];
                 }
 
-                public handle(): void {
+                public handle(): void
+                {
                     //
                 }
             }

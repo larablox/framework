@@ -18,13 +18,16 @@ import type { Repository as Cache } from 'Illuminate/Cache/Repository';
  * `lock()` is not on the contract in PHP either, and reaching it through a cast
  * would compile to a dot call and lose the receiver.
  */
-export class UniqueLock {
+export class UniqueLock
+{
     /** Create a new unique lock manager instance. */
-    public constructor(protected readonly cache: Cache) {}
+    public constructor(protected readonly cache: Cache)
+    {}
 
     /** Attempt to acquire a lock for the given job. */
-    public acquire(job: object): boolean {
-        const declared = (job as { uniqueFor?: unknown }).uniqueFor;
+    public acquire(job: object): boolean
+    {
+        const declared = (job as { uniqueFor?: unknown; }).uniqueFor;
 
         const uniqueFor = typeIs(declared, 'function')
             ? ((declared as (self: object) => number)(job) ?? 0)
@@ -34,19 +37,21 @@ export class UniqueLock {
     }
 
     /** Release the lock for the given job. */
-    public release(job: object): void {
+    public release(job: object): void
+    {
         this.cache.lock(UniqueLock.getKey(job)).forceRelease();
     }
 
     /** Generate the lock key for the given job. */
-    public static getKey(job: object): string {
-        const declared = (job as { uniqueId?: unknown }).uniqueId;
+    public static getKey(job: object): string
+    {
+        const declared = (job as { uniqueId?: unknown; }).uniqueId;
 
         const uniqueId = typeIs(declared, 'function')
             ? tostring((declared as (self: object) => unknown)(job))
             : declared !== undefined
-              ? tostring(declared)
-              : '';
+            ? tostring(declared)
+            : '';
 
         const name = Reflector.className(Reflector.classOf(job));
 

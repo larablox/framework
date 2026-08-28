@@ -22,8 +22,10 @@ export = (): void => {
             let subscribeCallCount = 0;
             let subscribeArg: unknown;
 
-            class ExampleSubscriber {
-                public subscribe(e: unknown): string {
+            class ExampleSubscriber
+            {
+                public subscribe(e: unknown): string
+                {
                     subscribeCallCount++;
                     subscribeArg = e;
 
@@ -47,8 +49,10 @@ export = (): void => {
             let subscribeCallCount = 0;
             let subscribeArg: unknown;
 
-            class ExampleSubscriber {
-                public subscribe(e: unknown): string {
+            class ExampleSubscriber
+            {
+                public subscribe(e: unknown): string
+                {
                     subscribeCallCount++;
                     subscribeArg = e;
 
@@ -69,23 +73,28 @@ export = (): void => {
             // PHP: EventsSubscriberTest::testEventSubscribeCanReturnMappings
             let str = '';
 
-            class DeclarativeSubscriber {
-                public subscribe(): Array<[string, Array<string>]> {
+            class DeclarativeSubscriber
+            {
+                public subscribe(): Array<[string, Array<string>]>
+                {
                     return [
                         ['myEvent1', ['DeclarativeSubscriber@listener1', 'DeclarativeSubscriber@listener2']],
                         ['myEvent2', ['DeclarativeSubscriber@listener3']],
                     ];
                 }
 
-                public listener1(): void {
+                public listener1(): void
+                {
                     str += 'L1_';
                 }
 
-                public listener2(): void {
+                public listener2(): void
+                {
                     str += 'L2_';
                 }
 
-                public listener3(): void {
+                public listener3(): void
+                {
                     str += 'L3';
                 }
             }

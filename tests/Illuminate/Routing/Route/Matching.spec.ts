@@ -63,7 +63,8 @@ import { SubstituteBindings } from 'Illuminate/Routing/Middleware/SubstituteBind
  *   optional-parameter matching cases.
  */
 
-function router(): Router {
+function router(): Router
+{
     // `"router"` is bound so that middleware asking for it -- `SubstituteBindings`
     // does -- can be resolved, the same binding upstream's `getRouter()` makes.
     const container = new Container();
@@ -308,8 +309,10 @@ export = (): void => {
         it('Route::defaults() fills a parameter the URI left out', () => {
             const r = router();
 
-            class RouteTestControllerWithParameterStub extends Controller {
-                public returnParameter(bar = ''): string {
+            class RouteTestControllerWithParameterStub extends Controller
+            {
+                public returnParameter(bar = ''): string
+                {
                     return bar;
                 }
             }
@@ -367,8 +370,10 @@ export = (): void => {
         it('Route::getControllerClass() is undefined for a closure route', () => {
             const r = router();
 
-            class RouteTestControllerStub extends Controller {
-                public index(): string {
+            class RouteTestControllerStub extends Controller
+            {
+                public index(): string
+                {
                     return 'Hello World';
                 }
             }
@@ -464,33 +469,45 @@ export = (): void => {
 
         // PHP: RoutingRouteTest::testMiddlewarePrioritySorting
         it('Router::gatherRouteMiddleware() sorts by middlewarePriority', () => {
-            class Placeholder1 {
-                public handle(request: Request, _next: Callback): unknown {
+            class Placeholder1
+            {
+                public handle(request: Request, _next: Callback): unknown
+                {
                     return _next(request);
                 }
             }
-            class Placeholder2 {
-                public handle(request: Request, _next: Callback): unknown {
+            class Placeholder2
+            {
+                public handle(request: Request, _next: Callback): unknown
+                {
                     return _next(request);
                 }
             }
-            class Placeholder3 {
-                public handle(request: Request, _next: Callback): unknown {
+            class Placeholder3
+            {
+                public handle(request: Request, _next: Callback): unknown
+                {
                     return _next(request);
                 }
             }
-            class SubstituteBindings {
-                public handle(request: Request, _next: Callback): unknown {
+            class SubstituteBindings
+            {
+                public handle(request: Request, _next: Callback): unknown
+                {
                     return _next(request);
                 }
             }
-            class Authenticate {
-                public handle(request: Request, _next: Callback): unknown {
+            class Authenticate
+            {
+                public handle(request: Request, _next: Callback): unknown
+                {
                     return _next(request);
                 }
             }
-            class ExampleMiddleware {
-                public handle(request: Request, _next: Callback): unknown {
+            class ExampleMiddleware
+            {
+                public handle(request: Request, _next: Callback): unknown
+                {
                     return _next(request);
                 }
             }
@@ -526,8 +543,10 @@ export = (): void => {
         it("Router::uses() and currentRouteUses() match the current route's action name", () => {
             const r = router();
 
-            class RouteTestControllerStub extends Controller {
-                public index(): string {
+            class RouteTestControllerStub extends Controller
+            {
+                public index(): string
+                {
                     return 'Hello World';
                 }
             }
@@ -609,15 +628,18 @@ export = (): void => {
         it('gives every dispatch its own controller, leaving flushController() nothing to drop (diverges -- see comment)', () => {
             let constructCount = 0;
 
-            class ActionCountStub extends Controller {
+            class ActionCountStub extends Controller
+            {
                 public invokedCount = 0;
 
-                public constructor() {
+                public constructor()
+                {
                     super();
                     constructCount += 1;
                 }
 
-                public index(): number {
+                public index(): number
+                {
                     this.invokedCount += 1;
                     return this.invokedCount;
                 }

@@ -33,7 +33,8 @@ type RetryDelay = number | ((attempts: number, exception: unknown) => number);
  * `asMultipart`, `attach`, `withOptions`, the middleware and the event hooks --
  * all of them address HTTP, and none of it crosses a remote.
  */
-export class PendingRequest extends Conditionable() {
+export class PendingRequest extends Conditionable()
+{
     /** Which remote the request will leave on. */
     protected transport: Transport = 'call';
 
@@ -56,14 +57,16 @@ export class PendingRequest extends Conditionable() {
     protected throwIfCallback?: (response: Response) => boolean;
 
     /** Send the request over the remote that expects no response. */
-    public withoutWaiting(): this {
+    public withoutWaiting(): this
+    {
         this.transport = 'send';
 
         return this;
     }
 
     /** Send the request over the remote that may drop it. */
-    public unreliable(): this {
+    public unreliable(): this
+    {
         this.transport = 'stream';
 
         return this;
@@ -75,7 +78,8 @@ export class PendingRequest extends Conditionable() {
         sleepMilliseconds: RetryDelay = 0,
         when?: (exception: unknown, request: PendingRequest) => boolean,
         throwOnFailure = true,
-    ): this {
+    ): this
+    {
         this.tries = times;
         this.retryDelay = sleepMilliseconds;
         this.retryWhenCallback = when;
@@ -85,7 +89,8 @@ export class PendingRequest extends Conditionable() {
     }
 
     /** Throw an exception if a server or client error occurs. */
-    public throw(callback?: (response: Response, exception: RequestException) => void): this {
+    public throw(callback?: (response: Response, exception: RequestException) => void): this
+    {
         this.throwCallback = callback ?? (() => {});
 
         return this;
@@ -95,7 +100,8 @@ export class PendingRequest extends Conditionable() {
     public throwIf(
         condition: boolean | ((response: Response) => boolean),
         callback?: (response: Response, exception: RequestException) => void,
-    ): this {
+    ): this
+    {
         if (typeIs(condition, 'function')) {
             this.throwIfCallback = condition as (response: Response) => boolean;
 
@@ -111,32 +117,38 @@ export class PendingRequest extends Conditionable() {
      * PHP hangs the query on the URL; there is no URL here, so a GET carries
      * its data in the payload like every other verb.
      */
-    public get(path: string, query?: ArrayAccessible): Response {
+    public get(path: string, query?: ArrayAccessible): Response
+    {
         return this.send('GET', path, query);
     }
 
     /** Issue a POST request to the given path. */
-    public post(path: string, data?: ArrayAccessible): Response {
+    public post(path: string, data?: ArrayAccessible): Response
+    {
         return this.send('POST', path, data);
     }
 
     /** Issue a PUT request to the given path. */
-    public put(path: string, data?: ArrayAccessible): Response {
+    public put(path: string, data?: ArrayAccessible): Response
+    {
         return this.send('PUT', path, data);
     }
 
     /** Issue a PATCH request to the given path. */
-    public patch(path: string, data?: ArrayAccessible): Response {
+    public patch(path: string, data?: ArrayAccessible): Response
+    {
         return this.send('PATCH', path, data);
     }
 
     /** Issue a DELETE request to the given path. */
-    public delete(path: string, data?: ArrayAccessible): Response {
+    public delete(path: string, data?: ArrayAccessible): Response
+    {
         return this.send('DELETE', path, data);
     }
 
     /** Send the request to the given path. */
-    public send(method: string, path: string, data?: ArrayAccessible): Response {
+    public send(method: string, path: string, data?: ArrayAccessible): Response
+    {
         if (this.transport !== 'call') {
             this.fire(method, path, data);
 
@@ -156,12 +168,13 @@ export class PendingRequest extends Conditionable() {
                     return response;
                 }
 
-                shouldRetry =
-                    this.retryWhenCallback !== undefined ? this.retryWhenCallback(response.toException(), this) : true;
+                shouldRetry = this.retryWhenCallback !== undefined
+                    ? this.retryWhenCallback(response.toException(), this)
+                    : true;
 
                 if (
-                    this.throwCallback !== undefined &&
-                    (this.throwIfCallback === undefined || this.throwIfCallback(response))
+                    this.throwCallback !== undefined
+                    && (this.throwIfCallback === undefined || this.throwIfCallback(response))
                 ) {
                     response.throw(this.throwCallback);
                 }
@@ -178,9 +191,8 @@ export class PendingRequest extends Conditionable() {
             },
             this.retryDelay,
             (exception) => {
-                const result =
-                    shouldRetry ??
-                    (this.retryWhenCallback !== undefined ? this.retryWhenCallback(exception, this) : true);
+                const result = shouldRetry
+                    ?? (this.retryWhenCallback !== undefined ? this.retryWhenCallback(exception, this) : true);
 
                 shouldRetry = undefined;
 
@@ -190,12 +202,14 @@ export class PendingRequest extends Conditionable() {
     }
 
     /** How many attempts the configured `tries` amounts to. */
-    protected potentialTries(): number {
+    protected potentialTries(): number
+    {
         return typeIs(this.tries, 'table') ? this.tries.size() + 1 : this.tries;
     }
 
     /** Send a request that nothing is waiting on. */
-    protected fire(method: string, path: string, data?: ArrayAccessible): void {
+    protected fire(method: string, path: string, data?: ArrayAccessible): void
+    {
         if (this.transport === 'stream') {
             Remote.stream().FireServer(method, path, data);
 
@@ -206,7 +220,8 @@ export class PendingRequest extends Conditionable() {
     }
 
     /** Send a request and wait for the server to answer it. */
-    protected invoke(method: string, path: string, data?: ArrayAccessible): Response {
+    protected invoke(method: string, path: string, data?: ArrayAccessible): Response
+    {
         let envelope: unknown;
 
         try {

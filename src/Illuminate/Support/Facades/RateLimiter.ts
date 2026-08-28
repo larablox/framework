@@ -8,7 +8,8 @@ import type { Forwarded } from 'Illuminate/Support/Facades/Forwards';
  * @see Illuminate/Cache/RateLimiter
  */
 @Forwards()
-export class RateLimiter extends Facade {
+export class RateLimiter extends Facade
+{
     declare public static for: Forwarded<Limiter['for']>;
     declare public static limiter: Forwarded<Limiter['limiter']>;
     declare public static attempt: Forwarded<Limiter['attempt']>;
@@ -24,7 +25,8 @@ export class RateLimiter extends Facade {
     declare public static availableIn: Forwarded<Limiter['availableIn']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return Limiter;
     }
 }

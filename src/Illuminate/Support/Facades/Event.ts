@@ -9,7 +9,8 @@ import type { Dispatcher as EventDispatcher } from 'Illuminate/Events/Dispatcher
  * @see Illuminate/Events/Dispatcher
  */
 @Forwards()
-export class Event extends Facade {
+export class Event extends Facade
+{
     declare public static listen: Forwarded<Dispatcher['listen']>;
     declare public static hasListeners: Forwarded<Dispatcher['hasListeners']>;
     declare public static hasWildcardListeners: Forwarded<EventDispatcher['hasWildcardListeners']>;
@@ -26,7 +27,8 @@ export class Event extends Facade {
     declare public static getRawListeners: Forwarded<EventDispatcher['getRawListeners']>;
 
     /** Get the registered name of the component. */
-    protected static getFacadeAccessor(): Abstract {
+    protected static getFacadeAccessor(): Abstract
+    {
         return 'events';
     }
 }

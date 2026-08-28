@@ -34,7 +34,8 @@ import type { Responsable } from 'Illuminate/Contracts/Support/Responsable';
  *   carry here (`Controller.ts`'s class comment).
  */
 
-function router(): Router {
+function router(): Router
+{
     return new Router(new Dispatcher(), new Container());
 }
 
@@ -52,8 +53,10 @@ export = (): void => {
 
         // PHP: RoutingRouteTest::testMiddlewareCanBeSkipped
         it('Route::withoutMiddleware() drops an aliased middleware from the route', () => {
-            class RoutingTestMiddlewareGroupTwo {
-                public handle(): unknown {
+            class RoutingTestMiddlewareGroupTwo
+            {
+                public handle(): unknown
+                {
                     return new Response('caught');
                 }
             }
@@ -107,8 +110,10 @@ export = (): void => {
 
         // PHP: RoutingRouteTest::testReturnsResponseWhenMiddlewareReturnsResponsable
         it('a Responsable returned by a middleware is converted to a response', () => {
-            class ResponsableResponse implements Responsable {
-                public toResponse(): Response {
+            class ResponsableResponse implements Responsable
+            {
+                public toResponse(): Response
+                {
                     return new Response('bar');
                 }
             }
@@ -146,8 +151,10 @@ export = (): void => {
 
         // PHP: RoutingRouteTest::testControllerClosureMiddleware
         it("a controller's own middleware runs around its action", () => {
-            class RouteTestClosureMiddlewareController extends Controller {
-                public constructor() {
+            class RouteTestClosureMiddlewareController extends Controller
+            {
+                public constructor()
+                {
                     super();
                     this.middleware((request: Request, _next: (request: Request) => Response) => {
                         const response = _next(request);
@@ -158,7 +165,8 @@ export = (): void => {
                     });
                 }
 
-                public index(): string {
+                public index(): string
+                {
                     return 'index';
                 }
             }
@@ -183,16 +191,20 @@ export = (): void => {
         it('a middleware group expands into every middleware it lists', () => {
             let sawGroupOne = false;
 
-            class RoutingTestMiddlewareGroupOne {
-                public handle(request: Request, _next: (request: Request) => unknown): unknown {
+            class RoutingTestMiddlewareGroupOne
+            {
+                public handle(request: Request, _next: (request: Request) => unknown): unknown
+                {
                     sawGroupOne = true;
 
                     return _next(request);
                 }
             }
 
-            class RoutingTestMiddlewareGroupTwo {
-                public handle(_request: Request, _next: Callback, parameter?: string): unknown {
+            class RoutingTestMiddlewareGroupTwo
+            {
+                public handle(_request: Request, _next: Callback, parameter?: string): unknown
+                {
                     return new Response(`caught ${parameter}`);
                 }
             }
@@ -211,16 +223,20 @@ export = (): void => {
         it('a middleware group can nest another group by name', () => {
             let sawGroupOne = false;
 
-            class RoutingTestMiddlewareGroupOne {
-                public handle(request: Request, _next: (request: Request) => unknown): unknown {
+            class RoutingTestMiddlewareGroupOne
+            {
+                public handle(request: Request, _next: (request: Request) => unknown): unknown
+                {
                     sawGroupOne = true;
 
                     return _next(request);
                 }
             }
 
-            class RoutingTestMiddlewareGroupTwo {
-                public handle(_request: Request, _next: Callback, parameter?: string): unknown {
+            class RoutingTestMiddlewareGroupTwo
+            {
+                public handle(_request: Request, _next: Callback, parameter?: string): unknown
+                {
                     return new Response(`caught ${parameter}`);
                 }
             }
@@ -246,43 +262,52 @@ export = (): void => {
             let parameterOne: string | undefined;
             let parameterTwo: Array<string> | undefined;
 
-            class RouteTestControllerMiddleware {
-                public handle(request: Request, _next: (request: Request) => unknown): unknown {
+            class RouteTestControllerMiddleware
+            {
+                public handle(request: Request, _next: (request: Request) => unknown): unknown
+                {
                     sawMiddleware = true;
 
                     return _next(request);
                 }
             }
 
-            class RouteTestControllerParameterizedMiddlewareOne {
-                public handle(request: Request, _next: (request: Request) => unknown, parameter?: string): unknown {
+            class RouteTestControllerParameterizedMiddlewareOne
+            {
+                public handle(request: Request, _next: (request: Request) => unknown, parameter?: string): unknown
+                {
                     parameterOne = parameter;
 
                     return _next(request);
                 }
             }
 
-            class RouteTestControllerParameterizedMiddlewareTwo {
+            class RouteTestControllerParameterizedMiddlewareTwo
+            {
                 public handle(
                     request: Request,
                     _next: (request: Request) => unknown,
                     ...parameters: Array<string>
-                ): unknown {
+                ): unknown
+                {
                     parameterTwo = parameters;
 
                     return _next(request);
                 }
             }
 
-            class RouteTestControllerStub extends Controller {
-                public constructor() {
+            class RouteTestControllerStub extends Controller
+            {
+                public constructor()
+                {
                     super();
                     this.middleware(RouteTestControllerMiddleware);
                     this.middleware([RouteTestControllerParameterizedMiddlewareOne, '0']);
                     this.middleware([RouteTestControllerParameterizedMiddlewareTwo, 'foo', 'bar']);
                 }
 
-                public index(): string {
+                public index(): string
+                {
                     return 'Hello World';
                 }
             }

@@ -42,37 +42,50 @@ import type { Store } from 'Illuminate/Contracts/Cache/Store';
  */
 
 /** Records every event handed to `dispatch()`, in order. */
-class FakeDispatcher implements Dispatcher {
+class FakeDispatcher implements Dispatcher
+{
     public dispatched = new Array<object>();
 
-    public dispatch(event: unknown): unknown {
+    public dispatch(event: unknown): unknown
+    {
         this.dispatched.push(event as object);
 
         return undefined;
     }
 
-    public listen(): void {}
-    public hasListeners(): boolean {
+    public listen(): void
+    {}
+    public hasListeners(): boolean
+    {
         return false;
     }
-    public subscribe(): void {}
-    public until(): unknown {
+    public subscribe(): void
+    {}
+    public until(): unknown
+    {
         return undefined;
     }
-    public push(): void {}
-    public flush(): void {}
-    public forget(): void {}
-    public forgetPushed(): void {}
+    public push(): void
+    {}
+    public flush(): void
+    {}
+    public forget(): void
+    {}
+    public forgetPushed(): void
+    {}
 }
 
 /** A `Store` whose `forget()`/`flushLocks()` always fail, to drive the *Failed events. */
-class FailingForgetStore extends ArrayStore implements Store {
-    public forget(): boolean {
+class FailingForgetStore extends ArrayStore implements Store
+{
+    public forget(): boolean
+    {
         return false;
     }
 }
 
-function getRepository(dispatcher: FakeDispatcher): Repository {
+function getRepository(dispatcher: FakeDispatcher): Repository
+{
     const repository = new Repository(new ArrayStore(), { store: 'array' });
     repository.put('baz', 'qux', 99);
     repository.setEventDispatcher(dispatcher as unknown as Dispatcher);
@@ -226,8 +239,10 @@ export = (): void => {
         // never fails), so this exercises it with a store whose `put()`
         // always fails, the same substitute pattern as `FailingForgetStore`.
         it('put() fires WritingKey then KeyWriteFailed when the store refuses', () => {
-            class FailingPutStore extends ArrayStore implements Store {
-                public put(): boolean {
+            class FailingPutStore extends ArrayStore implements Store
+            {
+                public put(): boolean
+                {
                     return false;
                 }
             }

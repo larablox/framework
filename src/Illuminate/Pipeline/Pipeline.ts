@@ -122,13 +122,11 @@ export class Pipeline implements PipelineContract
     protected prepareDestination(destination: (passable: Passable) => unknown): Next
     {
         return (passable: Passable) => {
-            const [ok, result] = pcall(() => destination(passable));
-
-            if (!ok) {
-                return this.handleException(passable, result);
+            try {
+                return destination(passable);
+            } catch (e) {
+                return this.handleException(passable, e);
             }
-
-            return result;
         };
     }
 
@@ -137,16 +135,14 @@ export class Pipeline implements PipelineContract
     {
         return (stack: Next, pipe: Pipe) => {
             return (passable: Passable) => {
-                // `handleCarry` runs inside the protected region, as it does in
-                // PHP's try: Routing overrides it with `toResponse()`, and what
-                // that throws must reach `handleException`, not the caller.
-                const [ok, result] = pcall(() => this.handleCarry(this.callPipe(pipe, passable, stack)));
-
-                if (!ok) {
-                    return this.handleException(passable, result);
+                // `handleCarry` runs inside the try, as it does in PHP's:
+                // Routing overrides it with `toResponse()`, and what that
+                // throws must reach `handleException`, not the caller.
+                try {
+                    return this.handleCarry(this.callPipe(pipe, passable, stack));
+                } catch (e) {
+                    return this.handleException(passable, e);
                 }
-
-                return result;
             };
         };
     }

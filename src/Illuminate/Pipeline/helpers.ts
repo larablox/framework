@@ -28,6 +28,16 @@ export function isPipeWithParameters(value: unknown): value is PipeWithParameter
 }
 
 /**
+ * Call the value with the given arguments -- PHP's `$callable(...$args)`.
+ *
+ * A value that is not callable raises, exactly as PHP's would.
+ */
+export function call(callable: unknown, ...args: Array<unknown>): unknown
+{
+    return (callable as Callback)(...(args as Array<never>));
+}
+
+/**
  * Whether the value is callable: a function, or a table with a `__call`
  * metamethod -- `is_callable` for a pipe, where `__call` is what PHP spells
  * `__invoke`.

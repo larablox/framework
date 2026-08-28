@@ -1,6 +1,6 @@
 import { Arr } from 'Illuminate/Support/Arr';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
-import { isCallable, isPipeArray, splitPipe } from 'Illuminate/Pipeline/helpers';
+import { call, isCallable, isPipeArray, splitPipe } from 'Illuminate/Pipeline/helpers';
 import { RuntimeException } from 'Illuminate/Exception';
 import { Str } from 'Illuminate/Support/Str';
 import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
@@ -169,11 +169,8 @@ export class Pipeline implements PipelineContract
                     const handler = (pipe as Record<string, unknown>)[this.method];
 
                     const carry = typeIs(handler, 'function')
-                        ? (handler as (self: object, ...args: Array<unknown>) => unknown)(
-                            pipe as object,
-                            ...(parameters as Array<never>),
-                        )
-                        : (pipe as unknown as (...args: Array<unknown>) => unknown)(...(parameters as Array<never>));
+                        ? call(handler, pipe, ...parameters)
+                        : call(pipe, ...parameters);
 
                     return this.handleCarry(carry);
                 } catch (e) {

@@ -1,5 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
-import { isCallable, isPipeArray, isPipeWithParameters, splitPipe, wrapPipes } from 'Illuminate/Pipeline/helpers';
+import { expectThrows } from '../TestHelpers';
+import { call, isCallable, isPipeArray, isPipeWithParameters, splitPipe, wrapPipes } from 'Illuminate/Pipeline/helpers';
 import type { Next } from 'Illuminate/Pipeline/Pipeline';
 import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
@@ -20,6 +21,19 @@ class HelpersSpecPipe
 }
 
 export = (): void => {
+    describe('call', () => {
+        it('calls a function or a __call table, and raises on anything else', () => {
+            expect(call((a: number, b: number) => a + b, 1, 2)).to.equal(3);
+
+            const invokable = setmetatable({}, {
+                __call: (_self: object, value: unknown) => value,
+            } as LuaMetatable<object>);
+            expect(call(invokable, 'x')).to.equal('x');
+
+            expectThrows(() => call('not callable'));
+        });
+    });
+
     describe('isCallable', () => {
         it('accepts a function or a table with a __call metamethod', () => {
             expect(isCallable(() => undefined)).to.equal(true);

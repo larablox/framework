@@ -12,9 +12,6 @@ import type { Abstract } from "Illuminate/Container/Types";
 export class PipelineServiceProvider extends ServiceProvider {
     /** Register the service provider. */
     public register(): void {
-        // The closure takes the *resolving* container, as PHP's `fn ($app)`
-        // does -- a request sandbox resolving `pipeline` must hand the
-        // pipeline itself, not the root the provider registered on.
         this.app.singleton(Hub, (app) => new Hub(app));
 
         this.app.bind("pipeline", (app) => new Pipeline(app));

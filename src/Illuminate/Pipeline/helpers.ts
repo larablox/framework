@@ -1,4 +1,5 @@
 import { Util } from 'Illuminate/Container/Util';
+import type { Abstract } from 'Illuminate/Container/Types';
 import type { Pipe, PipeWithParameters } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
@@ -36,6 +37,35 @@ export function isPipeWithParameters(value: unknown): value is PipeWithParameter
 export function isPipeArray(value: unknown): value is Array<Pipe>
 {
     return (Util.isArray(value) || Util.isEmptyArray(value)) && !isPipeWithParameters(value);
+}
+
+/**
+ * Split a non-string pipe into what to resolve and the arguments it carries.
+ *
+ * The port's half of `Pipeline.parsePipeString()`: PHP spells both inside one
+ * string (`'Class:60,1'`), a class here is not a string, so its arguments
+ * travel beside it in a list -- the class first, its arguments after.
+ */
+export function splitPipe(pipe: Pipe): [Abstract, Array<string>]
+{
+    if (!Util.isArray(pipe)) {
+        return [
+            pipe as Abstract,
+            [],
+        ];
+    }
+
+    const list = pipe as Array<defined>;
+    const parameters = new Array<string>();
+
+    for (let index = 1; index < list.size(); index++) {
+        parameters.push(list[index] as string);
+    }
+
+    return [
+        list[0] as Abstract,
+        parameters,
+    ];
 }
 
 /** Read a `Pipe | Array<Pipe>` argument as a list of pipes. */

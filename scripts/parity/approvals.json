@@ -76,10 +76,10 @@
     },
     "Pipeline/Pipeline.php#Pipeline#parsePipeString": {
         "php_hash": "fbf5a45239c080d0160e8962f12d35b7aa4b1724",
-        "ts_hash": "b509f6d36a2181ca104d89af8ba4448f1c6b06d7",
+        "ts_hash": "8d191d6ad33a45204df08d957a6c2e1507e21de6",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "The string path is upstream's: first ':' splits name from ','-separated parameters, preserving explode-limit-2 semantics ('a:b:c' keeps 'b:c' as one comma-split tail). Dismissed additions: the [Class, ...args] head and the non-string pass-through exist because a class cannot be spelled inside a string on this platform -- same parameter syntax, different carrier, documented in the method docblock."
+        "note": "Upstream's contract restored: the method takes a string and only a string, as PHP's does. explode(':', $pipe, 2) is spelled with find/sub (string.split has no limit; 'a:b:c' keeps 'b:c' as one tail), and array_pad(..., 2, null) costs nothing here -- a missing slot destructures to undefined natively, which is the pad's whole job (a Luau array could not hold the nil pad anyway); the undefined test plays is_null. The port's non-string carriers ([Class, ...args] and a bare class) moved out to splitPipe() in Pipeline/helpers.ts, the waived home for what PHP spells inside one string, dispatched at the callPipe call site."
     },
     "Pipeline/Pipeline.php#Pipeline#pipe": {
         "php_hash": "23530aa6c0f7eb0c58b04b95a07be81643ed94db",

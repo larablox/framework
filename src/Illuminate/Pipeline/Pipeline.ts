@@ -1,10 +1,8 @@
 import { Arr } from 'Illuminate/Support/Arr';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
-import { isPipeArray } from 'Illuminate/Pipeline/helpers';
+import { isPipeArray, splitPipe } from 'Illuminate/Pipeline/helpers';
 import { RuntimeException } from 'Illuminate/Exception';
-import { Util } from 'Illuminate/Container/Util';
 import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
-import type { Abstract } from 'Illuminate/Container/Types';
 import type { Container } from 'Illuminate/Contracts/Container/Container';
 import type { Passable, Pipe, Pipeline as PipelineContract } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
@@ -165,7 +163,7 @@ export class Pipeline implements PipelineContract
         let instance: object;
 
         if (typeIs(pipe, 'string') || !this.isPipeInstance(pipe)) {
-            const [name, extra] = this.parsePipeString(pipe);
+            const [name, extra] = typeIs(pipe, 'string') ? this.parsePipeString(pipe) : splitPipe(pipe);
 
             instance = this.getContainer().make(name) as object;
 
@@ -210,44 +208,30 @@ export class Pipeline implements PipelineContract
     /**
      * Parse full pipe string to get name and parameters.
      *
-     * A class cannot be spelled `"Class:60,1"` the way PHP spells one, so the
-     * same thing is said with a list: the class first, its arguments after.
+     * `explode(':', $pipe, 2)` is spelled with `find`/`sub` (`string.split`
+     * has no limit), and the platform pads for free: a missing slot
+     * destructures to `undefined`, doing the job PHP needs
+     * `array_pad(..., 2, null)` for -- a Luau array could not hold the `nil`
+     * pad anyway. A pipe that is not a string never comes here: a class
+     * cannot be spelled `"Class:60,1"` the way PHP spells one, so it carries
+     * its arguments in a list instead, split by `splitPipe()` in the helpers.
      */
-    protected parsePipeString(pipe: Pipe): [Abstract, Array<string>]
+    protected parsePipeString(pipe: string): [string, Array<string>]
     {
-        if (Util.isArray(pipe)) {
-            const list = pipe as Array<defined>;
-            const parameters = new Array<string>();
-
-            for (let index = 1; index < list.size(); index++) {
-                parameters.push(list[index] as string);
-            }
-
-            return [
-                list[0] as Abstract,
-                parameters,
-            ];
-        }
-
-        if (!typeIs(pipe, 'string')) {
-            return [
-                pipe as Abstract,
-                [],
-            ];
-        }
-
         const separator = pipe.find(':')[0];
 
-        if (separator === undefined) {
-            return [
-                pipe,
-                [],
+        const exploded: [string, string?] = separator === undefined
+            ? [pipe]
+            : [
+                pipe.sub(1, separator - 1),
+                pipe.sub(separator + 1),
             ];
-        }
+
+        const [name, parameters] = exploded;
 
         return [
-            pipe.sub(1, separator - 1),
-            pipe.sub(separator + 1).split(','),
+            name,
+            parameters !== undefined ? parameters.split(',') : [],
         ];
     }
 

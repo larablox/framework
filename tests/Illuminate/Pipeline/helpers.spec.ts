@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { isPipeArray, isPipeWithParameters, wrapPipes } from 'Illuminate/Pipeline/helpers';
+import { isPipeArray, isPipeWithParameters, splitPipe, wrapPipes } from 'Illuminate/Pipeline/helpers';
 import type { Next } from 'Illuminate/Pipeline/Pipeline';
 import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
@@ -84,6 +84,28 @@ export = (): void => {
                 HelpersSpecPipe,
                 'some-binding',
             ])).to.equal(false);
+        });
+    });
+
+    describe('splitPipe', () => {
+        it('splits a parameterized pipe into its class and arguments', () => {
+            const [name, parameters] = splitPipe([
+                HelpersSpecPipe,
+                'one',
+                'two',
+            ]);
+
+            expect(name).to.equal(HelpersSpecPipe);
+            expect(parameters.size()).to.equal(2);
+            expect(parameters[0]).to.equal('one');
+            expect(parameters[1]).to.equal('two');
+        });
+
+        it('hands back a bare pipe with no arguments', () => {
+            const [name, parameters] = splitPipe(HelpersSpecPipe);
+
+            expect(name).to.equal(HelpersSpecPipe);
+            expect(parameters.size()).to.equal(0);
         });
     });
 

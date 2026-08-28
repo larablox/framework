@@ -7,7 +7,7 @@ import { Reflector } from 'Illuminate/Support/Reflector';
 import { ReportableHandler } from 'Illuminate/Foundation/Exceptions/ReportableHandler';
 import { Response } from 'Illuminate/Http/Response';
 import { isResponsable } from 'Illuminate/Contracts/Support/Responsable';
-import { tap } from 'Illuminate/Support/Helpers';
+import { tap } from 'Illuminate/Support/helpers';
 import type { AbstractClass } from 'Illuminate/Container/Types';
 import type { Repository as ConfigRepository } from 'Illuminate/Contracts/Config/Repository';
 import type { Container } from 'Illuminate/Contracts/Container/Container';

@@ -4,7 +4,7 @@ import { RuntimeException } from 'Illuminate/Exception';
 import { Str } from 'Illuminate/Support/Str';
 import { Trait } from 'Illuminate/Support/Traits/Trait';
 import { Util } from 'Illuminate/Container/Util';
-import { data_get } from 'Illuminate/Support/Helpers';
+import { data_get } from 'Illuminate/Support/helpers';
 import type { ArrayAccessible } from 'Illuminate/Support/Arr';
 import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/Support/Traits/Trait';
 import type { Stringable } from 'Illuminate/Support/Str';

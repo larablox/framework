@@ -1,4 +1,4 @@
-import { wrapPipes } from 'Illuminate/Pipeline/Pipes';
+import { wrapPipes } from 'Illuminate/Pipeline/helpers';
 import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**

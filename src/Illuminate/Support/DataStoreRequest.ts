@@ -1,4 +1,4 @@
-import { retry } from 'Illuminate/Support/Helpers';
+import { retry } from 'Illuminate/Support/helpers';
 
 /**
  * A rejection the platform is responsible for, and so worth another go.

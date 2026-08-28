@@ -1,4 +1,4 @@
-import { isPipeArray } from 'Illuminate/Pipeline/Pipes';
+import { isPipeArray } from 'Illuminate/Pipeline/helpers';
 import { RuntimeException } from 'Illuminate/Exception';
 import { Util } from 'Illuminate/Container/Util';
 import type { Abstract } from 'Illuminate/Container/Types';

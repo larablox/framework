@@ -3,7 +3,7 @@ import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
 import { InteractsWithData } from 'Illuminate/Support/Traits/InteractsWithData';
 import { Str } from 'Illuminate/Support/Str';
 import { Util } from 'Illuminate/Container/Util';
-import { data_get, data_set } from 'Illuminate/Support/Helpers';
+import { data_get, data_set } from 'Illuminate/Support/helpers';
 import type { ArrayAccessible } from 'Illuminate/Support/Arr';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
 import type { ConditionableShape } from 'Illuminate/Support/Traits/Conditionable';

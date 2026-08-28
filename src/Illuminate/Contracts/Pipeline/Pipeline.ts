@@ -12,7 +12,10 @@ import type { Abstract } from 'Illuminate/Container/Types';
  */
 export type Pipe = Callback | object | Abstract | PipeWithParameters;
 
-/** A pipe to resolve from the container, plus the arguments it is called with. */
+/**
+ * A pipe to resolve from the container, plus the arguments it is called with.
+ * Its runtime checkers live in `Illuminate/Pipeline/helpers`.
+ */
 export type PipeWithParameters = [Abstract, ...Array<string>];
 
 /** What a pipe is handed to continue the stack. */

@@ -1,4 +1,4 @@
-import { wrapPipes } from 'Illuminate/Pipeline/Pipes';
+import { wrapPipes } from 'Illuminate/Pipeline/helpers';
 import { CallableDispatcher } from 'Illuminate/Routing/CallableDispatcher';
 import { CompiledRoute } from 'Illuminate/Routing/CompiledRoute';
 import { Container } from 'Illuminate/Container/Container';

@@ -21,7 +21,7 @@ import {
     value,
     when,
     _with,
-} from 'Illuminate/Support/Helpers';
+} from 'Illuminate/Support/helpers';
 import { LogicException, RuntimeException } from 'Illuminate/Exception';
 import { Stringable } from 'Illuminate/Support/Stringable';
 

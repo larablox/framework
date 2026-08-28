@@ -130,7 +130,7 @@
         "ts_hash": "49c4ee950b2dea3ad76614c9bf52e6ea204ce76e",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim shape: is_array($pipes) ? $pipes : func_get_args() maps to a rest parameter and the same ternary, with isPipeArray as the platform's is_array for pipes -- it additionally tells one parameterized pipe [Class, 'args'] from a list (a class is not a string here) and recognizes the empty list Util.isArray cannot see (Pipes.ts documents both). Even the pathological through([a], b) drops the extras like PHP does. Known heuristic edge remains for the single-array form ([ClassPipe, 'bindingName'] reads as one parameterized pipe); the restored variadic form is the unambiguous spelling of that case."
+        "note": "Verbatim shape: is_array($pipes) ? $pipes : func_get_args() maps to a rest parameter and the same ternary, with isPipeArray as the platform's is_array for pipes -- it additionally tells one parameterized pipe [Class, 'args'] from a list (a class is not a string here) and recognizes the empty list Util.isArray cannot see (Pipeline/helpers.ts documents both). Even the pathological through([a], b) drops the extras like PHP does. Known heuristic edge remains for the single-array form ([ClassPipe, 'bindingName'] reads as one parameterized pipe); the restored variadic form is the unambiguous spelling of that case."
     },
     "Pipeline/Pipeline.php#Pipeline#via": {
         "php_hash": "bf622dfb0e778b05f7e079ffc6efb27fa22af604",

@@ -520,7 +520,7 @@ Unicode-символы), `ascii` (сокращённая таблица), `Plura
 - ~~трейты `Conditionable`, `Tappable`, `ForwardsCalls`~~ — миксинами;
   `Macroable` непереносим;
 - ~~хелперы `value`, `tap`, `with`, `optional`, `data_get`, `data_set`,
-  `blank`, `filled`, `throw_if`, `throw_unless`~~ — в `Support/Helpers.ts`;
+  `blank`, `filled`, `throw_if`, `throw_unless`~~ — в `Support/helpers.ts`;
 - ~~контракты `Arrayable`, `Jsonable`, `JsonSerializable`, `Renderable`~~ — в
   `Contracts/Support/`, с duck-проверками вместо `instanceof`.
 

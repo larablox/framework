@@ -79,7 +79,7 @@ function baseName(name)
 /** One merge group: the member sink for a declaration and its Shape mirrors. */
 function freshGroup(name, kind, abstract)
 {
-    return { name, kind, abstract, heritage: [], mergedFrom: [], sink: new Map(), accessors: new Map() };
+    return { name, kind, abstract, heritage: [], decorators: [], mergedFrom: [], sink: new Map(), accessors: new Map() };
 }
 
 function addMember(sink, member)
@@ -223,6 +223,15 @@ function extractFile(sourceFile)
 
     const handleClassLike = (node, rawName, kind) => {
         const group = groupFor(rawName, kind, ts.canHaveModifiers(node) ? isAbstract(node) : false);
+        if (ts.canHaveDecorators(node)) {
+            for (const decorator of ts.getDecorators(node) ?? []) {
+                const expression = decorator.expression;
+                const name = ts.isCallExpression(expression)
+                    ? expression.expression.getText(sourceFile)
+                    : expression.getText(sourceFile);
+                if (!group.decorators.includes(name)) group.decorators.push(name);
+            }
+        }
         for (const clause of node.heritageClauses ?? []) {
             for (const type of clause.types) {
                 const text = type.expression.getText(sourceFile);
@@ -324,6 +333,7 @@ function extractFile(sourceFile)
             kind: group.kind === 'shape' ? 'class' : group.kind,
             abstract: group.abstract,
             extends: group.heritage,
+            decorators: group.decorators,
             implements: [],
             uses: [],
             notes: group.mergedFrom.length > 1 ? [`merged:${group.mergedFrom.join('+')}`] : [],

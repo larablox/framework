@@ -117,10 +117,15 @@ subclasses that override before calling shapes equivalent.
 facades replace `__callStatic` with metatables. Only claim impossibility for a specific
 magic use after checking what the port already does elsewhere.
 
-**Trait mixins.** Every `uses:` trait is a `kind: trait` row in members.csv — `both` when
-mixed in, `missing_mixin` when absent (also flagged `[missing mixin: X]` in the file's
-note), `excluded/deferred` when waived with a reason in `exclusions.json`'s `traits`
-section (e.g. Macroable). Treat the flag
+**Trait mixins and heritage.** Every `uses:` trait, `implements` interface and `extends`
+parent is its own row in members.csv (`kind: trait/implements/extends`) — `both` when
+present, `missing_mixin`/`missing_interface`/`missing_parent` when absent (also flagged
+in the file's note), `excluded/deferred` when waived with a reason in `exclusions.json`'s
+`traits`/`heritage` sections (Macroable; the PHP builtin interfaces). A **marker
+interface** additionally owes its validating class decorator — `conventions.json`'s
+`markerDecorators` maps interface to decorator (`DeferrableProvider`, `ShouldQueue`), and
+a class that `implements` the type without the decorator reads `missing_decorator`: the
+type half without the runtime half is exactly how the erased-interface bug returns. Treat the flag
 as a finding: a trait the port has already built elsewhere (`Conditionable` is mixed into
 Stringable, Request and others) is work, not a waiver.
 

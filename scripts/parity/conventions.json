@@ -47,5 +47,9 @@
             "name": "casts",
             "rule": "Type assertions (`as T`) carry types PHP never wrote; the verifier ignores them, and repeated identical casts at one site mean a compensation is missing."
         }
-    ]
+    ],
+    "markerDecorators": {
+        "DeferrableProvider": "DeferrableProvider",
+        "ShouldQueue": "ShouldQueue"
+    }
 }

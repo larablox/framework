@@ -146,9 +146,12 @@ structural conventions — before a `Verbatim.`/`Mirrored.` tag is earned),
 `--approve-pending` (the user's batch promotion of the whole pending
 queue), `--refresh-cosmetic` (re-pins `ts_hash` on stales whose
 `php_hash` is unchanged), `--check` (non-zero exit on anything stale).
-The comparator also flags `[missing mixin: X]` in files.csv when an
-upstream `uses:` trait is absent from the port class (waivable in
-`exclusions.json`'s `traits` section). A proposal asserts a mirror —
+The comparator also tracks heritage: every `uses:` trait, `implements`
+interface and `extends` parent is a members.csv row (`missing_mixin` /
+`missing_interface` / `missing_parent` when absent, waivable in
+`exclusions.json`'s `traits`/`heritage`), and a marker interface without
+its validating decorator (`conventions.json` `markerDecorators`) reads
+`missing_decorator`. A proposal asserts a mirror —
 record any verdict only after actually reading both bodies; approval
 asserts a human looked too.
 

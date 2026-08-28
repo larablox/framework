@@ -183,8 +183,9 @@ function main()
     const aliases = readJson(aliasesPath, { files: {}, members: {} });
     const exclusions = readJson(exclusionsPath, { paths: [], members: {} });
     const approvals = readJson(approvalsPath, {});
+    const conventions = readJson(join(scriptDir, 'conventions.json'), {});
 
-    let result = compare({ php, ts, aliases, exclusions, approvals, component });
+    let result = compare({ php, ts, aliases, exclusions, approvals, conventions, component });
 
     // ---- registry commands ------------------------------------------------
     let registriesChanged = false;
@@ -320,7 +321,7 @@ function main()
 
     if (registriesChanged) {
         writeJsonSorted(approvalsPath, approvals);
-        result = compare({ php, ts, aliases, exclusions, approvals, component });
+        result = compare({ php, ts, aliases, exclusions, approvals, conventions, component });
     }
 
     // ---- reports ----------------------------------------------------------
@@ -353,7 +354,6 @@ function main()
         const tsFound = findTsMember(php, ts, aliases, args.verify);
         if (!phpFound || !phpFound.member.lines) fail(`No upstream member with source found for key: ${args.verify}`);
         if (!tsFound || !tsFound.member.lines) fail(`No port member with source found for key: ${args.verify}`);
-        const conventions = readJson(join(scriptDir, 'conventions.json'), {});
         const phpFile = phpFound.member.file
             ? join(vendorRoot, phpFound.member.file)
             : join(upstreamSrc, phpFound.path);

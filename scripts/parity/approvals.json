@@ -18,7 +18,7 @@
         "ts_hash": "047fef9aaa6b79c436649db7b4860d4ef214493b",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Mirrored. _condition under the underscore convention (collides with condition()); untyped mixed as unknown."
+        "note": "Mirrored. _condition under the underscore convention (collides with condition()). Typed unknown against the docblock bool deliberately: the __get capture stores the raw target member (any value) and only negation produces a bool -- the condition is consumed through truthiness alone, so unknown is the runtime-honest domain and boolean would demand a normalization PHP does not perform."
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#hasCondition@property": {
         "php_hash": "9fe95fa13d42dc957b0b6fcff19f3cfea4050351",

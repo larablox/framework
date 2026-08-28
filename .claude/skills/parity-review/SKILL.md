@@ -34,9 +34,9 @@ Work one component at a time:
    note in its `note` column).
 3. Interrogate every difference (checklist below). Fix, waive, or propose with a note.
 4. After any `src/` edit: `npm run analyze`, `npm test`, `npm run lint`, `npm run format`.
-5. `node scripts/parity/run.mjs --component <X> --check` must end green: everything
-   proposed (pending), approved, or excluded — nothing stale, nothing unreviewed left
-   unexplained.
+5. `node scripts/parity/run.mjs --component <X> --check` must end green, and every member
+   must hold a verdict: `pending`, `decision`, `rejected`, `approved` or excluded —
+   nothing stale, nothing left `unreviewed`.
 6. Commit per meaningful change (English message telling the story, not a list). Do not
    push after every commit — push only when the user asks, or at a milestone they name.
 
@@ -144,13 +144,33 @@ compensation.
 
 ## Proposal and approval rules
 
-Review verdicts are two-stage. **Claude's review ends at `pending`**: `--propose "<key>"`
-(or `--propose-file`) records the hashes and the judgment. **Promotion to `approved` is a
-person's call** — the user runs `--approve` themselves after looking, or explicitly
-instructs Claude to run it for named keys/files. Never promote on your own initiative, and
-never treat a general "закончи ревью" as that instruction.
+A review verdict is one of three registry states, and the split is what makes the user's
+pass fast — `pending` is trusted, the other two are flagged:
 
-- Propose only after reading both bodies.
+- **`pending` (`--propose`) is the agent's approval of a *perfect* mirror.** The user
+  intends to promote pendings with a glance, eventually automatically — so propose ONLY
+  what needs no human judgment: the diff shows nothing beyond enforced mechanics
+  (dprint/eslint) and the standing conventions (underscore names, the compensation kit,
+  `@Inject`, `Contract<T>` tokens, `_x` locals). The note opens with a one-or-two-word
+  verdict tag — `Verbatim.` for letter-for-letter, `Mirrored.` for
+  statement-for-statement through the conventions — with at most one short sentence
+  naming which conventions, so the tag is scannable in `--list`/`members.csv`.
+- **`decision` (`--decision`) is a divergence awaiting the user's call.** Anything the
+  conventions do not already cover — a surviving dismissal, an encoding with several
+  defensible spellings, a scope-jump fix — goes here, never into `pending`. The note
+  opens with `DECISION:` and states the question and the options.
+- **`rejected` (`--reject`) is a review that found the port wrong** — behavior diverges
+  and the port is the side that must change. The note opens with `REJECTED:` and the
+  failure scenario. This replaces leaving a member `unreviewed` with the finding only in
+  the session report: the problem is visible in the summary's Rejected column at a
+  glance.
+
+**Promotion to `approved` is a person's call** — the user runs `--approve` themselves, or
+explicitly instructs Claude to run it for named keys/files. `--approve` resolves any of
+the three states. Never promote on your own initiative, and never treat a general
+"закончи ревью" as that instruction.
+
+- Record a verdict only after reading both bodies.
 - **A dismissed difference must be written into the proposal's note** — an unrecorded
   judgment cannot be challenged, and unchallengeable judgments is how the closure-capture
   bug got through. Add notes by editing `scripts/parity/approvals.json` (the field is
@@ -188,8 +208,8 @@ never treat a general "закончи ревью" as that instruction.
 
 ## When a review finds a bug
 
-Report the finding with the failure scenario before fixing (the user decides scope), unless
-the session's instruction was to fix as you go. A fix follows the repo rules: regression
+Record it as `rejected` with the failure scenario in the note, and report it before
+fixing (the user decides scope), unless the session's instruction was to fix as you go. A fix follows the repo rules: regression
 spec where the suite's conventions allow one (several spec files pin "don't invent cases
 absent from the PHP reference" — respect the file's own header), `npm run analyze` and a
 read of the emitted Luau, full suite, then re-propose the stales the fix caused (a
@@ -210,6 +230,6 @@ any cleanup or encoding with more than one defensible spelling — write the var
 the chat and let the user pick (the `_parameters` compromise and the `call()` helper were
 both chosen that way, and the user's counter-proposals have repeatedly beaten the first
 draft).
-When a difference survives interrogation but the fix would be a scope jump, leave the
-member unapproved with the finding recorded and surface it — an honest `unreviewed` beats
-a hollow `approved`.
+When a difference survives interrogation but the fix would be a scope jump, record it as
+`decision` (or `rejected` when the port is wrong) with the finding in the note, and
+surface it — an honest flag beats a hollow `pending`.

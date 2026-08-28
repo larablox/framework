@@ -134,11 +134,15 @@ mark to stale automatically; non-method keys carry an `@kind` suffix, and
 port-only extras are recorded with `php_hash: null`). Review loop:
 `--list stale|unreviewed|pending`, `--show "<key>"` (both bodies side by
 side, then the recorded review note and waiver, if any), `--propose "<key>"` / `--propose-file` (a review lands at
-**pending**), `--approve "<key>"` / `--approve-file` (promotion to
-**approved** is a person's call — the user runs it, or Claude runs it only
-on the user's explicit instruction), `--check` (non-zero exit on anything
-stale). A proposal asserts behavioural equivalence — record it only after
-actually reading both bodies; approval asserts a human looked too.
+**pending** — the agent's approval of a perfect mirror, note tagged
+`Verbatim.`/`Mirrored.`), `--decision "<key>"` (a divergence awaiting the
+user's call, note tagged `DECISION:`), `--reject "<key>"` (the review found
+the port wrong, note tagged `REJECTED:`), `--approve "<key>"` /
+`--approve-file` (promotion to **approved** is a person's call — the user
+runs it, or Claude runs it only on the user's explicit instruction),
+`--check` (non-zero exit on anything stale). A proposal asserts a mirror —
+record any verdict only after actually reading both bodies; approval
+asserts a human looked too.
 
 ## The workbench
 

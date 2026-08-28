@@ -46,6 +46,17 @@ export function approvalKey(phpPath, declName, memberName, kind)
     return kind === 'method' || kind === 'function' ? base : `${base}@${kind}`;
 }
 
+// A registry entry's status maps onto impl_status directly: `pending` is a
+// review awaiting promotion, `decision` is a divergence awaiting the user's
+// call, `rejected` is a review that found the port wrong. Anything else --
+// historical entries included -- reads as approved.
+function implStatusOf(approvalStatus)
+{
+    return approvalStatus === 'pending' || approvalStatus === 'decision' || approvalStatus === 'rejected'
+        ? approvalStatus
+        : 'approved';
+}
+
 export function compare({ php, ts, aliases, exclusions, approvals, component })
 {
     const phpFiles = php.files;
@@ -118,6 +129,8 @@ export function compare({ php, ts, aliases, exclusions, approvals, component })
             parity_pct: '',
             impl_approved: 0,
             impl_pending: 0,
+            impl_decision: 0,
+            impl_rejected: 0,
             impl_stale: 0,
             impl_unreviewed: 0,
             note: exclusionReason,
@@ -262,7 +275,9 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
                 }
             }
 
-            let implStatus = '';
+            // A waived member's impl_status carries the waiver kind, so the
+            // column never reads as an unexplained blank.
+            let implStatus = status === 'excluded' ? (exclusion.kind ?? 'deferred') : '';
             const reviewKey = approvalKey(pair.phpPath, decl.name, phpMember.name, phpMember.kind);
             if (status === 'both') {
                 const reviewable = phpMember.hash !== null && tsMember.hash !== null;
@@ -274,16 +289,13 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
                         implStatus = 'unreviewed';
                         fileRow.impl_unreviewed++;
                     } else if (approval.php_hash === phpMember.hash && approval.ts_hash === tsMember.hash) {
-                        // Claude's review ends at `pending`; only a person
-                        // promotes to `approved` (--approve, run by the user or
-                        // on the user's explicit instruction).
-                        if (approval.status === 'pending') {
-                            implStatus = 'pending';
-                            fileRow.impl_pending++;
-                        } else {
-                            implStatus = 'approved';
-                            fileRow.impl_approved++;
-                        }
+                        // Claude's review ends at `pending` (a mirror ready
+                        // for promotion), `decision` (a divergence awaiting
+                        // the user's call) or `rejected`; only a person
+                        // promotes to `approved` (--approve, run by the user
+                        // or on the user's explicit instruction).
+                        implStatus = implStatusOf(approval.status);
+                        fileRow[`impl_${implStatus}`]++;
                     } else {
                         implStatus = 'stale';
                         fileRow.impl_stale++;
@@ -340,13 +352,8 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
                     implStatus = 'unreviewed';
                     fileRow.impl_unreviewed++;
                 } else if ((approval.php_hash ?? null) === null && approval.ts_hash === tsMember.hash) {
-                    if (approval.status === 'pending') {
-                        implStatus = 'pending';
-                        fileRow.impl_pending++;
-                    } else {
-                        implStatus = 'approved';
-                        fileRow.impl_approved++;
-                    }
+                    implStatus = implStatusOf(approval.status);
+                    fileRow[`impl_${implStatus}`]++;
                 } else {
                     implStatus = 'stale';
                     fileRow.impl_stale++;
@@ -404,6 +411,8 @@ function summarize(fileRows)
                 members_unported: 0,
                 approved: 0,
                 pending: 0,
+                decision: 0,
+                rejected: 0,
                 stale: 0,
                 unreviewed: 0,
             };
@@ -431,6 +440,8 @@ function summarize(fileRows)
         entry.members_deferred += row._deferredMembers ?? 0;
         entry.approved += row.impl_approved;
         entry.pending += row.impl_pending;
+        entry.decision += row.impl_decision;
+        entry.rejected += row.impl_rejected;
         entry.stale += row.impl_stale;
         entry.unreviewed += row.impl_unreviewed;
     }
@@ -475,9 +486,9 @@ export function summaryText(summary, upstreamVersion)
     lines.push(`Reference: laravel/framework ${upstreamVersion}`);
     lines.push('');
     lines.push(
-        '| Component | Files | Matched | Deferred | Impossible | Port-only | Missing | Extra | Coverage | Fidelity | Approved | Pending | Stale | Unreviewed |',
+        '| Component | Files | Matched | Deferred | Impossible | Port-only | Missing | Extra | Coverage | Fidelity | Approved | Pending | Decision | Rejected | Stale | Unreviewed |',
     );
-    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
+    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
     const totals = {
         component: '**Total**',
         files: 0,
@@ -493,6 +504,8 @@ export function summaryText(summary, upstreamVersion)
         members_unported: 0,
         approved: 0,
         pending: 0,
+        decision: 0,
+        rejected: 0,
         stale: 0,
         unreviewed: 0,
     };
@@ -525,6 +538,8 @@ export const FILE_COLUMNS = [
     'parity_pct',
     'impl_approved',
     'impl_pending',
+    'impl_decision',
+    'impl_rejected',
     'impl_stale',
     'impl_unreviewed',
     'note',

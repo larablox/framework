@@ -9,7 +9,9 @@
 //   npm run parity -- --approve-file "..."  run by the user, or on their explicit ask
 //   npm run parity -- --revoke "<key>"
 //   npm run parity -- --exclude "<key>" --reason "..."
-//   npm run parity -- --list stale|unreviewed|pending [--component X]
+//   npm run parity -- --decision "<key>"    a divergence awaiting the user's call
+//   npm run parity -- --reject "<key>"      the review found the port wrong
+//   npm run parity -- --list stale|unreviewed|pending|decision|rejected [--component X]
 //   npm run parity -- --show "<key>"        print both bodies side by side
 //   npm run parity -- --check               exit 1 when anything went stale
 //
@@ -204,15 +206,32 @@ function main()
             php_hash: row.php_hash === '' ? null : row.php_hash,
             ts_hash: row.ts_hash,
             status,
-            ...(status === 'pending' ? { proposed_at: existing.proposed_at ?? today() } : { approved_at: today() }),
+            ...(status === 'approved' ? { approved_at: today() } : { proposed_at: existing.proposed_at ?? today() }),
         };
-        console.log(`${status === 'pending' ? 'proposed' : 'approved'}: ${key}`);
+        const said = { pending: 'proposed', decision: 'decision needed', rejected: 'rejected', approved: 'approved' };
+        console.log(`${said[status]}: ${key}`);
     };
 
     if (typeof args.propose === 'string') {
         const row = approvableRows().find((r) => rowKey(r) === args.propose);
         if (!row) fail(`No reviewable member found for key: ${args.propose}`);
         record(args.propose, row, 'pending');
+        registriesChanged = true;
+    }
+
+    // A divergence the review could not resolve on its own: recorded with the
+    // current hashes so the question stays pinned to the code it is about.
+    if (typeof args.decision === 'string') {
+        const row = approvableRows().find((r) => rowKey(r) === args.decision);
+        if (!row) fail(`No reviewable member found for key: ${args.decision}`);
+        record(args.decision, row, 'decision');
+        registriesChanged = true;
+    }
+
+    if (typeof args.reject === 'string') {
+        const row = approvableRows().find((r) => rowKey(r) === args.reject);
+        if (!row) fail(`No reviewable member found for key: ${args.reject}`);
+        record(args.reject, row, 'rejected');
         registriesChanged = true;
     }
 
@@ -275,8 +294,8 @@ function main()
     // ---- query commands ---------------------------------------------------
     if (typeof args.list === 'string') {
         const wanted = args.list;
-        if (wanted !== 'stale' && wanted !== 'unreviewed' && wanted !== 'pending') {
-            fail("--list takes 'stale', 'unreviewed' or 'pending'");
+        if (!['stale', 'unreviewed', 'pending', 'decision', 'rejected'].includes(wanted)) {
+            fail("--list takes 'stale', 'unreviewed', 'pending', 'decision' or 'rejected'");
         }
         const rows = result.memberRows.filter((row) =>
             row.impl_status === wanted || (wanted === 'stale' && row.note.includes('STALE exclusion'))

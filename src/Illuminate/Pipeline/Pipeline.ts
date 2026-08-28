@@ -210,11 +210,19 @@ export class Pipeline implements PipelineContract
     /** Parse full pipe string to get name and parameters. */
     protected parsePipeString(pipe: string): [string, Array<string>]
     {
-        const [name, parameters] = Arr.pad(Str.explode(':', pipe, 2), 2, undefined);
+        const [name, exploded] = Arr.pad(Str.explode(':', pipe, 2), 2, undefined);
+
+        let parameters: Array<string>;
+
+        if (exploded !== undefined) {
+            parameters = Str.explode(',', exploded);
+        } else {
+            parameters = [];
+        }
 
         return [
             name,
-            parameters !== undefined ? Str.explode(',', parameters) : [],
+            parameters,
         ];
     }
 

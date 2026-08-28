@@ -1,6 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
 import { expectThrows } from '../TestHelpers';
 import { Container } from 'Illuminate/Container/Container';
+import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
 import { Pipeline } from 'Illuminate/Pipeline/Pipeline';
 import { RuntimeException } from 'Illuminate/Exception';
 import type { Next } from 'Illuminate/Pipeline/Pipeline';
@@ -326,6 +327,28 @@ export = (): void => {
             expect((err as RuntimeException).getMessage()).to.equal(
                 'A container instance has not been passed to the Pipeline.',
             );
+        });
+
+        it('receives the container when resolved from one', () => {
+            // No upstream twin: pins @Inject(ContainerContract) as the port's
+            // spelling of the reflected `?Container` hint. In Laravel,
+            // $app->make(Pipeline::class) hands the pipeline the resolving
+            // container through reflection, so a class pipe still resolves --
+            // without the hint this port built a container-less pipeline that
+            // failed on the first class pipe.
+            const container = new Container();
+            container.instance(ContainerContract, container);
+
+            const pipeOne = new PipelineTestPipeOne();
+            container.instance(PipelineTestPipeOne, pipeOne);
+
+            const result = container.make(Pipeline)
+                .send('foo')
+                .through(PipelineTestPipeOne)
+                .then((piped) => piped);
+
+            expect(result).to.equal('foo');
+            expect(pipeOne.received).to.equal('foo');
         });
 
         it('thenReturn() runs the pipeline and returns the passable', () => {

@@ -1,6 +1,8 @@
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
 import { isPipeArray } from 'Illuminate/Pipeline/helpers';
 import { RuntimeException } from 'Illuminate/Exception';
 import { Util } from 'Illuminate/Container/Util';
+import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
 import type { Abstract } from 'Illuminate/Container/Types';
 import type { Container } from 'Illuminate/Contracts/Container/Container';
 import type { Passable, Pipe, Pipeline as PipelineContract } from 'Illuminate/Contracts/Pipeline/Pipeline';
@@ -33,7 +35,7 @@ export class Pipeline implements PipelineContract
     protected _finally?: (passable: Passable) => void;
 
     /** Create a new class instance. */
-    public constructor(protected container?: Container)
+    public constructor(@Inject(ContainerContract) protected container?: Container)
     {}
 
     /** Set the object being sent through the pipeline. */

@@ -36,10 +36,10 @@
     },
     "Pipeline/Pipeline.php#Pipeline#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
-        "ts_hash": "e8ab8d498fbb832e9c451b8f0b88b886ee17f5b2",
+        "ts_hash": "eeb15bae042ed94224a8ccd983cc71cc89c05fd4",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Body matches; container optional as upstream, parameter property replaces the explicit assignment. Dismissed: no @Inject here, deliberately -- upstream never container-resolves Pipeline (the provider binds 'pipeline' through a closure), so no hint is owed; adding one would be surface upstream does not have."
+        "note": "Body matches; container optional as upstream, parameter property replaces the explicit assignment. @Inject(ContainerContract) is the port's spelling of the reflected ?Container hint, exactly as on Hub#__construct (the byte-identical upstream body): $app->make(Pipeline::class) is a public path and must hand the pipeline the resolving container. The earlier dismissal ('upstream never container-resolves Pipeline, so no hint is owed') did not survive the public-surface rule -- the framework's own call sites say nothing about consumers'; pinned by the 'receives the container when resolved from one' spec."
     },
     "Pipeline/Pipeline.php#Pipeline#finally": {
         "php_hash": "13c6c00386ec42eef6b7bc32b9a5dd8e253f3f3a",

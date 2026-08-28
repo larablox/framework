@@ -120,9 +120,7 @@ export class PendingBatch {
         const batch = (result as Batch | undefined) ?? stored;
 
         if (this.container.bound("events")) {
-            this.container
-                .make<Dispatcher>("events")
-                .dispatch(new BatchDispatched(batch));
+            this.container.make<Dispatcher>("events").dispatch(new BatchDispatched(batch));
         }
 
         return batch;

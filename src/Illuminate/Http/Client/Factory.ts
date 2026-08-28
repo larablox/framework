@@ -40,18 +40,11 @@ export class Factory {
         when?: (exception: unknown, request: PendingRequest) => boolean,
         throwOnFailure = true,
     ): PendingRequest {
-        return this.createPendingRequest().retry(
-            times,
-            sleepMilliseconds,
-            when,
-            throwOnFailure,
-        );
+        return this.createPendingRequest().retry(times, sleepMilliseconds, when, throwOnFailure);
     }
 
     /** Throw an exception if a server or client error occurs. */
-    public throw(
-        callback?: (response: Response, exception: RequestException) => void,
-    ): PendingRequest {
+    public throw(callback?: (response: Response, exception: RequestException) => void): PendingRequest {
         return this.createPendingRequest().throw(callback);
     }
 
@@ -89,11 +82,7 @@ export class Factory {
     }
 
     /** Send the request to the given path. */
-    public send(
-        method: string,
-        path: string,
-        data?: ArrayAccessible,
-    ): Response {
+    public send(method: string, path: string, data?: ArrayAccessible): Response {
         return this.createPendingRequest().send(method, path, data);
     }
 }

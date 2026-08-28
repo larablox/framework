@@ -27,9 +27,7 @@ export class Cache extends Facade {
     declare public static forever: Forwarded<Repository["forever"]>;
     declare public static remember: Forwarded<Repository["remember"]>;
     declare public static sear: Forwarded<Repository["sear"]>;
-    declare public static rememberForever: Forwarded<
-        Repository["rememberForever"]
-    >;
+    declare public static rememberForever: Forwarded<Repository["rememberForever"]>;
     declare public static touch: Forwarded<Repository["touch"]>;
     declare public static forget: Forwarded<Repository["forget"]>;
     declare public static clear: Forwarded<Repository["clear"]>;
@@ -62,12 +60,8 @@ export class CacheStores extends Facade {
     declare public static extend: Forwarded<CacheManager["extend"]>;
     declare public static forgetDriver: Forwarded<CacheManager["forgetDriver"]>;
     declare public static purge: Forwarded<CacheManager["purge"]>;
-    declare public static getDefaultDriver: Forwarded<
-        CacheManager["getDefaultDriver"]
-    >;
-    declare public static setDefaultDriver: Forwarded<
-        CacheManager["setDefaultDriver"]
-    >;
+    declare public static getDefaultDriver: Forwarded<CacheManager["getDefaultDriver"]>;
+    declare public static setDefaultDriver: Forwarded<CacheManager["setDefaultDriver"]>;
 
     /** Get the registered name of the component. */
     protected static getFacadeAccessor(): Abstract {

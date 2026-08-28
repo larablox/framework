@@ -59,28 +59,16 @@ export class CallQueuedListener extends Queueable {
 
     /** Handle the queued job. */
     public handle(@Inject("app") container: ContainerContract): void {
-        const handler = this.setJobInstanceIfNecessary(
-            this.job,
-            container.make(this.listenerClass) as object,
-        );
+        const handler = this.setJobInstanceIfNecessary(this.job, container.make(this.listenerClass) as object);
 
         const callable = (handler as Record<string, unknown>)[this.method];
 
-        (callable as (self: object, ...args: Array<never>) => void)(
-            handler,
-            ...(this.data as Array<never>),
-        );
+        (callable as (self: object, ...args: Array<never>) => void)(handler, ...(this.data as Array<never>));
     }
 
     /** Set the job instance of the given class if necessary. */
-    protected setJobInstanceIfNecessary(
-        job: Job | undefined,
-        instance: object,
-    ): object {
-        if (
-            job !== undefined &&
-            Reflector.isInstanceOf(instance, InteractsWithQueue)
-        ) {
+    protected setJobInstanceIfNecessary(job: Job | undefined, instance: object): object {
+        if (job !== undefined && Reflector.isInstanceOf(instance, InteractsWithQueue)) {
             (instance as InteractsWithQueue).setJob(job);
         }
 
@@ -89,9 +77,7 @@ export class CallQueuedListener extends Queueable {
 
     /** Call the failed method on the job instance. */
     public failed(e: unknown): void {
-        const handler = Container.getInstance().make(
-            this.listenerClass,
-        ) as Record<string, unknown>;
+        const handler = Container.getInstance().make(this.listenerClass) as Record<string, unknown>;
 
         const callable = handler.failed;
 

@@ -1,11 +1,7 @@
 import { Attributes } from "Illuminate/Container/Attributes/Attributes";
 import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
 import { Reflector } from "Illuminate/Support/Reflector";
-import type {
-    Abstract,
-    Concrete,
-    ResolvingCallback,
-} from "Illuminate/Container/Types";
+import type { Abstract, Concrete, ResolvingCallback } from "Illuminate/Container/Types";
 import type { Application } from "Illuminate/Contracts/Foundation/Application";
 
 /**
@@ -69,10 +65,7 @@ export abstract class ServiceProvider {
     }
 
     /** Setup an after resolving listener, or fire immediately if already resolved. */
-    protected callAfterResolving(
-        name: Abstract,
-        callback: ResolvingCallback,
-    ): void {
+    protected callAfterResolving(name: Abstract, callback: ResolvingCallback): void {
         this.app.afterResolving(name, callback);
 
         if (this.app.resolved(name)) {

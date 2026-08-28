@@ -17,9 +17,7 @@ import type { Forwarded } from "Illuminate/Support/Facades/Forwards";
  */
 @Forwards()
 export class Http extends Facade {
-    declare public static createPendingRequest: Forwarded<
-        Factory["createPendingRequest"]
-    >;
+    declare public static createPendingRequest: Forwarded<Factory["createPendingRequest"]>;
 
     declare public static withoutWaiting: Forwarded<Factory["withoutWaiting"]>;
 

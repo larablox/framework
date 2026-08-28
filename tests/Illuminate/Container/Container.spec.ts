@@ -206,18 +206,8 @@ export = (): void => {
                 resolve: () => undefined,
             };
 
-            return (
-                owner: object,
-                propertyKey: unknown,
-                parameterIndex: number,
-            ): void => {
-                addParameterAttribute(
-                    owner,
-                    propertyKey,
-                    parameterIndex,
-                    ContainerCurrentResolvingAttribute,
-                    instance,
-                );
+            return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+                addParameterAttribute(owner, propertyKey, parameterIndex, ContainerCurrentResolvingAttribute, instance);
             };
         }
 
@@ -332,10 +322,7 @@ export = (): void => {
                 @Inject(RequestDtoDependencyContract)
                 dependency: RequestDtoDependency,
             ): RequestDto {
-                return new RequestDto(
-                    dependency.userId,
-                    RequestDto.configuredEmail,
-                );
+                return new RequestDto(dependency.userId, RequestDto.configuredEmail);
             }
         }
 
@@ -397,10 +384,7 @@ export = (): void => {
             // PHP: ContainerTest::testSingletonIfDoesRegisterIfBindingNotRegisteredYet
             const container = new Container();
             container.singleton("class", () => new ContainerConcreteStub());
-            container.singletonIf(
-                "otherClass",
-                () => new ContainerConcreteStub(),
-            );
+            container.singletonIf("otherClass", () => new ContainerConcreteStub());
             const firstInstantiation = container.make("otherClass");
             const secondInstantiation = container.make("otherClass");
 
@@ -452,10 +436,7 @@ export = (): void => {
         it("auto-resolves an unbound concrete class", () => {
             // PHP: ContainerTest::testAutoConcreteResolution
             const container = new Container();
-            expect(
-                container.make(ContainerConcreteStub) instanceof
-                    ContainerConcreteStub,
-            ).to.equal(true);
+            expect(container.make(ContainerConcreteStub) instanceof ContainerConcreteStub).to.equal(true);
         });
 
         it("caches a shared concrete resolution", () => {
@@ -487,9 +468,7 @@ export = (): void => {
             const container = new Container();
             container.bind(IContainerContractStub, ContainerImplementationStub);
             const built = container.make(ContainerDependentStub);
-            expect(built.impl instanceof ContainerImplementationStub).to.equal(
-                true,
-            );
+            expect(built.impl instanceof ContainerImplementationStub).to.equal(true);
         });
 
         it("resolves a nested dependency", () => {
@@ -497,12 +476,8 @@ export = (): void => {
             const container = new Container();
             container.bind(IContainerContractStub, ContainerImplementationStub);
             const built = container.make(ContainerNestedDependentStub);
-            expect(built.inner instanceof ContainerDependentStub).to.equal(
-                true,
-            );
-            expect(
-                built.inner.impl instanceof ContainerImplementationStub,
-            ).to.equal(true);
+            expect(built.inner instanceof ContainerDependentStub).to.equal(true);
+            expect(built.inner.impl instanceof ContainerImplementationStub).to.equal(true);
         });
 
         it("passes the container itself to a resolver", () => {
@@ -551,10 +526,7 @@ export = (): void => {
             container.bind("foo", (_app, config: ParameterOverrides) => config);
             container.alias("foo", "baz");
 
-            const result = container.make(
-                "baz",
-                [1, 2, 3],
-            ) as ParameterOverrides;
+            const result = container.make("baz", [1, 2, 3]) as ParameterOverrides;
 
             // Positions are numbered from one, like a Luau list's own indices
             // -- see laravel-parity.md, "Параметры make() / call()".
@@ -595,9 +567,7 @@ export = (): void => {
             // PHP: ContainerTest::testResolutionOfDefaultParameters
             const container = new Container();
             const instance = container.make(ContainerDefaultValueStub);
-            expect(instance.stub instanceof ContainerConcreteStub).to.equal(
-                true,
-            );
+            expect(instance.stub instanceof ContainerConcreteStub).to.equal(true);
             expect(instance.defaultValue).to.equal("taylor");
         });
 
@@ -610,9 +580,7 @@ export = (): void => {
                 .needs(ContainerConcreteStub)
                 .give(() => new ContainerConcreteStub());
             const instance = container.make(ContainerClassWithDefaultValueStub);
-            expect(
-                instance.defaultValue instanceof ContainerConcreteStub,
-            ).to.equal(true);
+            expect(instance.defaultValue instanceof ContainerConcreteStub).to.equal(true);
         });
 
         it("bound() reports whether an abstract has a binding", () => {
@@ -788,11 +756,7 @@ export = (): void => {
         it("flush() clears bindings, aliases and resolved instances", () => {
             // PHP: ContainerTest::testContainerFlushFlushesAllBindingsAliasesAndResolvedInstances
             const container = new Container();
-            container.bind(
-                "ConcreteStub",
-                () => new ContainerConcreteStub(),
-                true,
-            );
+            container.bind("ConcreteStub", () => new ContainerConcreteStub(), true);
             container.alias("ConcreteStub", "ContainerConcreteStub");
             container.make("ConcreteStub");
             expect(container.resolved("ConcreteStub")).to.equal(true);
@@ -809,11 +773,7 @@ export = (): void => {
         it("resolved() follows an alias to its binding name before checking", () => {
             // PHP: ContainerTest::testResolvedResolvesAliasToBindingNameBeforeChecking
             const container = new Container();
-            container.bind(
-                "ConcreteStub",
-                () => new ContainerConcreteStub(),
-                true,
-            );
+            container.bind("ConcreteStub", () => new ContainerConcreteStub(), true);
             container.alias("ConcreteStub", "foo");
 
             expect(container.resolved("ConcreteStub")).to.equal(false);
@@ -837,12 +797,9 @@ export = (): void => {
             const container = new Container();
             let observed: unknown;
 
-            container.afterResolvingAttribute(
-                ContainerCurrentResolvingAttribute,
-                () => {
-                    observed = container.currentlyResolving();
-                },
-            );
+            container.afterResolvingAttribute(ContainerCurrentResolvingAttribute, () => {
+                observed = container.currentlyResolving();
+            });
 
             container
                 .when(ContainerCurrentResolvingConcrete)
@@ -852,9 +809,7 @@ export = (): void => {
             const resolved = container.make(ContainerCurrentResolvingConcrete);
 
             expect(observed).to.equal(ContainerCurrentResolvingConcrete);
-            expect(resolved.currentlyResolving).to.equal(
-                ContainerCurrentResolvingConcrete,
-            );
+            expect(resolved.currentlyResolving).to.equal(ContainerCurrentResolvingConcrete);
         });
 
         it("getAlias() follows a chain of aliases recursively", () => {
@@ -873,10 +828,7 @@ export = (): void => {
             // PHP: ContainerTest::testItThrowsExceptionWhenAbstractIsSameAsAlias
             const container = new Container();
 
-            expectThrows(
-                () => container.alias("name", "name"),
-                "[name] is aliased to itself.",
-            );
+            expectThrows(() => container.alias("name", "name"), "[name] is aliased to itself.");
         });
 
         it("factory() returns a closure that resolves the abstract on demand", () => {
@@ -894,10 +846,7 @@ export = (): void => {
 
             container.bind("foo", (_app, config: ParameterOverrides) => config);
 
-            const result = container.make(
-                "foo",
-                [1, 2, 3],
-            ) as ParameterOverrides;
+            const result = container.make("foo", [1, 2, 3]) as ParameterOverrides;
 
             // Positions are numbered from one, like a Luau list's own indices
             // -- see laravel-parity.md, "Параметры make() / call()".
@@ -910,10 +859,7 @@ export = (): void => {
         it("make() overrides a primitive dependency by its abstract name (adapted -- see class comment)", () => {
             // PHP: ContainerTest::testResolvingWithUsingAnInterface
             const container = new Container();
-            container.bind(
-                IContainerContractStub,
-                ContainerInjectVariableStubWithInterfaceImplementation,
-            );
+            container.bind(IContainerContractStub, ContainerInjectVariableStubWithInterfaceImplementation);
             const instance = container.make(
                 IContainerContractStub,
                 new Map<string | number, unknown>([["$something", "laurence"]]),
@@ -924,17 +870,10 @@ export = (): void => {
         it("a nested make() call's parameter overrides do not leak into the outer call (adapted -- see class comment)", () => {
             // PHP: ContainerTest::testNestedParameterOverride
             const container = new Container();
-            container.bind("foo", (app) =>
-                app.make(
-                    "bar",
-                    new Map<string | number, unknown>([["name", "Taylor"]]),
-                ),
-            );
+            container.bind("foo", (app) => app.make("bar", new Map<string | number, unknown>([["name", "Taylor"]])));
             container.bind("bar", (_app, config: ParameterOverrides) => config);
 
-            const result = container.make("foo", [
-                "something",
-            ]) as ParameterOverrides;
+            const result = container.make("foo", ["something"]) as ParameterOverrides;
 
             expect(result.size()).to.equal(1);
             expect(result.get("name")).to.equal("Taylor");
@@ -947,9 +886,7 @@ export = (): void => {
             container.bind("foo", (app) => app.make("bar"));
             container.bind("bar", (_app, config: ParameterOverrides) => config);
 
-            const result = container.make("foo", [
-                "something",
-            ]) as ParameterOverrides;
+            const result = container.make("foo", ["something"]) as ParameterOverrides;
             expect(result.size()).to.equal(0);
         });
 
@@ -957,10 +894,7 @@ export = (): void => {
             // PHP: ContainerTest::testSingletonBindingsNotRespectedWithMakeParameters
             const container = new Container();
 
-            container.singleton(
-                "foo",
-                (_app, config: ParameterOverrides) => config,
-            );
+            container.singleton("foo", (_app, config: ParameterOverrides) => config);
 
             const first = container.make(
                 "foo",
@@ -978,20 +912,14 @@ export = (): void => {
         it("build() resolves a class with no constructor dependencies", () => {
             // PHP: ContainerTest::testCanBuildWithoutParameterStackWithNoConstructors
             const container = new Container();
-            expect(
-                container.build(ContainerConcreteStub) instanceof
-                    ContainerConcreteStub,
-            ).to.equal(true);
+            expect(container.build(ContainerConcreteStub) instanceof ContainerConcreteStub).to.equal(true);
         });
 
         it("build() resolves a class with constructor dependencies", () => {
             // PHP: ContainerTest::testCanBuildWithoutParameterStackWithConstructors
             const container = new Container();
             container.bind(IContainerContractStub, ContainerImplementationStub);
-            expect(
-                container.build(ContainerDependentStub) instanceof
-                    ContainerDependentStub,
-            ).to.equal(true);
+            expect(container.build(ContainerDependentStub) instanceof ContainerDependentStub).to.equal(true);
         });
 
         it("has() reports a bound abstract", () => {
@@ -1005,9 +933,7 @@ export = (): void => {
             // PHP: ContainerTest::testContainerCanBindAnyWord
             const container = new Container();
             container.bind("Taylor", ContainerConcreteStub);
-            expect(
-                container.get("Taylor") instanceof ContainerConcreteStub,
-            ).to.equal(true);
+            expect(container.get("Taylor") instanceof ContainerConcreteStub).to.equal(true);
         });
 
         it("dynamically sets a service through offsetSet()/offsetGet()", () => {
@@ -1030,10 +956,7 @@ export = (): void => {
             const container = new Container();
             container.bind("Taylor", IContainerContractStub);
 
-            expectThrows(
-                () => container.get("Taylor"),
-                BindingResolutionException,
-            );
+            expectThrows(() => container.get("Taylor"), BindingResolutionException);
         });
 
         it("get() resolves a plain class", () => {
@@ -1048,36 +971,24 @@ export = (): void => {
             // PHP: ContainerTest::testMethodLevelContextualBinding
             const container = new Container();
 
-            container.bind(
-                IContainerContractStub,
-                ContainerImplementationStubTwo,
-            );
+            container.bind(IContainerContractStub, ContainerImplementationStubTwo);
 
             container
                 .when(ContainerContextualBindingCallTarget)
                 .needs(IContainerContractStub)
                 .give(ContainerImplementationStub);
 
-            const result = container.call([
-                new ContainerContextualBindingCallTarget(),
-                "work",
-            ]);
+            const result = container.call([new ContainerContextualBindingCallTarget(), "work"]);
 
-            expect(result instanceof ContainerImplementationStub).to.equal(
-                true,
-            );
+            expect(result instanceof ContainerImplementationStub).to.equal(true);
         });
 
         it("resolves a @Singleton()-decorated class as shared", () => {
             // PHP: ContainerTest::testContainerSingletonAttribute
             const container = new Container();
-            const firstInstantiation = container.get(
-                ContainerSingletonAttribute,
-            );
+            const firstInstantiation = container.get(ContainerSingletonAttribute);
 
-            const secondInstantiation = container.get(
-                ContainerSingletonAttribute,
-            );
+            const secondInstantiation = container.get(ContainerSingletonAttribute);
 
             expect(secondInstantiation).to.equal(firstInstantiation);
         });
@@ -1100,12 +1011,8 @@ export = (): void => {
             // PHP: ContainerTest::testBindInterfaceToSingleton
             const container = new Container();
             container.resolveEnvironmentUsing(() => true);
-            const firstInstantiation = container.get(
-                ContainerBindSingletonTestInterface,
-            );
-            const secondInstantiation = container.get(
-                ContainerBindSingletonTestInterface,
-            );
+            const firstInstantiation = container.get(ContainerBindSingletonTestInterface);
+            const secondInstantiation = container.get(ContainerBindSingletonTestInterface);
 
             expect(secondInstantiation).to.equal(firstInstantiation);
         });
@@ -1113,32 +1020,20 @@ export = (): void => {
         it("resolves an interface bound through @Bind() as scoped", () => {
             // PHP: ContainerTest::testBindInterfaceToScoped
             const container = new Container();
-            container.resolveEnvironmentUsing(
-                (env) => (env as Array<string>).join(",") === "test",
-            );
-            const firstInstantiation = container.get(
-                ContainerBindScopedTestInterface,
-            );
-            const secondInstantiation = container.get(
-                ContainerBindScopedTestInterface,
-            );
+            container.resolveEnvironmentUsing((env) => (env as Array<string>).join(",") === "test");
+            const firstInstantiation = container.get(ContainerBindScopedTestInterface);
+            const secondInstantiation = container.get(ContainerBindScopedTestInterface);
 
             expect(secondInstantiation).to.equal(firstInstantiation);
 
             // With a different environment
-            container.resolveEnvironmentUsing(
-                (env) => (env as Array<string>).join(",") === "test2",
-            );
-            const thirdInstantiation = container.get(
-                ContainerBindScopedTestInterface,
-            );
+            container.resolveEnvironmentUsing((env) => (env as Array<string>).join(",") === "test2");
+            const thirdInstantiation = container.get(ContainerBindScopedTestInterface);
             expect(thirdInstantiation).to.equal(firstInstantiation);
 
             container.forgetScopedInstances();
 
-            const fourthInstantiation = container.get(
-                ContainerBindScopedTestInterface,
-            );
+            const fourthInstantiation = container.get(ContainerBindScopedTestInterface);
             expect(fourthInstantiation).never.to.equal(firstInstantiation);
         });
 
@@ -1146,10 +1041,7 @@ export = (): void => {
             // PHP: ContainerTest::testWildcardBindingButNoEnvironmentResolveSetThrowsBindingResolutionException
             const container = new Container();
 
-            expectThrows(
-                () => container.make(WildcardOnlyInterface),
-                BindingResolutionException,
-            );
+            expectThrows(() => container.make(WildcardOnlyInterface), BindingResolutionException);
         });
 
         it("a @Bind() is rechecked once an environment resolver is set", () => {
@@ -1160,26 +1052,19 @@ export = (): void => {
 
             container.resolveEnvironmentUsing(() => true);
 
-            expect(
-                container.make(WildcardOnlyInterface) instanceof
-                    WildcardConcrete,
-            ).to.equal(true);
+            expect(container.make(WildcardOnlyInterface) instanceof WildcardConcrete).to.equal(true);
         });
 
         it("checks for a more specific environment before falling back to the wildcard", () => {
             // PHP: ContainerTest::testChecksForMoreSpecificEnvironmentBeforeFallingBackToDefault
             const container = new Container();
-            container.resolveEnvironmentUsing((env) =>
-                (env as Array<string>).includes("prod"),
-            );
+            container.resolveEnvironmentUsing((env) => (env as Array<string>).includes("prod"));
 
             const instance = container.make(WildcardAndProdInterface);
 
             expect(instance instanceof ProdConcrete).to.equal(true);
             container.flush();
-            container.resolveEnvironmentUsing((env) =>
-                (env as Array<string>).includes("some_string"),
-            );
+            container.resolveEnvironmentUsing((env) => (env as Array<string>).includes("some_string"));
             const fallback = container.make(WildcardAndProdInterface);
             expect(fallback instanceof FallbackConcrete).to.equal(true);
         });
@@ -1187,9 +1072,7 @@ export = (): void => {
         it("accepts a string for a single environment", () => {
             // PHP: ContainerTest::testCanPassAStringForEnvironmentEnvironment
             const container = new Container();
-            container.resolveEnvironmentUsing((env) =>
-                (env as Array<string>).includes("cli"),
-            );
+            container.resolveEnvironmentUsing((env) => (env as Array<string>).includes("cli"));
 
             const instance = container.make(CliOnlyInterface);
 
@@ -1214,17 +1097,13 @@ export = (): void => {
         it("flush() lets a fresh environment resolver be checked again", () => {
             // PHP: ContainerTest::testFlushResetsEnvironmentResolverAndCheckedBindings
             const container = new Container();
-            container.resolveEnvironmentUsing((env) =>
-                (env as Array<string>).includes("prod"),
-            );
+            container.resolveEnvironmentUsing((env) => (env as Array<string>).includes("prod"));
 
             const first = container.make(MultiEnvInterface);
             expect(first instanceof ProdConcrete).to.equal(true);
 
             container.flush();
-            container.resolveEnvironmentUsing((env) =>
-                (env as Array<string>).includes("dev"),
-            );
+            container.resolveEnvironmentUsing((env) => (env as Array<string>).includes("dev"));
 
             const second = container.make(MultiEnvInterface);
             expect(second instanceof DevConcrete).to.equal(true);
@@ -1235,10 +1114,7 @@ export = (): void => {
             const container = new Container();
             container.resolveEnvironmentUsing(() => false);
 
-            expectThrows(
-                () => container.make(ProdEnvOnlyInterface),
-                BindingResolutionException,
-            );
+            expectThrows(() => container.make(ProdEnvOnlyInterface), BindingResolutionException);
         });
 
         it("@Scoped() combined with @Bind() resets on forgetScopedInstances()", () => {

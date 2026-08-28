@@ -23,9 +23,7 @@ export = (): void => {
             expect(Str.of("「こんにちは世界」").charAt(4)).to.equal("ち");
             expect(Str.of("Привет, world!").charAt(8)).to.equal("w");
             expect(Str.of("「こんにちは世界」").charAt(-2)).to.equal("界");
-            expect(Str.of("「こんにちは世界」").charAt(-200)).to.equal(
-                undefined,
-            );
+            expect(Str.of("「こんにちは世界」").charAt(-200)).to.equal(undefined);
             expect(Str.of("Привет, мир!").charAt(100)).to.equal(undefined);
         });
 
@@ -47,12 +45,8 @@ export = (): void => {
         it("reverse() reverses by codepoint", () => {
             // PHP: SupportStringableTest::testReverse
             expect(Str.of("raBooF").reverse().toString()).to.equal("FooBar");
-            expect(Str.of("őtüzsineT").reverse().toString()).to.equal(
-                "Teniszütő",
-            );
-            expect(Str.of("☆etyBitluM❤").reverse().toString()).to.equal(
-                "❤MultiByte☆",
-            );
+            expect(Str.of("őtüzsineT").reverse().toString()).to.equal("Teniszütő");
+            expect(Str.of("☆etyBitluM❤").reverse().toString()).to.equal("❤MultiByte☆");
         });
 
         it("length() counts codepoints", () => {
@@ -63,18 +57,12 @@ export = (): void => {
 
         it("substrReplace() replaces text within a portion of the string", () => {
             // PHP: SupportStringableTest::testSubstrReplace
-            expect(Str.of("1200").substrReplace(":", 2, 0).toString()).to.equal(
-                "12:00",
+            expect(Str.of("1200").substrReplace(":", 2, 0).toString()).to.equal("12:00");
+            expect(Str.of("The Framework").substrReplace("Laravel ", 4, 0).toString()).to.equal(
+                "The Laravel Framework",
             );
             expect(
-                Str.of("The Framework")
-                    .substrReplace("Laravel ", 4, 0)
-                    .toString(),
-            ).to.equal("The Laravel Framework");
-            expect(
-                Str.of("Laravel Framework")
-                    .substrReplace("– The PHP Framework for Web Artisans", 8)
-                    .toString(),
+                Str.of("Laravel Framework").substrReplace("– The PHP Framework for Web Artisans", 8).toString(),
             ).to.equal("Laravel – The PHP Framework for Web Artisans");
         });
     });

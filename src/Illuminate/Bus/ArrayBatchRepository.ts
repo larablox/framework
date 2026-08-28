@@ -101,10 +101,7 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Decrement the pending jobs for the batch. */
-    public decrementPendingJobs(
-        batchId: string,
-        jobId: string,
-    ): UpdatedBatchJobCounts {
+    public decrementPendingJobs(batchId: string, jobId: string): UpdatedBatchJobCounts {
         const record = this.batches.get(batchId);
 
         if (record === undefined) {
@@ -118,10 +115,7 @@ export class ArrayBatchRepository implements BatchRepository {
     }
 
     /** Increment the failed jobs for the batch. */
-    public incrementFailedJobs(
-        batchId: string,
-        jobId: string,
-    ): UpdatedBatchJobCounts {
+    public incrementFailedJobs(batchId: string, jobId: string): UpdatedBatchJobCounts {
         const record = this.batches.get(batchId);
 
         if (record === undefined) {

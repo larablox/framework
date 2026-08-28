@@ -20,9 +20,7 @@ export = (): void => {
             expect(Str.words("Taylor Otwell", 1)).to.equal("Taylor...");
             expect(Str.words("Taylor Otwell", 1, "___")).to.equal("Taylor___");
             expect(Str.words("Taylor Otwell", 3)).to.equal("Taylor Otwell");
-            expect(Str.words("Taylor Otwell", -1, "...")).to.equal(
-                "Taylor Otwell",
-            );
+            expect(Str.words("Taylor Otwell", -1, "...")).to.equal("Taylor Otwell");
             expect(Str.words("", 3, "...")).to.equal("");
         });
 
@@ -52,20 +50,12 @@ export = (): void => {
 
         it("limit() truncates a string to a character length", () => {
             // PHP: SupportStrTest::testLimit
-            expect(
-                Str.limit(
-                    "Laravel is a free, open source PHP web application framework.",
-                    10,
-                ),
-            ).to.equal("Laravel is...");
+            expect(Str.limit("Laravel is a free, open source PHP web application framework.", 10)).to.equal(
+                "Laravel is...",
+            );
             expect(Str.limit("这是一段中文", 6)).to.equal("这是一...");
             expect(
-                Str.limit(
-                    "Laravel is a free, open source PHP web application framework.",
-                    15,
-                    "...",
-                    true,
-                ),
+                Str.limit("Laravel is a free, open source PHP web application framework.", 15, "...", true),
             ).to.equal("Laravel is a...");
 
             const value = "The PHP framework for web artisans.";
@@ -74,22 +64,14 @@ export = (): void => {
             expect(Str.limit(value, 10, "...", true)).to.equal("The PHP...");
             expect(Str.limit(value, 7, "")).to.equal("The PHP");
             expect(Str.limit(value, 10, "", true)).to.equal("The PHP");
-            expect(Str.limit(value, 100)).to.equal(
-                "The PHP framework for web artisans.",
-            );
-            expect(Str.limit(value, 100, "...", true)).to.equal(
-                "The PHP framework for web artisans.",
-            );
-            expect(Str.limit(value, 20, "...", true)).to.equal(
-                "The PHP framework...",
-            );
+            expect(Str.limit(value, 100)).to.equal("The PHP framework for web artisans.");
+            expect(Str.limit(value, 100, "...", true)).to.equal("The PHP framework for web artisans.");
+            expect(Str.limit(value, 20, "...", true)).to.equal("The PHP framework...");
 
             const nonAsciiString = "这是一段中文";
 
             expect(Str.limit(nonAsciiString, 6)).to.equal("这是一...");
-            expect(Str.limit(nonAsciiString, 6, "...", true)).to.equal(
-                "这是一...",
-            );
+            expect(Str.limit(nonAsciiString, 6, "...", true)).to.equal("这是一...");
             expect(Str.limit(nonAsciiString, 6, "")).to.equal("这是一");
             expect(Str.limit(nonAsciiString, 6, "", true)).to.equal("这是一");
         });
@@ -106,38 +88,24 @@ export = (): void => {
             // PHP: SupportStrTest::testWordCount ($characters and the
             // locale-dependent multibyte cases dropped, see class comment)
             expect(Str.wordCount("Hello, world!")).to.equal(2);
-            expect(
-                Str.wordCount(
-                    "Hi, this is my first contribution to the Laravel framework.",
-                ),
-            ).to.equal(10);
+            expect(Str.wordCount("Hi, this is my first contribution to the Laravel framework.")).to.equal(10);
         });
 
         it("wordWrap() wraps a string to a given number of characters", () => {
             // PHP: SupportStrTest::testWordWrap
-            expect(Str.wordWrap("Hello World", 3, "<br />")).to.equal(
-                "Hello<br />World",
-            );
-            expect(Str.wordWrap("Hello World", 3, "<br />", true)).to.equal(
-                "Hel<br />lo<br />Wor<br />ld",
-            );
+            expect(Str.wordWrap("Hello World", 3, "<br />")).to.equal("Hello<br />World");
+            expect(Str.wordWrap("Hello World", 3, "<br />", true)).to.equal("Hel<br />lo<br />Wor<br />ld");
 
-            expect(Str.wordWrap("❤Multi Byte☆❤☆❤☆❤", 3, "<br />")).to.equal(
-                "❤Multi<br />Byte☆❤☆❤☆❤",
-            );
+            expect(Str.wordWrap("❤Multi Byte☆❤☆❤☆❤", 3, "<br />")).to.equal("❤Multi<br />Byte☆❤☆❤☆❤");
 
             expect(Str.wordWrap("žltý kôň", 8, "\n")).to.equal("žltý kôň");
-            expect(Str.wordWrap("žltý kôň", 4, "\n", true)).to.equal(
-                "žltý\nkôň",
-            );
+            expect(Str.wordWrap("žltý kôň", 4, "\n", true)).to.equal("žltý\nkôň");
             expect(Str.wordWrap("žltý", 2, "\n", true)).to.equal("žl\ntý");
-            expect(Str.wordWrap("😀😀😀😀", 2, "\n", true)).to.equal(
-                "😀😀\n😀😀",
-            );
+            expect(Str.wordWrap("😀😀😀😀", 2, "\n", true)).to.equal("😀😀\n😀😀");
             expect(Str.wordWrap("é é", 1, "A\x1aB")).to.equal("éA\x1aBé");
-            expect(
-                Str.wordWrap("❤Multi Byte☆❤☆❤☆❤", 3, "<br />", true),
-            ).to.equal("❤Mu<br />lti<br />Byt<br />e☆❤<br />☆❤☆<br />❤");
+            expect(Str.wordWrap("❤Multi Byte☆❤☆❤☆❤", 3, "<br />", true)).to.equal(
+                "❤Mu<br />lti<br />Byt<br />e☆❤<br />☆❤☆<br />❤",
+            );
         });
     });
 };

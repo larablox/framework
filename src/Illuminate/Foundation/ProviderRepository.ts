@@ -49,23 +49,16 @@ export class ProviderRepository {
     }
 
     /** Register the load events for the given provider. */
-    protected registerLoadEvents(
-        provider: Constructor<ServiceProvider>,
-        events: Array<string>,
-    ): void {
+    protected registerLoadEvents(provider: Constructor<ServiceProvider>, events: Array<string>): void {
         if (events.isEmpty()) {
             return;
         }
 
-        this.app
-            .make<Dispatcher>("events")
-            .listen(events, () => this.app.register(provider));
+        this.app.make<Dispatcher>("events").listen(events, () => this.app.register(provider));
     }
 
     /** Compile the application service manifest. */
-    protected compileManifest(
-        providers: Array<Constructor<ServiceProvider>>,
-    ): ProviderManifest {
+    protected compileManifest(providers: Array<Constructor<ServiceProvider>>): ProviderManifest {
         const manifest = this.freshManifest();
 
         for (const provider of providers) {
@@ -101,11 +94,7 @@ export class ProviderRepository {
     }
 
     /** Create a new provider instance. */
-    public createProvider(
-        provider: Constructor<ServiceProvider>,
-    ): ServiceProvider {
-        return new (provider as new (app: Application) => ServiceProvider)(
-            this.app,
-        );
+    public createProvider(provider: Constructor<ServiceProvider>): ServiceProvider {
+        return new (provider as new (app: Application) => ServiceProvider)(this.app);
     }
 }

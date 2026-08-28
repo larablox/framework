@@ -14,11 +14,7 @@ const classAttributes = new Map<object, Array<[Callback, object]>>();
 
 export class Attributes {
     /** Record an attribute instance against the class it decorates. */
-    public static add(
-        target: object,
-        attribute: Callback,
-        instance: object,
-    ): void {
+    public static add(target: object, attribute: Callback, instance: object): void {
         let attributes = classAttributes.get(target);
 
         if (attributes === undefined) {
@@ -30,10 +26,7 @@ export class Attributes {
     }
 
     /** PHP: `(new ReflectionClass($target))->getAttributes($attribute)`. */
-    public static get<T extends object>(
-        target: unknown,
-        attribute: Callback,
-    ): Array<T> {
+    public static get<T extends object>(target: unknown, attribute: Callback): Array<T> {
         if (!typeIs(target, "table")) {
             return [];
         }

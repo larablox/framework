@@ -14,9 +14,6 @@ export class ContextServiceProvider extends ServiceProvider {
     public register(): void {
         this.app.scoped(Repository);
 
-        this.app.bind(
-            ContextLogProcessorContract,
-            () => new ContextLogProcessor(),
-        );
+        this.app.bind(ContextLogProcessorContract, () => new ContextLogProcessor());
     }
 }

@@ -106,9 +106,7 @@ export = (): void => {
         // PHP: HttpClientTest::testMovedPermanentlyRequest
         it("movedPermanently()", () => {
             expect(response({ status: 301 }).movedPermanently()).to.equal(true);
-            expect(response({ status: 200 }).movedPermanently()).to.equal(
-                false,
-            );
+            expect(response({ status: 200 }).movedPermanently()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testFoundRequest
@@ -149,22 +147,14 @@ export = (): void => {
 
         // PHP: HttpClientTest::testUnprocessableContentRequest
         it("unprocessableContent()", () => {
-            expect(response({ status: 422 }).unprocessableContent()).to.equal(
-                true,
-            );
-            expect(response({ status: 200 }).unprocessableContent()).to.equal(
-                false,
-            );
+            expect(response({ status: 422 }).unprocessableContent()).to.equal(true);
+            expect(response({ status: 200 }).unprocessableContent()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testUnprocessableEntityRequest
         it("unprocessableEntity() is an alias for unprocessableContent()", () => {
-            expect(response({ status: 422 }).unprocessableEntity()).to.equal(
-                true,
-            );
-            expect(response({ status: 200 }).unprocessableEntity()).to.equal(
-                false,
-            );
+            expect(response({ status: 422 }).unprocessableEntity()).to.equal(true);
+            expect(response({ status: 200 }).unprocessableEntity()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testTooManyRequestsRequest
@@ -206,9 +196,7 @@ export = (): void => {
             });
 
             expect(failed.toException() !== undefined).to.equal(true);
-            expect(failed.toException() instanceof RequestException).to.equal(
-                true,
-            );
+            expect(failed.toException() instanceof RequestException).to.equal(true);
         });
 
         /**
@@ -221,9 +209,7 @@ export = (): void => {
         it("RequestException's message stops at the status code", () => {
             const exception = new RequestException(response({ status: 403 }));
 
-            expect(exception.getMessage()).to.equal(
-                "HTTP request returned status code 403",
-            );
+            expect(exception.getMessage()).to.equal("HTTP request returned status code 403");
         });
 
         // PHP: HttpClientTest::testOnErrorDoesntCallClosureOnInformational
@@ -403,9 +389,7 @@ export = (): void => {
             let thrown: unknown;
 
             try {
-                response({ status: 400 }).throwIfStatus(
-                    (status) => status === 400,
-                );
+                response({ status: 400 }).throwIfStatus((status) => status === 400);
             } catch (exception) {
                 thrown = exception;
             }
@@ -467,9 +451,7 @@ export = (): void => {
             thrown = undefined;
 
             try {
-                response({ status: 201 }).throwUnlessStatus(
-                    (status) => status === 200,
-                );
+                response({ status: 201 }).throwUnlessStatus((status) => status === 200);
             } catch (exception) {
                 thrown = exception;
             }

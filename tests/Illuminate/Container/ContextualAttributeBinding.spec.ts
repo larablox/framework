@@ -57,18 +57,12 @@ export = (): void => {
             readonly name: "A" | "B";
         }
 
-        function ContainerTestAttributeThatResolvesContractImpl(
-            name: "A" | "B",
-        ) {
+        function ContainerTestAttributeThatResolvesContractImpl(name: "A" | "B") {
             const instance: ContainerTestAttributeThatResolvesContractImpl = {
                 name,
             };
 
-            return (
-                owner: object,
-                propertyKey: unknown,
-                parameterIndex: number,
-            ): void => {
+            return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
                 addParameterAttribute(
                     owner,
                     propertyKey,
@@ -97,39 +91,22 @@ export = (): void => {
             // PHP: ContextualAttributeBindingTest::testDependencyCanBeResolvedFromAttributeBinding
             const container = new Container();
 
-            container.bind(
-                ContainerTestContract,
-                () => new ContainerTestImplB(),
-            );
+            container.bind(ContainerTestContract, () => new ContainerTestImplB());
             container.whenHasAttribute(
                 ContainerTestAttributeThatResolvesContractImpl,
                 (attribute: ContainerTestAttributeThatResolvesContractImpl) =>
-                    attribute.name === "A"
-                        ? new ContainerTestImplA()
-                        : new ContainerTestImplB(),
+                    attribute.name === "A" ? new ContainerTestImplA() : new ContainerTestImplB(),
             );
 
-            const classA = container.make(
-                ContainerTestHasAttributeThatResolvesToImplA,
-            );
+            const classA = container.make(ContainerTestHasAttributeThatResolvesToImplA);
 
-            expect(
-                classA instanceof ContainerTestHasAttributeThatResolvesToImplA,
-            ).to.equal(true);
-            expect(classA.property instanceof ContainerTestImplA).to.equal(
-                true,
-            );
+            expect(classA instanceof ContainerTestHasAttributeThatResolvesToImplA).to.equal(true);
+            expect(classA.property instanceof ContainerTestImplA).to.equal(true);
 
-            const classB = container.make(
-                ContainerTestHasAttributeThatResolvesToImplB,
-            );
+            const classB = container.make(ContainerTestHasAttributeThatResolvesToImplB);
 
-            expect(
-                classB instanceof ContainerTestHasAttributeThatResolvesToImplB,
-            ).to.equal(true);
-            expect(classB.property instanceof ContainerTestImplB).to.equal(
-                true,
-            );
+            expect(classB instanceof ContainerTestHasAttributeThatResolvesToImplB).to.equal(true);
+            expect(classB.property instanceof ContainerTestImplB).to.equal(true);
         });
 
         class SimpleDependency extends ContainerTestContract {}
@@ -138,9 +115,7 @@ export = (): void => {
             // PHP overrides this by name (`['param' => true]`); with no
             // parameter names here it is overridden by position, and only an
             // annotated parameter takes a positional override at all.
-            public constructor(
-                @Inject("$param") public readonly param: boolean,
-            ) {
+            public constructor(@Inject("$param") public readonly param: boolean) {
                 super();
             }
         }
@@ -166,9 +141,7 @@ export = (): void => {
 
             const resolution = container.make(GiveTestSimple);
 
-            expect(resolution.dependency instanceof SimpleDependency).to.equal(
-                true,
-            );
+            expect(resolution.dependency instanceof SimpleDependency).to.equal(true);
         });
 
         it("resolves a dependency with constructor parameters through Give()", () => {
@@ -178,17 +151,13 @@ export = (): void => {
 
             const resolution = container.make(GiveTestComplex);
 
-            expect(resolution.dependency instanceof ComplexDependency).to.equal(
-                true,
-            );
+            expect(resolution.dependency instanceof ComplexDependency).to.equal(true);
             expect(resolution.dependency.param).to.equal(true);
         });
 
         /** A tiny stand-in for `Illuminate\Config\Repository`, get(key) only. */
         class FakeConfigRepository {
-            public constructor(
-                private readonly items: Record<string, unknown>,
-            ) {}
+            public constructor(private readonly items: Record<string, unknown>) {}
 
             public get(key: string, defaultValue?: unknown): unknown {
                 const value = this.items[key];
@@ -204,18 +173,8 @@ export = (): void => {
         function ContainerTestConfigValue(key: string) {
             const instance: ContainerTestConfigValue = { key };
 
-            return (
-                owner: object,
-                propertyKey: unknown,
-                parameterIndex: number,
-            ): void => {
-                addParameterAttribute(
-                    owner,
-                    propertyKey,
-                    parameterIndex,
-                    ContainerTestConfigValue,
-                    instance,
-                );
+            return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+                addParameterAttribute(owner, propertyKey, parameterIndex, ContainerTestConfigValue, instance);
             };
         }
 
@@ -237,19 +196,13 @@ export = (): void => {
                     }),
             );
 
-            container.whenHasAttribute(
-                ContainerTestConfigValue,
-                (attribute: ContainerTestConfigValue, c) =>
-                    c.make<FakeConfigRepository>("config").get(attribute.key),
+            container.whenHasAttribute(ContainerTestConfigValue, (attribute: ContainerTestConfigValue, c) =>
+                c.make<FakeConfigRepository>("config").get(attribute.key),
             );
 
-            const classInstance = container.make(
-                ContainerTestHasConfigValueProperty,
-            );
+            const classInstance = container.make(ContainerTestHasConfigValueProperty);
 
-            expect(
-                classInstance instanceof ContainerTestHasConfigValueProperty,
-            ).to.equal(true);
+            expect(classInstance instanceof ContainerTestHasConfigValueProperty).to.equal(true);
             expect(classInstance.timezone).to.equal("Europe/Paris");
         });
 
@@ -264,11 +217,7 @@ export = (): void => {
                     c.make<FakeConfigRepository>("config").get(attribute.key),
             };
 
-            return (
-                owner: object,
-                propertyKey: unknown,
-                parameterIndex: number,
-            ): void => {
+            return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
                 addParameterAttribute(
                     owner,
                     propertyKey,
@@ -289,19 +238,11 @@ export = (): void => {
         it("resolves a scalar dependency through the attribute's own resolve()", () => {
             // PHP: ContextualAttributeBindingTest::testScalarDependencyCanBeResolvedFromAttributeResolveMethod
             const container = new Container();
-            container.singleton(
-                "config",
-                () => new FakeConfigRepository({ "app.env": "production" }),
-            );
+            container.singleton("config", () => new FakeConfigRepository({ "app.env": "production" }));
 
-            const classInstance = container.make(
-                ContainerTestHasConfigValueWithResolveProperty,
-            );
+            const classInstance = container.make(ContainerTestHasConfigValueWithResolveProperty);
 
-            expect(
-                classInstance instanceof
-                    ContainerTestHasConfigValueWithResolveProperty,
-            ).to.equal(true);
+            expect(classInstance instanceof ContainerTestHasConfigValueWithResolveProperty).to.equal(true);
             expect(classInstance.env).to.equal("production");
         });
 
@@ -320,11 +261,7 @@ export = (): void => {
                 },
             };
 
-            return (
-                owner: object,
-                propertyKey: unknown,
-                parameterIndex: number,
-            ): void => {
+            return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
                 addParameterAttribute(
                     owner,
                     propertyKey,
@@ -346,9 +283,7 @@ export = (): void => {
             // PHP: ContextualAttributeBindingTest::testDependencyWithAfterCallbackAttributeCanBeResolved
             const container = new Container();
 
-            const classInstance = container.make(
-                ContainerTestHasConfigValueWithResolvePropertyAndAfterCallback,
-            );
+            const classInstance = container.make(ContainerTestHasConfigValueWithResolvePropertyAndAfterCallback);
 
             expect(classInstance.person.role).to.equal("Developer");
         });
@@ -357,9 +292,7 @@ export = (): void => {
             // PHP: ContextualAttributeBindingTest::testInjectionWithAttributeOnAppCall
             const container = new Container();
 
-            const hasAttribute = container.make(
-                ContainerTestHasConfigValueWithResolvePropertyAndAfterCallback,
-            );
+            const hasAttribute = container.make(ContainerTestHasConfigValueWithResolvePropertyAndAfterCallback);
 
             expect(hasAttribute.person.name).to.equal("Taylor");
         });
@@ -374,10 +307,7 @@ export = (): void => {
         it("resolves two Config()-attributed dependencies", () => {
             // PHP: ContextualAttributeBindingTest::testConfigAttribute
             const container = new Container();
-            container.singleton(
-                "config",
-                () => new FakeConfigRepository({ foo: "foo", bar: "bar" }),
-            );
+            container.singleton("config", () => new FakeConfigRepository({ foo: "foo", bar: "bar" }));
 
             const classInstance = container.make(ConfigTest);
 
@@ -386,9 +316,7 @@ export = (): void => {
         });
 
         class TimezoneObject {
-            public constructor(
-                @Config("app.timezone") public readonly timezone?: string,
-            ) {}
+            public constructor(@Config("app.timezone") public readonly timezone?: string) {}
         }
 
         it("Config() resolves the configured key (adapted -- see class comment)", () => {
@@ -414,9 +342,7 @@ export = (): void => {
         });
 
         class TagTest {
-            public constructor(
-                @Tag("numbers") public readonly integers: unknown,
-            ) {}
+            public constructor(@Tag("numbers") public readonly integers: unknown) {}
         }
 
         it("resolves a Tag()-attributed dependency into every tagged binding (adapted -- see class comment)", () => {
@@ -427,9 +353,7 @@ export = (): void => {
             container.tag(["one", "two"], "numbers");
 
             const classInstance = container.make(TagTest);
-            const values = (
-                classInstance.integers as { toArray(): Array<unknown> }
-            ).toArray();
+            const values = (classInstance.integers as { toArray(): Array<unknown> }).toArray();
 
             expect(values[0]).to.equal(1);
             expect(values[1]).to.equal(2);
@@ -466,9 +390,7 @@ export = (): void => {
         }
 
         class ContextHiddenTest {
-            public constructor(
-                @Context("bar", undefined, true) public readonly foo: string,
-            ) {}
+            public constructor(@Context("bar", undefined, true) public readonly foo: string) {}
         }
 
         it("resolves a Context()-attributed dependency", () => {

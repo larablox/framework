@@ -53,9 +53,7 @@ export = (): void => {
 
             for (const character of trimDefaultChars) {
                 expect(Str.trim(` ${character} `)).to.equal("");
-                expect(Str.trim(`${character} foo bar ${character}`)).to.equal(
-                    "foo bar",
-                );
+                expect(Str.trim(`${character} foo bar ${character}`)).to.equal("foo bar");
             }
         });
 
@@ -81,9 +79,7 @@ export = (): void => {
 
             for (const character of ltrimDefaultChars) {
                 expect(Str.ltrim(` ${character} `)).to.equal("");
-                expect(Str.ltrim(`${character} foo bar ${character}`)).to.equal(
-                    `foo bar ${character}`,
-                );
+                expect(Str.ltrim(`${character} foo bar ${character}`)).to.equal(`foo bar ${character}`);
             }
         });
 
@@ -109,20 +105,14 @@ export = (): void => {
 
             for (const character of rtrimDefaultChars) {
                 expect(Str.rtrim(` ${character} `)).to.equal("");
-                expect(Str.rtrim(`${character} foo bar ${character}`)).to.equal(
-                    `${character} foo bar`,
-                );
+                expect(Str.rtrim(`${character} foo bar ${character}`)).to.equal(`${character} foo bar`);
             }
         });
 
         it("squish() collapses extraneous whitespace into single spaces", () => {
             // PHP: SupportStrTest::testSquish
-            expect(Str.squish(" laravel   php  framework ")).to.equal(
-                "laravel php framework",
-            );
-            expect(Str.squish("laravel\t\tphp\n\nframework")).to.equal(
-                "laravel php framework",
-            );
+            expect(Str.squish(" laravel   php  framework ")).to.equal("laravel php framework");
+            expect(Str.squish("laravel\t\tphp\n\nframework")).to.equal("laravel php framework");
             expect(
                 Str.squish(`
             laravel
@@ -130,20 +120,14 @@ export = (): void => {
             framework
         `),
             ).to.equal("laravel php framework");
-            expect(Str.squish("   laravel   php   framework   ")).to.equal(
-                "laravel php framework",
-            );
+            expect(Str.squish("   laravel   php   framework   ")).to.equal("laravel php framework");
             expect(Str.squish("   123    ")).to.equal("123");
             expect(Str.squish("だ")).to.equal("だ");
             expect(Str.squish("ム")).to.equal("ム");
             expect(Str.squish("   だ    ")).to.equal("だ");
             expect(Str.squish("   ム    ")).to.equal("ム");
-            expect(Str.squish("laravelㅤㅤㅤphpㅤframework")).to.equal(
-                "laravel php framework",
-            );
-            expect(Str.squish("laravelᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠphpᅠᅠframework")).to.equal(
-                "laravel php framework",
-            );
+            expect(Str.squish("laravelㅤㅤㅤphpㅤframework")).to.equal("laravel php framework");
+            expect(Str.squish("laravelᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠphpᅠᅠframework")).to.equal("laravel php framework");
         });
     });
 };

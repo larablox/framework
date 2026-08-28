@@ -119,10 +119,7 @@ export class Pluralizer {
             return value;
         }
 
-        return Pluralizer.matchCase(
-            Pluralizer.inflect(value, PLURAL_RULES),
-            value,
-        );
+        return Pluralizer.matchCase(Pluralizer.inflect(value, PLURAL_RULES), value);
     }
 
     /** Get the singular form of an English word. */
@@ -131,10 +128,7 @@ export class Pluralizer {
             return value;
         }
 
-        return Pluralizer.matchCase(
-            Pluralizer.inflect(value, SINGULAR_RULES),
-            value,
-        );
+        return Pluralizer.matchCase(Pluralizer.inflect(value, SINGULAR_RULES), value);
     }
 
     /** Determine if the given value is uncountable. */
@@ -143,10 +137,7 @@ export class Pluralizer {
     }
 
     /** Apply the first rule that matches, irregulars first. */
-    protected static inflect(
-        value: string,
-        rules: Array<[string, string]>,
-    ): string {
+    protected static inflect(value: string, rules: Array<[string, string]>): string {
         const lowered = value.lower();
         const plural = rules === PLURAL_RULES;
 

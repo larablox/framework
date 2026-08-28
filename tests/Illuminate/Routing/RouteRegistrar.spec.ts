@@ -98,11 +98,7 @@ export = (): void => {
     // nil value".
 
     /** PHP: `RouteRegistrarTest::seeResponse()`. */
-    function seeResponse(
-        route: Route,
-        content: unknown,
-        request: Request,
-    ): void {
+    function seeResponse(route: Route, content: unknown, request: Request): void {
         expect(route.matches(request)).to.equal(true);
         expect(route.bind(request).run()).to.equal(content);
     }
@@ -118,35 +114,19 @@ export = (): void => {
             const r = router();
 
             r.middleware(["one", "two"]).get("users", () => "all-users");
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             expectDeepEqual(lastRoute(r).middleware(), ["one", "two"]);
 
             r.middleware(["three", "four"]).get("users", () => "all-users");
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             expectDeepEqual(lastRoute(r).middleware(), ["three", "four"]);
 
             r.get("users", () => "all-users").middleware(["five", "six"]);
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             expectDeepEqual(lastRoute(r).middleware(), ["five", "six"]);
 
             r.middleware("seven").get("users", () => "all-users");
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             expectDeepEqual(lastRoute(r).middleware(), ["seven"]);
         });
 
@@ -158,11 +138,7 @@ export = (): void => {
                 .get("users", () => "all-users")
                 .withoutMiddleware("one");
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             expectDeepEqual(lastRoute(r).excludedMiddleware(), ["one"]);
         });
 
@@ -190,11 +166,7 @@ export = (): void => {
             const r = router();
             r.middleware("get-middleware").get("users", () => "all-users");
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             seeMiddleware(lastRoute(r), "get-middleware");
         });
 
@@ -203,11 +175,7 @@ export = (): void => {
             const r = router();
             r.middleware("post-middleware").post("users", () => "saved");
 
-            seeResponse(
-                lastRoute(r),
-                "saved",
-                new Request({} as Player, "POST", "users"),
-            );
+            seeResponse(lastRoute(r), "saved", new Request({} as Player, "POST", "users"));
             seeMiddleware(lastRoute(r), "post-middleware");
         });
 
@@ -216,28 +184,16 @@ export = (): void => {
             const r = router();
             r.middleware("test-middleware").any("users", () => "anything");
 
-            seeResponse(
-                lastRoute(r),
-                "anything",
-                new Request({} as Player, "PUT", "users"),
-            );
+            seeResponse(lastRoute(r), "anything", new Request({} as Player, "PUT", "users"));
             seeMiddleware(lastRoute(r), "test-middleware");
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterMatchRouteWithClosureAction
         it("registers a route matching an explicit verb list", () => {
             const r = router();
-            r.middleware("match-middleware").match(
-                ["DELETE"],
-                "users",
-                () => "deleted",
-            );
+            r.middleware("match-middleware").match(["DELETE"], "users", () => "deleted");
 
-            seeResponse(
-                lastRoute(r),
-                "deleted",
-                new Request({} as Player, "DELETE", "users"),
-            );
+            seeResponse(lastRoute(r), "deleted", new Request({} as Player, "DELETE", "users"));
             seeMiddleware(lastRoute(r), "match-middleware");
         });
 
@@ -246,43 +202,25 @@ export = (): void => {
             const r = router();
             r.middleware("put-middleware").put("users", () => "replaced");
 
-            seeResponse(
-                lastRoute(r),
-                "replaced",
-                new Request({} as Player, "PUT", "users"),
-            );
+            seeResponse(lastRoute(r), "replaced", new Request({} as Player, "PUT", "users"));
             seeMiddleware(lastRoute(r), "put-middleware");
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterRouteWithControllerActionArray
         it("registers a route from a [Controller, method] pair", () => {
             const r = router();
-            r.middleware("controller-middleware").get("users", [
-                RouteRegistrarControllerStub,
-                "index",
-            ]);
+            r.middleware("controller-middleware").get("users", [RouteRegistrarControllerStub, "index"]);
 
-            seeResponse(
-                lastRoute(r),
-                "controller",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "controller", new Request({} as Player, "GET", "users"));
             seeMiddleware(lastRoute(r), "controller-middleware");
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterRouteWithArrayAndControllerAction
         it("registers a route from an action array carrying a 'uses' controller pair", () => {
             const r = router();
-            r.middleware("controller-middleware").put("users", [
-                RouteRegistrarControllerStub,
-                "index",
-            ]);
+            r.middleware("controller-middleware").put("users", [RouteRegistrarControllerStub, "index"]);
 
-            seeResponse(
-                lastRoute(r),
-                "controller",
-                new Request({} as Player, "PUT", "users"),
-            );
+            seeResponse(lastRoute(r), "controller", new Request({} as Player, "PUT", "users"));
             seeMiddleware(lastRoute(r), "controller-middleware");
         });
 
@@ -293,11 +231,7 @@ export = (): void => {
                 r.get("users", () => "all-users");
             });
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             seeMiddleware(lastRoute(r), "group-middleware");
         });
 
@@ -308,11 +242,7 @@ export = (): void => {
                 r.get("users", () => "all-users").middleware(["one", "two"]);
             });
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             expectDeepEqual(lastRoute(r).excludedMiddleware(), ["one"]);
         });
 
@@ -335,20 +265,14 @@ export = (): void => {
                     r.get("here", () => "good");
                 });
 
-            seeResponse(
-                lastRoute(r),
-                "good",
-                new Request({} as Player, "GET", "foo/12345/here"),
-            );
+            seeResponse(lastRoute(r), "good", new Request({} as Player, "GET", "foo/12345/here"));
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterGroupWithNamePrefix
         it("Router::name()->group() prefixes every route name in it", () => {
             const r = router();
             r.name("api.").group(() => {
-                r.get("users", [RouteRegistrarControllerStub, "index"]).name(
-                    "users",
-                );
+                r.get("users", [RouteRegistrarControllerStub, "index"]).name("users");
             });
 
             expect(lastRoute(r).getName()).to.equal("api.users");
@@ -363,11 +287,7 @@ export = (): void => {
                     .get("baz", () => "hello");
             });
 
-            seeResponse(
-                lastRoute(r),
-                "hello",
-                new Request({} as Player, "GET", "bar/baz"),
-            );
+            seeResponse(lastRoute(r), "hello", new Request({} as Player, "GET", "bar/baz"));
         });
 
         // PHP: RouteRegistrarTest::testRouteGroupChaining
@@ -380,12 +300,8 @@ export = (): void => {
             });
 
             const routes = r.getRoutes();
-            expect(
-                routes.match(new Request({} as Player, "GET", "foo")),
-            ).to.be.ok();
-            expect(
-                routes.match(new Request({} as Player, "GET", "bar")),
-            ).to.be.ok();
+            expect(routes.match(new Request({} as Player, "GET", "foo"))).to.be.ok();
+            expect(routes.match(new Request({} as Player, "GET", "bar"))).to.be.ok();
         });
 
         // PHP: RouteRegistrarTest::testCanSetRouteName
@@ -393,11 +309,7 @@ export = (): void => {
             const r = router();
             r.as("users.index").get("users", () => "all-users");
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             expect(lastRoute(r).getName()).to.equal("users.index");
         });
 
@@ -406,11 +318,7 @@ export = (): void => {
             const r = router();
             r.name("users.index").get("users", () => "all-users");
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
+            seeResponse(lastRoute(r), "all-users", new Request({} as Player, "GET", "users"));
             expect(lastRoute(r).getName()).to.equal("users.index");
         });
 
@@ -420,9 +328,7 @@ export = (): void => {
             r.middlewareGroup("web", []);
             r.pushMiddlewareToGroup("web", "test-middleware");
 
-            expectDeepEqual(r.getMiddlewareGroups().get("web"), [
-                "test-middleware",
-            ]);
+            expectDeepEqual(r.getMiddlewareGroups().get("web"), ["test-middleware"]);
         });
 
         // PHP: RouteRegistrarTest::testPushMiddlewareToGroupUnregisteredGroup
@@ -430,9 +336,7 @@ export = (): void => {
             const r = router();
             r.pushMiddlewareToGroup("web", "test-middleware");
 
-            expectDeepEqual(r.getMiddlewareGroups().get("web"), [
-                "test-middleware",
-            ]);
+            expectDeepEqual(r.getMiddlewareGroups().get("web"), ["test-middleware"]);
         });
 
         // PHP: RouteRegistrarTest::testPushMiddlewareToGroupDuplicatedMiddleware
@@ -441,9 +345,7 @@ export = (): void => {
             r.pushMiddlewareToGroup("web", "test-middleware");
             r.pushMiddlewareToGroup("web", "test-middleware");
 
-            expectDeepEqual(r.getMiddlewareGroups().get("web"), [
-                "test-middleware",
-            ]);
+            expectDeepEqual(r.getMiddlewareGroups().get("web"), ["test-middleware"]);
         });
 
         // PHP: RouteRegistrarTest::testCanRemoveMiddlewareFromGroup
@@ -521,42 +423,10 @@ export = (): void => {
             r.get("/{foo}").whereUlid("foo");
             const route = r.getRoutes().getRoutes()[0];
 
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/01ARZ3NDEKTSV4RRFFQ69G5FAV",
-                    ),
-                ),
-            ).to.equal(true);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/01ARZ3NDEKTSV4RRFFQ69G5FA",
-                    ),
-                ),
-            ).to.equal(false);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/01ARZ3NDEKTSV4RRFFQ69G5FAI",
-                    ),
-                ),
-            ).to.equal(false);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/81ARZ3NDEKTSV4RRFFQ69G5FAV",
-                    ),
-                ),
-            ).to.equal(false);
+            expect(route.matches(new Request({} as Player, "GET", "/01ARZ3NDEKTSV4RRFFQ69G5FAV"))).to.equal(true);
+            expect(route.matches(new Request({} as Player, "GET", "/01ARZ3NDEKTSV4RRFFQ69G5FA"))).to.equal(false);
+            expect(route.matches(new Request({} as Player, "GET", "/01ARZ3NDEKTSV4RRFFQ69G5FAI"))).to.equal(false);
+            expect(route.matches(new Request({} as Player, "GET", "/81ARZ3NDEKTSV4RRFFQ69G5FAV"))).to.equal(false);
         });
 
         // PHP: RouteRegistrarTest::testWhereUuidRegistration
@@ -565,42 +435,18 @@ export = (): void => {
             r.get("/{foo}").whereUuid("foo");
             const route = r.getRoutes().getRoutes()[0];
 
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/2cd90b6d-3c34-4a0a-9d0d-9d0b7b1a2e6f",
-                    ),
-                ),
-            ).to.equal(true);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/2CD90B6D-3C34-4A0A-9D0D-9D0B7B1A2E6F",
-                    ),
-                ),
-            ).to.equal(true);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/2cd90b6d3c344a0a9d0d9d0b7b1a2e6f",
-                    ),
-                ),
-            ).to.equal(false);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/2cd90b6d-3c34-4a0a-9d0d-9d0b7b1a2e6",
-                    ),
-                ),
-            ).to.equal(false);
+            expect(route.matches(new Request({} as Player, "GET", "/2cd90b6d-3c34-4a0a-9d0d-9d0b7b1a2e6f"))).to.equal(
+                true,
+            );
+            expect(route.matches(new Request({} as Player, "GET", "/2CD90B6D-3C34-4A0A-9D0D-9D0B7B1A2E6F"))).to.equal(
+                true,
+            );
+            expect(route.matches(new Request({} as Player, "GET", "/2cd90b6d3c344a0a9d0d9d0b7b1a2e6f"))).to.equal(
+                false,
+            );
+            expect(route.matches(new Request({} as Player, "GET", "/2cd90b6d-3c34-4a0a-9d0d-9d0b7b1a2e6"))).to.equal(
+                false,
+            );
         });
     });
 };

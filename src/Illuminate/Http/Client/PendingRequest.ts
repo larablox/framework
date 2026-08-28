@@ -44,19 +44,13 @@ export class PendingRequest extends Conditionable() {
     protected retryDelay: RetryDelay = 0;
 
     /** The callback that will determine if the request should be retried. */
-    protected retryWhenCallback?: (
-        exception: unknown,
-        request: PendingRequest,
-    ) => boolean;
+    protected retryWhenCallback?: (exception: unknown, request: PendingRequest) => boolean;
 
     /** Whether to throw an exception when all retries fail. */
     protected retryThrow = true;
 
     /** A callback to run when throwing a request exception. */
-    protected throwCallback?: (
-        response: Response,
-        exception: RequestException,
-    ) => void;
+    protected throwCallback?: (response: Response, exception: RequestException) => void;
 
     /** A callback to check if an exception should be thrown when a server error occurs. */
     protected throwIfCallback?: (response: Response) => boolean;
@@ -91,9 +85,7 @@ export class PendingRequest extends Conditionable() {
     }
 
     /** Throw an exception if a server or client error occurs. */
-    public throw(
-        callback?: (response: Response, exception: RequestException) => void,
-    ): this {
+    public throw(callback?: (response: Response, exception: RequestException) => void): this {
         this.throwCallback = callback ?? (() => {});
 
         return this;
@@ -144,11 +136,7 @@ export class PendingRequest extends Conditionable() {
     }
 
     /** Send the request to the given path. */
-    public send(
-        method: string,
-        path: string,
-        data?: ArrayAccessible,
-    ): Response {
+    public send(method: string, path: string, data?: ArrayAccessible): Response {
         if (this.transport !== "call") {
             this.fire(method, path, data);
 
@@ -169,14 +157,11 @@ export class PendingRequest extends Conditionable() {
                 }
 
                 shouldRetry =
-                    this.retryWhenCallback !== undefined
-                        ? this.retryWhenCallback(response.toException(), this)
-                        : true;
+                    this.retryWhenCallback !== undefined ? this.retryWhenCallback(response.toException(), this) : true;
 
                 if (
                     this.throwCallback !== undefined &&
-                    (this.throwIfCallback === undefined ||
-                        this.throwIfCallback(response))
+                    (this.throwIfCallback === undefined || this.throwIfCallback(response))
                 ) {
                     response.throw(this.throwCallback);
                 }
@@ -195,9 +180,7 @@ export class PendingRequest extends Conditionable() {
             (exception) => {
                 const result =
                     shouldRetry ??
-                    (this.retryWhenCallback !== undefined
-                        ? this.retryWhenCallback(exception, this)
-                        : true);
+                    (this.retryWhenCallback !== undefined ? this.retryWhenCallback(exception, this) : true);
 
                 shouldRetry = undefined;
 
@@ -223,29 +206,16 @@ export class PendingRequest extends Conditionable() {
     }
 
     /** Send a request and wait for the server to answer it. */
-    protected invoke(
-        method: string,
-        path: string,
-        data?: ArrayAccessible,
-    ): Response {
+    protected invoke(method: string, path: string, data?: ArrayAccessible): Response {
         let envelope: unknown;
 
         try {
-            envelope = Remote.call().InvokeServer(
-                method,
-                path,
-                data,
-            ) as unknown;
+            envelope = Remote.call().InvokeServer(method, path, data) as unknown;
         } catch (exception) {
-            throw new ConnectionException(
-                `Could not reach the server for [${method} ${path}]: ${tostring(exception)}`,
-            );
+            throw new ConnectionException(`Could not reach the server for [${method} ${path}]: ${tostring(exception)}`);
         }
 
-        if (
-            !typeIs(envelope, "table") ||
-            !typeIs((envelope as ResponseEnvelope).status, "number")
-        ) {
+        if (!typeIs(envelope, "table") || !typeIs((envelope as ResponseEnvelope).status, "number")) {
             throw new ConnectionException(
                 `The server answered [${method} ${path}] with something that is not a response.`,
             );

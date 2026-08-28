@@ -45,9 +45,7 @@ class FakeStore implements Store {
     public get(key: string): unknown {
         this.getCalls.push(key);
 
-        return this.getReturns.has(key)
-            ? this.getReturns.get(key)
-            : this.defaultGetReturn;
+        return this.getReturns.has(key) ? this.getReturns.get(key) : this.defaultGetReturn;
     }
 
     public many(keys: Array<string>): Map<string, unknown> {
@@ -253,21 +251,13 @@ export = (): void => {
 
             store = new FakeStore();
             repo = new Repository(store);
-            const inTenMinutesTwoSeconds = DateTime.fromUnixTimestamp(
-                os.time() + 602,
-            );
-            const inTenMinutesLessTwoSeconds = DateTime.fromUnixTimestamp(
-                os.time() + 598,
-            );
+            const inTenMinutesTwoSeconds = DateTime.fromUnixTimestamp(os.time() + 602);
+            const inTenMinutesLessTwoSeconds = DateTime.fromUnixTimestamp(os.time() + 598);
 
             result = repo.remember("foo", inTenMinutesTwoSeconds, () => "bar");
             expect(result).to.equal("bar");
 
-            const secondResult = repo.remember(
-                "baz",
-                inTenMinutesLessTwoSeconds,
-                () => "qux",
-            );
+            const secondResult = repo.remember("baz", inTenMinutesLessTwoSeconds, () => "qux");
             expect(secondResult).to.equal("qux");
 
             expect(store.putCalls.size()).to.equal(2);
@@ -340,26 +330,14 @@ export = (): void => {
             const storeWithAdd = new FakeStoreWithAdd();
             const repoWithAdd = new Repository(storeWithAdd);
 
-            expect(
-                repoWithAdd.add(
-                    "k",
-                    "v",
-                    DateTime.fromUnixTimestamp(os.time() + 61),
-                ),
-            ).to.equal(true);
+            expect(repoWithAdd.add("k", "v", DateTime.fromUnixTimestamp(os.time() + 61))).to.equal(true);
             expect(storeWithAdd.addCalls.size()).to.equal(1);
             expectDeepEqual(storeWithAdd.addCalls[0], ["k", "v", 61]);
 
             const storeWithoutAdd = new FakeStore();
             const repoWithoutAdd = new Repository(storeWithoutAdd);
 
-            expect(
-                repoWithoutAdd.add(
-                    "k",
-                    "v",
-                    DateTime.fromUnixTimestamp(os.time() + 62),
-                ),
-            ).to.equal(true);
+            expect(repoWithoutAdd.add("k", "v", DateTime.fromUnixTimestamp(os.time() + 62))).to.equal(true);
             expectDeepEqual(storeWithoutAdd.getCalls, ["k"]);
             expect(storeWithoutAdd.putCalls.size()).to.equal(1);
             expectDeepEqual(storeWithoutAdd.putCalls[0], ["k", "v", 62]);
@@ -469,12 +447,7 @@ export = (): void => {
 
             const now = DateTime.fromUnixTimestamp(os.time());
 
-            expect(
-                repo.touch(
-                    "key",
-                    DateTime.fromUnixTimestamp(now.UnixTimestamp + 60),
-                ),
-            ).to.equal(true);
+            expect(repo.touch("key", DateTime.fromUnixTimestamp(now.UnixTimestamp + 60))).to.equal(true);
             expect(store.touchCalls.size()).to.equal(1);
             expectDeepEqual(store.touchCalls[0], ["key", 60]);
         });
@@ -494,9 +467,7 @@ export = (): void => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(
-                repo.touch("key", DateTime.fromUnixTimestamp(os.time() - 60)),
-            ).to.equal(true);
+            expect(repo.touch("key", DateTime.fromUnixTimestamp(os.time() - 60))).to.equal(true);
             expect(repo.touch("key", 0)).to.equal(true);
 
             expect(store.touchCalls.size()).to.equal(2);

@@ -54,10 +54,7 @@ export interface ActionAttributes {
  */
 export class RouteAction {
     /** Parse the given action into an array format. */
-    public static parse(
-        uri: string,
-        action?: ActionTarget | ActionAttributes,
-    ): ActionAttributes {
+    public static parse(uri: string, action?: ActionTarget | ActionAttributes): ActionAttributes {
         // If no action is passed in right away, we assume the user will make use of
         // fluent routing. In that case, we set a default closure, to be executed
         // if the user never explicitly sets an action to handle the given uri.
@@ -94,9 +91,7 @@ export class RouteAction {
      * PHP asks `Reflector::isCallable($action, true)`; the shape is checked
      * here instead -- a two-element list whose second element is a string.
      */
-    public static isControllerAction(
-        action: unknown,
-    ): action is ControllerAction {
+    public static isControllerAction(action: unknown): action is ControllerAction {
         if (!Util.isArray(action)) {
             return false;
         }

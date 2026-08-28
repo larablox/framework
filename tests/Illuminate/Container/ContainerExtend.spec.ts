@@ -91,14 +91,11 @@ export = (): void => {
 
             const container = new Container();
             container.bind(ContainerLazyExtendStub);
-            container.extend(
-                ContainerLazyExtendStub,
-                (obj: ContainerLazyExtendStub) => {
-                    obj.init();
+            container.extend(ContainerLazyExtendStub, (obj: ContainerLazyExtendStub) => {
+                obj.init();
 
-                    return obj;
-                },
-            );
+                return obj;
+            });
             expect(ContainerLazyExtendStub.initialized).to.equal(false);
             container.make(ContainerLazyExtendStub);
             expect(ContainerLazyExtendStub.initialized).to.equal(true);
@@ -154,10 +151,7 @@ export = (): void => {
             const container = new Container();
             container.singleton("something", () => "some value");
             container.alias("something", "something-alias");
-            container.extend(
-                "something-alias",
-                (value: string) => value + " extended",
-            );
+            container.extend("something-alias", (value: string) => value + " extended");
 
             expect(container.make("something")).to.equal("some value extended");
         });
@@ -217,31 +211,19 @@ export = (): void => {
             container
                 .when(ContainerExtendConsumesInterfaceStub)
                 .needs(ContainerExtendInterfaceStub)
-                .give(
-                    () => new ContainerExtendInterfaceImplementationStub("foo"),
-                );
+                .give(() => new ContainerExtendInterfaceImplementationStub("foo"));
 
-            let observed:
-                ContainerExtendInterfaceImplementationStub | undefined;
-            container.extend(
-                ContainerExtendInterfaceStub,
-                (instance: ContainerExtendInterfaceImplementationStub) => {
-                    observed = instance;
+            let observed: ContainerExtendInterfaceImplementationStub | undefined;
+            container.extend(ContainerExtendInterfaceStub, (instance: ContainerExtendInterfaceImplementationStub) => {
+                observed = instance;
 
-                    return new ContainerExtendInterfaceImplementationStub(
-                        "bar",
-                    );
-                },
-            );
+                return new ContainerExtendInterfaceImplementationStub("bar");
+            });
 
             const result = container.make(ContainerExtendConsumesInterfaceStub);
 
-            expect(
-                observed instanceof ContainerExtendInterfaceImplementationStub,
-            ).to.equal(true);
-            expect(
-                (observed as ContainerExtendInterfaceImplementationStub).value,
-            ).to.equal("foo");
+            expect(observed instanceof ContainerExtendInterfaceImplementationStub).to.equal(true);
+            expect((observed as ContainerExtendInterfaceImplementationStub).value).to.equal("foo");
             expect(result.stub.value).to.equal("bar");
         });
 
@@ -267,33 +249,21 @@ export = (): void => {
             container
                 .when(ContainerExtendConsumesInterfaceStub)
                 .needs(ContainerExtendInterfaceStub)
-                .give(
-                    () => new ContainerExtendInterfaceImplementationStub("foo"),
-                );
+                .give(() => new ContainerExtendInterfaceImplementationStub("foo"));
 
             container.make(ContainerExtendConsumesInterfaceStub);
 
-            let observed:
-                ContainerExtendInterfaceImplementationStub | undefined;
-            container.extend(
-                ContainerExtendInterfaceStub,
-                (instance: ContainerExtendInterfaceImplementationStub) => {
-                    observed = instance;
+            let observed: ContainerExtendInterfaceImplementationStub | undefined;
+            container.extend(ContainerExtendInterfaceStub, (instance: ContainerExtendInterfaceImplementationStub) => {
+                observed = instance;
 
-                    return new ContainerExtendInterfaceImplementationStub(
-                        "bar",
-                    );
-                },
-            );
+                return new ContainerExtendInterfaceImplementationStub("bar");
+            });
 
             const result = container.make(ContainerExtendConsumesInterfaceStub);
 
-            expect(
-                observed instanceof ContainerExtendInterfaceImplementationStub,
-            ).to.equal(true);
-            expect(
-                (observed as ContainerExtendInterfaceImplementationStub).value,
-            ).to.equal("foo");
+            expect(observed instanceof ContainerExtendInterfaceImplementationStub).to.equal(true);
+            expect((observed as ContainerExtendInterfaceImplementationStub).value).to.equal("foo");
             expect(result.stub.value).to.equal("bar");
         });
     });

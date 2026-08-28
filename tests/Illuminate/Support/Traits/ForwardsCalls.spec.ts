@@ -1,10 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
 import { expectDeepEqual, expectThrows } from "../../TestHelpers";
 import { BadMethodCallException } from "Illuminate/Exception";
-import {
-    ForwardsCalls,
-    throwBadMethodCallException,
-} from "Illuminate/Support/Traits/ForwardsCalls";
+import { ForwardsCalls, throwBadMethodCallException } from "Illuminate/Support/Traits/ForwardsCalls";
 
 /**
  * PHP: `Illuminate\Tests\Support\ForwardsCallsTest`.
@@ -24,9 +21,7 @@ import {
 export = (): void => {
     describe("ForwardsCalls", () => {
         class ForwardsCallsBase {
-            public forwardedBase(
-                ...parameters: Array<unknown>
-            ): Array<unknown> {
+            public forwardedBase(...parameters: Array<unknown>): Array<unknown> {
                 return parameters;
             }
         }
@@ -57,20 +52,14 @@ export = (): void => {
             // PHP: ForwardsCallsTest::testForwardsCalls
             const one = new ForwardsCallsOne();
 
-            expectDeepEqual(one.call("forwardedTwo", ["foo", "bar"]), [
-                "foo",
-                "bar",
-            ]);
+            expectDeepEqual(one.call("forwardedTwo", ["foo", "bar"]), ["foo", "bar"]);
         });
 
         it("forwards a call through a chain of ForwardsCalls users", () => {
             // PHP: ForwardsCallsTest::testNestedForwardCalls
             const one = new ForwardsCallsOne();
 
-            expectDeepEqual(one.call("forwardedBase", ["foo", "bar"]), [
-                "foo",
-                "bar",
-            ]);
+            expectDeepEqual(one.call("forwardedBase", ["foo", "bar"]), ["foo", "bar"]);
         });
 
         it("throws BadMethodCallException naming the target class for a missing method", () => {

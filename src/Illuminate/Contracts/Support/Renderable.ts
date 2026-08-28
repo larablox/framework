@@ -6,8 +6,5 @@ export interface Renderable {
 
 /** PHP: `$value instanceof Renderable`. Interfaces are erased; see `isArrayable`. */
 export function isRenderable(value: unknown): value is Renderable {
-    return (
-        typeIs(value, "table") &&
-        typeIs((value as Renderable).render, "function")
-    );
+    return typeIs(value, "table") && typeIs((value as Renderable).render, "function");
 }

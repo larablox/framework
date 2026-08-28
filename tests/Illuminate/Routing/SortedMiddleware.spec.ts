@@ -32,32 +32,13 @@ export = (): void => {
                 "Second",
             ];
 
-            const expected = [
-                "Something",
-                "First:api",
-                "First:foo,bar",
-                "Second",
-                "Otherthing",
-                "Third:foo",
-                "Third",
-            ];
+            const expected = ["Something", "First:api", "First:foo,bar", "Second", "Otherthing", "Third:foo", "Third"];
 
-            expectDeepEqual(
-                new SortedMiddleware(priority, middleware).all(),
-                expected,
-            );
+            expectDeepEqual(new SortedMiddleware(priority, middleware).all(), expected);
 
             expectDeepEqual(new SortedMiddleware(["First"], []).all(), []);
-            expectDeepEqual(new SortedMiddleware(["First"], ["First"]).all(), [
-                "First",
-            ]);
-            expectDeepEqual(
-                new SortedMiddleware(
-                    ["First", "Second"],
-                    ["Second", "First"],
-                ).all(),
-                ["First", "Second"],
-            );
+            expectDeepEqual(new SortedMiddleware(["First"], ["First"]).all(), ["First"]);
+            expectDeepEqual(new SortedMiddleware(["First", "Second"], ["Second", "First"]).all(), ["First", "Second"]);
         });
 
         // PHP: RoutingSortedMiddlewareTest::testItDoesNotMoveNonStringValues
@@ -65,49 +46,36 @@ export = (): void => {
             const closure = () => "foo";
             const closure2 = () => "bar";
 
-            expectDeepEqual(
-                new SortedMiddleware([1, 2] as never, [2, 1] as never).all(),
-                [2, 1],
-            );
-            expectDeepEqual(
-                new SortedMiddleware(
-                    ["First", "Second"],
-                    ["Second", closure],
-                ).all(),
-                ["Second", closure],
-            );
-            expectDeepEqual(
-                new SortedMiddleware(["a", "b"], ["b", closure, "a"]).all(),
-                ["a", "b", closure],
-            );
-            expectDeepEqual(
-                new SortedMiddleware(
-                    ["a", "b"],
-                    [closure2, "b", closure, "a", "foo"],
-                ).all(),
-                [closure2, "a", "b", closure, "foo"],
-            );
-            expectDeepEqual(
-                new SortedMiddleware(
-                    ["a", "b"],
-                    [closure, "b", closure2, "foo", "a"],
-                ).all(),
-                [closure, "a", "b", closure2, "foo"],
-            );
-            expectDeepEqual(
-                new SortedMiddleware(
-                    ["a", "b"],
-                    ["a", closure, "b", closure2, "foo"],
-                ).all(),
-                ["a", closure, "b", closure2, "foo"],
-            );
-            expectDeepEqual(
-                new SortedMiddleware(
-                    ["a", "b"],
-                    [closure, closure2, "foo", "a"],
-                ).all(),
-                [closure, closure2, "foo", "a"],
-            );
+            expectDeepEqual(new SortedMiddleware([1, 2] as never, [2, 1] as never).all(), [2, 1]);
+            expectDeepEqual(new SortedMiddleware(["First", "Second"], ["Second", closure]).all(), ["Second", closure]);
+            expectDeepEqual(new SortedMiddleware(["a", "b"], ["b", closure, "a"]).all(), ["a", "b", closure]);
+            expectDeepEqual(new SortedMiddleware(["a", "b"], [closure2, "b", closure, "a", "foo"]).all(), [
+                closure2,
+                "a",
+                "b",
+                closure,
+                "foo",
+            ]);
+            expectDeepEqual(new SortedMiddleware(["a", "b"], [closure, "b", closure2, "foo", "a"]).all(), [
+                closure,
+                "a",
+                "b",
+                closure2,
+                "foo",
+            ]);
+            expectDeepEqual(new SortedMiddleware(["a", "b"], ["a", closure, "b", closure2, "foo"]).all(), [
+                "a",
+                closure,
+                "b",
+                closure2,
+                "foo",
+            ]);
+            expectDeepEqual(new SortedMiddleware(["a", "b"], [closure, closure2, "foo", "a"]).all(), [
+                closure,
+                closure2,
+                "foo",
+                "a",
+            ]);
         });
 
         // PHP: RoutingSortedMiddlewareTest::testItSortsUsingParentsAndContracts
@@ -126,11 +94,7 @@ export = (): void => {
             class FirstStub {}
 
             const withApi: [typeof FirstStub, string] = [FirstStub, "api"];
-            const withFooBar: [typeof FirstStub, string, string] = [
-                FirstStub,
-                "foo",
-                "bar",
-            ];
+            const withFooBar: [typeof FirstStub, string, string] = [FirstStub, "foo", "bar"];
 
             const priority = [FirstStub, SecondStub, "Third"];
 
@@ -148,20 +112,9 @@ export = (): void => {
                 SecondChildStub,
             ];
 
-            const expected = [
-                "Something",
-                withApi,
-                withFooBar,
-                SecondChildStub,
-                "Otherthing",
-                "Third:foo",
-                "Third",
-            ];
+            const expected = ["Something", withApi, withFooBar, SecondChildStub, "Otherthing", "Third:foo", "Third"];
 
-            expectDeepEqual(
-                new SortedMiddleware(priority, middleware).all(),
-                expected,
-            );
+            expectDeepEqual(new SortedMiddleware(priority, middleware).all(), expected);
         });
     });
 };

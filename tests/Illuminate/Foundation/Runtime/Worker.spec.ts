@@ -31,23 +31,18 @@ export = (): void => {
 
             app.bootstrapWith([]);
 
-            app.make<Router>("router").get(
-                "t/{id}",
-                (request: Request, id: string) => {
-                    // The route's container is this request's sandbox, so the
-                    // callback is registered there and nowhere else. It fires
-                    // only if that sandbox is the application terminated.
-                    const sandbox = (
-                        request.route() as Route
-                    ).getContainer() as Application;
+            app.make<Router>("router").get("t/{id}", (request: Request, id: string) => {
+                // The route's container is this request's sandbox, so the
+                // callback is registered there and nowhere else. It fires
+                // only if that sandbox is the application terminated.
+                const sandbox = (request.route() as Route).getContainer() as Application;
 
-                    sandbox.terminating(() => {
-                        terminated.push(id);
-                    });
+                sandbox.terminating(() => {
+                    terminated.push(id);
+                });
 
-                    return new Response("ok");
-                },
-            );
+                return new Response("ok");
+            });
 
             return app;
         }
@@ -113,20 +108,13 @@ export = (): void => {
             // `terminate()` dispatches `WorkerStopping`, so a listener has by
             // now let go of whatever it holds. A request answered after that
             // runs against services nobody is keeping any more.
-            expectThrows(
-                () => worker.handle(new Request({} as Player, "GET", "t/one")),
-                "not booted",
-            );
+            expectThrows(() => worker.handle(new Request({} as Player, "GET", "t/one")), "not booted");
 
             // Stopping is not the end of it: the worker is a singleton on an
             // application that outlives any number of stops.
             worker.boot([]);
 
-            expect(
-                worker
-                    .handle(new Request({} as Player, "GET", "t/two"))
-                    .content(),
-            ).to.equal("ok");
+            expect(worker.handle(new Request({} as Player, "GET", "t/two")).content()).to.equal("ok");
         });
 
         it("terminates a request it has already answered, even once the worker has stopped", () => {

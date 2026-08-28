@@ -1,8 +1,5 @@
 import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type {
-    FailedJobProviderInterface,
-    FailedJobRecord,
-} from "Illuminate/Queue/Failed/FailedJobProviderInterface";
+import type { FailedJobProviderInterface, FailedJobRecord } from "Illuminate/Queue/Failed/FailedJobProviderInterface";
 
 /**
  * PHP: `Illuminate\Queue\Failed\NullFailedJobProvider`.

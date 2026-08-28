@@ -8,16 +8,10 @@ import type { Application } from "Illuminate/Contracts/Foundation/Application";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { ConnectorInterface } from "Illuminate/Queue/Connectors/ConnectorInterface";
 import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type {
-    Dispatcher,
-    Listener,
-} from "Illuminate/Contracts/Events/Dispatcher";
+import type { Dispatcher, Listener } from "Illuminate/Contracts/Events/Dispatcher";
 import type { Factory } from "Illuminate/Contracts/Queue/Factory";
 import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type {
-    JobTarget,
-    Queue as QueueContract,
-} from "Illuminate/Contracts/Queue/Queue";
+import type { JobTarget, Queue as QueueContract } from "Illuminate/Contracts/Queue/Queue";
 import type { Queue as BaseQueue } from "Illuminate/Queue/Queue";
 import type { Repository } from "Illuminate/Contracts/Config/Repository";
 
@@ -69,9 +63,7 @@ export class QueueManager implements Factory {
 
     /** Determine if the driver is connected. */
     public connected(name?: string): boolean {
-        return this.connections.has(
-            QueueManager.cacheKey(name ?? this.getDefaultDriver()),
-        );
+        return this.connections.has(QueueManager.cacheKey(name ?? this.getDefaultDriver()));
     }
 
     /** Resolve a queue connection instance. */
@@ -113,9 +105,7 @@ export class QueueManager implements Factory {
         const config = this.getConfig(name);
 
         if (config === undefined) {
-            throw new InvalidArgumentException(
-                `The [${name}] queue connection has not been configured.`,
-            );
+            throw new InvalidArgumentException(`The [${name}] queue connection has not been configured.`);
         }
 
         // PHP hands `setConnectionName()` a null name straight through; the
@@ -129,10 +119,7 @@ export class QueueManager implements Factory {
         const setConfig = (queue as { setConfig?: unknown }).setConfig;
 
         if (typeIs(setConfig, "function")) {
-            (setConfig as (self: object, config: ArrayAccessible) => void)(
-                queue,
-                config,
-            );
+            (setConfig as (self: object, config: ArrayAccessible) => void)(queue, config);
         }
 
         return queue;
@@ -162,10 +149,7 @@ export class QueueManager implements Factory {
     /** Get the queue connection configuration. */
     protected getConfig(name?: string): ArrayAccessible | undefined {
         if (name !== undefined && name !== "null") {
-            return this.app
-                .make<Repository>("config")
-                .get(`queue.connections.${name}`) as
-                ArrayAccessible | undefined;
+            return this.app.make<Repository>("config").get(`queue.connections.${name}`) as ArrayAccessible | undefined;
         }
 
         return { driver: "null" };
@@ -173,8 +157,7 @@ export class QueueManager implements Factory {
 
     /** Get the name of the default queue connection. */
     public getDefaultDriver(): string | undefined {
-        return this.app.make<Repository>("config").get("queue.default") as
-            string | undefined;
+        return this.app.make<Repository>("config").get("queue.default") as string | undefined;
     }
 
     /** Set the name of the default queue connection. */
@@ -228,40 +211,22 @@ export class QueueManager implements Factory {
     }
 
     /** Push a raw payload onto the queue. */
-    public pushRaw(
-        payload: JobPayload,
-        queue?: string,
-        options?: ArrayAccessible,
-    ): unknown {
+    public pushRaw(payload: JobPayload, queue?: string, options?: ArrayAccessible): unknown {
         return this.connection().pushRaw(payload, queue, options);
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(
-        delay: Delay,
-        job: JobTarget,
-        data: unknown = "",
-        queue?: string,
-    ): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = "", queue?: string): unknown {
         return this.connection().later(delay, job, data, queue);
     }
 
     /** Push a new job onto a specific queue after (n) seconds. */
-    public laterOn(
-        queue: string,
-        delay: Delay,
-        job: JobTarget,
-        data: unknown = "",
-    ): unknown {
+    public laterOn(queue: string, delay: Delay, job: JobTarget, data: unknown = ""): unknown {
         return this.connection().laterOn(queue, delay, job, data);
     }
 
     /** Push an array of jobs onto the queue. */
-    public bulk(
-        jobs: JobTarget | Array<JobTarget>,
-        data: unknown = "",
-        queue?: string,
-    ): void {
+    public bulk(jobs: JobTarget | Array<JobTarget>, data: unknown = "", queue?: string): void {
         this.connection().bulk(jobs, data, queue);
     }
 

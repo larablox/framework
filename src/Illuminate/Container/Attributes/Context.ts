@@ -26,17 +26,7 @@ export function Context(key: string, defaultValue?: unknown, hidden = false) {
         },
     };
 
-    return (
-        owner: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
-        addParameterAttribute(
-            owner,
-            propertyKey,
-            parameterIndex,
-            Context,
-            instance,
-        );
+    return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+        addParameterAttribute(owner, propertyKey, parameterIndex, Context, instance);
     };
 }

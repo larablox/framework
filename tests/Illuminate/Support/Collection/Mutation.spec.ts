@@ -39,13 +39,7 @@ export = (): void => {
         it("prepend() pushes an item onto the front, optionally under a key", () => {
             // PHP: SupportCollectionTest::testPrepend
             const c = new Collection(["one", "two", "three", "four"]);
-            expectDeepEqual(c.prepend("zero").all(), [
-                "zero",
-                "one",
-                "two",
-                "three",
-                "four",
-            ]);
+            expectDeepEqual(c.prepend("zero").all(), ["zero", "one", "two", "three", "four"]);
 
             const keyed = new Collection<string, number>({
                 one: 1,
@@ -104,14 +98,12 @@ export = (): void => {
         it("concat() appends every item of another set, reindexing", () => {
             // PHP: SupportCollectionTest::testConcatWithArray,
             // ::testConcatWithCollection
-            const data = new Collection<number, number | string>([
-                4, 5, 6,
-            ]).concat(["a", "b", "c"] as Array<number | string>);
+            const data = new Collection<number, number | string>([4, 5, 6]).concat(["a", "b", "c"] as Array<
+                number | string
+            >);
             expectDeepEqual(data.all(), [4, 5, 6, "a", "b", "c"]);
 
-            const combined = new Collection([1, 2]).concat(
-                new Collection([3, 4]),
-            );
+            const combined = new Collection([1, 2]).concat(new Collection([3, 4]));
             expectDeepEqual(combined.all(), [1, 2, 3, 4]);
         });
 
@@ -133,10 +125,7 @@ export = (): void => {
             const data = new Collection([[1], [2], [3], ["foo", "bar"]]);
             expectDeepEqual(data.collapse().all(), [1, 2, 3, "foo", "bar"]);
 
-            const nested = new Collection([
-                new Collection([1, 2, 3]),
-                new Collection([4, 5, 6]),
-            ]);
+            const nested = new Collection([new Collection([1, 2, 3]), new Collection([4, 5, 6])]);
             expectDeepEqual(nested.collapse().all(), [1, 2, 3, 4, 5, 6]);
 
             expectDeepEqual(new Collection([[], [], []]).collapse().all(), []);
@@ -151,17 +140,8 @@ export = (): void => {
             expectDeepEqual(nested.flatten().all(), ["#foo", "#bar", "#baz"]);
 
             const deep = new Collection([["#foo", ["#bar", ["#baz"]]], "#zap"]);
-            expectDeepEqual(deep.flatten().all(), [
-                "#foo",
-                "#bar",
-                "#baz",
-                "#zap",
-            ]);
-            expectDeepEqual(deep.flatten(1).all(), [
-                "#foo",
-                ["#bar", ["#baz"]],
-                "#zap",
-            ]);
+            expectDeepEqual(deep.flatten().all(), ["#foo", "#bar", "#baz", "#zap"]);
+            expectDeepEqual(deep.flatten(1).all(), ["#foo", ["#bar", ["#baz"]], "#zap"]);
         });
     });
 };

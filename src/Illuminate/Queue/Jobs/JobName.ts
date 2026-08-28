@@ -42,10 +42,7 @@ export class JobName {
     }
 
     /** Get the class name for queued job class. */
-    public static resolveClassName(
-        name: JobHandler,
-        payload: JobPayload,
-    ): Abstract {
+    public static resolveClassName(name: JobHandler, payload: JobPayload): Abstract {
         const data = payload.data as { commandName?: Abstract } | undefined;
 
         if (data?.commandName !== undefined) {

@@ -48,9 +48,7 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
             return new Collection(value as Record<string, defined>);
         }
 
-        return new Collection(
-            value === undefined ? new Array<defined>() : [value as defined],
-        );
+        return new Collection(value === undefined ? new Array<defined>() : [value as defined]);
     }
 
     /** Get a header from the response. */
@@ -105,9 +103,7 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     }
 
     /** Throw an exception if a server or client error occurred. */
-    public throw(
-        callback?: (response: this, exception: RequestException) => void,
-    ): this {
+    public throw(callback?: (response: this, exception: RequestException) => void): this {
         if (this.failed()) {
             const exception = new RequestException(this);
 
@@ -134,14 +130,9 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     }
 
     /** Throw an exception if the response status code matches the given code. */
-    public throwIfStatus(
-        status: number | ((status: number, response: this) => boolean),
-    ): this {
+    public throwIfStatus(status: number | ((status: number, response: this) => boolean)): this {
         const met: boolean = typeIs(status, "function")
-            ? (status as (status: number, response: this) => boolean)(
-                  this.status(),
-                  this,
-              )
+            ? (status as (status: number, response: this) => boolean)(this.status(), this)
             : this.status() === status;
 
         // PHP raises the exception here itself rather than going through
@@ -155,14 +146,9 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     }
 
     /** Throw an exception unless the response status code matches the given code. */
-    public throwUnlessStatus(
-        status: number | ((status: number, response: this) => boolean),
-    ): this {
+    public throwUnlessStatus(status: number | ((status: number, response: this) => boolean)): this {
         const met: boolean = typeIs(status, "function")
-            ? (status as (status: number, response: this) => boolean)(
-                  this.status(),
-                  this,
-              )
+            ? (status as (status: number, response: this) => boolean)(this.status(), this)
             : this.status() === status;
 
         // Raised directly, for the same reason as in `throwIfStatus()`.

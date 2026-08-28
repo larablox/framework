@@ -47,9 +47,7 @@ export = (): void => {
             expect(Str.afterLast("----foo", "---")).to.equal("foo");
             // Multibyte needle
             expect(Str.afterLast("café au café", "café")).to.equal("");
-            expect(
-                Str.afterLast("こんにちは世界こんにちは", "こんにちは"),
-            ).to.equal("");
+            expect(Str.afterLast("こんにちは世界こんにちは", "こんにちは")).to.equal("");
         });
 
         it("before() returns the portion before the first occurrence", () => {
@@ -81,9 +79,7 @@ export = (): void => {
             expect(Str.beforeLast("yv2et2te", "2")).to.equal("yv2et");
             expect(Str.beforeLast("", "test")).to.equal("");
             expect(Str.beforeLast("yvette", "yvette")).to.equal("");
-            expect(Str.beforeLast("laravel framework", " ")).to.equal(
-                "laravel",
-            );
+            expect(Str.beforeLast("laravel framework", " ")).to.equal("laravel");
             expect(Str.beforeLast("yvette\tyv0et0te", "\t")).to.equal("yvette");
         });
 
@@ -123,24 +119,12 @@ export = (): void => {
         it("excerpt() extracts a snippet around the first match of a phrase", () => {
             // PHP: SupportStrTest::testStrExcerpt (options array -> positional
             // radius/omission arguments, see class comment)
-            expect(
-                Str.excerpt("This is a beautiful morning", "beautiful", 5),
-            ).to.equal("...is a beautiful morn...");
-            expect(
-                Str.excerpt("This is a beautiful morning", "this", 5),
-            ).to.equal("This is a...");
-            expect(
-                Str.excerpt("This is a beautiful morning", "morning", 5),
-            ).to.equal("...iful morning");
-            expect(Str.excerpt("This is a beautiful morning", "day")).to.equal(
-                undefined,
-            );
-            expect(
-                Str.excerpt("This is a beautiful! morning", "Beautiful", 5),
-            ).to.equal("...is a beautiful! mor...");
-            expect(
-                Str.excerpt("This is a beautiful? morning", "beautiful", 5),
-            ).to.equal("...is a beautiful? mor...");
+            expect(Str.excerpt("This is a beautiful morning", "beautiful", 5)).to.equal("...is a beautiful morn...");
+            expect(Str.excerpt("This is a beautiful morning", "this", 5)).to.equal("This is a...");
+            expect(Str.excerpt("This is a beautiful morning", "morning", 5)).to.equal("...iful morning");
+            expect(Str.excerpt("This is a beautiful morning", "day")).to.equal(undefined);
+            expect(Str.excerpt("This is a beautiful! morning", "Beautiful", 5)).to.equal("...is a beautiful! mor...");
+            expect(Str.excerpt("This is a beautiful? morning", "beautiful", 5)).to.equal("...is a beautiful? mor...");
             expect(Str.excerpt("", "", 0)).to.equal("");
             expect(Str.excerpt("a", "a", 0)).to.equal("a");
             expect(Str.excerpt("abc", "B", 0)).to.equal("...b...");
@@ -151,14 +135,9 @@ export = (): void => {
             expect(Str.excerpt("zabcd", "b", 2)).to.equal("zabcd");
             expect(Str.excerpt("  zabcd  ", "b", 4)).to.equal("zabcd");
             expect(Str.excerpt("z  abc  d", "b", 1)).to.equal("...abc...");
-            expect(
-                Str.excerpt(
-                    "This is a beautiful morning",
-                    "beautiful",
-                    5,
-                    "[...]",
-                ),
-            ).to.equal("[...]is a beautiful morn[...]");
+            expect(Str.excerpt("This is a beautiful morning", "beautiful", 5, "[...]")).to.equal(
+                "[...]is a beautiful morn[...]",
+            );
             expect(
                 Str.excerpt(
                     "This is the ultimate supercalifragilisticexpialidocious very looooooooooooooooooong looooooooooooong beautiful morning with amazing sunshine and awesome temperatures. So what are you gonna do about it?",
@@ -171,62 +150,32 @@ export = (): void => {
             );
             expect(Str.excerpt("taylor", "y", 0)).to.equal("...y...");
             expect(Str.excerpt("taylor", "Y", 1)).to.equal("...ayl...");
-            expect(
-                Str.excerpt("<div> The article description </div>", "article"),
-            ).to.equal("<div> The article description </div>");
-            expect(
-                Str.excerpt(
-                    "<div> The article description </div>",
-                    "article",
-                    5,
-                ),
-            ).to.equal("...The article desc...");
+            expect(Str.excerpt("<div> The article description </div>", "article")).to.equal(
+                "<div> The article description </div>",
+            );
+            expect(Str.excerpt("<div> The article description </div>", "article", 5)).to.equal(
+                "...The article desc...",
+            );
             // `strip_tags('<div> The article description </div>')` inlined --
             // strip_tags itself isn't under test here.
-            expect(Str.excerpt("The article description", "article")).to.equal(
-                "The article description",
-            );
+            expect(Str.excerpt("The article description", "article")).to.equal("The article description");
             expect(Str.excerpt("")).to.equal("");
-            expect(Str.excerpt("The article description", "", 1)).to.equal(
-                "T...",
-            );
-            expect(Str.excerpt("The article description", "", 8)).to.equal(
-                "The arti...",
-            );
+            expect(Str.excerpt("The article description", "", 1)).to.equal("T...");
+            expect(Str.excerpt("The article description", "", 8)).to.equal("The arti...");
             expect(Str.excerpt(" ")).to.equal("");
-            expect(Str.excerpt("The article description", " ", 4)).to.equal(
-                "The arti...",
-            );
-            expect(
-                Str.excerpt("The article description", "description", 4),
-            ).to.equal("...cle description");
-            expect(Str.excerpt("The article description", "T", 0)).to.equal(
-                "T...",
-            );
-            expect(
-                Str.excerpt("What is the article?", "What", 2, "?"),
-            ).to.equal("What i?");
+            expect(Str.excerpt("The article description", " ", 4)).to.equal("The arti...");
+            expect(Str.excerpt("The article description", "description", 4)).to.equal("...cle description");
+            expect(Str.excerpt("The article description", "T", 0)).to.equal("T...");
+            expect(Str.excerpt("What is the article?", "What", 2, "?")).to.equal("What i?");
 
-            expect(Str.excerpt("åèö - 二 sān 大åèö", "二 sān", 4)).to.equal(
-                "...ö - 二 sān 大åè...",
-            );
-            expect(Str.excerpt("åèö - 二 sān 大åèö", "åèö", 4)).to.equal(
-                "åèö - 二...",
-            );
-            expect(
-                Str.excerpt("åèö - 二 sān 大åèö", "åèö - 二 sān 大åèö", 4),
-            ).to.equal("åèö - 二 sān 大åèö");
+            expect(Str.excerpt("åèö - 二 sān 大åèö", "二 sān", 4)).to.equal("...ö - 二 sān 大åè...");
+            expect(Str.excerpt("åèö - 二 sān 大åèö", "åèö", 4)).to.equal("åèö - 二...");
+            expect(Str.excerpt("åèö - 二 sān 大åèö", "åèö - 二 sān 大åèö", 4)).to.equal("åèö - 二 sān 大åèö");
             expect(Str.excerpt("㏗༼㏗", "༼", 0)).to.equal("...༼...");
-            expect(Str.excerpt("Como você está", "ê", 2)).to.equal(
-                "...ocê e...",
-            );
-            expect(Str.excerpt("Como você está", "Ê", 2)).to.equal(
-                "...ocê e...",
-            );
+            expect(Str.excerpt("Como você está", "ê", 2)).to.equal("...ocê e...");
+            expect(Str.excerpt("Como você está", "Ê", 2)).to.equal("...ocê e...");
             expect(Str.excerpt("João Antônio ", "jo", 2)).to.equal("João...");
-            expect(Str.excerpt("João Antônio", "JOÃO", 5)).to.equal(
-                "João Antô...",
-            );
+            expect(Str.excerpt("João Antônio", "JOÃO", 5)).to.equal("João Antô...");
             expect(Str.excerpt("", "/")).to.equal(undefined);
         });
     });

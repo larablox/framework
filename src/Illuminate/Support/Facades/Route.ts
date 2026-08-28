@@ -37,9 +37,7 @@ export class Route extends Facade {
 
     declare public static middleware: Forwarded<Router["middleware"]>;
 
-    declare public static withoutMiddleware: Forwarded<
-        Router["withoutMiddleware"]
-    >;
+    declare public static withoutMiddleware: Forwarded<Router["withoutMiddleware"]>;
 
     declare public static as: Forwarded<Router["as"]>;
 
@@ -53,13 +51,9 @@ export class Route extends Facade {
 
     declare public static middlewareGroup: Forwarded<Router["middlewareGroup"]>;
 
-    declare public static pushMiddlewareToGroup: Forwarded<
-        Router["pushMiddlewareToGroup"]
-    >;
+    declare public static pushMiddlewareToGroup: Forwarded<Router["pushMiddlewareToGroup"]>;
 
-    declare public static prependMiddlewareToGroup: Forwarded<
-        Router["prependMiddlewareToGroup"]
-    >;
+    declare public static prependMiddlewareToGroup: Forwarded<Router["prependMiddlewareToGroup"]>;
 
     declare public static bind: Forwarded<Router["bind"]>;
 
@@ -73,17 +67,11 @@ export class Route extends Facade {
 
     declare public static current: Forwarded<Router["current"]>;
 
-    declare public static currentRouteName: Forwarded<
-        Router["currentRouteName"]
-    >;
+    declare public static currentRouteName: Forwarded<Router["currentRouteName"]>;
 
-    declare public static currentRouteNamed: Forwarded<
-        Router["currentRouteNamed"]
-    >;
+    declare public static currentRouteNamed: Forwarded<Router["currentRouteNamed"]>;
 
-    declare public static currentRouteAction: Forwarded<
-        Router["currentRouteAction"]
-    >;
+    declare public static currentRouteAction: Forwarded<Router["currentRouteAction"]>;
 
     declare public static uses: Forwarded<Router["uses"]>;
 

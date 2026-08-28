@@ -55,8 +55,6 @@ export class DataStoreRequest {
 
     /** Make a DataStore call, repeating it while it is worth repeating. */
     public static run<TReturn>(call: () => TReturn): TReturn {
-        return retry(BACKOFF, call, 0, (exception) =>
-            DataStoreRequest.isTransient(exception),
-        );
+        return retry(BACKOFF, call, 0, (exception) => DataStoreRequest.isTransient(exception));
     }
 }

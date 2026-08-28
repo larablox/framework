@@ -12,10 +12,7 @@ import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
 import type { Lock } from "Illuminate/Contracts/Cache/Lock";
 import type { LockProvider } from "Illuminate/Contracts/Cache/LockProvider";
-import type {
-    Repository as RepositoryContract,
-    Ttl,
-} from "Illuminate/Contracts/Cache/Repository";
+import type { Repository as RepositoryContract, Ttl } from "Illuminate/Contracts/Cache/Repository";
 import type { Store } from "Illuminate/Contracts/Cache/Store";
 
 /**
@@ -147,14 +144,12 @@ export class Repository implements RepositoryContract {
             const adder = (this.store as { add?: unknown }).add;
 
             if (typeIs(adder, "function")) {
-                return (
-                    adder as (
-                        self: Store,
-                        key: string,
-                        value: unknown,
-                        seconds: number,
-                    ) => boolean
-                )(this.store, this.itemKey(key), value, seconds);
+                return (adder as (self: Store, key: string, value: unknown, seconds: number) => boolean)(
+                    this.store,
+                    this.itemKey(key),
+                    value,
+                    seconds,
+                );
             }
         }
 
@@ -182,9 +177,7 @@ export class Repository implements RepositoryContract {
         const result = this.store.forever(this.itemKey(key), value);
 
         this.event(
-            result
-                ? new KeyWritten(this.getName(), key, value)
-                : new KeyWriteFailed(this.getName(), key, value),
+            result ? new KeyWritten(this.getName(), key, value) : new KeyWriteFailed(this.getName(), key, value),
         );
 
         return result;
@@ -236,11 +229,7 @@ export class Repository implements RepositoryContract {
 
         const result = this.store.forget(this.itemKey(key));
 
-        this.event(
-            result
-                ? new KeyForgotten(this.getName(), key)
-                : new KeyForgetFailed(this.getName(), key),
-        );
+        this.event(result ? new KeyForgotten(this.getName(), key) : new KeyForgetFailed(this.getName(), key));
 
         return result;
     }
@@ -257,11 +246,7 @@ export class Repository implements RepositoryContract {
 
     /** Get a lock instance. */
     public lock(name: string, seconds = 0, owner?: string): Lock {
-        return (this.store as unknown as LockProvider).lock(
-            name,
-            seconds,
-            owner,
-        );
+        return (this.store as unknown as LockProvider).lock(name, seconds, owner);
     }
 
     /** Restore a lock instance using the owner identifier. */

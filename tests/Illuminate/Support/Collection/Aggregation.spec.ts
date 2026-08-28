@@ -28,9 +28,7 @@ export = (): void => {
 
             const sentinel = -1;
             const withSentinel = new Collection([sentinel, 1, 2]);
-            expect(
-                withSentinel.contains((value) => value === sentinel),
-            ).to.equal(true);
+            expect(withSentinel.contains((value) => value === sentinel)).to.equal(true);
         });
 
         it("every() tests whether every item passes a truth test", () => {
@@ -41,9 +39,7 @@ export = (): void => {
 
             expect(c.every((value) => value > 0)).to.equal(true);
             expect(c.every((value) => value > 2)).to.equal(false);
-            expect(
-                new Collection<number, number>().every(() => false),
-            ).to.equal(true);
+            expect(new Collection<number, number>().every(() => false)).to.equal(true);
         });
 
         it("sum() totals the collection, a key, or a callback's result", () => {
@@ -55,9 +51,7 @@ export = (): void => {
             expect(c.sum((item) => item.foo)).to.equal(100);
 
             expect(new Collection([1, 2, 3, 4, 5]).sum()).to.equal(15);
-            expect(
-                new Collection<number, { foo: number }>().sum("foo"),
-            ).to.equal(0);
+            expect(new Collection<number, { foo: number }>().sum("foo")).to.equal(0);
         });
 
         it("avg() / average() compute the mean, of the whole collection or a key", () => {
@@ -90,23 +84,14 @@ export = (): void => {
         it("reduce() folds the collection down to a single value", () => {
             // PHP: SupportCollectionTest::testReduce
             const data = new Collection([1, 2, 3]);
-            expect(
-                data.reduce((carry, element) => carry + element, 0),
-            ).to.equal(6);
+            expect(data.reduce((carry, element) => carry + element, 0)).to.equal(6);
 
             // Built entry by entry rather than from an object literal: the
             // fold reads keys in iteration order, and `pairs()` does not
             // define the order of a literal's keys (laravel-parity.md,
             // "Collection: ключи и объём").
-            const keyed = new Collection<string, string>()
-                .put("foo", "bar")
-                .put("baz", "qux");
-            expect(
-                keyed.reduce(
-                    (carry, element, key) => carry + key + element,
-                    "",
-                ),
-            ).to.equal("foobarbazqux");
+            const keyed = new Collection<string, string>().put("foo", "bar").put("baz", "qux");
+            expect(keyed.reduce((carry, element, key) => carry + key + element, "")).to.equal("foobarbazqux");
         });
     });
 };

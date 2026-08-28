@@ -24,9 +24,7 @@ export abstract class Facade {
     protected static cached = true;
 
     /** Run a callback when the facade has been resolved. */
-    public static resolved(
-        callback: (instance: never, app: Application) => void,
-    ): void {
+    public static resolved(callback: (instance: never, app: Application) => void): void {
         const accessor = this.getFacadeAccessor();
         const app = Facade.app;
 
@@ -59,9 +57,7 @@ export abstract class Facade {
 
     /** Get the registered name of the component. */
     protected static getFacadeAccessor(): Abstract {
-        throw new RuntimeException(
-            "Facade does not implement getFacadeAccessor method.",
-        );
+        throw new RuntimeException("Facade does not implement getFacadeAccessor method.");
     }
 
     /** Resolve the facade root instance from the container. */

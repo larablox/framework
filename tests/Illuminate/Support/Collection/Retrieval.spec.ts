@@ -1,10 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
 import { expectDeepEqual, expectThrows } from "../../TestHelpers";
 import { Collection } from "Illuminate/Support/Collection";
-import {
-    ItemNotFoundException,
-    MultipleItemsFoundException,
-} from "Illuminate/Exception";
+import { ItemNotFoundException, MultipleItemsFoundException } from "Illuminate/Exception";
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportCollectionTest` -- single-item
@@ -26,25 +23,12 @@ export = (): void => {
             // ::testFirstWithDefaultAndWithoutCallback
             expect(new Collection(["foo", "bar"]).first()).to.equal("foo");
 
-            expect(
-                new Collection(["foo", "bar", "baz"]).first(
-                    (value) => value === "bar",
-                ),
-            ).to.equal("bar");
+            expect(new Collection(["foo", "bar", "baz"]).first((value) => value === "bar")).to.equal("bar");
 
-            expect(
-                new Collection(["foo", "bar"]).first(
-                    (value) => value === "baz",
-                    "default",
-                ),
-            ).to.equal("default");
+            expect(new Collection(["foo", "bar"]).first((value) => value === "baz", "default")).to.equal("default");
 
-            expect(new Collection().first(undefined, "default")).to.equal(
-                "default",
-            );
-            expect(
-                new Collection(["foo", "bar"]).first(undefined, "default"),
-            ).to.equal("foo");
+            expect(new Collection().first(undefined, "default")).to.equal("default");
+            expect(new Collection(["foo", "bar"]).first(undefined, "default")).to.equal("foo");
         });
 
         it("sole() returns the only matching item, or throws", () => {
@@ -54,26 +38,14 @@ export = (): void => {
             const data = new Collection(["foo", "bar", "baz"]);
             expect(data.sole((value) => value === "bar")).to.equal("bar");
 
-            expectThrows(() =>
-                new Collection(["foo", "bar", "baz"]).sole(
-                    (value) => value === "invalid",
-                ),
-            );
+            expectThrows(() => new Collection(["foo", "bar", "baz"]).sole((value) => value === "invalid"));
 
-            expectThrows(() =>
-                new Collection(["foo", "bar", "bar"]).sole(
-                    (value) => value === "bar",
-                ),
-            );
+            expectThrows(() => new Collection(["foo", "bar", "bar"]).sole((value) => value === "bar"));
 
             try {
-                new Collection(["foo", "bar", "bar"]).sole(
-                    (value) => value === "bar",
-                );
+                new Collection(["foo", "bar", "bar"]).sole((value) => value === "bar");
             } catch (err) {
-                expect(err instanceof MultipleItemsFoundException).to.equal(
-                    true,
-                );
+                expect(err instanceof MultipleItemsFoundException).to.equal(true);
             }
         });
 
@@ -82,29 +54,17 @@ export = (): void => {
             // ::testFirstOrFailThrowsExceptionIfNoItemsExistWithCallback,
             // ::testFirstOrFailDoesntThrowExceptionIfMoreThanOneItemExistsWithCallback
             const data = new Collection(["foo", "bar", "baz"]);
-            expect(data.firstOrFail((value) => value === "bar")).to.equal(
-                "bar",
-            );
+            expect(data.firstOrFail((value) => value === "bar")).to.equal("bar");
 
-            expectThrows(() =>
-                new Collection(["foo", "bar", "baz"]).firstOrFail(
-                    (value) => value === "invalid",
-                ),
-            );
+            expectThrows(() => new Collection(["foo", "bar", "baz"]).firstOrFail((value) => value === "invalid"));
 
             try {
-                new Collection(["foo", "bar", "baz"]).firstOrFail(
-                    (value) => value === "invalid",
-                );
+                new Collection(["foo", "bar", "baz"]).firstOrFail((value) => value === "invalid");
             } catch (err) {
                 expect(err instanceof ItemNotFoundException).to.equal(true);
             }
 
-            expect(
-                new Collection(["foo", "bar", "bar"]).firstOrFail(
-                    (value) => value === "bar",
-                ),
-            ).to.equal("bar");
+            expect(new Collection(["foo", "bar", "bar"]).firstOrFail((value) => value === "bar")).to.equal("bar");
         });
 
         it("firstWhere() finds the first item matching a key/value pair", () => {
@@ -115,12 +75,8 @@ export = (): void => {
             ]);
 
             expect(data.firstWhere("material", "paper")?.type).to.equal("book");
-            expect(data.firstWhere("material", "rubber")?.type).to.equal(
-                "gasket",
-            );
-            expect(data.firstWhere("material", "nonexistent")).to.equal(
-                undefined,
-            );
+            expect(data.firstWhere("material", "rubber")?.type).to.equal("gasket");
+            expect(data.firstWhere("material", "nonexistent")).to.equal(undefined);
             expect(data.firstWhere("nonexistent", "key")).to.equal(undefined);
         });
 
@@ -133,28 +89,14 @@ export = (): void => {
 
             const data = new Collection([100, 200, 300]);
             expect(data.last((value) => value < 250)).to.equal(200);
-            expect(data.last((_value, key) => (key as number) < 2)).to.equal(
-                200,
-            );
+            expect(data.last((_value, key) => (key as number) < 2)).to.equal(200);
             expect(data.last((value) => value > 300)).to.equal(undefined);
 
-            expect(
-                new Collection(["foo", "bar"]).last(
-                    (value) => value === "baz",
-                    "default",
-                ),
-            ).to.equal("default");
+            expect(new Collection(["foo", "bar"]).last((value) => value === "baz", "default")).to.equal("default");
 
-            expect(
-                new Collection(["foo", "bar", "Bar"]).last(
-                    (value) => value === "bar",
-                    "default",
-                ),
-            ).to.equal("bar");
+            expect(new Collection(["foo", "bar", "Bar"]).last((value) => value === "bar", "default")).to.equal("bar");
 
-            expect(new Collection().last(undefined, "default")).to.equal(
-                "default",
-            );
+            expect(new Collection().last(undefined, "default")).to.equal("default");
         });
 
         it("has() / hasAny() check for keys, one or many", () => {
@@ -225,9 +167,7 @@ export = (): void => {
             expect(c.pull(1)).to.equal("bar");
             expectDeepEqual(c.all(), []);
 
-            expect(new Collection<number, string>([]).pull(0, "foo")).to.equal(
-                "foo",
-            );
+            expect(new Collection<number, string>([]).pull(0, "foo")).to.equal("foo");
         });
     });
 };

@@ -15,19 +15,12 @@ import type { Route } from "Illuminate/Routing/Route";
  * and hand the controller in twice.
  */
 interface DispatchableController {
-    callAction?: (
-        receiver: object,
-        method: string,
-        parameters: Array<defined>,
-    ) => unknown;
+    callAction?: (receiver: object, method: string, parameters: Array<defined>) => unknown;
     getMiddleware?: (receiver: object) => Array<Pipe>;
 }
 
 /** PHP: `Illuminate\Routing\ControllerDispatcher`. */
-export class ControllerDispatcher
-    extends ResolvesRouteDependencies()
-    implements ControllerDispatcherContract
-{
+export class ControllerDispatcher extends ResolvesRouteDependencies() implements ControllerDispatcherContract {
     /** Create a new controller dispatcher instance. */
     public constructor(container: Container) {
         super();
@@ -45,24 +38,14 @@ export class ControllerDispatcher
             return dispatchable.callAction(controller, method, parameters);
         }
 
-        const action = (controller as unknown as Record<string, Callback>)[
-            method
-        ];
+        const action = (controller as unknown as Record<string, Callback>)[method];
 
         return action(controller, ...parameters);
     }
 
     /** Resolve the parameters for the controller method. */
-    protected resolveParameters(
-        route: Route,
-        controller: object,
-        method: string,
-    ): Array<defined> {
-        return this.resolveClassMethodDependencies(
-            route.parametersWithoutNulls(),
-            controller,
-            method,
-        );
+    protected resolveParameters(route: Route, controller: object, method: string): Array<defined> {
+        return this.resolveClassMethodDependencies(route.parametersWithoutNulls(), controller, method);
     }
 
     /**

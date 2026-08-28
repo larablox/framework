@@ -26,10 +26,7 @@ import type {
     ParameterList,
     ParameterOverrides,
 } from "Illuminate/Container/Types";
-import type {
-    Application as ApplicationContract,
-    Bootstrapper,
-} from "Illuminate/Contracts/Foundation/Application";
+import type { Application as ApplicationContract, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
 import type { Dispatcher as DispatcherContract } from "Illuminate/Contracts/Events/Dispatcher";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Request } from "Illuminate/Http/Request";
@@ -75,26 +72,16 @@ export class Application extends Container implements ApplicationContract {
     protected terminatingCallbacks = new Array<CallableTarget>();
 
     /** All of the registered service providers. */
-    protected serviceProviders = new OrderedMap<
-        Constructor<ServiceProvider>,
-        ServiceProvider
-    >();
+    protected serviceProviders = new OrderedMap<Constructor<ServiceProvider>, ServiceProvider>();
 
     /** The names of the loaded service providers. */
-    protected loadedProviders = new OrderedMap<
-        Constructor<ServiceProvider>,
-        boolean
-    >();
+    protected loadedProviders = new OrderedMap<Constructor<ServiceProvider>, boolean>();
 
     /** The deferred services and their providers. */
-    protected deferredServices = new OrderedMap<
-        Abstract,
-        Constructor<ServiceProvider>
-    >();
+    protected deferredServices = new OrderedMap<Abstract, Constructor<ServiceProvider>>();
 
     /** The application builder class. */
-    protected static applicationBuilder: typeof ApplicationBuilder =
-        ApplicationBuilder;
+    protected static applicationBuilder: typeof ApplicationBuilder = ApplicationBuilder;
 
     /**
      * Create a new application instance.
@@ -171,9 +158,7 @@ export class Application extends Container implements ApplicationContract {
      * here, so the configuration is handed over with `withConfig()` instead.
      */
     public static configure(config: ArrayAccessible): ApplicationBuilder {
-        return new Application.applicationBuilder(new Application())
-            .withConfig(config)
-            .withKernels();
+        return new Application.applicationBuilder(new Application()).withConfig(config).withKernels();
     }
 
     /** Get the version number of the application. */
@@ -212,9 +197,7 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Run the given array of bootstrap classes. */
-    public bootstrapWith(
-        bootstrappers: Array<Constructor<Bootstrapper>>,
-    ): void {
+    public bootstrapWith(bootstrappers: Array<Constructor<Bootstrapper>>): void {
         this.bootstrapped = true;
 
         for (const bootstrapper of bootstrappers) {
@@ -230,25 +213,13 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Register a callback to run before a bootstrapper. */
-    public beforeBootstrapping(
-        bootstrapper: Constructor<Bootstrapper>,
-        callback: Callback,
-    ): void {
-        this.make<DispatcherContract>("events").listen(
-            `bootstrapping: ${Reflector.className(bootstrapper)}`,
-            callback,
-        );
+    public beforeBootstrapping(bootstrapper: Constructor<Bootstrapper>, callback: Callback): void {
+        this.make<DispatcherContract>("events").listen(`bootstrapping: ${Reflector.className(bootstrapper)}`, callback);
     }
 
     /** Register a callback to run after a bootstrapper. */
-    public afterBootstrapping(
-        bootstrapper: Constructor<Bootstrapper>,
-        callback: Callback,
-    ): void {
-        this.make<DispatcherContract>("events").listen(
-            `bootstrapped: ${Reflector.className(bootstrapper)}`,
-            callback,
-        );
+    public afterBootstrapping(bootstrapper: Constructor<Bootstrapper>, callback: Callback): void {
+        this.make<DispatcherContract>("events").listen(`bootstrapped: ${Reflector.className(bootstrapper)}`, callback);
     }
 
     /** Determine if the application has been bootstrapped before. */
@@ -258,16 +229,11 @@ export class Application extends Container implements ApplicationContract {
 
     /** Determine if middleware has been disabled for the application. */
     public shouldSkipMiddleware(): boolean {
-        return (
-            this.bound("middleware.disable") &&
-            this.make("middleware.disable") === true
-        );
+        return this.bound("middleware.disable") && this.make("middleware.disable") === true;
     }
 
     /** Get or check the current application environment. */
-    public environment(
-        ...environments: Array<string | Array<string>>
-    ): string | boolean {
+    public environment(...environments: Array<string | Array<string>>): string | boolean {
         const current = this.make<string>("env");
 
         if (!environments.isEmpty()) {
@@ -309,10 +275,9 @@ export class Application extends Container implements ApplicationContract {
      * configured order is the order.
      */
     public registerConfiguredProviders(): void {
-        const providers = (this.make<ConfigRepository>("config").get(
-            "app.providers",
-            [],
-        ) ?? []) as Array<Constructor<ServiceProvider>>;
+        const providers = (this.make<ConfigRepository>("config").get("app.providers", []) ?? []) as Array<
+            Constructor<ServiceProvider>
+        >;
 
         new ProviderRepository(this).load(providers);
 
@@ -320,10 +285,7 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Register a service provider with the application. */
-    public register(
-        provider: ServiceProvider | Constructor<ServiceProvider>,
-        force = false,
-    ): ServiceProvider {
+    public register(provider: ServiceProvider | Constructor<ServiceProvider>, force = false): ServiceProvider {
         const registered = this.getProvider(provider);
 
         if (registered !== undefined && !force) {
@@ -373,16 +335,12 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Get the registered service provider instance if it exists. */
-    public getProvider(
-        provider: ServiceProvider | Constructor<ServiceProvider>,
-    ): ServiceProvider | undefined {
+    public getProvider(provider: ServiceProvider | Constructor<ServiceProvider>): ServiceProvider | undefined {
         return this.serviceProviders.get(this.providerClass(provider));
     }
 
     /** Get the registered service provider instances if any exist. */
-    public getProviders(
-        provider: ServiceProvider | Constructor<ServiceProvider>,
-    ): Array<ServiceProvider> {
+    public getProviders(provider: ServiceProvider | Constructor<ServiceProvider>): Array<ServiceProvider> {
         const klass = this.providerClass(provider);
         const found = new Array<ServiceProvider>();
 
@@ -396,12 +354,8 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Resolve a service provider instance from the class. */
-    public resolveProvider(
-        provider: Constructor<ServiceProvider>,
-    ): ServiceProvider {
-        return new (
-            provider as new (app: ApplicationContract) => ServiceProvider
-        )(this);
+    public resolveProvider(provider: Constructor<ServiceProvider>): ServiceProvider {
+        return new (provider as new (app: ApplicationContract) => ServiceProvider)(this);
     }
 
     /** Mark the given provider as registered. */
@@ -414,13 +368,9 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** PHP: `is_string($provider) ? $provider : get_class($provider)`. */
-    protected providerClass(
-        provider: ServiceProvider | Constructor<ServiceProvider>,
-    ): Constructor<ServiceProvider> {
+    protected providerClass(provider: ServiceProvider | Constructor<ServiceProvider>): Constructor<ServiceProvider> {
         return (
-            Reflector.isInstance(provider)
-                ? Reflector.classOf(provider as object)
-                : provider
+            Reflector.isInstance(provider) ? Reflector.classOf(provider as object) : provider
         ) as Constructor<ServiceProvider>;
     }
 
@@ -442,9 +392,7 @@ export class Application extends Container implements ApplicationContract {
             return;
         }
 
-        const provider = this.deferredServices.get(
-            service,
-        ) as Constructor<ServiceProvider>;
+        const provider = this.deferredServices.get(service) as Constructor<ServiceProvider>;
 
         // If the service provider has not already been loaded and registered we can
         // register it with the application and remove the service from this list
@@ -455,10 +403,7 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Register a deferred provider and service. */
-    public registerDeferredProvider(
-        provider: Constructor<ServiceProvider>,
-        service?: Abstract,
-    ): void {
+    public registerDeferredProvider(provider: Constructor<ServiceProvider>, service?: Abstract): void {
         // Once the provider that provides the deferred service has been registered we
         // will remove it from our local list of the deferred services with related
         // providers so that this container does not try to resolve it out again.
@@ -478,10 +423,7 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Resolve the given type from the container. */
-    public make<T extends object>(
-        abstract: AbstractClass<T>,
-        parameters?: ParameterList,
-    ): T;
+    public make<T extends object>(abstract: AbstractClass<T>, parameters?: ParameterList): T;
     public make<T = unknown>(abstract: string, parameters?: ParameterList): T;
     public make(abstract: Abstract, parameters?: ParameterList): unknown;
     public make(abstract: Abstract, parameters?: ParameterList): unknown {
@@ -491,11 +433,7 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Resolve the given type from the container. */
-    protected resolve(
-        abstract: Abstract,
-        parameters?: ParameterOverrides,
-        raiseEvents = true,
-    ): unknown {
+    protected resolve(abstract: Abstract, parameters?: ParameterOverrides, raiseEvents = true): unknown {
         this.loadDeferredProviderIfNeeded((abstract = this.getAlias(abstract)));
 
         return super.resolve(abstract, parameters, raiseEvents);
@@ -542,12 +480,7 @@ export class Application extends Container implements ApplicationContract {
     protected bootProvider(provider: ServiceProvider): void {
         provider.callBootingCallbacks();
 
-        if (
-            typeIs(
-                (provider as unknown as Record<string, unknown>).boot,
-                "function",
-            )
-        ) {
+        if (typeIs((provider as unknown as Record<string, unknown>).boot, "function")) {
             this.call([provider, "boot"]);
         }
 
@@ -611,9 +544,7 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Get the service providers that have been loaded. */
-    public getLoadedProviders(): Array<
-        [Constructor<ServiceProvider>, boolean]
-    > {
+    public getLoadedProviders(): Array<[Constructor<ServiceProvider>, boolean]> {
         return this.loadedProviders.entries();
     }
 
@@ -623,17 +554,12 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Get the application's deferred services. */
-    public getDeferredServices(): OrderedMap<
-        Abstract,
-        Constructor<ServiceProvider>
-    > {
+    public getDeferredServices(): OrderedMap<Abstract, Constructor<ServiceProvider>> {
         return this.deferredServices;
     }
 
     /** Set the application's deferred services. */
-    public setDeferredServices(
-        services: OrderedMap<Abstract, Constructor<ServiceProvider>>,
-    ): void {
+    public setDeferredServices(services: OrderedMap<Abstract, Constructor<ServiceProvider>>): void {
         this.deferredServices = services;
     }
 
@@ -643,9 +569,7 @@ export class Application extends Container implements ApplicationContract {
     }
 
     /** Add an array of services to the application's deferred services. */
-    public addDeferredServices(
-        services: OrderedMap<Abstract, Constructor<ServiceProvider>>,
-    ): void {
+    public addDeferredServices(services: OrderedMap<Abstract, Constructor<ServiceProvider>>): void {
         for (const [service, provider] of services.entries()) {
             this.deferredServices.set(service, provider);
         }

@@ -61,11 +61,7 @@ export = (): void => {
                 (collection) => collection.push("adam"),
                 (collection) => collection.push("taylor"),
             );
-            expectDeepEqual(withOtherwise.toArray(), [
-                "michael",
-                "tom",
-                "taylor",
-            ]);
+            expectDeepEqual(withOtherwise.toArray(), ["michael", "tom", "taylor"]);
         });
 
         it("unless() runs a callback only if the condition is false, with an otherwise", () => {

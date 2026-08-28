@@ -18,20 +18,13 @@ export class ArrayLock extends Lock {
     public acquire(): boolean {
         const held = this.store.locks.get(this.name);
 
-        if (
-            held !== undefined &&
-            (held.expiresAt === undefined ||
-                held.expiresAt > InteractsWithTime.currentTime())
-        ) {
+        if (held !== undefined && (held.expiresAt === undefined || held.expiresAt > InteractsWithTime.currentTime())) {
             return false;
         }
 
         this.store.locks.set(this.name, {
             owner: this.ownerId,
-            expiresAt:
-                this.seconds === 0
-                    ? undefined
-                    : InteractsWithTime.currentTime() + this.seconds,
+            expiresAt: this.seconds === 0 ? undefined : InteractsWithTime.currentTime() + this.seconds,
         });
 
         return true;

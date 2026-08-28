@@ -15,11 +15,6 @@ export type SelfBuildingClass = Constructor & {
 };
 
 /** PHP: `is_a($concrete, SelfBuilding::class, true) && method_exists(...)`. */
-export function isSelfBuilding(
-    concrete: unknown,
-): concrete is SelfBuildingClass {
-    return (
-        typeIs(concrete, "table") &&
-        typeIs((concrete as { newInstance?: unknown }).newInstance, "function")
-    );
+export function isSelfBuilding(concrete: unknown): concrete is SelfBuildingClass {
+    return typeIs(concrete, "table") && typeIs((concrete as { newInstance?: unknown }).newInstance, "function");
 }

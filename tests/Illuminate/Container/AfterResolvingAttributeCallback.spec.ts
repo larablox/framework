@@ -42,18 +42,8 @@ export = (): void => {
                 resolve: () => undefined,
             };
 
-            return (
-                owner: object,
-                propertyKey: unknown,
-                parameterIndex: number,
-            ): void => {
-                addParameterAttribute(
-                    owner,
-                    propertyKey,
-                    parameterIndex,
-                    ContainerTestOnTenant,
-                    instance,
-                );
+            return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+                addParameterAttribute(owner, propertyKey, parameterIndex, ContainerTestOnTenant, instance);
             };
         }
 
@@ -119,23 +109,16 @@ export = (): void => {
 
             container.afterResolvingAttribute(
                 ContainerTestOnTenant,
-                (
-                    attribute: ContainerTestOnTenant,
-                    hasTenantImpl: HasTenantImpl,
-                ) => {
+                (attribute: ContainerTestOnTenant, hasTenantImpl: HasTenantImpl) => {
                     hasTenantImpl.onTenant(attribute.tenant);
                 },
             );
 
-            const hasTenantA = container.make(
-                ContainerTestHasTenantImplPropertyWithTenantA,
-            );
+            const hasTenantA = container.make(ContainerTestHasTenantImplPropertyWithTenantA);
             expect(hasTenantA.property instanceof HasTenantImpl).to.equal(true);
             expect(hasTenantA.property.tenant).to.equal(Tenant.TenantA);
 
-            const hasTenantB = container.make(
-                ContainerTestHasTenantImplPropertyWithTenantB,
-            );
+            const hasTenantB = container.make(ContainerTestHasTenantImplPropertyWithTenantB);
             expect(hasTenantB.property instanceof HasTenantImpl).to.equal(true);
             expect(hasTenantB.property.tenant).to.equal(Tenant.TenantB);
         });
@@ -146,11 +129,7 @@ export = (): void => {
 
             container.afterResolvingAttribute(
                 ContainerTestBootable,
-                (
-                    _attribute: unknown,
-                    instance: ContainerTestHasBootable,
-                    c,
-                ) => {
+                (_attribute: unknown, instance: ContainerTestHasBootable, c) => {
                     if (typeIs(instance.booting, "function")) {
                         c.call([instance, "booting"]);
                     }
@@ -182,14 +161,9 @@ export = (): void => {
                 .needs("$value")
                 .give("no-the-right-value");
 
-            const instance = container.make(
-                ContainerTestHasSelfConfiguringAttributeAndConstructor,
-            );
+            const instance = container.make(ContainerTestHasSelfConfiguringAttributeAndConstructor);
 
-            expect(
-                instance instanceof
-                    ContainerTestHasSelfConfiguringAttributeAndConstructor,
-            ).to.equal(true);
+            expect(instance instanceof ContainerTestHasSelfConfiguringAttributeAndConstructor).to.equal(true);
             expect(instance.value).to.equal("the-right-value");
         });
     });

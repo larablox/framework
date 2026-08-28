@@ -28,15 +28,9 @@ export class UniqueLock {
 
         const uniqueFor = typeIs(declared, "function")
             ? ((declared as (self: object) => number)(job) ?? 0)
-            : ((ReadsClassAttributes.getAttributeValue(
-                  job,
-                  UniqueFor,
-                  "uniqueFor",
-              ) as number | undefined) ?? 0);
+            : ((ReadsClassAttributes.getAttributeValue(job, UniqueFor, "uniqueFor") as number | undefined) ?? 0);
 
-        return (
-            this.cache.lock(UniqueLock.getKey(job), uniqueFor).get() === true
-        );
+        return this.cache.lock(UniqueLock.getKey(job), uniqueFor).get() === true;
     }
 
     /** Release the lock for the given job. */

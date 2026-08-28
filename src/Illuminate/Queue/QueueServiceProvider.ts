@@ -36,10 +36,7 @@ import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config
  * which is the one storage here that outlives the server.
  */
 @DeferrableProvider()
-export class QueueServiceProvider
-    extends ServiceProvider
-    implements DeferrableProvider
-{
+export class QueueServiceProvider extends ServiceProvider implements DeferrableProvider {
     /** Register the service provider. */
     public register(): void {
         // Every payload names this class, so every server that may read one has
@@ -72,9 +69,7 @@ export class QueueServiceProvider
     protected registerConnection(): void {
         const app: Application = this.app;
 
-        this.app.singleton("queue.connection", () =>
-            app.make<Factory>("queue").connection(),
-        );
+        this.app.singleton("queue.connection", () => app.make<Factory>("queue").connection());
     }
 
     /** Register the connectors on the queue manager. */
@@ -137,10 +132,7 @@ export class QueueServiceProvider
             const worker = new Worker(
                 app.make<Factory>("queue"),
                 app.make<Dispatcher>("events"),
-                (e) =>
-                    app
-                        .make<LogManager>("log")
-                        .error(`Queue worker: ${tostring(e)}`),
+                (e) => app.make<LogManager>("log").error(`Queue worker: ${tostring(e)}`),
                 resetScope,
             );
 
@@ -182,9 +174,7 @@ export class QueueServiceProvider
         const app: Application = this.app;
 
         this.app.singleton("queue.failer", () => {
-            const config = (app
-                .make<ConfigRepository>("config")
-                .get("queue.failed") ?? {}) as ArrayAccessible;
+            const config = (app.make<ConfigRepository>("config").get("queue.failed") ?? {}) as ArrayAccessible;
 
             if (config.driver === "datastore") {
                 return new DataStoreFailedJobProvider(

@@ -22,27 +22,17 @@ export class RouteGroup {
             ...old,
             ...attributes,
             as: RouteGroup.formatAs(attributes, old),
-            prefix: RouteGroup.formatPrefix(
-                attributes,
-                old,
-                prependExistingPrefix,
-            ),
+            prefix: RouteGroup.formatPrefix(attributes, old, prependExistingPrefix),
             where: RouteGroup.formatWhere(attributes, old),
         };
 
-        const middleware = RouteGroup.formatMiddleware(
-            attributes.middleware,
-            old.middleware,
-        );
+        const middleware = RouteGroup.formatMiddleware(attributes.middleware, old.middleware);
 
         if (middleware !== undefined) {
             merged.middleware = middleware;
         }
 
-        const excluded = RouteGroup.formatMiddleware(
-            attributes.excluded_middleware,
-            old.excluded_middleware,
-        );
+        const excluded = RouteGroup.formatMiddleware(attributes.excluded_middleware, old.excluded_middleware);
 
         if (excluded !== undefined) {
             merged.excluded_middleware = excluded;
@@ -81,10 +71,7 @@ export class RouteGroup {
     }
 
     /** Format the "as" clause of the new group attributes. */
-    protected static formatAs(
-        attributes: ActionAttributes,
-        old: ActionAttributes,
-    ): string | undefined {
+    protected static formatAs(attributes: ActionAttributes, old: ActionAttributes): string | undefined {
         if (old.as === undefined) {
             return attributes.as;
         }
@@ -93,10 +80,7 @@ export class RouteGroup {
     }
 
     /** Append one middleware list to another, keeping both. */
-    protected static formatMiddleware(
-        middleware?: Array<Pipe>,
-        old?: Array<Pipe>,
-    ): Array<Pipe> | undefined {
+    protected static formatMiddleware(middleware?: Array<Pipe>, old?: Array<Pipe>): Array<Pipe> | undefined {
         if (middleware === undefined) {
             return old;
         }

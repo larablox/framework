@@ -1,8 +1,5 @@
 import { Arr } from "Illuminate/Support/Arr";
-import {
-    ItemNotFoundException,
-    MultipleItemsFoundException,
-} from "Illuminate/Exception";
+import { ItemNotFoundException, MultipleItemsFoundException } from "Illuminate/Exception";
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import { Reflector } from "Illuminate/Support/Reflector";
 import { Util } from "Illuminate/Container/Util";
@@ -10,17 +7,13 @@ import { VarDumper } from "Illuminate/Support/VarDumper";
 
 /** What a collection can be built from. */
 export type ArrayableItems<TKey extends defined, TValue extends defined> =
-    | Collection<TKey, TValue>
-    | OrderedMap<TKey, TValue>
-    | Array<TValue>
-    | Record<string, TValue>;
+    Collection<TKey, TValue> | OrderedMap<TKey, TValue> | Array<TValue> | Record<string, TValue>;
 
 /** PHP: `fn ($value, $key)`. */
-export type ValueCallback<
-    TKey extends defined,
-    TValue extends defined,
-    TReturn,
-> = (value: TValue, key: TKey) => TReturn;
+export type ValueCallback<TKey extends defined, TValue extends defined, TReturn> = (
+    value: TValue,
+    key: TKey,
+) => TReturn;
 
 /** The operators `where()` understands. */
 export type WhereOperator = "=" | "==" | "!=" | "<>" | "<" | "<=" | ">" | ">=";
@@ -68,19 +61,11 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Create a collection with the given range. */
-    public static range(
-        from: number,
-        to: number,
-        step = 1,
-    ): Collection<number, number> {
+    public static range(from: number, to: number, step = 1): Collection<number, number> {
         const items = new OrderedMap<number, number>();
         let index = 0;
 
-        for (
-            let value = from;
-            step > 0 ? value <= to : value >= to;
-            value += step
-        ) {
+        for (let value = from; step > 0 ? value <= to : value >= to; value += step) {
             items.set(index, value);
             index += 1;
         }
@@ -100,17 +85,12 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Get the underlying items from the given collection if applicable. */
-    public static unwrap<TValue extends defined>(
-        value: Collection<defined, TValue> | Array<TValue>,
-    ): Array<TValue> {
+    public static unwrap<TValue extends defined>(value: Collection<defined, TValue> | Array<TValue>): Array<TValue> {
         return value instanceof Collection ? value.all() : value;
     }
 
     /** Create a new instance with no items. */
-    public static empty<
-        TKey extends defined,
-        TValue extends defined,
-    >(): Collection<TKey, TValue> {
+    public static empty<TKey extends defined, TValue extends defined>(): Collection<TKey, TValue> {
         return new Collection<TKey, TValue>();
     }
 
@@ -120,10 +100,9 @@ export class Collection<TKey extends defined, TValue extends defined> {
      * A plain object literal is accepted for parity with PHP's `['a' => 1]`,
      * but `pairs` has no defined order, so its key order is not preserved.
      */
-    protected static getArrayableItems<
-        TKey extends defined,
-        TValue extends defined,
-    >(items?: ArrayableItems<TKey, TValue>): OrderedMap<TKey, TValue> {
+    protected static getArrayableItems<TKey extends defined, TValue extends defined>(
+        items?: ArrayableItems<TKey, TValue>,
+    ): OrderedMap<TKey, TValue> {
         const result = new OrderedMap<TKey, TValue>();
 
         if (items === undefined) {
@@ -131,9 +110,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         }
 
         if (items instanceof Collection) {
-            for (const [key, value] of (
-                items as Collection<TKey, TValue>
-            ).entries()) {
+            for (const [key, value] of (items as Collection<TKey, TValue>).entries()) {
                 result.set(key, value);
             }
 
@@ -141,9 +118,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         }
 
         if (items instanceof OrderedMap) {
-            for (const [key, value] of (
-                items as OrderedMap<TKey, TValue>
-            ).entries()) {
+            for (const [key, value] of (items as OrderedMap<TKey, TValue>).entries()) {
                 result.set(key, value);
             }
 
@@ -205,11 +180,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         const result = new Array<defined>();
 
         for (const value of this.items.values()) {
-            result.push(
-                value instanceof Collection
-                    ? (value as Collection<defined, defined>).toArray()
-                    : value,
-            );
+            result.push(value instanceof Collection ? (value as Collection<defined, defined>).toArray() : value);
         }
 
         return result;
@@ -275,10 +246,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Get the first item from the collection passing the given truth test. */
-    public first(
-        callback?: ValueCallback<TKey, TValue, boolean>,
-        defaultValue?: TValue,
-    ): TValue | undefined {
+    public first(callback?: ValueCallback<TKey, TValue, boolean>, defaultValue?: TValue): TValue | undefined {
         for (const [key, value] of this.items.entries()) {
             if (callback === undefined || callback(value, key)) {
                 return value;
@@ -289,19 +257,12 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Get the first item by the given key value pair. */
-    public firstWhere(
-        key: string,
-        operator?: WhereOperator | defined,
-        value?: defined,
-    ): TValue | undefined {
+    public firstWhere(key: string, operator?: WhereOperator | defined, value?: defined): TValue | undefined {
         return this.first(this.operatorForWhere(key, operator, value));
     }
 
     /** Get the last item from the collection passing the given truth test. */
-    public last(
-        callback?: ValueCallback<TKey, TValue, boolean>,
-        defaultValue?: TValue,
-    ): TValue | undefined {
+    public last(callback?: ValueCallback<TKey, TValue, boolean>, defaultValue?: TValue): TValue | undefined {
         const entries = this.items.entries();
 
         for (let index = entries.size() - 1; index >= 0; index--) {
@@ -324,18 +285,14 @@ export class Collection<TKey extends defined, TValue extends defined> {
         }
 
         if (matched.count() > 1) {
-            throw new MultipleItemsFoundException(
-                `${matched.count()} items were found.`,
-            );
+            throw new MultipleItemsFoundException(`${matched.count()} items were found.`);
         }
 
         return matched.first() as TValue;
     }
 
     /** Get the first item, failing when the collection is empty. */
-    public firstOrFail(
-        callback?: ValueCallback<TKey, TValue, boolean>,
-    ): TValue {
+    public firstOrFail(callback?: ValueCallback<TKey, TValue, boolean>): TValue {
         const value = this.first(callback);
 
         if (value === undefined) {
@@ -346,15 +303,10 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Search the collection for a given value and return the corresponding key. */
-    public search(
-        value: TValue | ValueCallback<TKey, TValue, boolean>,
-    ): TKey | undefined {
+    public search(value: TValue | ValueCallback<TKey, TValue, boolean>): TKey | undefined {
         for (const [key, item] of this.items.entries()) {
             const matches = typeIs(value, "function")
-                ? ((value as ValueCallback<TKey, TValue, boolean>)(
-                      item,
-                      key,
-                  ) as boolean)
+                ? ((value as ValueCallback<TKey, TValue, boolean>)(item, key) as boolean)
                 : item === value;
 
             if (matches) {
@@ -366,16 +318,12 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Determine if an item exists in the collection. */
-    public contains(
-        value: TValue | ValueCallback<TKey, TValue, boolean>,
-    ): boolean {
+    public contains(value: TValue | ValueCallback<TKey, TValue, boolean>): boolean {
         return this.search(value) !== undefined;
     }
 
     /** Determine if an item is not contained in the collection. */
-    public doesntContain(
-        value: TValue | ValueCallback<TKey, TValue, boolean>,
-    ): boolean {
+    public doesntContain(value: TValue | ValueCallback<TKey, TValue, boolean>): boolean {
         return !this.contains(value);
     }
 
@@ -406,9 +354,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Run a map over each of the items. */
-    public map<TResult extends defined>(
-        callback: ValueCallback<TKey, TValue, TResult>,
-    ): Collection<TKey, TResult> {
+    public map<TResult extends defined>(callback: ValueCallback<TKey, TValue, TResult>): Collection<TKey, TResult> {
         const entries = new Array<[TKey, TResult]>();
 
         for (const [key, value] of this.items.entries()) {
@@ -433,20 +379,14 @@ export class Collection<TKey extends defined, TValue extends defined> {
 
     /** Map a collection and flatten the result by a single level. */
     public flatMap<TResult extends defined>(
-        callback: ValueCallback<
-            TKey,
-            TValue,
-            Array<TResult> | Collection<defined, TResult>
-        >,
+        callback: ValueCallback<TKey, TValue, Array<TResult> | Collection<defined, TResult>>,
     ): Collection<number, TResult> {
         const result = new Array<TResult>();
 
         for (const [key, value] of this.items.entries()) {
             const mapped = callback(value, key);
 
-            for (const item of mapped instanceof Collection
-                ? mapped.all()
-                : mapped) {
+            for (const item of mapped instanceof Collection ? mapped.all() : mapped) {
                 result.push(item);
             }
         }
@@ -464,16 +404,11 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Run a filter over each of the items. */
-    public filter(
-        callback?: ValueCallback<TKey, TValue, boolean>,
-    ): Collection<TKey, TValue> {
+    public filter(callback?: ValueCallback<TKey, TValue, boolean>): Collection<TKey, TValue> {
         const entries = new Array<[TKey, TValue]>();
 
         for (const [key, value] of this.items.entries()) {
-            const keep =
-                callback === undefined
-                    ? Collection.truthy(value)
-                    : callback(value, key);
+            const keep = callback === undefined ? Collection.truthy(value) : callback(value, key);
 
             if (keep) {
                 entries.push([key, value]);
@@ -484,54 +419,33 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Create a collection of all elements that do not pass a given truth test. */
-    public reject(
-        callback: ValueCallback<TKey, TValue, boolean>,
-    ): Collection<TKey, TValue> {
+    public reject(callback: ValueCallback<TKey, TValue, boolean>): Collection<TKey, TValue> {
         return this.filter((value, key) => !callback(value, key));
     }
 
     /** Filter items by the given key value pair. */
-    public where(
-        key: string,
-        operator?: WhereOperator | defined,
-        value?: defined,
-    ): Collection<TKey, TValue> {
+    public where(key: string, operator?: WhereOperator | defined, value?: defined): Collection<TKey, TValue> {
         return this.filter(this.operatorForWhere(key, operator, value));
     }
 
     /** Filter items by the given key value pair. */
-    public whereIn(
-        key: string,
-        values: Array<defined>,
-    ): Collection<TKey, TValue> {
-        return this.filter((item) =>
-            values.includes(Collection.dataGet(item, key) as defined),
-        );
+    public whereIn(key: string, values: Array<defined>): Collection<TKey, TValue> {
+        return this.filter((item) => values.includes(Collection.dataGet(item, key) as defined));
     }
 
     /** Filter items by the given key value pair. */
-    public whereNotIn(
-        key: string,
-        values: Array<defined>,
-    ): Collection<TKey, TValue> {
-        return this.filter(
-            (item) =>
-                !values.includes(Collection.dataGet(item, key) as defined),
-        );
+    public whereNotIn(key: string, values: Array<defined>): Collection<TKey, TValue> {
+        return this.filter((item) => !values.includes(Collection.dataGet(item, key) as defined));
     }
 
     /** Filter items where the given key is null. */
     public whereNull(key: string): Collection<TKey, TValue> {
-        return this.filter(
-            (item) => Collection.dataGet(item, key) === undefined,
-        );
+        return this.filter((item) => Collection.dataGet(item, key) === undefined);
     }
 
     /** Filter items where the given key is not null. */
     public whereNotNull(key: string): Collection<TKey, TValue> {
-        return this.filter(
-            (item) => Collection.dataGet(item, key) !== undefined,
-        );
+        return this.filter((item) => Collection.dataGet(item, key) !== undefined);
     }
 
     /** Filter the items, removing any items that don't match the given type. */
@@ -540,25 +454,18 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Get the values of a given key. */
-    public pluck<TResult extends defined>(
-        value: string,
-        key?: string,
-    ): Collection<defined, TResult> {
+    public pluck<TResult extends defined>(value: string, key?: string): Collection<defined, TResult> {
         const entries = new Array<[defined, TResult]>();
         let index = 0;
 
         for (const item of this.items.values()) {
-            const plucked = Collection.dataGet(item, value) as
-                TResult | undefined;
+            const plucked = Collection.dataGet(item, value) as TResult | undefined;
 
             if (plucked === undefined) {
                 continue;
             }
 
-            const pluckedKey =
-                key === undefined
-                    ? index
-                    : (Collection.dataGet(item, key) as defined);
+            const pluckedKey = key === undefined ? index : (Collection.dataGet(item, key) as defined);
 
             entries.push([pluckedKey, plucked]);
             index += 1;
@@ -592,10 +499,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
 
         for (const [key, value] of this.items.entries()) {
             const groupKey = typeIs(groupBy, "function")
-                ? (groupBy as ValueCallback<TKey, TValue, TGroupKey>)(
-                      value,
-                      key,
-                  )
+                ? (groupBy as ValueCallback<TKey, TValue, TGroupKey>)(value, key)
                 : (Collection.dataGet(value, groupBy as string) as TGroupKey);
 
             let group = groups.get(groupKey);
@@ -618,16 +522,11 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Count the number of items by the result of the callback. */
-    public countBy(
-        callback?: ValueCallback<TKey, TValue, defined>,
-    ): Collection<defined, number> {
+    public countBy(callback?: ValueCallback<TKey, TValue, defined>): Collection<defined, number> {
         const counts = new OrderedMap<defined, number>();
 
         for (const [key, value] of this.items.entries()) {
-            const countKey =
-                callback === undefined
-                    ? (value as defined)
-                    : callback(value, key);
+            const countKey = callback === undefined ? (value as defined) : callback(value, key);
 
             counts.set(countKey, (counts.get(countKey) ?? 0) + 1);
         }
@@ -636,17 +535,12 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Return only unique items from the collection. */
-    public unique(
-        callback?: ValueCallback<TKey, TValue, defined>,
-    ): Collection<TKey, TValue> {
+    public unique(callback?: ValueCallback<TKey, TValue, defined>): Collection<TKey, TValue> {
         const seen = new Set<defined>();
         const entries = new Array<[TKey, TValue]>();
 
         for (const [key, value] of this.items.entries()) {
-            const identity =
-                callback === undefined
-                    ? (value as defined)
-                    : callback(value, key);
+            const identity = callback === undefined ? (value as defined) : callback(value, key);
 
             if (seen.has(identity)) {
                 continue;
@@ -665,9 +559,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
 
         for (const value of this.items.values()) {
             if (value instanceof Collection) {
-                for (const item of (
-                    value as Collection<defined, defined>
-                ).all()) {
+                for (const item of (value as Collection<defined, defined>).all()) {
                     result.push(item);
                 }
             } else if (Util.isArray(value) || Util.isEmptyArray(value)) {
@@ -691,10 +583,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
 
         const walk = (values: Array<defined>, remaining: number): void => {
             for (const value of values) {
-                const nested =
-                    value instanceof Collection
-                        ? (value as Collection<defined, defined>).all()
-                        : value;
+                const nested = value instanceof Collection ? (value as Collection<defined, defined>).all() : value;
 
                 if (remaining > 0 && Util.isArray(nested)) {
                     walk(nested as Array<defined>, remaining - 1);
@@ -888,18 +777,14 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Merge the collection with the given items. */
-    public merge(
-        items: ArrayableItems<TKey, TValue>,
-    ): Collection<TKey, TValue> {
+    public merge(items: ArrayableItems<TKey, TValue>): Collection<TKey, TValue> {
         const merged = new OrderedMap<TKey, TValue>();
 
         for (const [key, value] of this.items.entries()) {
             merged.set(key, value);
         }
 
-        for (const [key, value] of Collection.getArrayableItems(
-            items,
-        ).entries()) {
+        for (const [key, value] of Collection.getArrayableItems(items).entries()) {
             merged.set(key, value);
         }
 
@@ -907,9 +792,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Push all of the given items onto the collection. */
-    public concat(
-        items: ArrayableItems<defined, TValue>,
-    ): Collection<number, TValue> {
+    public concat(items: ArrayableItems<defined, TValue>): Collection<number, TValue> {
         const result = this.items.values();
 
         for (const value of Collection.getArrayableItems(items).values()) {
@@ -929,17 +812,11 @@ export class Collection<TKey extends defined, TValue extends defined> {
 
         if (limit < 0) {
             return Collection.fromEntries(
-                Collection.sliceEntries(
-                    entries,
-                    math.max(entries.size() + limit, 0),
-                    -limit,
-                ),
+                Collection.sliceEntries(entries, math.max(entries.size() + limit, 0), -limit),
             );
         }
 
-        return Collection.fromEntries(
-            Collection.sliceEntries(entries, 0, limit),
-        );
+        return Collection.fromEntries(Collection.sliceEntries(entries, 0, limit));
     }
 
     /** Skip the first n items. */
@@ -950,12 +827,9 @@ export class Collection<TKey extends defined, TValue extends defined> {
     /** Slice the underlying collection array. */
     public slice(offset: number, length?: number): Collection<TKey, TValue> {
         const entries = this.items.entries();
-        const start =
-            offset < 0 ? math.max(entries.size() + offset, 0) : offset;
+        const start = offset < 0 ? math.max(entries.size() + offset, 0) : offset;
 
-        return Collection.fromEntries(
-            Collection.sliceEntries(entries, start, length ?? entries.size()),
-        );
+        return Collection.fromEntries(Collection.sliceEntries(entries, start, length ?? entries.size()));
     }
 
     /** Get the items for the given page. */
@@ -996,9 +870,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
      * The comparator returns a number, as in PHP; Luau's `table.sort` wants a
      * boolean, and the conversion happens here.
      */
-    public sort(
-        comparator?: (first: TValue, second: TValue) => number,
-    ): Collection<TKey, TValue> {
+    public sort(comparator?: (first: TValue, second: TValue) => number): Collection<TKey, TValue> {
         const entries = this.items.entries();
 
         entries.sort((first, second) =>
@@ -1028,10 +900,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
                 : (Collection.dataGet(value, callback as string) as defined);
 
         entries.sort((first, second) => {
-            const order = Collection.compare(
-                resolve(first[0], first[1]),
-                resolve(second[0], second[1]),
-            );
+            const order = Collection.compare(resolve(first[0], first[1]), resolve(second[0], second[1]));
 
             return descending ? order > 0 : order < 0;
         });
@@ -1040,9 +909,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Sort the collection in descending order using the given callback or key. */
-    public sortByDesc(
-        callback: string | ValueCallback<TKey, TValue, defined>,
-    ): Collection<TKey, TValue> {
+    public sortByDesc(callback: string | ValueCallback<TKey, TValue, defined>): Collection<TKey, TValue> {
         return this.sortBy(callback, true);
     }
 
@@ -1069,10 +936,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     // -----------------------------------------------------------------
 
     /** Reduce the collection to a single value. */
-    public reduce<TResult>(
-        callback: (carry: TResult, value: TValue, key: TKey) => TResult,
-        initial: TResult,
-    ): TResult {
+    public reduce<TResult>(callback: (carry: TResult, value: TValue, key: TKey) => TResult, initial: TResult): TResult {
         let carry = initial;
 
         for (const [key, value] of this.items.entries()) {
@@ -1083,9 +947,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Get the sum of the given values. */
-    public sum(
-        callback?: string | ValueCallback<TKey, TValue, number>,
-    ): number {
+    public sum(callback?: string | ValueCallback<TKey, TValue, number>): number {
         let total = 0;
 
         for (const [key, value] of this.items.entries()) {
@@ -1096,23 +958,17 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Get the average value of a given key. */
-    public avg(
-        callback?: string | ValueCallback<TKey, TValue, number>,
-    ): number | undefined {
+    public avg(callback?: string | ValueCallback<TKey, TValue, number>): number | undefined {
         return this.isEmpty() ? undefined : this.sum(callback) / this.count();
     }
 
     /** Alias for `avg`. */
-    public average(
-        callback?: string | ValueCallback<TKey, TValue, number>,
-    ): number | undefined {
+    public average(callback?: string | ValueCallback<TKey, TValue, number>): number | undefined {
         return this.avg(callback);
     }
 
     /** Get the minimum value of a given key. */
-    public min(
-        callback?: string | ValueCallback<TKey, TValue, number>,
-    ): number | undefined {
+    public min(callback?: string | ValueCallback<TKey, TValue, number>): number | undefined {
         let lowest: number | undefined;
 
         for (const [key, value] of this.items.entries()) {
@@ -1127,9 +983,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Get the maximum value of a given key. */
-    public max(
-        callback?: string | ValueCallback<TKey, TValue, number>,
-    ): number | undefined {
+    public max(callback?: string | ValueCallback<TKey, TValue, number>): number | undefined {
         let highest: number | undefined;
 
         for (const [key, value] of this.items.entries()) {
@@ -1148,11 +1002,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         const parts = new Array<string>();
 
         for (const value of this.items.values()) {
-            parts.push(
-                tostring(
-                    key === undefined ? value : Collection.dataGet(value, key),
-                ),
-            );
+            parts.push(tostring(key === undefined ? value : Collection.dataGet(value, key)));
         }
 
         return parts.join(glue);
@@ -1204,18 +1054,12 @@ export class Collection<TKey extends defined, TValue extends defined> {
     }
 
     /** Apply the callback if the collection is empty. */
-    public whenEmpty(
-        callback: (collection: this) => unknown,
-        otherwise?: (collection: this) => unknown,
-    ): this {
+    public whenEmpty(callback: (collection: this) => unknown, otherwise?: (collection: this) => unknown): this {
         return this.when(this.isEmpty(), callback, otherwise);
     }
 
     /** Apply the callback if the collection is not empty. */
-    public whenNotEmpty(
-        callback: (collection: this) => unknown,
-        otherwise?: (collection: this) => unknown,
-    ): this {
+    public whenNotEmpty(callback: (collection: this) => unknown, otherwise?: (collection: this) => unknown): this {
         return this.when(this.isNotEmpty(), callback, otherwise);
     }
 
@@ -1284,10 +1128,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         }
 
         if (typeIs(callback, "function")) {
-            return (callback as ValueCallback<TKey, TValue, number>)(
-                value,
-                key,
-            );
+            return (callback as ValueCallback<TKey, TValue, number>)(value, key);
         }
 
         return tonumber(Collection.dataGet(value, callback as string)) ?? 0;
@@ -1301,11 +1142,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     ): Array<[TKey, TValue]> {
         const result = new Array<[TKey, TValue]>();
 
-        for (
-            let index = start;
-            index < math.min(start + length, entries.size());
-            index++
-        ) {
+        for (let index = start; index < math.min(start + length, entries.size()); index++) {
             result.push(entries[index]);
         }
 

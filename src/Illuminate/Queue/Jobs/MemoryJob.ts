@@ -1,13 +1,7 @@
 import { Job } from "Illuminate/Queue/Jobs/Job";
 import type { Container } from "Illuminate/Contracts/Container/Container";
-import type {
-    Job as JobContract,
-    JobPayload,
-} from "Illuminate/Contracts/Queue/Job";
-import type {
-    MemoryJobRecord,
-    MemoryQueue,
-} from "Illuminate/Queue/MemoryQueue";
+import type { Job as JobContract, JobPayload } from "Illuminate/Contracts/Queue/Job";
+import type { MemoryJobRecord, MemoryQueue } from "Illuminate/Queue/MemoryQueue";
 
 /** PHP: `Illuminate\Queue\Jobs\DatabaseJob`, against the in-memory table. */
 export class MemoryJob extends Job implements JobContract {

@@ -67,13 +67,7 @@ function compare(
         const expectedTable = expected as unknown as Record<string, unknown>;
 
         for (const [key, expectedValue] of pairs(expectedTable)) {
-            compare(
-                actualTable[key as string],
-                expectedValue,
-                `${path}[${tostring(key)}]`,
-                seen,
-                depth + 1,
-            );
+            compare(actualTable[key as string], expectedValue, `${path}[${tostring(key)}]`, seen, depth + 1);
         }
 
         // Both directions: a key present only in `actual` is just as wrong as
@@ -81,9 +75,7 @@ function compare(
         for (const [key] of pairs(actualTable)) {
             if (expectedTable[key as string] === undefined) {
                 error(
-                    `${path}[${tostring(key)}]: unexpected key, value ${describeValue(
-                        actualTable[key as string],
-                    )}`,
+                    `${path}[${tostring(key)}]: unexpected key, value ${describeValue(actualTable[key as string])}`,
                     0,
                 );
             }
@@ -93,10 +85,7 @@ function compare(
     }
 
     if (actual !== expected) {
-        error(
-            `${path}: expected ${describeValue(expected)}, got ${describeValue(actual)}`,
-            0,
-        );
+        error(`${path}: expected ${describeValue(expected)}, got ${describeValue(actual)}`, 0);
     }
 }
 
@@ -125,10 +114,7 @@ type ExceptionClass = new (...args: never[]) => object;
  * `ClassName: message` (`Exception.toString()` is mapped onto `__tostring`),
  * so a substring search covers both the class name and the message text.
  */
-export function expectThrows(
-    fn: () => unknown,
-    expected?: string | ExceptionClass,
-): void {
+export function expectThrows(fn: () => unknown, expected?: string | ExceptionClass): void {
     const [ok, thrown] = pcall(fn);
 
     if (ok) {
@@ -143,19 +129,13 @@ export function expectThrows(
         const text = tostring(thrown);
 
         if (string.find(text, expected, 1, true)[0] === undefined) {
-            error(
-                `expected the thrown error to contain "${expected}", got: ${text}`,
-                0,
-            );
+            error(`expected the thrown error to contain "${expected}", got: ${text}`, 0);
         }
 
         return;
     }
 
     if (!(thrown instanceof expected)) {
-        error(
-            `expected the call to throw ${tostring(expected)}, got: ${tostring(thrown)}`,
-            0,
-        );
+        error(`expected the call to throw ${tostring(expected)}, got: ${tostring(thrown)}`, 0);
     }
 }

@@ -37,10 +37,7 @@ function makeApp(config: ArrayAccessible): Application {
     // `Repository` addresses a *nested* table -- and `set()` writes into one,
     // so a flat `"queue.default"` key would be shadowed the moment
     // `setDefaultDriver()` wrote a nested one beside it.
-    container.singleton(
-        "config",
-        () => new ConfigRepository(Arr.undot(config)),
-    );
+    container.singleton("config", () => new ConfigRepository(Arr.undot(config)));
 
     return container as unknown as Application;
 }

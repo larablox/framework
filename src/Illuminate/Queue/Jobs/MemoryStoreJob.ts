@@ -1,10 +1,7 @@
 import { Job } from "Illuminate/Queue/Jobs/Job";
 import { Serializer } from "Illuminate/Support/Serializer";
 import type { Container } from "Illuminate/Contracts/Container/Container";
-import type {
-    Job as JobContract,
-    JobPayload,
-} from "Illuminate/Contracts/Queue/Job";
+import type { Job as JobContract, JobPayload } from "Illuminate/Contracts/Queue/Job";
 import type { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
 
 /**

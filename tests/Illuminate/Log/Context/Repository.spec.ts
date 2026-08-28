@@ -193,12 +193,7 @@ export = (): void => {
             context.push("breadcrumbs", "bar");
             context.push("breadcrumbs", "baz", "qux");
 
-            expectDeepEqual(context.get("breadcrumbs"), [
-                "foo",
-                "bar",
-                "baz",
-                "qux",
-            ]);
+            expectDeepEqual(context.get("breadcrumbs"), ["foo", "bar", "baz", "qux"]);
         });
 
         it("push() throws when the key is not an array", () => {
@@ -331,9 +326,7 @@ export = (): void => {
 
             expect(context.stackContains("foo", "bar")).to.equal(true);
             expect(context.stackContains("foo", "lorem")).to.equal(true);
-            expect(context.stackContains("foo", "doesNotExist")).to.equal(
-                false,
-            );
+            expect(context.stackContains("foo", "doesNotExist")).to.equal(false);
         });
 
         it("stackContains() accepts a predicate callback", () => {
@@ -343,18 +336,8 @@ export = (): void => {
             context.push("foo", "bar", ["lorem"], 123);
             context.pushHidden("baz");
 
-            expect(
-                context.stackContains(
-                    "foo",
-                    (value: unknown) => value === "bar",
-                ),
-            ).to.equal(true);
-            expect(
-                context.stackContains(
-                    "foo",
-                    (value: unknown) => value === "baz",
-                ),
-            ).to.equal(false);
+            expect(context.stackContains("foo", (value: unknown) => value === "bar")).to.equal(true);
+            expect(context.stackContains("foo", (value: unknown) => value === "baz")).to.equal(false);
         });
 
         it("hiddenStackContains() checks a value against every hidden entry", () => {
@@ -365,9 +348,7 @@ export = (): void => {
 
             expect(context.hiddenStackContains("foo", "bar")).to.equal(true);
             expect(context.hiddenStackContains("foo", "lorem")).to.equal(true);
-            expect(context.hiddenStackContains("foo", "doesNotExist")).to.equal(
-                false,
-            );
+            expect(context.hiddenStackContains("foo", "doesNotExist")).to.equal(false);
         });
 
         it("hiddenStackContains() accepts a predicate callback", () => {
@@ -377,18 +358,8 @@ export = (): void => {
             context.pushHidden("foo", "baz");
             context.push("foo", "bar", ["lorem"], 123);
 
-            expect(
-                context.hiddenStackContains(
-                    "foo",
-                    (value: unknown) => value === "baz",
-                ),
-            ).to.equal(true);
-            expect(
-                context.hiddenStackContains(
-                    "foo",
-                    (value: unknown) => value === "bar",
-                ),
-            ).to.equal(false);
+            expect(context.hiddenStackContains("foo", (value: unknown) => value === "baz")).to.equal(true);
+            expect(context.hiddenStackContains("foo", (value: unknown) => value === "bar")).to.equal(false);
         });
 
         it("stackContains() does not see values pushed onto the hidden stack", () => {
@@ -437,10 +408,10 @@ export = (): void => {
             context.add("parent.child.2", 6);
             context.add("another", 7);
 
-            expectDeepEqual(
-                context.only(["parent.child.1", "parent.child.2"]),
-                { "parent.child.1": 5, "parent.child.2": 6 },
-            );
+            expectDeepEqual(context.only(["parent.child.1", "parent.child.2"]), {
+                "parent.child.1": 5,
+                "parent.child.2": 6,
+            });
         });
 
         it("except() excludes a subset of context", () => {
@@ -451,10 +422,7 @@ export = (): void => {
             context.add("parent.child.2", 6);
             context.add("another", 7);
 
-            expectDeepEqual(
-                context.except(["parent.child.1", "parent.child.2"]),
-                { another: 7 },
-            );
+            expectDeepEqual(context.except(["parent.child.1", "parent.child.2"]), { another: 7 });
         });
 
         it("exceptHidden() excludes a subset of hidden context", () => {
@@ -465,10 +433,7 @@ export = (): void => {
             context.addHidden("parent.child.2", 6);
             context.addHidden("another", 7);
 
-            expectDeepEqual(
-                context.exceptHidden(["parent.child.1", "parent.child.2"]),
-                { another: 7 },
-            );
+            expectDeepEqual(context.exceptHidden(["parent.child.1", "parent.child.2"]), { another: 7 });
         });
 
         it("addHidden()/getHidden()/pushHidden() manage the hidden bag independently of add()", () => {
@@ -543,13 +508,7 @@ export = (): void => {
                 hiddenKey2: "world",
             });
 
-            expectThrows(() =>
-                context.scope(
-                    callback,
-                    { key1: "with", key3: "also-with" },
-                    { hiddenKey3: "foobar" },
-                ),
-            );
+            expectThrows(() => context.scope(callback, { key1: "with", key3: "also-with" }, { hiddenKey3: "foobar" }));
 
             expect(contextInClosure).never.to.equal(undefined);
             const captured = contextInClosure as {

@@ -34,9 +34,7 @@ export class RouteUri {
             }
 
             const optional = inner.sub(inner.size(), inner.size()) === "?";
-            const declaration = optional
-                ? inner.sub(1, inner.size() - 1)
-                : inner;
+            const declaration = optional ? inner.sub(1, inner.size() - 1) : inner;
             const [name, field] = declaration.split(":");
 
             bindingFields[name] = field;

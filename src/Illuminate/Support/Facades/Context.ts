@@ -28,9 +28,7 @@ export class Context extends Facade {
     declare public static addIf: Forwarded<Repository["addIf"]>;
     declare public static addHiddenIf: Forwarded<Repository["addHiddenIf"]>;
     declare public static remember: Forwarded<Repository["remember"]>;
-    declare public static rememberHidden: Forwarded<
-        Repository["rememberHidden"]
-    >;
+    declare public static rememberHidden: Forwarded<Repository["rememberHidden"]>;
     declare public static forget: Forwarded<Repository["forget"]>;
     declare public static forgetHidden: Forwarded<Repository["forgetHidden"]>;
     declare public static push: Forwarded<Repository["push"]>;
@@ -40,9 +38,7 @@ export class Context extends Facade {
     declare public static increment: Forwarded<Repository["increment"]>;
     declare public static decrement: Forwarded<Repository["decrement"]>;
     declare public static stackContains: Forwarded<Repository["stackContains"]>;
-    declare public static hiddenStackContains: Forwarded<
-        Repository["hiddenStackContains"]
-    >;
+    declare public static hiddenStackContains: Forwarded<Repository["hiddenStackContains"]>;
     declare public static scope: Forwarded<Repository["scope"]>;
     declare public static isEmpty: Forwarded<Repository["isEmpty"]>;
     declare public static dehydrating: Forwarded<Repository["dehydrating"]>;

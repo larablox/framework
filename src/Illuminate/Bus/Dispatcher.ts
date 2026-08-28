@@ -62,8 +62,7 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** Dispatch a command to its appropriate handler. */
     public dispatch(command: object): unknown {
-        return this.queueResolver !== undefined &&
-            this.commandShouldBeQueued(command)
+        return this.queueResolver !== undefined && this.commandShouldBeQueued(command)
             ? this.dispatchToQueue(command)
             : this.dispatchNow(command);
     }
@@ -74,8 +73,7 @@ export class Dispatcher implements QueueingDispatcher {
      * Queueable jobs will be dispatched to the "sync" queue.
      */
     public dispatchSync(command: object, handler?: object): unknown {
-        const onConnection = (command as { onConnection?: unknown })
-            .onConnection;
+        const onConnection = (command as { onConnection?: unknown }).onConnection;
 
         if (
             this.queueResolver !== undefined &&
@@ -85,10 +83,7 @@ export class Dispatcher implements QueueingDispatcher {
             // Reached through the table rather than the method, so the receiver
             // is passed by hand: a dot call would leave `self` behind.
             return this.dispatchToQueue(
-                (onConnection as (self: object, connection: string) => object)(
-                    command,
-                    "sync",
-                ),
+                (onConnection as (self: object, connection: string) => object)(command, "sync"),
             );
         }
 
@@ -97,27 +92,16 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** Dispatch a command to its appropriate handler in the current process without using the synchronous queue. */
     public dispatchNow(command: object, handler?: object): unknown {
-        if (
-            Reflector.isInstanceOf(command, InteractsWithQueue) &&
-            (command as InteractsWithQueue).job === undefined
-        ) {
-            (command as InteractsWithQueue).setJob(
-                new SyncJob(this.container, EMPTY_PAYLOAD, "sync", "sync"),
-            );
+        if (Reflector.isInstanceOf(command, InteractsWithQueue) && (command as InteractsWithQueue).job === undefined) {
+            (command as InteractsWithQueue).setJob(new SyncJob(this.container, EMPTY_PAYLOAD, "sync", "sync"));
         }
 
         const resolved = handler ?? this.getCommandHandler(command);
 
         const callback = (passable: unknown): unknown =>
             resolved !== undefined
-                ? this.container.call(
-                      [resolved, this.methodOf(resolved)],
-                      [passable],
-                  )
-                : this.container.call([
-                      passable as object,
-                      this.methodOf(passable as object),
-                  ]);
+                ? this.container.call([resolved, this.methodOf(resolved)], [passable])
+                : this.container.call([passable as object, this.methodOf(passable as object)]);
 
         const pipeline = this.pipeline.send(command).through(this.pipes);
 
@@ -126,9 +110,7 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** PHP: `method_exists($target, 'handle') ? 'handle' : '__invoke'`. */
     protected methodOf(target: object): string {
-        return typeIs((target as { handle?: unknown }).handle, "function")
-            ? "handle"
-            : "__invoke";
+        return typeIs((target as { handle?: unknown }).handle, "function") ? "handle" : "__invoke";
     }
 
     /** Determine if the given command has a handler. */
@@ -140,9 +122,7 @@ export class Dispatcher implements QueueingDispatcher {
     public getCommandHandler(command: object): object | undefined {
         const handler = this.handlerFor(command);
 
-        return handler !== undefined
-            ? (this.container.make(handler) as object)
-            : undefined;
+        return handler !== undefined ? (this.container.make(handler) as object) : undefined;
     }
 
     /** The registered handler for the command's class, if any. */
@@ -165,30 +145,19 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** Dispatch a command to its appropriate handler behind a queue. */
     public dispatchToQueue(command: object): unknown {
-        const connection = ReadsClassAttributes.getAttributeValue(
-            command,
-            Connection,
-            "connection",
-        ) as string | undefined;
+        const connection = ReadsClassAttributes.getAttributeValue(command, Connection, "connection") as
+            string | undefined;
 
         const queue = (this.queueResolver as QueueResolver)(connection);
 
         if (queue === undefined) {
-            throw new RuntimeException(
-                "Queue resolver did not return a Queue implementation.",
-            );
+            throw new RuntimeException("Queue resolver did not return a Queue implementation.");
         }
 
         const custom = (command as { queue?: unknown }).queue;
 
         if (typeIs(custom, "function")) {
-            return (
-                custom as (
-                    self: object,
-                    queue: Queue,
-                    command: object,
-                ) => unknown
-            )(command, queue, command);
+            return (custom as (self: object, queue: Queue, command: object) => unknown)(command, queue, command);
         }
 
         return this.pushCommandToQueue(queue, command);
@@ -196,17 +165,10 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** Push the command onto the given queue instance. */
     protected pushCommandToQueue(queue: Queue, command: object): unknown {
-        const queueName = ReadsClassAttributes.getAttributeValue(
-            command,
-            QueueAttribute,
-            "queue",
-        ) as string | undefined;
+        const queueName = ReadsClassAttributes.getAttributeValue(command, QueueAttribute, "queue") as
+            string | undefined;
 
-        const delay = ReadsClassAttributes.getAttributeValue(
-            command,
-            Delay,
-            "delaySeconds",
-        ) as DelayValue | undefined;
+        const delay = ReadsClassAttributes.getAttributeValue(command, Delay, "delaySeconds") as DelayValue | undefined;
 
         if (delay !== undefined) {
             return queue.later(delay, command, "", queueName);
@@ -222,9 +184,7 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** Attempt to find the batch with the given ID. */
     public findBatch(batchId: string): Batch | undefined {
-        return this.container
-            .make<BatchRepository>("bus.batches")
-            .find(batchId);
+        return this.container.make<BatchRepository>("bus.batches").find(batchId);
     }
 
     /** Set the pipes through which commands should be piped before dispatching. */

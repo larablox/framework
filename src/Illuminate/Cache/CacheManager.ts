@@ -14,10 +14,7 @@ import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config
 import type { Store } from "Illuminate/Contracts/Cache/Store";
 
 /** A store factory registered through `extend()`. */
-export type CacheDriverCreator = (
-    app: Application,
-    config: ArrayAccessible,
-) => RepositoryContract;
+export type CacheDriverCreator = (app: Application, config: ArrayAccessible) => RepositoryContract;
 
 /**
  * PHP: `Illuminate\Cache\CacheManager`.
@@ -65,9 +62,7 @@ export class CacheManager implements Factory {
         const config = this.getConfig(name);
 
         if (config === undefined) {
-            throw new InvalidArgumentException(
-                `Cache store [${name}] is not defined.`,
-            );
+            throw new InvalidArgumentException(`Cache store [${name}] is not defined.`);
         }
 
         config.store = name;
@@ -101,9 +96,7 @@ export class CacheManager implements Factory {
             return this.createNullDriver(config);
         }
 
-        throw new InvalidArgumentException(
-            `Driver [${driver}] is not supported.`,
-        );
+        throw new InvalidArgumentException(`Driver [${driver}] is not supported.`);
     }
 
     /** Create an instance of the array cache driver. */
@@ -112,9 +105,7 @@ export class CacheManager implements Factory {
     }
 
     /** Create an instance of the MemoryStore cache driver. */
-    protected createMemorystoreDriver(
-        config: ArrayAccessible,
-    ): RepositoryContract {
+    protected createMemorystoreDriver(config: ArrayAccessible): RepositoryContract {
         return this.repository(
             new MemoryStoreStore(
                 (config.map as string | undefined) ?? "cache",
@@ -125,9 +116,7 @@ export class CacheManager implements Factory {
     }
 
     /** Create an instance of the DataStore cache driver. */
-    protected createDatastoreDriver(
-        config: ArrayAccessible,
-    ): RepositoryContract {
+    protected createDatastoreDriver(config: ArrayAccessible): RepositoryContract {
         return this.repository(
             new DataStoreStore(
                 (config.store_name as string | undefined) ?? "cache",
@@ -144,10 +133,7 @@ export class CacheManager implements Factory {
     }
 
     /** Create a new cache repository with the given implementation. */
-    public repository(
-        store: Store,
-        config: ArrayAccessible = {},
-    ): RepositoryContract {
+    public repository(store: Store, config: ArrayAccessible = {}): RepositoryContract {
         const repository = new Repository(store, config);
 
         if (this.app.bound("events") && config.events !== false) {
@@ -159,16 +145,12 @@ export class CacheManager implements Factory {
 
     /** Get the cache connection configuration. */
     protected getConfig(name: string): ArrayAccessible | undefined {
-        return this.app
-            .make<ConfigRepository>("config")
-            .get(`cache.stores.${name}`) as ArrayAccessible | undefined;
+        return this.app.make<ConfigRepository>("config").get(`cache.stores.${name}`) as ArrayAccessible | undefined;
     }
 
     /** Get the default cache driver name. */
     public getDefaultDriver(): string {
-        return this.app
-            .make<ConfigRepository>("config")
-            .get("cache.default") as string;
+        return this.app.make<ConfigRepository>("config").get("cache.default") as string;
     }
 
     /** Set the default cache driver name. */

@@ -61,18 +61,8 @@ export = (): void => {
 
             expect(provider.ids().size()).to.equal(0);
 
-            const first = provider.log(
-                "database",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException("one"),
-            );
-            const second = provider.log(
-                "database",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException("two"),
-            );
+            const first = provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException("one"));
+            const second = provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException("two"));
 
             const ids = provider.ids();
 
@@ -86,18 +76,8 @@ export = (): void => {
         it("ids(queue) narrows the listing to one queue", () => {
             const provider = freshProvider();
 
-            provider.log(
-                "connection-1",
-                "queue-1",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
-            provider.log(
-                "connection-2",
-                "queue-2",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("connection-1", "queue-1", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log("connection-2", "queue-2", payloadFor(Str.uuid()), new RuntimeException());
 
             expect(provider.ids("queue-1").size()).to.equal(1);
             expect(provider.ids("queue-2").size()).to.equal(1);
@@ -110,18 +90,8 @@ export = (): void => {
 
             expect(provider.all().size()).to.equal(0);
 
-            provider.log(
-                "database",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
-            provider.log(
-                "database",
-                "emails",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log("database", "emails", payloadFor(Str.uuid()), new RuntimeException());
 
             const all = provider.all();
 
@@ -137,12 +107,7 @@ export = (): void => {
         it("find() returns a logged failure by id, and undefined for an unknown one", () => {
             const provider = freshProvider();
 
-            const id = provider.log(
-                "connection-1",
-                "queue-1",
-                payloadFor("uuid-1"),
-                new RuntimeException(),
-            );
+            const id = provider.log("connection-1", "queue-1", payloadFor("uuid-1"), new RuntimeException());
 
             const found = provider.find(id);
 
@@ -158,12 +123,7 @@ export = (): void => {
         it("forget() removes a failure and reports whether it existed", () => {
             const provider = freshProvider();
 
-            const id = provider.log(
-                "database",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            const id = provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
 
             expect(provider.forget("not-an-id")).to.equal(false);
             expect(provider.find(id)).to.be.ok();
@@ -176,18 +136,8 @@ export = (): void => {
         it("flush() with no argument removes every failure", () => {
             const provider = freshProvider();
 
-            provider.log(
-                "connection-1",
-                "queue-1",
-                payloadFor("uuid-1"),
-                new RuntimeException(),
-            );
-            provider.log(
-                "connection-2",
-                "queue-2",
-                payloadFor("uuid-2"),
-                new RuntimeException(),
-            );
+            provider.log("connection-1", "queue-1", payloadFor("uuid-1"), new RuntimeException());
+            provider.log("connection-2", "queue-2", payloadFor("uuid-2"), new RuntimeException());
 
             expect(provider.all().size()).to.equal(2);
 
@@ -200,12 +150,7 @@ export = (): void => {
         it("flush(hours) only removes failures older than the cutoff", () => {
             const provider = freshProvider();
 
-            provider.log(
-                "database",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
 
             provider.flush(24);
 
@@ -217,18 +162,8 @@ export = (): void => {
         it("prune() removes failures logged before the given timestamp", () => {
             const provider = freshProvider();
 
-            provider.log(
-                "connection-1",
-                "queue-1",
-                payloadFor("uuid-1"),
-                new RuntimeException(),
-            );
-            provider.log(
-                "connection-2",
-                "queue-2",
-                payloadFor("uuid-2"),
-                new RuntimeException(),
-            );
+            provider.log("connection-1", "queue-1", payloadFor("uuid-1"), new RuntimeException());
+            provider.log("connection-2", "queue-2", payloadFor("uuid-2"), new RuntimeException());
 
             // `all()` is newest-first, so the *last* entry is the oldest.
             // Upstream freezes the clock; without one, the two failures can
@@ -251,26 +186,11 @@ export = (): void => {
 
             expect(provider.count()).to.equal(0);
 
-            provider.log(
-                "database",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
             expect(provider.count()).to.equal(1);
 
-            provider.log(
-                "database",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
-            provider.log(
-                "another-connection",
-                "another-queue",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log("another-connection", "another-queue", payloadFor(Str.uuid()), new RuntimeException());
             expect(provider.count()).to.equal(3);
         });
 
@@ -279,28 +199,13 @@ export = (): void => {
         it("count(connection) narrows the count to one connection", () => {
             const provider = freshProvider();
 
-            provider.log(
-                "connection-1",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
-            provider.log(
-                "connection-2",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("connection-1", "default", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log("connection-2", "default", payloadFor(Str.uuid()), new RuntimeException());
 
             expect(provider.count("connection-1")).to.equal(1);
             expect(provider.count("connection-2")).to.equal(1);
 
-            provider.log(
-                "connection-1",
-                "default",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("connection-1", "default", payloadFor(Str.uuid()), new RuntimeException());
 
             expect(provider.count("connection-1")).to.equal(2);
             expect(provider.count("connection-2")).to.equal(1);
@@ -311,18 +216,8 @@ export = (): void => {
         it("count(undefined, queue) narrows the count to one queue", () => {
             const provider = freshProvider();
 
-            provider.log(
-                "database",
-                "queue-1",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
-            provider.log(
-                "database",
-                "queue-2",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("database", "queue-1", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log("database", "queue-2", payloadFor(Str.uuid()), new RuntimeException());
 
             expect(provider.count(undefined, "queue-1")).to.equal(1);
             expect(provider.count(undefined, "queue-2")).to.equal(1);
@@ -333,30 +228,10 @@ export = (): void => {
         it("count(connection, queue) narrows by both", () => {
             const provider = freshProvider();
 
-            provider.log(
-                "connection-1",
-                "queue-99",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
-            provider.log(
-                "connection-1",
-                "queue-99",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
-            provider.log(
-                "connection-2",
-                "queue-99",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
-            provider.log(
-                "connection-1",
-                "queue-1",
-                payloadFor(Str.uuid()),
-                new RuntimeException(),
-            );
+            provider.log("connection-1", "queue-99", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log("connection-1", "queue-99", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log("connection-2", "queue-99", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log("connection-1", "queue-1", payloadFor(Str.uuid()), new RuntimeException());
 
             expect(provider.count("connection-1", "queue-99")).to.equal(2);
             expect(provider.count("connection-2", "queue-99")).to.equal(1);

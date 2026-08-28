@@ -32,12 +32,7 @@ class PipelineTestPipeOne {
 class PipelineTestParameterPipe {
     public parameters?: [string | undefined, string | undefined];
 
-    public handle(
-        piped: unknown,
-        _next: Next,
-        parameter1?: string,
-        parameter2?: string,
-    ): unknown {
+    public handle(piped: unknown, _next: Next, parameter1?: string, parameter2?: string): unknown {
         this.parameters = [parameter1, parameter2];
 
         return _next(piped);
@@ -144,10 +139,7 @@ export = (): void => {
 
             pipeOneCalled = undefined;
 
-            const result2 = new Pipeline(new Container())
-                .send("bar")
-                .through(fn)
-                .thenReturn();
+            const result2 = new Pipeline(new Container()).send("bar").through(fn).thenReturn();
 
             expect(result2).to.equal("bar");
             expect(pipeOneCalled).to.equal("foo");
@@ -199,10 +191,7 @@ export = (): void => {
 
             const result = new Pipeline(new Container())
                 .send("foo")
-                .through([
-                    (): string => "m(-_-)m",
-                    (): string => (secondCalled = "m(-_-)m"),
-                ])
+                .through([(): string => "m(-_-)m", (): string => (secondCalled = "m(-_-)m")])
                 .then((piped) => {
                     thenCalled = "(0_0)";
 
@@ -287,10 +276,7 @@ export = (): void => {
             const pipeOne = new PipelineTestPipeOne();
             container.instance(PipelineTestPipeOne, pipeOne);
 
-            const result = new Pipeline(container)
-                .send("foo")
-                .through([PipelineTestPipeOne])
-                .thenReturn();
+            const result = new Pipeline(container).send("foo").through([PipelineTestPipeOne]).thenReturn();
 
             expect(result).to.equal("foo");
             expect(pipeOne.received).to.equal("foo");
@@ -437,10 +423,7 @@ export = (): void => {
                     return carry;
                 }
 
-                protected handleException(
-                    _passable: unknown,
-                    e: unknown,
-                ): unknown {
+                protected handleException(_passable: unknown, e: unknown): unknown {
                     expect(e instanceof RuntimeException).to.equal(true);
 
                     return "handled";

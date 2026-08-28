@@ -34,12 +34,8 @@ export = (): void => {
 
             job.fail("Whoops!");
 
-            expect(
-                queueJob.failedWith instanceof ManuallyFailedException,
-            ).to.equal(true);
-            expect(
-                (queueJob.failedWith as ManuallyFailedException).getMessage(),
-            ).to.equal("Whoops!");
+            expect(queueJob.failedWith instanceof ManuallyFailedException).to.equal(true);
+            expect((queueJob.failedWith as ManuallyFailedException).getMessage()).to.equal("Whoops!");
         });
 
         // Not directly in the PHP suite -- exercises fail() passing a non-string

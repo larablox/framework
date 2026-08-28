@@ -1,9 +1,6 @@
 import { Job } from "Illuminate/Queue/Jobs/Job";
 import type { Container } from "Illuminate/Contracts/Container/Container";
-import type {
-    Job as JobContract,
-    JobPayload,
-} from "Illuminate/Contracts/Queue/Job";
+import type { Job as JobContract, JobPayload } from "Illuminate/Contracts/Queue/Job";
 
 /** PHP: `Illuminate\Queue\Jobs\SyncJob`. */
 export class SyncJob extends Job implements JobContract {
@@ -11,12 +8,7 @@ export class SyncJob extends Job implements JobContract {
     protected jobPayload: JobPayload;
 
     /** Create a new job instance. */
-    public constructor(
-        container: Container,
-        payload: JobPayload,
-        connectionName: string,
-        queue: string,
-    ) {
+    public constructor(container: Container, payload: JobPayload, connectionName: string, queue: string) {
         super();
 
         this.queue = queue;

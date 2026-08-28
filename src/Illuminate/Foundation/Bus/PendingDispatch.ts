@@ -102,9 +102,7 @@ export class PendingDispatch {
             return true;
         }
 
-        return new UniqueLock(container.make<Cache>("cache.store")).acquire(
-            this.job,
-        );
+        return new UniqueLock(container.make<Cache>("cache.store")).acquire(this.job);
     }
 
     /** Hand the job to the bus, now rather than at the end of the cycle. */
@@ -119,8 +117,6 @@ export class PendingDispatch {
             return undefined;
         }
 
-        return Container.getInstance()
-            .make<Dispatcher>(Dispatcher)
-            .dispatch(this.job);
+        return Container.getInstance().make<Dispatcher>(Dispatcher).dispatch(this.job);
     }
 }

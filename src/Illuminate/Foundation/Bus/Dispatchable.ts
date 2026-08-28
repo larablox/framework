@@ -13,9 +13,7 @@ import { Queueable } from "Illuminate/Bus/Queueable";
  * constructor of whichever subclass the static was called on, so the arguments
  * are checked against *that* constructor.
  */
-type JobClass<T extends Queueable, A extends Array<unknown>> = new (
-    ...args: A
-) => T;
+type JobClass<T extends Queueable, A extends Array<unknown>> = new (...args: A) => T;
 
 /**
  * PHP: `Illuminate\Foundation\Bus\Dispatchable`.

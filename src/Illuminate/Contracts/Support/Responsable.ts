@@ -14,8 +14,5 @@ export interface Responsable {
  * required -- the same trade `Arrayable` makes.
  */
 export function isResponsable(value: unknown): value is Responsable {
-    return (
-        typeIs(value, "table") &&
-        typeIs((value as Responsable).toResponse, "function")
-    );
+    return typeIs(value, "table") && typeIs((value as Responsable).toResponse, "function");
 }

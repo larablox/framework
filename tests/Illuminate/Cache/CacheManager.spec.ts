@@ -135,9 +135,7 @@ export = (): void => {
 
             manager.setDefaultDriver("><((((@>");
 
-            expect(
-                app.make<ConfigRepository>("config").get("cache.default"),
-            ).to.equal("><((((@>");
+            expect(app.make<ConfigRepository>("config").get("cache.default")).to.equal("><((((@>");
         });
 
         // PHP: CacheManagerTest::testItPurgesMemoizedStoreObjects (adapted --
@@ -241,9 +239,7 @@ export = (): void => {
             const repo = manager.store("my_store") as Repository;
             expect(repo.getEventDispatcher()).never.to.equal(undefined);
 
-            const repoWithoutEvents = manager.store(
-                "my_store_without_events",
-            ) as Repository;
+            const repoWithoutEvents = manager.store("my_store_without_events") as Repository;
             expect(repoWithoutEvents.getEventDispatcher()).to.equal(undefined);
         });
     });

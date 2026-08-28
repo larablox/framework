@@ -25,24 +25,17 @@ export class RoutingServiceProvider extends ServiceProvider {
     protected registerRouter(): void {
         this.app.singleton(
             "router",
-            (container: Container) =>
-                new Router(container.make<Dispatcher>("events"), container),
+            (container: Container) => new Router(container.make<Dispatcher>("events"), container),
         );
     }
 
     /** Register the callable dispatcher. */
     protected registerCallableDispatcher(): void {
-        this.app.singleton(
-            CallableDispatcher,
-            (container: Container) => new CallableDispatcher(container),
-        );
+        this.app.singleton(CallableDispatcher, (container: Container) => new CallableDispatcher(container));
     }
 
     /** Register the controller dispatcher. */
     protected registerControllerDispatcher(): void {
-        this.app.singleton(
-            ControllerDispatcher,
-            (container: Container) => new ControllerDispatcher(container),
-        );
+        this.app.singleton(ControllerDispatcher, (container: Container) => new ControllerDispatcher(container));
     }
 }

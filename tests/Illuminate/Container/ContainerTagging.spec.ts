@@ -33,37 +33,19 @@ export = (): void => {
             const fooResults = container.tagged("foo").toArray();
             const barResults = container.tagged("bar").toArray();
 
-            expect(
-                fooResults[0] instanceof ContainerImplementationTaggedStub,
-            ).to.equal(true);
-            expect(
-                barResults[0] instanceof ContainerImplementationTaggedStub,
-            ).to.equal(true);
-            expect(
-                fooResults[1] instanceof ContainerImplementationTaggedStubTwo,
-            ).to.equal(true);
+            expect(fooResults[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
+            expect(barResults[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
+            expect(fooResults[1] instanceof ContainerImplementationTaggedStubTwo).to.equal(true);
 
             const container2 = new Container();
-            container2.tag(
-                [
-                    ContainerImplementationTaggedStub,
-                    ContainerImplementationTaggedStubTwo,
-                ],
-                ["foo"],
-            );
+            container2.tag([ContainerImplementationTaggedStub, ContainerImplementationTaggedStubTwo], ["foo"]);
             expect(container2.tagged("foo").count()).to.equal(2);
 
             const fooResults2 = container2.tagged("foo").toArray();
-            expect(
-                fooResults2[0] instanceof ContainerImplementationTaggedStub,
-            ).to.equal(true);
-            expect(
-                fooResults2[1] instanceof ContainerImplementationTaggedStubTwo,
-            ).to.equal(true);
+            expect(fooResults2[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
+            expect(fooResults2[1] instanceof ContainerImplementationTaggedStubTwo).to.equal(true);
 
-            expect(
-                container2.tagged("this_tag_does_not_exist").count(),
-            ).to.equal(0);
+            expect(container2.tagged("this_tag_does_not_exist").count()).to.equal(0);
         });
 
         it("tagged() only builds an entry once iteration actually reaches it", () => {
@@ -90,9 +72,7 @@ export = (): void => {
             }
 
             expect(tagged.count()).to.equal(2);
-            expect(
-                fooResults[0] instanceof ContainerImplementationTaggedStub,
-            ).to.equal(true);
+            expect(fooResults[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
             expect(builtCount).to.equal(1);
         });
 
@@ -109,24 +89,16 @@ export = (): void => {
                 firstPass[firstPass.size()] = foo;
             }
 
-            expect(
-                firstPass[0] instanceof ContainerImplementationTaggedStub,
-            ).to.equal(true);
-            expect(
-                firstPass[1] instanceof ContainerImplementationTaggedStubTwo,
-            ).to.equal(true);
+            expect(firstPass[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
+            expect(firstPass[1] instanceof ContainerImplementationTaggedStubTwo).to.equal(true);
 
             const secondPass = new Array<unknown>();
             for (const foo of services.getIterator()) {
                 secondPass[secondPass.size()] = foo;
             }
 
-            expect(
-                secondPass[0] instanceof ContainerImplementationTaggedStub,
-            ).to.equal(true);
-            expect(
-                secondPass[1] instanceof ContainerImplementationTaggedStubTwo,
-            ).to.equal(true);
+            expect(secondPass[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
+            expect(secondPass[1] instanceof ContainerImplementationTaggedStubTwo).to.equal(true);
         });
     });
 };

@@ -4,9 +4,7 @@ import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import type { Repository as Cache } from "Illuminate/Cache/Repository";
 
 /** PHP: the closure registered with `RateLimiter::for()`. */
-export type LimiterCallback = (
-    ...args: Array<never>
-) => Limit | Array<Limit> | undefined;
+export type LimiterCallback = (...args: Array<never>) => Limit | Array<Limit> | undefined;
 
 /**
  * PHP: `Illuminate\Cache\RateLimiter`.
@@ -39,12 +37,7 @@ export class RateLimiter {
     }
 
     /** Attempts to execute a callback if it's not limited. */
-    public attempt<T>(
-        key: string,
-        maxAttempts: number,
-        callback: () => T,
-        decaySeconds = 60,
-    ): T | boolean {
+    public attempt<T>(key: string, maxAttempts: number, callback: () => T, decaySeconds = 60): T | boolean {
         if (this.tooManyAttempts(key, maxAttempts)) {
             return false;
         }
@@ -76,11 +69,7 @@ export class RateLimiter {
 
     /** Increment the counter for a given key for a given decay time. */
     public increment(key: string, decaySeconds = 60, amount = 1): number {
-        this.cache.add(
-            `${key}:timer`,
-            InteractsWithTime.availableAt(decaySeconds),
-            decaySeconds,
-        );
+        this.cache.add(`${key}:timer`, InteractsWithTime.availableAt(decaySeconds), decaySeconds);
 
         const added = this.cache.add(key, 0, decaySeconds);
 

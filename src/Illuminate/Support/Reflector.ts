@@ -28,8 +28,7 @@ export class Reflector {
 
     /** The superclass of a compiled class, or `undefined` for a root class. */
     public static parentClass(target: object): object | undefined {
-        const metatable = getmetatable(target) as
-            { __index?: object } | undefined;
+        const metatable = getmetatable(target) as { __index?: object } | undefined;
 
         return metatable?.__index;
     }
@@ -68,10 +67,7 @@ export class Reflector {
 
         const metatable = getmetatable(value) as object | undefined;
 
-        return (
-            metatable !== undefined &&
-            rawget(metatable, "__index") === metatable
-        );
+        return metatable !== undefined && rawget(metatable, "__index") === metatable;
     }
 
     /** PHP: `$value instanceof $class`. */
@@ -80,9 +76,6 @@ export class Reflector {
             return false;
         }
 
-        return Reflector.isSubclassOf(
-            Reflector.classOf(value as object),
-            klass,
-        );
+        return Reflector.isSubclassOf(Reflector.classOf(value as object), klass);
     }
 }

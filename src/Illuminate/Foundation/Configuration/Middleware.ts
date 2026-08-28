@@ -119,41 +119,28 @@ export class Middleware {
 
     /** Prepend the given middleware to the specified group. */
     public prependToGroup(group: string, middleware: Pipe | Array<Pipe>): this {
-        this.groupPrepends[group] = [
-            ...Arr.wrap(middleware),
-            ...(this.groupPrepends[group] ?? new Array<Pipe>()),
-        ];
+        this.groupPrepends[group] = [...Arr.wrap(middleware), ...(this.groupPrepends[group] ?? new Array<Pipe>())];
 
         return this;
     }
 
     /** Append the given middleware to the specified group. */
     public appendToGroup(group: string, middleware: Pipe | Array<Pipe>): this {
-        this.groupAppends[group] = [
-            ...(this.groupAppends[group] ?? new Array<Pipe>()),
-            ...Arr.wrap(middleware),
-        ];
+        this.groupAppends[group] = [...(this.groupAppends[group] ?? new Array<Pipe>()), ...Arr.wrap(middleware)];
 
         return this;
     }
 
     /** Remove the given middleware from the specified group. */
-    public removeFromGroup(
-        group: string,
-        middleware: Pipe | Array<Pipe>,
-    ): this {
-        this.groupRemovals[group] = [
-            ...Arr.wrap(middleware),
-            ...(this.groupRemovals[group] ?? new Array<Pipe>()),
-        ];
+    public removeFromGroup(group: string, middleware: Pipe | Array<Pipe>): this {
+        this.groupRemovals[group] = [...Arr.wrap(middleware), ...(this.groupRemovals[group] ?? new Array<Pipe>())];
 
         return this;
     }
 
     /** Replace the given middleware in the specified group with another middleware. */
     public replaceInGroup(group: string, search: Pipe, replace: Pipe): this {
-        const replacements =
-            this.groupReplacements[group] ?? new Array<[Pipe, Pipe]>();
+        const replacements = this.groupReplacements[group] ?? new Array<[Pipe, Pipe]>();
 
         replacements.push([search, replace]);
 
@@ -214,10 +201,7 @@ export class Middleware {
     }
 
     /** Prepend middleware to the priority middleware. */
-    public prependToPriorityList(
-        before: Pipe | Array<Pipe>,
-        prepend: Pipe,
-    ): this {
+    public prependToPriorityList(before: Pipe | Array<Pipe>, prepend: Pipe): this {
         this.prependPriority.push([prepend, before]);
 
         return this;
@@ -274,14 +258,8 @@ export class Middleware {
         for (const [group, replacements] of pairs(this.groupReplacements)) {
             const replaced = new Array<Pipe>();
 
-            for (const entry of middleware[group as string] ??
-                new Array<Pipe>()) {
-                replaced.push(
-                    this.replacementFor(
-                        replacements as Array<[Pipe, Pipe]>,
-                        entry,
-                    ),
-                );
+            for (const entry of middleware[group as string] ?? new Array<Pipe>()) {
+                replaced.push(this.replacementFor(replacements as Array<[Pipe, Pipe]>, entry));
             }
 
             middleware[group as string] = replaced;
@@ -359,10 +337,7 @@ export class Middleware {
      * PHP keys the replacements by the middleware they replace; a class is not
      * a string here, so the pair is a list and the look-up is a walk.
      */
-    protected replacementFor(
-        replacements: Array<[Pipe, Pipe]>,
-        middleware: Pipe,
-    ): Pipe {
+    protected replacementFor(replacements: Array<[Pipe, Pipe]>, middleware: Pipe): Pipe {
         for (const [search, replacement] of replacements) {
             if (search === middleware) {
                 return replacement;
@@ -373,10 +348,7 @@ export class Middleware {
     }
 
     /** The list with duplicates -- and anything removed -- taken out. */
-    protected unique(
-        middleware: Array<Pipe>,
-        removals: Array<Pipe> = [],
-    ): Array<Pipe> {
+    protected unique(middleware: Array<Pipe>, removals: Array<Pipe> = []): Array<Pipe> {
         const resolved = new Array<Pipe>();
 
         for (const entry of middleware) {

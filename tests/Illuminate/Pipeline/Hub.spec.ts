@@ -25,9 +25,7 @@ export = (): void => {
 
         it("sends an object through the default pipeline", () => {
             // PHP: HubTest::testPipeSendsObjectThroughDefaultPipeline
-            hub.defaults((pipeline: Pipeline, object: Passable) =>
-                pipeline.send(object).through([]).thenReturn(),
-            );
+            hub.defaults((pipeline: Pipeline, object: Passable) => pipeline.send(object).through([]).thenReturn());
 
             expect(hub.pipe("foo")).to.equal("foo");
         });
@@ -47,9 +45,7 @@ export = (): void => {
 
             expect(ok).to.equal(false);
             expect(err instanceof InvalidArgumentException).to.equal(true);
-            expect((err as InvalidArgumentException).getMessage()).to.equal(
-                "Pipeline [missing] is not defined.",
-            );
+            expect((err as InvalidArgumentException).getMessage()).to.equal("Pipeline [missing] is not defined.");
         });
     });
 };

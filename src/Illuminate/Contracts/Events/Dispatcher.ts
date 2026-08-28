@@ -14,8 +14,7 @@ export type EventPayload = Array<defined>;
  * pair resolved through the container, a `[instance, method]` pair invoked as
  * is, or a class whose `handle` method is called.
  */
-export type Listener =
-    Callback | [Abstract, string] | [object, string] | Abstract;
+export type Listener = Callback | [Abstract, string] | [object, string] | Abstract;
 
 export interface Dispatcher {
     /** Register an event listener with the dispatcher. */
@@ -31,11 +30,7 @@ export interface Dispatcher {
     until(event: EventName | object, payload?: unknown): unknown;
 
     /** Dispatch an event and call the listeners. */
-    dispatch(
-        event: EventName | object,
-        payload?: unknown,
-        halt?: boolean,
-    ): unknown;
+    dispatch(event: EventName | object, payload?: unknown, halt?: boolean): unknown;
 
     /** Register an event and payload to be fired later. */
     push(event: string, payload?: unknown): void;

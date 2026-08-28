@@ -11,11 +11,7 @@ import { WorkerStopping } from "Illuminate/Queue/Events/WorkerStopping";
 import { Worker } from "Illuminate/Queue/Worker";
 import type { Abstract } from "Illuminate/Container/Types";
 import type { Factory } from "Illuminate/Contracts/Queue/Factory";
-import type {
-    Job,
-    JobHandler,
-    JobPayload,
-} from "Illuminate/Contracts/Queue/Job";
+import type { Job, JobHandler, JobPayload } from "Illuminate/Contracts/Queue/Job";
 import type { Queue } from "Illuminate/Contracts/Queue/Queue";
 
 /**
@@ -182,19 +178,13 @@ class FakeManager implements Factory {
     }
 }
 
-function getWorker(
-    jobs: Record<string, Array<Job>>,
-): [Worker, Dispatcher, Array<unknown>] {
+function getWorker(jobs: Record<string, Array<Job>>): [Worker, Dispatcher, Array<unknown>] {
     const events = new Dispatcher();
     const reported = new Array<unknown>();
     const connection = new FakeConnection("default", jobs);
     const manager = new FakeManager(connection as unknown as Queue);
 
-    const worker = new Worker(
-        manager,
-        events,
-        (e) => (reported[reported.size()] = e),
-    );
+    const worker = new Worker(manager, events, (e) => (reported[reported.size()] = e));
 
     return [worker, events, reported];
 }

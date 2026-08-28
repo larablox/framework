@@ -16,18 +16,11 @@ export interface Bind {
  * the given environments. Repeatable: the first attribute whose environments
  * match wins, with `["*"]` as the fallback.
  */
-export function Bind(
-    concrete: Concrete,
-    environments: string | Array<string> = ["*"],
-) {
-    const wrapped = typeIs(environments, "string")
-        ? [environments]
-        : environments;
+export function Bind(concrete: Concrete, environments: string | Array<string> = ["*"]) {
+    const wrapped = typeIs(environments, "string") ? [environments] : environments;
 
     if (wrapped.isEmpty()) {
-        throw new InvalidArgumentException(
-            "The environment property must be set and cannot be empty.",
-        );
+        throw new InvalidArgumentException("The environment property must be set and cannot be empty.");
     }
 
     return (target: object): void => {

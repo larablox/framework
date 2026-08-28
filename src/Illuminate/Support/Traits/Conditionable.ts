@@ -1,10 +1,6 @@
 import { Trait } from "Illuminate/Support/Traits/Trait";
 import { Util } from "Illuminate/Container/Util";
-import type {
-    AssertNoExtraMembers,
-    AssertTrue,
-    Constructor,
-} from "Illuminate/Support/Traits/Trait";
+import type { AssertNoExtraMembers, AssertTrue, Constructor } from "Illuminate/Support/Traits/Trait";
 
 /**
  * The instance type `Conditionable()` mixes in.
@@ -45,31 +41,15 @@ export declare class ConditionablePublicShape {
     /** Apply the callback if the given "value" is (or resolves to) truthy. */
     public when<TWhenParameter extends defined, TWhenReturn extends defined>(
         value: TWhenParameter | ((target: this) => TWhenParameter) | undefined,
-        callback: (
-            target: this,
-            value: TWhenParameter,
-        ) => TWhenReturn | undefined,
-        defaultCallback?: (
-            target: this,
-            value: TWhenParameter,
-        ) => TWhenReturn | undefined,
+        callback: (target: this, value: TWhenParameter) => TWhenReturn | undefined,
+        defaultCallback?: (target: this, value: TWhenParameter) => TWhenReturn | undefined,
     ): this | TWhenReturn;
 
     /** Apply the callback if the given "value" is (or resolves to) falsy. */
-    public unless<
-        TUnlessParameter extends defined,
-        TUnlessReturn extends defined,
-    >(
-        value:
-            TUnlessParameter | ((target: this) => TUnlessParameter) | undefined,
-        callback: (
-            target: this,
-            value: TUnlessParameter,
-        ) => TUnlessReturn | undefined,
-        defaultCallback?: (
-            target: this,
-            value: TUnlessParameter,
-        ) => TUnlessReturn | undefined,
+    public unless<TUnlessParameter extends defined, TUnlessReturn extends defined>(
+        value: TUnlessParameter | ((target: this) => TUnlessParameter) | undefined,
+        callback: (target: this, value: TUnlessParameter) => TUnlessReturn | undefined,
+        defaultCallback?: (target: this, value: TUnlessParameter) => TUnlessReturn | undefined,
     ): this | TUnlessReturn;
 }
 
@@ -94,20 +74,10 @@ export declare class ConditionableShape extends ConditionablePublicShape {
 function conditionable<TBase extends Constructor>(Base: TBase) {
     return class extends Base {
         /** Apply the callback if the given "value" is (or resolves to) truthy. */
-        public when<
-            TWhenParameter extends defined,
-            TWhenReturn extends defined,
-        >(
-            value:
-                TWhenParameter | ((target: this) => TWhenParameter) | undefined,
-            callback: (
-                target: this,
-                value: TWhenParameter,
-            ) => TWhenReturn | undefined,
-            defaultCallback?: (
-                target: this,
-                value: TWhenParameter,
-            ) => TWhenReturn | undefined,
+        public when<TWhenParameter extends defined, TWhenReturn extends defined>(
+            value: TWhenParameter | ((target: this) => TWhenParameter) | undefined,
+            callback: (target: this, value: TWhenParameter) => TWhenReturn | undefined,
+            defaultCallback?: (target: this, value: TWhenParameter) => TWhenReturn | undefined,
         ): this | TWhenReturn {
             const resolved = this.resolveCondition(value);
 
@@ -116,31 +86,17 @@ function conditionable<TBase extends Constructor>(Base: TBase) {
             }
 
             if (defaultCallback !== undefined) {
-                return (
-                    defaultCallback(this, resolved as TWhenParameter) ?? this
-                );
+                return defaultCallback(this, resolved as TWhenParameter) ?? this;
             }
 
             return this;
         }
 
         /** Apply the callback if the given "value" is (or resolves to) falsy. */
-        public unless<
-            TUnlessParameter extends defined,
-            TUnlessReturn extends defined,
-        >(
-            value:
-                | TUnlessParameter
-                | ((target: this) => TUnlessParameter)
-                | undefined,
-            callback: (
-                target: this,
-                value: TUnlessParameter,
-            ) => TUnlessReturn | undefined,
-            defaultCallback?: (
-                target: this,
-                value: TUnlessParameter,
-            ) => TUnlessReturn | undefined,
+        public unless<TUnlessParameter extends defined, TUnlessReturn extends defined>(
+            value: TUnlessParameter | ((target: this) => TUnlessParameter) | undefined,
+            callback: (target: this, value: TUnlessParameter) => TUnlessReturn | undefined,
+            defaultCallback?: (target: this, value: TUnlessParameter) => TUnlessReturn | undefined,
         ): this | TUnlessReturn {
             const resolved = this.resolveCondition(value);
 
@@ -149,9 +105,7 @@ function conditionable<TBase extends Constructor>(Base: TBase) {
             }
 
             if (defaultCallback !== undefined) {
-                return (
-                    defaultCallback(this, resolved as TUnlessParameter) ?? this
-                );
+                return defaultCallback(this, resolved as TUnlessParameter) ?? this;
             }
 
             return this;
@@ -161,9 +115,7 @@ function conditionable<TBase extends Constructor>(Base: TBase) {
         private resolveCondition<TValue extends defined>(
             value: TValue | ((target: this) => TValue) | undefined,
         ): TValue | undefined {
-            return typeIs(value, "function")
-                ? (value as (target: this) => TValue)(this)
-                : value;
+            return typeIs(value, "function") ? (value as (target: this) => TValue)(this) : value;
         }
     } satisfies Constructor<ConditionablePublicShape>;
 }
@@ -182,9 +134,7 @@ type ConditionableExtra = Exclude<
 >;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the assertion is the point: it fails to compile when the trait has a public member the shape does not list.
-type ConditionableIsExact = AssertTrue<
-    AssertNoExtraMembers<ConditionableExtra>
->;
+type ConditionableIsExact = AssertTrue<AssertNoExtraMembers<ConditionableExtra>>;
 
 /**
  * PHP: `trait Illuminate\Support\Traits\Conditionable`.

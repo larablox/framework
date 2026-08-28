@@ -8,16 +8,12 @@ export class Skip {
 
     /** Skip the job when the condition holds. */
     public static when(condition: boolean | (() => boolean)): Skip {
-        return new Skip(
-            typeIs(condition, "function") ? condition() : condition,
-        );
+        return new Skip(typeIs(condition, "function") ? condition() : condition);
     }
 
     /** Skip the job unless the condition holds. */
     public static unless(condition: boolean | (() => boolean)): Skip {
-        return new Skip(
-            !(typeIs(condition, "function") ? condition() : condition),
-        );
+        return new Skip(!(typeIs(condition, "function") ? condition() : condition));
     }
 
     /** Process the job. */

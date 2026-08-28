@@ -30,9 +30,7 @@ export = (): void => {
             // A rest parameter, not a single array one: a variadic dependency
             // is spread into separate arguments, the same way PHP's
             // `TestInterface ...$objects` receives them.
-            public constructor(
-                @Variadic(TestInterface) ...objects: Array<TestInterface>
-            ) {
+            public constructor(@Variadic(TestInterface) ...objects: Array<TestInterface>) {
                 this.objects = objects;
             }
         }
@@ -55,10 +53,7 @@ export = (): void => {
         it("resolving a variadic non-instantiable dependency still resets the parameter stack", () => {
             // PHP: ContainerResolveNonInstantiableTest::testResolvingNonInstantiableWithVariadicRemovesWiths
             const container = new Container();
-            const parent = container.make(
-                VariadicParentClass,
-                new Map([["$i", 42]]),
-            );
+            const parent = container.make(VariadicParentClass, new Map([["$i", 42]]));
 
             expect(parent.child.objects.size()).to.equal(0);
             expect(parent.i).to.equal(42);

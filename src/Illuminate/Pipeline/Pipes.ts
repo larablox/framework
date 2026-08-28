@@ -1,8 +1,5 @@
 import { Util } from "Illuminate/Container/Util";
-import type {
-    Pipe,
-    PipeWithParameters,
-} from "Illuminate/Contracts/Pipeline/Pipeline";
+import type { Pipe, PipeWithParameters } from "Illuminate/Contracts/Pipeline/Pipeline";
 
 /**
  * Whether the value is one `[Abstract, ...arguments]` pipe rather than a list
@@ -18,20 +15,14 @@ import type {
  * that leads with a string is a list of binding names, and a binding name
  * still spells its own arguments inline, exactly as PHP does.
  */
-export function isPipeWithParameters(
-    value: unknown,
-): value is PipeWithParameters {
+export function isPipeWithParameters(value: unknown): value is PipeWithParameters {
     if (!Util.isArray(value)) {
         return false;
     }
 
     const list = value as Array<unknown>;
 
-    return (
-        list.size() > 1 &&
-        !typeIs(list[0], "string") &&
-        typeIs(list[1], "string")
-    );
+    return list.size() > 1 && !typeIs(list[0], "string") && typeIs(list[1], "string");
 }
 
 /** Read a `Pipe | Array<Pipe>` argument as a list of pipes. */

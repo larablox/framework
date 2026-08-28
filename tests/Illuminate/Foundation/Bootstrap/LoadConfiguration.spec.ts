@@ -39,9 +39,7 @@ export = (): void => {
             const app = new Application();
             new LoadConfiguration().bootstrap(app);
 
-            expect(
-                app.make<ConfigRepository>("config").get("app.name"),
-            ).to.equal("Larablox");
+            expect(app.make<ConfigRepository>("config").get("app.name")).to.equal("Larablox");
         });
 
         it("bootstrap() wires an environment resolver (adapted -- see class comment)", () => {

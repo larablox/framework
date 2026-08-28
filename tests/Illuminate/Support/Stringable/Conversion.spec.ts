@@ -79,9 +79,7 @@ export = (): void => {
             // `jsonSerialize()`'s contract, not a full `json_encode()` round
             // trip through Roblox's HttpService, is what's under test)
             expect(Str.of("foo").jsonSerialize()).to.equal("foo");
-            expect(
-                Str.of("LaravelPhpFramework").kebab().jsonSerialize(),
-            ).to.equal("laravel-php-framework");
+            expect(Str.of("LaravelPhpFramework").kebab().jsonSerialize()).to.equal("laravel-php-framework");
         });
 
         it("tap() passes the instance to a callback and returns it unchanged", () => {
@@ -125,24 +123,12 @@ export = (): void => {
         it("slug() builds a URL friendly slug", () => {
             // PHP: SupportStringableTest::testSlug (language parameter
             // dropped, see class comment)
-            expect(Str.of("hello world").slug().toString()).to.equal(
-                "hello-world",
-            );
-            expect(Str.of("hello-world").slug().toString()).to.equal(
-                "hello-world",
-            );
-            expect(Str.of("hello_world").slug().toString()).to.equal(
-                "hello-world",
-            );
-            expect(Str.of("hello_world").slug("_").toString()).to.equal(
-                "hello_world",
-            );
-            expect(Str.of("user@host").slug().toString()).to.equal(
-                "user-at-host",
-            );
-            expect(Str.of("some text").slug("").toString()).to.equal(
-                "sometext",
-            );
+            expect(Str.of("hello world").slug().toString()).to.equal("hello-world");
+            expect(Str.of("hello-world").slug().toString()).to.equal("hello-world");
+            expect(Str.of("hello_world").slug().toString()).to.equal("hello-world");
+            expect(Str.of("hello_world").slug("_").toString()).to.equal("hello_world");
+            expect(Str.of("user@host").slug().toString()).to.equal("user-at-host");
+            expect(Str.of("some text").slug("").toString()).to.equal("sometext");
             expect(Str.of("").slug("").toString()).to.equal("");
             expect(Str.of("").slug().toString()).to.equal("");
         });
@@ -156,60 +142,32 @@ export = (): void => {
         it("newLine() appends a Roblox `\\n`", () => {
             // PHP: SupportStringableTest::testNewLine (PHP_EOL -> `\n`, see
             // `Stringable.newLine()`'s class comment)
-            expect(Str.of("Laravel").newLine().toString()).to.equal(
-                "Laravel\n",
-            );
-            expect(Str.of("foo").newLine(2).append("bar").toString()).to.equal(
-                "foo\n\nbar",
-            );
+            expect(Str.of("Laravel").newLine().toString()).to.equal("Laravel\n");
+            expect(Str.of("foo").newLine(2).append("bar").toString()).to.equal("foo\n\nbar");
         });
 
         it("toBase64()/fromBase64() round-trip", () => {
             // PHP: SupportStringableTest::testToBase64 / testFromBase64
             expect(Str.of("foo").toBase64().toString()).to.equal("Zm9v");
             expect(Str.of("foobar").toBase64().toString()).to.equal("Zm9vYmFy");
-            expect(Str.of("foobarbaz").toBase64().toString()).to.equal(
-                "Zm9vYmFyYmF6",
-            );
+            expect(Str.of("foobarbaz").toBase64().toString()).to.equal("Zm9vYmFyYmF6");
 
-            expect(
-                Str.of(Str.toBase64("foo")).fromBase64().toString(),
-            ).to.equal("foo");
-            expect(
-                Str.of(Str.toBase64("foobar")).fromBase64().toString(),
-            ).to.equal("foobar");
-            expect(
-                Str.of(Str.toBase64("foobarbaz")).fromBase64().toString(),
-            ).to.equal("foobarbaz");
+            expect(Str.of(Str.toBase64("foo")).fromBase64().toString()).to.equal("foo");
+            expect(Str.of(Str.toBase64("foobar")).fromBase64().toString()).to.equal("foobar");
+            expect(Str.of(Str.toBase64("foobarbaz")).fromBase64().toString()).to.equal("foobarbaz");
         });
 
         it("pluralStudly()/pluralPascal() pluralize the last word", () => {
             // PHP: SupportStringableTest::testPluralStudly / testPluralPascal
-            expect(Str.of("LaraCon").pluralStudly(1).toString()).to.equal(
-                "LaraCon",
-            );
-            expect(Str.of("LaraCon").pluralStudly(2).toString()).to.equal(
-                "LaraCons",
-            );
-            expect(Str.of("LaraCon").pluralStudly(-1).toString()).to.equal(
-                "LaraCon",
-            );
-            expect(Str.of("LaraCon").pluralStudly(-2).toString()).to.equal(
-                "LaraCons",
-            );
+            expect(Str.of("LaraCon").pluralStudly(1).toString()).to.equal("LaraCon");
+            expect(Str.of("LaraCon").pluralStudly(2).toString()).to.equal("LaraCons");
+            expect(Str.of("LaraCon").pluralStudly(-1).toString()).to.equal("LaraCon");
+            expect(Str.of("LaraCon").pluralStudly(-2).toString()).to.equal("LaraCons");
 
-            expect(Str.of("LaraCon").pluralPascal(2).toString()).to.equal(
-                "LaraCons",
-            );
-            expect(Str.of("LaraCon").pluralPascal(1).toString()).to.equal(
-                "LaraCon",
-            );
-            expect(Str.of("LaraCon").pluralPascal(-2).toString()).to.equal(
-                "LaraCons",
-            );
-            expect(Str.of("LaraCon").pluralPascal(-1).toString()).to.equal(
-                "LaraCon",
-            );
+            expect(Str.of("LaraCon").pluralPascal(2).toString()).to.equal("LaraCons");
+            expect(Str.of("LaraCon").pluralPascal(1).toString()).to.equal("LaraCon");
+            expect(Str.of("LaraCon").pluralPascal(-2).toString()).to.equal("LaraCons");
+            expect(Str.of("LaraCon").pluralPascal(-1).toString()).to.equal("LaraCon");
         });
     });
 };

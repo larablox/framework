@@ -4,11 +4,7 @@ import { Reflector } from "Illuminate/Support/Reflector";
 import { Util } from "Illuminate/Container/Util";
 import { getInjectedDependencies } from "Illuminate/Container/Attributes/Inject";
 import type { ParameterDependency } from "Illuminate/Container/Attributes/Inject";
-import type {
-    Abstract,
-    CallableTarget,
-    ParameterOverrides,
-} from "Illuminate/Container/Types";
+import type { Abstract, CallableTarget, ParameterOverrides } from "Illuminate/Container/Types";
 import type { Container } from "Illuminate/Container/Container";
 
 export class BoundMethod {
@@ -19,28 +15,12 @@ export class BoundMethod {
         parameters: ParameterOverrides = new Map(),
         defaultMethod?: string,
     ): unknown {
-        if (
-            typeIs(callback, "string") &&
-            (BoundMethod.isCallableWithAtSign(callback) ||
-                defaultMethod !== undefined)
-        ) {
-            return BoundMethod.callClass(
-                container,
-                callback,
-                parameters,
-                defaultMethod,
-            );
+        if (typeIs(callback, "string") && (BoundMethod.isCallableWithAtSign(callback) || defaultMethod !== undefined)) {
+            return BoundMethod.callClass(container, callback, parameters, defaultMethod);
         }
 
         return BoundMethod.callBoundMethod(container, callback, () =>
-            BoundMethod.invoke(
-                callback,
-                BoundMethod.getMethodDependencies(
-                    container,
-                    callback,
-                    parameters,
-                ),
-            ),
+            BoundMethod.invoke(callback, BoundMethod.getMethodDependencies(container, callback, parameters)),
         );
     }
 
@@ -62,19 +42,11 @@ export class BoundMethod {
             throw new InvalidArgumentException("Method not provided.");
         }
 
-        return BoundMethod.call(
-            container,
-            [container.make(segments[0]) as object, method],
-            parameters,
-        );
+        return BoundMethod.call(container, [container.make(segments[0]) as object, method], parameters);
     }
 
     /** Call a method that has been bound to the container. */
-    private static callBoundMethod(
-        container: Container,
-        callback: CallableTarget,
-        fallback: () => unknown,
-    ): unknown {
+    private static callBoundMethod(container: Container, callback: CallableTarget, fallback: () => unknown): unknown {
         if (!Util.isArray(callback)) {
             return fallback();
         }
@@ -82,15 +54,10 @@ export class BoundMethod {
         // Here we need to turn the array callable into a Class@method string we can use to
         // examine the container and see if there are any method bindings for this given
         // method. If there are, we can call this method binding callback immediately.
-        const method = BoundMethod.normalizeMethod(
-            callback as [object | Abstract, string],
-        );
+        const method = BoundMethod.normalizeMethod(callback as [object | Abstract, string]);
 
         if (container.hasMethodBinding(method)) {
-            return container.callMethodBinding(
-                method,
-                (callback as [object, string])[0],
-            );
+            return container.callMethodBinding(method, (callback as [object, string])[0]);
         }
 
         return fallback();
@@ -102,28 +69,19 @@ export class BoundMethod {
      * PHP flattens this into a `Class@method` string; the target is kept as
      * itself here so two same-named classes cannot share a key.
      */
-    private static normalizeMethod(
-        callback: [object | Abstract, string],
-    ): [Abstract, string] {
+    private static normalizeMethod(callback: [object | Abstract, string]): [Abstract, string] {
         const [target, method] = callback;
 
-        return [
-            (BoundMethod.classOfTarget(target) ?? target) as Abstract,
-            method,
-        ];
+        return [(BoundMethod.classOfTarget(target) ?? target) as Abstract, method];
     }
 
     /** The class a callable's first element refers to, if it can be determined. */
-    private static classOfTarget(
-        target: object | Abstract,
-    ): object | undefined {
+    private static classOfTarget(target: object | Abstract): object | undefined {
         if (typeIs(target, "string")) {
             return undefined;
         }
 
-        return Reflector.isInstance(target)
-            ? Reflector.classOf(target as object)
-            : (target as object);
+        return Reflector.isInstance(target) ? Reflector.classOf(target as object) : (target as object);
     }
 
     /**
@@ -160,8 +118,7 @@ export class BoundMethod {
                 continue;
             }
 
-            const attribute =
-                Util.getContextualAttributeFromDependency(dependency);
+            const attribute = Util.getContextualAttributeFromDependency(dependency);
 
             const resolved =
                 attribute !== undefined
@@ -176,18 +133,13 @@ export class BoundMethod {
                 );
             }
 
-            container.fireAfterResolvingAttributeCallbacks(
-                dependency.attributes,
-                resolved,
-            );
+            container.fireAfterResolvingAttributeCallbacks(dependency.attributes, resolved);
 
             // A variadic parameter contributes its elements, not the list --
             // PHP: `array_merge($dependencies, is_array($v) ? $v : [$v])`,
             // the same rule `Container.resolveDependencies()` follows.
             if (dependency.variadic === true) {
-                for (const value of Util.arrayWrap(
-                    resolved as defined | Array<defined> | undefined,
-                )) {
+                for (const value of Util.arrayWrap(resolved as defined | Array<defined> | undefined)) {
                     dependencies.push(value);
                 }
 
@@ -215,9 +167,7 @@ export class BoundMethod {
     }
 
     /** What the callable's parameters were annotated with. */
-    private static getCallDependencies(
-        callback: CallableTarget,
-    ): Array<ParameterDependency> {
+    private static getCallDependencies(callback: CallableTarget): Array<ParameterDependency> {
         if (!Util.isArray(callback)) {
             return [];
         }
@@ -225,9 +175,7 @@ export class BoundMethod {
         const [target, method] = callback as [object | Abstract, string];
         const klass = BoundMethod.classOfTarget(target);
 
-        return klass !== undefined
-            ? getInjectedDependencies(klass, method)
-            : [];
+        return klass !== undefined ? getInjectedDependencies(klass, method) : [];
     }
 
     /**
@@ -237,10 +185,7 @@ export class BoundMethod {
      * `function Class:method()`, so the receiver is always passed first, whether
      * it is an instance or the class itself.
      */
-    private static invoke(
-        callback: CallableTarget,
-        args: Array<defined>,
-    ): unknown {
+    private static invoke(callback: CallableTarget, args: Array<defined>): unknown {
         if (!Util.isArray(callback)) {
             return (callback as Callback)(...args);
         }
@@ -251,9 +196,7 @@ export class BoundMethod {
         if (!typeIs(fn, "function")) {
             throw new BindingResolutionException(
                 `Method [${method}] does not exist on [${Reflector.className(
-                    Reflector.isInstance(target)
-                        ? Reflector.classOf(target)
-                        : target,
+                    Reflector.isInstance(target) ? Reflector.classOf(target) : target,
                 )}].`,
             );
         }

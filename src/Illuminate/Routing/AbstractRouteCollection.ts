@@ -1,7 +1,4 @@
-import {
-    MethodNotAllowedHttpException,
-    NotFoundHttpException,
-} from "Illuminate/Http/Exceptions/HttpException";
+import { MethodNotAllowedHttpException, NotFoundHttpException } from "Illuminate/Http/Exceptions/HttpException";
 import { Response } from "Illuminate/Http/Response";
 import { Route } from "Illuminate/Routing/Route";
 import type { Request } from "Illuminate/Http/Request";
@@ -30,11 +27,7 @@ export abstract class AbstractRouteCollection {
     public abstract hasNamedRoute(name: string): boolean;
 
     /** Determine the first route matching the given request. */
-    protected matchAgainstRoutes(
-        routes: Array<Route>,
-        request: Request,
-        includingMethod = true,
-    ): Route | undefined {
+    protected matchAgainstRoutes(routes: Array<Route>, request: Request, includingMethod = true): Route | undefined {
         let fallbackRoute: Route | undefined;
 
         for (const route of routes) {
@@ -74,9 +67,7 @@ export abstract class AbstractRouteCollection {
             return this.getRouteForMethods(request, others);
         }
 
-        throw new NotFoundHttpException(
-            `The route ${request.path()} could not be found.`,
-        );
+        throw new NotFoundHttpException(`The route ${request.path()} could not be found.`);
     }
 
     /**
@@ -95,10 +86,7 @@ export abstract class AbstractRouteCollection {
                 continue;
             }
 
-            if (
-                this.matchAgainstRoutes(this.get(method), request, false) !==
-                undefined
-            ) {
+            if (this.matchAgainstRoutes(this.get(method), request, false) !== undefined) {
                 others.push(method);
             }
         }
@@ -116,15 +104,7 @@ export abstract class AbstractRouteCollection {
      * imports the collection back.
      */
     protected alternateVerbOrder(): Array<string> {
-        const verbs = [
-            "GET",
-            "HEAD",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE",
-            "OPTIONS",
-        ];
+        const verbs = ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"];
         const registered = this.registeredMethods();
 
         return [
@@ -134,10 +114,7 @@ export abstract class AbstractRouteCollection {
     }
 
     /** Get a route (if necessary) that responds when other available methods are present. */
-    protected getRouteForMethods(
-        request: Request,
-        methods: Array<string>,
-    ): Route {
+    protected getRouteForMethods(request: Request, methods: Array<string>): Route {
         if (request.isMethod("OPTIONS")) {
             return new Route("OPTIONS", request.path(), {
                 uses: () =>
@@ -151,11 +128,7 @@ export abstract class AbstractRouteCollection {
     }
 
     /** Throw a method not allowed HTTP exception. */
-    protected requestMethodNotAllowed(
-        request: Request,
-        others: Array<string>,
-        method: string,
-    ): never {
+    protected requestMethodNotAllowed(request: Request, others: Array<string>, method: string): never {
         throw new MethodNotAllowedHttpException(
             others,
             `The ${method} method is not supported for route ${request.path()}. Supported methods: ${others.join(", ")}.`,

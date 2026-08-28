@@ -14,25 +14,14 @@ import { Reflector } from "Illuminate/Support/Reflector";
  */
 export class ReadsClassAttributes {
     /** Get a configuration value from an attribute, falling back to a property. */
-    public static getAttributeValue(
-        target: object,
-        attribute: Callback,
-        property?: string,
-        dflt?: unknown,
-    ): unknown {
-        const value =
-            property !== undefined
-                ? (target as Record<string, unknown>)[property]
-                : undefined;
+    public static getAttributeValue(target: object, attribute: Callback, property?: string, dflt?: unknown): unknown {
+        const value = property !== undefined ? (target as Record<string, unknown>)[property] : undefined;
 
         if (value !== undefined && !typeIs(value, "function")) {
             return value;
         }
 
-        const instance = ReadsClassAttributes.getAttributeInstance(
-            target,
-            attribute,
-        );
+        const instance = ReadsClassAttributes.getAttributeInstance(target, attribute);
 
         if (instance !== undefined) {
             return ReadsClassAttributes.extractAttributeValue(instance);
@@ -55,10 +44,7 @@ export class ReadsClassAttributes {
     }
 
     /** Get an instance of the given attribute class from the target class or its parents. */
-    protected static getAttributeInstance(
-        target: object,
-        attribute: Callback,
-    ): object | undefined {
+    protected static getAttributeInstance(target: object, attribute: Callback): object | undefined {
         let current: object | undefined = Reflector.classOf(target) ?? target;
 
         while (current !== undefined) {

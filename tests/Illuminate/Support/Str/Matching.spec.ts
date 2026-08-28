@@ -77,23 +77,11 @@ export = (): void => {
 
         it("matchAll() returns every match as a collection", () => {
             // PHP: SupportStrTest::testMatch
-            expect(
-                arraysEqual(Str.matchAll("bar", "bar foo bar").all(), [
-                    "bar",
-                    "bar",
-                ]),
-            ).to.equal(true);
+            expect(arraysEqual(Str.matchAll("bar", "bar foo bar").all(), ["bar", "bar"])).to.equal(true);
 
-            expect(
-                arraysEqual(Str.matchAll("f(%w*)", "bar fun bar fly").all(), [
-                    "un",
-                    "ly",
-                ]),
-            ).to.equal(true);
+            expect(arraysEqual(Str.matchAll("f(%w*)", "bar fun bar fly").all(), ["un", "ly"])).to.equal(true);
 
-            expect(
-                Str.matchAll("nothing", "bar fun bar fly").isEmpty(),
-            ).to.equal(true);
+            expect(Str.matchAll("nothing", "bar fun bar fly").isEmpty()).to.equal(true);
 
             expect(Str.matchAll("pattern", "").isEmpty()).to.equal(true);
         });
@@ -106,12 +94,8 @@ export = (): void => {
             expect(Str.isMatch("^Hello", "Hello, Laravel!")).to.equal(true);
             expect(Str.isMatch("nope!", "Hello, Laravel!")).to.equal(false);
 
-            expect(
-                Str.isMatch(["nope!", "Laravel"], "Hello, Laravel!"),
-            ).to.equal(true);
-            expect(
-                Str.isMatch(["nope!", "also nope"], "Hello, Laravel!"),
-            ).to.equal(false);
+            expect(Str.isMatch(["nope!", "Laravel"], "Hello, Laravel!")).to.equal(true);
+            expect(Str.isMatch(["nope!", "also nope"], "Hello, Laravel!")).to.equal(false);
         });
     });
 };

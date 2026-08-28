@@ -55,11 +55,7 @@ export class MemoryStoreStore implements Store, LockProvider {
 
     /** Store an item in the cache for a given number of seconds. */
     public put(key: string, value: unknown, seconds: number): boolean {
-        this.map().SetAsync(
-            this.prefix + key,
-            this.encode(value) as never,
-            this.expiration(seconds),
-        );
+        this.map().SetAsync(this.prefix + key, this.encode(value) as never, this.expiration(seconds));
 
         return true;
     }
@@ -84,8 +80,7 @@ export class MemoryStoreStore implements Store, LockProvider {
 
         const written = this.map().UpdateAsync(
             this.prefix + key,
-            (held: unknown) =>
-                held === undefined ? (encoded as never) : undefined,
+            (held: unknown) => (held === undefined ? (encoded as never) : undefined),
             this.expiration(seconds),
         );
 
@@ -121,11 +116,7 @@ export class MemoryStoreStore implements Store, LockProvider {
             return false;
         }
 
-        this.map().SetAsync(
-            this.prefix + key,
-            held as never,
-            this.expiration(seconds),
-        );
+        this.map().SetAsync(this.prefix + key, held as never, this.expiration(seconds));
 
         return true;
     }
@@ -183,9 +174,7 @@ export class MemoryStoreStore implements Store, LockProvider {
             return value;
         }
 
-        const [ok, decoded] = pcall(() =>
-            Serializer.unserialize(value as string),
-        );
+        const [ok, decoded] = pcall(() => Serializer.unserialize(value as string));
 
         return ok ? decoded : value;
     }

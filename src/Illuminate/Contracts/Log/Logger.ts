@@ -8,11 +8,7 @@ import type { LogLevel } from "@larablox/monolog/out/Monolog/LoggerInterface";
  * in this port -- so the shape is defined there (`Monolog/LoggerInterface`)
  * and re-exported under the name Laravel's own contracts use.
  */
-export type {
-    LogContext,
-    LogLevel,
-    LoggerInterface as Logger,
-} from "@larablox/monolog/out/Monolog/LoggerInterface";
+export type { LogContext, LogLevel, LoggerInterface as Logger } from "@larablox/monolog/out/Monolog/LoggerInterface";
 
 /** The severity order the level filters compare against. */
 export const LOG_LEVELS: Array<LogLevel> = [

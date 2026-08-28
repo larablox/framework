@@ -77,10 +77,7 @@ import type { LoggerInterface } from "@larablox/monolog/out/Monolog/LoggerInterf
 /** Build a bare `Application` with a `logging.*` config repository bound in. */
 function makeApp(config: ArrayAccessible = {}): Application {
     const app = new Application();
-    app.instance(
-        "config",
-        new ConfigRepository({ logging: { channels: config } }),
-    );
+    app.instance("config", new ConfigRepository({ logging: { channels: config } }));
 
     return app;
 }
@@ -101,10 +98,7 @@ export = (): void => {
         it("channel() with no argument resolves and caches the default driver", () => {
             // PHP: LogManagerTest::testLogManagerGetDefaultDriver
             const app = makeApp({ single: { driver: "console" } });
-            app.make<ConfigRepository>("config").set(
-                "logging.default",
-                "single",
-            );
+            app.make<ConfigRepository>("config").set("logging.default", "single");
 
             const manager = new LogManager(app);
             expect(manager.getChannels().size()).to.equal(0);
@@ -184,13 +178,9 @@ export = (): void => {
             expect(handlers.size()).to.equal(1);
 
             const fingersCrossed = handlers[0];
-            expect(fingersCrossed instanceof FingersCrossedHandler).to.equal(
-                true,
-            );
+            expect(fingersCrossed instanceof FingersCrossedHandler).to.equal(true);
 
-            const nested = (
-                fingersCrossed as FingersCrossedHandler
-            ).getHandler();
+            const nested = (fingersCrossed as FingersCrossedHandler).getHandler();
             expect(nested instanceof TestHandler).to.equal(true);
             expect((nested as TestHandler).getLevel()).to.equal(Level.Debug);
         });
@@ -213,9 +203,7 @@ export = (): void => {
 
             const logger = manager.channel("fingerscrossed");
             const nested = (
-                (
-                    logger.getLogger() as Monolog
-                ).getHandlers()[0] as FingersCrossedHandler
+                (logger.getLogger() as Monolog).getHandlers()[0] as FingersCrossedHandler
             ).getHandler() as TestHandler;
 
             // Below the action level: buffered, nothing written yet.
@@ -249,9 +237,7 @@ export = (): void => {
 
             const logger = manager.channel("fingerscrossed");
             const nested = (
-                (
-                    logger.getLogger() as Monolog
-                ).getHandlers()[0] as FingersCrossedHandler
+                (logger.getLogger() as Monolog).getHandlers()[0] as FingersCrossedHandler
             ).getHandler() as TestHandler;
 
             logger.debug("buffered");
@@ -272,9 +258,7 @@ export = (): void => {
 
             const logger = manager.stack(["single"], "custom");
 
-            expect((logger.getLogger() as Monolog).getName()).to.equal(
-                "custom",
-            );
+            expect((logger.getLogger() as Monolog).getName()).to.equal("custom");
         });
 
         it("resolves the configured handler class and channel name for the monolog driver", () => {
@@ -325,16 +309,12 @@ export = (): void => {
             const customHandler = (
                 manager.channel("customformatter").getLogger() as Monolog
             ).getHandlers()[0] as AbstractProcessingHandler;
-            expect(
-                customHandler.getFormatter() instanceof HtmlFormatter,
-            ).to.equal(true);
+            expect(customHandler.getFormatter() instanceof HtmlFormatter).to.equal(true);
 
             const explicitDefaultHandler = (
                 manager.channel("explicitDefault").getLogger() as Monolog
             ).getHandlers()[0] as AbstractProcessingHandler;
-            expect(
-                explicitDefaultHandler.getFormatter() instanceof HtmlFormatter,
-            ).to.equal(false);
+            expect(explicitDefaultHandler.getFormatter() instanceof HtmlFormatter).to.equal(false);
         });
 
         it("null driver wraps a NullHandler", () => {
@@ -342,9 +322,7 @@ export = (): void => {
             const app = makeApp({ discard: { driver: "null" } });
             const manager = new LogManager(app);
 
-            const handlers = (
-                manager.channel("discard").getLogger() as Monolog
-            ).getHandlers();
+            const handlers = (manager.channel("discard").getLogger() as Monolog).getHandlers();
 
             expect(handlers.size()).to.equal(1);
             expect(handlers[0] instanceof NullHandler).to.equal(true);
@@ -401,26 +379,17 @@ export = (): void => {
 
             app.instance(
                 "custom-uid-via",
-                () =>
-                    new Monolog(
-                        "uuid",
-                        [new TestHandler()],
-                        [new UidProcessor()],
-                    ) as unknown as LoggerInterface,
+                () => new Monolog("uuid", [new TestHandler()], [new UidProcessor()]) as unknown as LoggerInterface,
             );
 
             const logger = manager.stack(["test", "uid"]);
             const underlying = logger.getLogger() as Monolog;
 
             expect(underlying.getHandlers().size()).to.equal(2);
-            expect(underlying.getHandlers()[1] instanceof TestHandler).to.equal(
+            expect(underlying.getHandlers()[1] instanceof TestHandler).to.equal(true);
+            expect(underlying.getProcessors()[underlying.getProcessors().size() - 1] instanceof UidProcessor).to.equal(
                 true,
             );
-            expect(
-                underlying.getProcessors()[
-                    underlying.getProcessors().size() - 1
-                ] instanceof UidProcessor,
-            ).to.equal(true);
         });
 
         it("shares context with an already-resolved channel", () => {
@@ -449,11 +418,9 @@ export = (): void => {
 
             let context: Record<string, unknown> | undefined;
             manager.shareContext({ "invocation-id": "expected-id" });
-            manager
-                .channel("single")
-                .listen((message: { context: Record<string, unknown> }) => {
-                    context = message.context;
-                });
+            manager.channel("single").listen((message: { context: Record<string, unknown> }) => {
+                context = message.context;
+            });
             manager.channel("single").info("xxxx");
 
             expectDeepEqual(context as Record<string, unknown>, {
@@ -468,12 +435,9 @@ export = (): void => {
 
             manager.shareContext({ "invocation-id": "expected-id" });
 
-            expectDeepEqual(
-                manager.sharedContext() as Record<string, unknown>,
-                {
-                    "invocation-id": "expected-id",
-                },
-            );
+            expectDeepEqual(manager.sharedContext() as Record<string, unknown>, {
+                "invocation-id": "expected-id",
+            });
         });
 
         it("shares context with a stack once it is resolved", () => {
@@ -502,11 +466,9 @@ export = (): void => {
             let context: Record<string, unknown> | undefined;
             manager.shareContext({ "invocation-id": "expected-id" });
             manager.shareContext({ "invocation-start": 1651800456 });
-            manager
-                .channel("single")
-                .listen((message: { context: Record<string, unknown> }) => {
-                    context = message.context;
-                });
+            manager.channel("single").listen((message: { context: Record<string, unknown> }) => {
+                context = message.context;
+            });
             manager.channel("single").info("xxxx", { logged: "context" });
 
             expectDeepEqual(context as Record<string, unknown>, {
@@ -514,13 +476,10 @@ export = (): void => {
                 "invocation-start": 1651800456,
                 logged: "context",
             });
-            expectDeepEqual(
-                manager.sharedContext() as Record<string, unknown>,
-                {
-                    "invocation-id": "expected-id",
-                    "invocation-start": 1651800456,
-                },
-            );
+            expectDeepEqual(manager.sharedContext() as Record<string, unknown>, {
+                "invocation-id": "expected-id",
+                "invocation-start": 1651800456,
+            });
         });
 
         it("flushSharedContext() clears the shared context", () => {
@@ -529,12 +488,9 @@ export = (): void => {
             const manager = new LogManager(app);
 
             manager.shareContext({ foo: "bar" });
-            expectDeepEqual(
-                manager.sharedContext() as Record<string, unknown>,
-                {
-                    foo: "bar",
-                },
-            );
+            expectDeepEqual(manager.sharedContext() as Record<string, unknown>, {
+                foo: "bar",
+            });
 
             manager.flushSharedContext();
             expect(next(manager.sharedContext())[0]).to.equal(undefined);
@@ -544,13 +500,9 @@ export = (): void => {
             // PHP: LogManagerTest::testLogManagerCreateCustomFormatterWithTap
             class CustomizeFormatter {
                 public __invoke(logger: Logger): void {
-                    for (const handler of (
-                        logger.getLogger() as Monolog
-                    ).getHandlers()) {
+                    for (const handler of (logger.getLogger() as Monolog).getHandlers()) {
                         (handler as AbstractProcessingHandler).setFormatter(
-                            new LineFormatter(
-                                "[%datetime%] %channel%.%level_name%: %message% %context% %extra%",
-                            ),
+                            new LineFormatter("[%datetime%] %channel%.%level_name%: %message% %context% %extra%"),
                         );
                     }
                 }
@@ -567,9 +519,7 @@ export = (): void => {
 
             const manager = new LogManager(app);
             const logger = manager.channel("custom");
-            const handler = (
-                logger.getLogger() as Monolog
-            ).getHandlers()[0] as AbstractProcessingHandler;
+            const handler = (logger.getLogger() as Monolog).getHandlers()[0] as AbstractProcessingHandler;
             const formatter = handler.getFormatter() as LineFormatter;
 
             expect(formatter instanceof LineFormatter).to.equal(true);
@@ -620,10 +570,7 @@ export = (): void => {
             const manager = new LogManager(app);
             const loggerSpy = new LoggerSpy();
 
-            manager.extend(
-                "spy",
-                () => loggerSpy as unknown as LoggerInterface,
-            );
+            manager.extend("spy", () => loggerSpy as unknown as LoggerInterface);
 
             const logger = manager.channel("spy");
             logger.alert("some alert");

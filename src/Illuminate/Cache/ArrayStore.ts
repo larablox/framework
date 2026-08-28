@@ -42,10 +42,7 @@ export class ArrayStore implements Store, LockProvider {
             return undefined;
         }
 
-        if (
-            item.expiresAt !== 0 &&
-            InteractsWithTime.currentTime() >= item.expiresAt
-        ) {
+        if (item.expiresAt !== 0 && InteractsWithTime.currentTime() >= item.expiresAt) {
             this.forget(key);
 
             return undefined;
@@ -163,9 +160,7 @@ export class ArrayStore implements Store, LockProvider {
 
     /** Get the expiration time of the key. */
     protected calculateExpiration(seconds: number): number {
-        return seconds === 0
-            ? 0
-            : InteractsWithTime.currentTime() + math.floor(seconds);
+        return seconds === 0 ? 0 : InteractsWithTime.currentTime() + math.floor(seconds);
     }
 
     /** Get the cache key prefix. */

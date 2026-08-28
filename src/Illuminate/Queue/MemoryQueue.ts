@@ -6,10 +6,7 @@ import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { ClearableQueue } from "Illuminate/Contracts/Queue/ClearableQueue";
 import type { Delay } from "Illuminate/Support/InteractsWithTime";
 import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type {
-    JobTarget,
-    Queue as QueueContract,
-} from "Illuminate/Contracts/Queue/Queue";
+import type { JobTarget, Queue as QueueContract } from "Illuminate/Contracts/Queue/Queue";
 
 /**
  * One row of the table `DatabaseQueue` keeps, held in memory.
@@ -46,10 +43,7 @@ export interface MemoryJobRecord {
  * `blpop` on a `:notify` list; there is no list to wait on inside one VM, so a
  * push resumes the coroutines parked in `pop()` directly.
  */
-export class MemoryQueue
-    extends Queue
-    implements QueueContract, ClearableQueue
-{
+export class MemoryQueue extends Queue implements QueueContract, ClearableQueue {
     /** The table, in the order rows were inserted. */
     protected jobs = new Array<MemoryJobRecord>();
 
@@ -115,9 +109,7 @@ export class MemoryQueue
     public allPendingJobs(): Collection<number, MemoryJobRecord> {
         return new Collection(
             this.jobs.filter(
-                (record) =>
-                    record.reservedAt === undefined &&
-                    record.availableAt <= InteractsWithTime.currentTime(),
+                (record) => record.reservedAt === undefined && record.availableAt <= InteractsWithTime.currentTime(),
             ),
         );
     }
@@ -126,18 +118,14 @@ export class MemoryQueue
     public allDelayedJobs(): Collection<number, MemoryJobRecord> {
         return new Collection(
             this.jobs.filter(
-                (record) =>
-                    record.reservedAt === undefined &&
-                    record.availableAt > InteractsWithTime.currentTime(),
+                (record) => record.reservedAt === undefined && record.availableAt > InteractsWithTime.currentTime(),
             ),
         );
     }
 
     /** Get all reserved jobs across every queue. */
     public allReservedJobs(): Collection<number, MemoryJobRecord> {
-        return new Collection(
-            this.jobs.filter((record) => record.reservedAt !== undefined),
-        );
+        return new Collection(this.jobs.filter((record) => record.reservedAt !== undefined));
     }
 
     /** Get the creation timestamp of the oldest pending job, excluding delayed jobs. */
@@ -169,19 +157,13 @@ export class MemoryQueue
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(
-        delay: Delay,
-        job: JobTarget,
-        data: unknown = "",
-        queue?: string,
-    ): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = "", queue?: string): unknown {
         return this.enqueueUsing(
             job,
             this.createPayload(job, this.getQueue(queue), data, delay),
             queue,
             delay,
-            (payload, name, seconds) =>
-                this.pushToStore(name, payload, seconds ?? 0, 0),
+            (payload, name, seconds) => this.pushToStore(name, payload, seconds ?? 0, 0),
         );
     }
 
@@ -200,18 +182,8 @@ export class MemoryQueue
     }
 
     /** Push a raw payload to the store, returning the new row's id. */
-    protected pushToStore(
-        queue: string | undefined,
-        payload: JobPayload,
-        delay: Delay = 0,
-        attempts = 0,
-    ): string {
-        const record = this.buildRecord(
-            this.getQueue(queue),
-            payload,
-            InteractsWithTime.availableAt(delay),
-            attempts,
-        );
+    protected pushToStore(queue: string | undefined, payload: JobPayload, delay: Delay = 0, attempts = 0): string {
+        const record = this.buildRecord(this.getQueue(queue), payload, InteractsWithTime.availableAt(delay), attempts);
 
         this.jobs.push(record);
 
@@ -220,22 +192,14 @@ export class MemoryQueue
         } else {
             // A delayed job arrives by the clock, not by a push, so its own
             // wake-up is booked for the moment it becomes due.
-            task.delay(
-                record.availableAt - InteractsWithTime.currentTime(),
-                () => this.wakeWaiters(),
-            );
+            task.delay(record.availableAt - InteractsWithTime.currentTime(), () => this.wakeWaiters());
         }
 
         return record.id;
     }
 
     /** Create a new row for the given job. */
-    protected buildRecord(
-        queue: string,
-        payload: JobPayload,
-        availableAt: number,
-        attempts = 0,
-    ): MemoryJobRecord {
+    protected buildRecord(queue: string, payload: JobPayload, availableAt: number, attempts = 0): MemoryJobRecord {
         const id = tostring(this.nextId);
 
         this.nextId += 1;
@@ -275,9 +239,7 @@ export class MemoryQueue
 
         const arrived = this.getNextAvailableJob(name);
 
-        return arrived !== undefined
-            ? this.marshalJob(name, arrived)
-            : undefined;
+        return arrived !== undefined ? this.marshalJob(name, arrived) : undefined;
     }
 
     /** Park the calling coroutine until something is pushed, or time runs out. */
@@ -323,12 +285,9 @@ export class MemoryQueue
                 continue;
             }
 
-            const available =
-                record.reservedAt === undefined && record.availableAt <= now;
+            const available = record.reservedAt === undefined && record.availableAt <= now;
 
-            const expired =
-                record.reservedAt !== undefined &&
-                record.reservedAt + this.retryAfter <= now;
+            const expired = record.reservedAt !== undefined && record.reservedAt + this.retryAfter <= now;
 
             if (available || expired) {
                 return record;
@@ -340,13 +299,7 @@ export class MemoryQueue
 
     /** Marshal the reserved job into a job instance. */
     protected marshalJob(queue: string, record: MemoryJobRecord): MemoryJob {
-        return new MemoryJob(
-            this.container,
-            this,
-            this.markJobAsReserved(record),
-            this.connectionName,
-            queue,
-        );
+        return new MemoryJob(this.container, this, this.markJobAsReserved(record), this.connectionName, queue);
     }
 
     /** Mark the given job as reserved. */
@@ -392,26 +345,18 @@ export class MemoryQueue
     protected pendingRecords(queue?: string): Array<MemoryJobRecord> {
         const now = InteractsWithTime.currentTime();
 
-        return this.recordsFor(queue).filter(
-            (record) =>
-                record.reservedAt === undefined && record.availableAt <= now,
-        );
+        return this.recordsFor(queue).filter((record) => record.reservedAt === undefined && record.availableAt <= now);
     }
 
     /** Rows that are not available yet. */
     protected delayedRecords(queue?: string): Array<MemoryJobRecord> {
         const now = InteractsWithTime.currentTime();
 
-        return this.recordsFor(queue).filter(
-            (record) =>
-                record.reservedAt === undefined && record.availableAt > now,
-        );
+        return this.recordsFor(queue).filter((record) => record.reservedAt === undefined && record.availableAt > now);
     }
 
     /** Rows a worker is holding. */
     protected reservedRecords(queue?: string): Array<MemoryJobRecord> {
-        return this.recordsFor(queue).filter(
-            (record) => record.reservedAt !== undefined,
-        );
+        return this.recordsFor(queue).filter((record) => record.reservedAt !== undefined);
     }
 }

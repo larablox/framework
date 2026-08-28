@@ -63,9 +63,7 @@ export class Batch {
 
     /** Add additional jobs to the batch. */
     public add(jobs: Array<Batchable> | Batchable): Batch | undefined {
-        const added = Util.isArray(jobs)
-            ? (jobs as Array<Batchable>)
-            : [jobs as Batchable];
+        const added = Util.isArray(jobs) ? (jobs as Array<Batchable>) : [jobs as Batchable];
 
         for (const job of added) {
             job.withBatchId(this.id);
@@ -74,9 +72,7 @@ export class Batch {
         this.repository.transaction(() => {
             this.repository.incrementTotalJobs(this.id, added.size());
 
-            this.queue
-                .connection(this.options.connection)
-                .bulk(added, "", this.options.queue);
+            this.queue.connection(this.options.connection).bulk(added, "", this.options.queue);
         });
 
         return this.fresh();
@@ -89,9 +85,7 @@ export class Batch {
 
     /** Get the percentage of jobs that have been processed (between 0 and 100). */
     public progress(): number {
-        return this.totalJobs > 0
-            ? math.round((this.processedJobs() / this.totalJobs) * 100)
-            : 0;
+        return this.totalJobs > 0 ? math.round((this.processedJobs() / this.totalJobs) * 100) : 0;
     }
 
     /** Record that a job within the batch finished successfully. */
@@ -219,10 +213,7 @@ export class Batch {
     }
 
     /** Invoke a batch callback handler. */
-    protected invokeCallbacks(
-        kind: "before" | "progress" | "then" | "catch" | "finally",
-        e?: unknown,
-    ): void {
+    protected invokeCallbacks(kind: "before" | "progress" | "then" | "catch" | "finally", e?: unknown): void {
         const batch = this.fresh() ?? this;
 
         for (const callback of this.options[kind] ?? []) {

@@ -12,9 +12,6 @@ import type { ValidatorInterface } from "Illuminate/Routing/Matching/ValidatorIn
 export class UriValidator implements ValidatorInterface {
     /** Validate a given rule against a route and request. */
     public matches(route: Route, request: Request): boolean {
-        return (
-            route.getCompiled().match(request.decodedPath(), route.wheres) !==
-            undefined
-        );
+        return route.getCompiled().match(request.decodedPath(), route.wheres) !== undefined;
     }
 }

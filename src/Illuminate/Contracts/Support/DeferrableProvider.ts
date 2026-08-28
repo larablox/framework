@@ -31,10 +31,7 @@ export function DeferrableProvider() {
         let declaresProvides = false;
         let current: object | undefined = target;
 
-        while (
-            current !== undefined &&
-            Reflector.parentClass(current) !== undefined
-        ) {
+        while (current !== undefined && Reflector.parentClass(current) !== undefined) {
             if (rawget(current, "provides") !== undefined) {
                 declaresProvides = true;
                 break;
@@ -44,9 +41,7 @@ export function DeferrableProvider() {
         }
 
         if (!declaresProvides) {
-            throw new LogicException(
-                `Deferrable provider [${tostring(target)}] must declare its own provides().`,
-            );
+            throw new LogicException(`Deferrable provider [${tostring(target)}] must declare its own provides().`);
         }
 
         Attributes.add(target, DeferrableProvider, {});

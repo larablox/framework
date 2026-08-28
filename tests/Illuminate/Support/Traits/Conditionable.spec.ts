@@ -25,9 +25,7 @@ export = (): void => {
             }
 
             public has(value: unknown): boolean {
-                return (this.values as Array<defined>).includes(
-                    value as defined,
-                );
+                return (this.values as Array<defined>).includes(value as defined);
             }
         }
 

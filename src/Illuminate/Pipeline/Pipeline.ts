@@ -3,11 +3,7 @@ import { RuntimeException } from "Illuminate/Exception";
 import { Util } from "Illuminate/Container/Util";
 import type { Abstract } from "Illuminate/Container/Types";
 import type { Container } from "Illuminate/Contracts/Container/Container";
-import type {
-    Passable,
-    Pipe,
-    Pipeline as PipelineContract,
-} from "Illuminate/Contracts/Pipeline/Pipeline";
+import type { Passable, Pipe, Pipeline as PipelineContract } from "Illuminate/Contracts/Pipeline/Pipeline";
 
 /** The rest of the stack, as a pipe receives it. */
 export type Next = (passable: Passable) => unknown;
@@ -111,9 +107,7 @@ export class Pipeline implements PipelineContract {
     }
 
     /** Get the final piece of the pipeline onion. */
-    protected prepareDestination(
-        destination: (passable: Passable) => unknown,
-    ): Next {
+    protected prepareDestination(destination: (passable: Passable) => unknown): Next {
         return (passable: Passable) => {
             const [ok, result] = pcall(() => destination(passable));
 
@@ -131,9 +125,7 @@ export class Pipeline implements PipelineContract {
             // `handleCarry` runs inside the protected region, as it does in
             // PHP's try: Routing overrides it with `toResponse()`, and what
             // that throws must reach `handleException`, not the caller.
-            const [ok, result] = pcall(() =>
-                this.handleCarry(this.callPipe(pipe, passable, stack)),
-            );
+            const [ok, result] = pcall(() => this.handleCarry(this.callPipe(pipe, passable, stack)));
 
             if (!ok) {
                 return this.handleException(passable, result);
@@ -149,10 +141,7 @@ export class Pipeline implements PipelineContract {
         // will resolve the pipes out of the dependency container and call it with
         // the appropriate method and arguments, returning the results back out.
         if (typeIs(pipe, "function")) {
-            return (pipe as (passable: Passable, next: Next) => unknown)(
-                passable,
-                stack,
-            );
+            return (pipe as (passable: Passable, next: Next) => unknown)(passable, stack);
         }
 
         let parameters: Array<unknown> = [passable, stack];
@@ -172,9 +161,7 @@ export class Pipeline implements PipelineContract {
         const handler = (instance as Record<string, unknown>)[this.method];
 
         if (!typeIs(handler, "function")) {
-            throw new RuntimeException(
-                `The pipe [${tostring(pipe)}] has no [${this.method}] method.`,
-            );
+            throw new RuntimeException(`The pipe [${tostring(pipe)}] has no [${this.method}] method.`);
         }
 
         return (handler as (self: object, ...args: Array<unknown>) => unknown)(
@@ -196,10 +183,7 @@ export class Pipeline implements PipelineContract {
 
         const metatable = getmetatable(pipe as object) as object | undefined;
 
-        return (
-            metatable !== undefined &&
-            rawget(metatable, "__index") === metatable
-        );
+        return metatable !== undefined && rawget(metatable, "__index") === metatable;
     }
 
     /**
@@ -241,9 +225,7 @@ export class Pipeline implements PipelineContract {
     /** Get the container instance. */
     protected getContainer(): Container {
         if (this.container === undefined) {
-            throw new RuntimeException(
-                "A container instance has not been passed to the Pipeline.",
-            );
+            throw new RuntimeException("A container instance has not been passed to the Pipeline.");
         }
 
         return this.container;

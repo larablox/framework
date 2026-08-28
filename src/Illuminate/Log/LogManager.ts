@@ -16,19 +16,12 @@ import type { Application } from "Illuminate/Contracts/Foundation/Application";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
 import type { FormatterInterface } from "@larablox/monolog/out/Monolog/Formatter/FormatterInterface";
 import type { HandlerInterface } from "@larablox/monolog/out/Monolog/Handler/HandlerInterface";
-import type {
-    LogContext,
-    LogLevel,
-    Logger as LoggerContract,
-} from "Illuminate/Contracts/Log/Logger";
+import type { LogContext, LogLevel, Logger as LoggerContract } from "Illuminate/Contracts/Log/Logger";
 import type { Processor } from "@larablox/monolog/out/Monolog/Processor/ProcessorInterface";
 import type { Repository } from "Illuminate/Contracts/Config/Repository";
 
 /** A factory registered through `extend()`. */
-export type LogDriverCreator = (
-    app: Application,
-    config: ArrayAccessible,
-) => LoggerContract;
+export type LogDriverCreator = (app: Application, config: ArrayAccessible) => LoggerContract;
 
 /** A tap: `__invoke($logger)` in PHP, a plain callback here. */
 export type LogTap = (logger: Logger, ...args: Array<string>) => void;
@@ -106,32 +99,21 @@ export class LogManager implements LoggerContract {
         if (!ok) {
             const emergency = this.createEmergencyLogger();
 
-            emergency.emergency(
-                "Unable to create configured logger. Using emergency logger.",
-                {
-                    exception: tostring(resolved),
-                },
-            );
+            emergency.emergency("Unable to create configured logger. Using emergency logger.", {
+                exception: tostring(resolved),
+            });
 
             return emergency;
         }
 
-        const logger = this.tap(
-            name,
-            new Logger(resolved as LoggerContract, this.events()),
-        ).withContext(this.sharedContextValues);
+        const logger = this.tap(name, new Logger(resolved as LoggerContract, this.events())).withContext(
+            this.sharedContextValues,
+        );
 
         const underlying = logger.getLogger();
 
-        if (
-            underlying instanceof Monolog &&
-            this.app.bound(ContextLogProcessorContract)
-        ) {
-            underlying.pushProcessor(
-                this.app.make(
-                    ContextLogProcessorContract,
-                ) as unknown as Processor,
-            );
+        if (underlying instanceof Monolog && this.app.bound(ContextLogProcessorContract)) {
+            underlying.pushProcessor(this.app.make(ContextLogProcessorContract) as unknown as Processor);
         }
 
         this.channels.set(name, logger);
@@ -147,9 +129,7 @@ export class LogManager implements LoggerContract {
      * plain callback is accepted too.
      */
     protected tap(name: string, logger: Logger): Logger {
-        const taps = (this.configurationFor(name)?.tap ?? []) as Array<
-            string | LogTap
-        >;
+        const taps = (this.configurationFor(name)?.tap ?? []) as Array<string | LogTap>;
 
         for (const entry of taps) {
             if (typeIs(entry, "function")) {
@@ -175,9 +155,7 @@ export class LogManager implements LoggerContract {
             const invoke = (tap as Record<string, unknown>).__invoke;
 
             if (!typeIs(invoke, "function")) {
-                throw new InvalidArgumentException(
-                    `Log tap [${target}] has no __invoke method.`,
-                );
+                throw new InvalidArgumentException(`Log tap [${target}] has no __invoke method.`);
             }
 
             (invoke as Callback)(tap, logger, ...args);
@@ -188,19 +166,14 @@ export class LogManager implements LoggerContract {
 
     /** Parse the given tap class string into a class name and arguments string. */
     protected parseTap(tap: string): [string, string] {
-        return Str.contains(tap, ":")
-            ? [Str.before(tap, ":"), Str.after(tap, ":")]
-            : [tap, ""];
+        return Str.contains(tap, ":") ? [Str.before(tap, ":"), Str.after(tap, ":")] : [tap, ""];
     }
 
     /** Create an emergency log handler to avoid white screens of death. */
     protected createEmergencyLogger(): Logger {
         const handler = new RobloxConsoleHandler(Level.Debug);
 
-        return new Logger(
-            new Monolog("larablox", this.prepareHandlers([handler])),
-            this.events(),
-        );
+        return new Logger(new Monolog("larablox", this.prepareHandlers([handler])), this.events());
     }
 
     /** Resolve the given log instance by name. */
@@ -214,9 +187,7 @@ export class LogManager implements LoggerContract {
         const driver = resolved.driver as string | undefined;
 
         if (driver === undefined) {
-            throw new InvalidArgumentException(
-                `Log [${name}] is missing a driver.`,
-            );
+            throw new InvalidArgumentException(`Log [${name}] is missing a driver.`);
         }
 
         const custom = this.customCreators.get(driver);
@@ -245,20 +216,12 @@ export class LogManager implements LoggerContract {
             return this.createCustomDriver(resolved);
         }
 
-        throw new InvalidArgumentException(
-            `Driver [${driver}] is not supported.`,
-        );
+        throw new InvalidArgumentException(`Driver [${driver}] is not supported.`);
     }
 
     /** Call a custom driver creator. */
-    protected callCustomCreator(
-        driver: string,
-        config: ArrayAccessible,
-    ): LoggerContract {
-        return (this.customCreators.get(driver) as LogDriverCreator)(
-            this.app,
-            config,
-        );
+    protected callCustomCreator(driver: string, config: ArrayAccessible): LoggerContract {
+        return (this.customCreators.get(driver) as LogDriverCreator)(this.app, config);
     }
 
     /** Create an instance of a custom-made driver. */
@@ -269,9 +232,7 @@ export class LogManager implements LoggerContract {
             return (via as (config: ArrayAccessible) => LoggerContract)(config);
         }
 
-        const factory = this.app.make(via as string) as (
-            config: ArrayAccessible,
-        ) => LoggerContract;
+        const factory = this.app.make(via as string) as (config: ArrayAccessible) => LoggerContract;
 
         return factory(config);
     }
@@ -283,14 +244,9 @@ export class LogManager implements LoggerContract {
      * to a file or the platform log, and the output window is what a place has.
      */
     protected createConsoleDriver(config: ArrayAccessible): LoggerContract {
-        const handler = new RobloxConsoleHandler(
-            this.level(config),
-            (config.bubble ?? true) === true,
-        );
+        const handler = new RobloxConsoleHandler(this.level(config), (config.bubble ?? true) === true);
 
-        return new Monolog(this.parseChannel(config), [
-            this.prepareHandler(handler, config),
-        ]);
+        return new Monolog(this.parseChannel(config), [this.prepareHandler(handler, config)]);
     }
 
     /** Create an aggregate log driver instance. */
@@ -330,20 +286,14 @@ export class LogManager implements LoggerContract {
         const handler = config.handler;
 
         if (handler === undefined) {
-            throw new InvalidArgumentException(
-                "The monolog driver requires a handler.",
-            );
+            throw new InvalidArgumentException("The monolog driver requires a handler.");
         }
 
         const built = typeIs(handler, "function")
-            ? ((handler as Callback)(
-                  config.handler_with ?? {},
-              ) as HandlerInterface)
+            ? ((handler as Callback)(config.handler_with ?? {}) as HandlerInterface)
             : (this.app.make(handler as string) as unknown as HandlerInterface);
 
-        return new Monolog(this.parseChannel(config), [
-            this.prepareHandler(built, config),
-        ]);
+        return new Monolog(this.parseChannel(config), [this.prepareHandler(built, config)]);
     }
 
     /** Create an instance of the null log driver. */
@@ -352,9 +302,7 @@ export class LogManager implements LoggerContract {
     }
 
     /** Prepare the handlers for usage by Monolog. */
-    protected prepareHandlers(
-        handlers: Array<HandlerInterface>,
-    ): Array<HandlerInterface> {
+    protected prepareHandlers(handlers: Array<HandlerInterface>): Array<HandlerInterface> {
         const prepared = new Array<HandlerInterface>();
 
         for (const handler of handlers) {
@@ -365,10 +313,7 @@ export class LogManager implements LoggerContract {
     }
 
     /** Prepare the handler for usage by Monolog. */
-    protected prepareHandler(
-        handler: HandlerInterface,
-        config: ArrayAccessible = {},
-    ): HandlerInterface {
+    protected prepareHandler(handler: HandlerInterface, config: ArrayAccessible = {}): HandlerInterface {
         let prepared = handler;
 
         if (config.action_level !== undefined) {
@@ -392,9 +337,7 @@ export class LogManager implements LoggerContract {
         } else if (config.formatter !== "default") {
             (formattable.setFormatter as Callback)(
                 prepared,
-                this.app.make(
-                    config.formatter as string,
-                ) as unknown as FormatterInterface,
+                this.app.make(config.formatter as string) as unknown as FormatterInterface,
             );
         }
 
@@ -442,9 +385,7 @@ export class LogManager implements LoggerContract {
 
     /** Get fallback log channel name. */
     protected getFallbackChannelName(): string {
-        return this.app.bound("env")
-            ? (this.app.environment() as string)
-            : "production";
+        return this.app.bound("env") ? (this.app.environment() as string) : "production";
     }
 
     /** Parse the string level from the given configuration. */
@@ -460,9 +401,7 @@ export class LogManager implements LoggerContract {
 
     /** Parse the action level from the given configuration. */
     protected actionLevel(config: ArrayAccessible): Level {
-        const level = Levels.fromName(
-            (config.action_level ?? "debug") as string,
-        );
+        const level = Levels.fromName((config.action_level ?? "debug") as string);
 
         if (level === undefined) {
             throw new InvalidArgumentException("Invalid log action level.");
@@ -478,15 +417,12 @@ export class LogManager implements LoggerContract {
 
     /** Get the log connection configuration. */
     protected configurationFor(name: string): ArrayAccessible | undefined {
-        return this.app
-            .make<Repository>("config")
-            .get(`logging.channels.${name}`) as ArrayAccessible | undefined;
+        return this.app.make<Repository>("config").get(`logging.channels.${name}`) as ArrayAccessible | undefined;
     }
 
     /** Get the default log driver name. */
     public getDefaultDriver(): string | undefined {
-        return this.app.make<Repository>("config").get("logging.default") as
-            string | undefined;
+        return this.app.make<Repository>("config").get("logging.default") as string | undefined;
     }
 
     /** Set the default log driver name. */
@@ -511,9 +447,7 @@ export class LogManager implements LoggerContract {
         const resolved = driver ?? this.getDefaultDriver();
 
         if (resolved === undefined) {
-            throw new InvalidArgumentException(
-                "No default log channel is configured.",
-            );
+            throw new InvalidArgumentException("No default log channel is configured.");
         }
 
         // PHP trims here, which is what lets a stack spell its members as
@@ -529,9 +463,7 @@ export class LogManager implements LoggerContract {
 
     /** Get the event dispatcher, if the container has one bound yet. */
     protected events(): Dispatcher | undefined {
-        return this.app.bound("events")
-            ? this.app.make<Dispatcher>("events")
-            : undefined;
+        return this.app.bound("events") ? this.app.make<Dispatcher>("events") : undefined;
     }
 
     public emergency(message: unknown, context?: LogContext): void {

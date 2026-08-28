@@ -83,9 +83,7 @@ export class DataStoreStore implements Store, LockProvider {
     /** Retrieve an item from the cache by key. */
     public get(key: string): unknown {
         const held = DataStoreRequest.run(() => {
-            const [value] = this.store().GetAsync<DataStoreItem>(
-                this.itemKey(key),
-            );
+            const [value] = this.store().GetAsync<DataStoreItem>(this.itemKey(key));
 
             return value;
         });
@@ -142,18 +140,16 @@ export class DataStoreStore implements Store, LockProvider {
         const expiresAt = this.expiresAt(seconds);
 
         const transform: Transform = (held) => {
-            const alive =
-                held !== undefined &&
-                (held.e === 0 || InteractsWithTime.currentTime() < held.e);
+            const alive = held !== undefined && (held.e === 0 || InteractsWithTime.currentTime() < held.e);
 
             return alive ? undefined : { v: encoded, e: expiresAt };
         };
 
         const written = DataStoreRequest.run(() => {
-            const [value] = this.store().UpdateAsync<
-                DataStoreItem,
-                DataStoreItem
-            >(this.itemKey(key), transform as never);
+            const [value] = this.store().UpdateAsync<DataStoreItem, DataStoreItem>(
+                this.itemKey(key),
+                transform as never,
+            );
 
             return value;
         });
@@ -169,10 +165,10 @@ export class DataStoreStore implements Store, LockProvider {
         });
 
         const updated = DataStoreRequest.run(() => {
-            const [value] = this.store().UpdateAsync<
-                DataStoreItem,
-                DataStoreItem
-            >(this.itemKey(key), transform as never);
+            const [value] = this.store().UpdateAsync<DataStoreItem, DataStoreItem>(
+                this.itemKey(key),
+                transform as never,
+            );
 
             return value;
         });
@@ -194,14 +190,13 @@ export class DataStoreStore implements Store, LockProvider {
     public touch(key: string, seconds: number): boolean {
         const expiresAt = this.expiresAt(seconds);
 
-        const transform: Transform = (held) =>
-            held === undefined ? undefined : { v: held.v, e: expiresAt };
+        const transform: Transform = (held) => (held === undefined ? undefined : { v: held.v, e: expiresAt });
 
         const updated = DataStoreRequest.run(() => {
-            const [value] = this.store().UpdateAsync<
-                DataStoreItem,
-                DataStoreItem
-            >(this.itemKey(key), transform as never);
+            const [value] = this.store().UpdateAsync<DataStoreItem, DataStoreItem>(
+                this.itemKey(key),
+                transform as never,
+            );
 
             return value;
         });
@@ -227,9 +222,7 @@ export class DataStoreStore implements Store, LockProvider {
 
         // A removed key stays in the listing unless it is excluded, so
         // flushing twice would spend a read on every tombstone.
-        const pages = DataStoreRequest.run(() =>
-            store.ListKeysAsync(this.prefix, undefined, undefined, true),
-        );
+        const pages = DataStoreRequest.run(() => store.ListKeysAsync(this.prefix, undefined, undefined, true));
 
         while (true) {
             const page = pages.GetCurrentPage() as Array<DataStoreKey>;
@@ -238,9 +231,7 @@ export class DataStoreStore implements Store, LockProvider {
             // of them is overlapped rather than queued.
             Concurrency.run(
                 page.map((entry) => () => {
-                    DataStoreRequest.run(() =>
-                        store.RemoveAsync(entry.KeyName),
-                    );
+                    DataStoreRequest.run(() => store.RemoveAsync(entry.KeyName));
 
                     return true;
                 }),
@@ -273,9 +264,7 @@ export class DataStoreStore implements Store, LockProvider {
 
     /** When an item written now should expire. */
     protected expiresAt(seconds: number): number {
-        return seconds === 0
-            ? 0
-            : InteractsWithTime.currentTime() + math.floor(seconds);
+        return seconds === 0 ? 0 : InteractsWithTime.currentTime() + math.floor(seconds);
     }
 
     /** Numbers travel as they are; everything else is serialised. */
@@ -289,9 +278,7 @@ export class DataStoreStore implements Store, LockProvider {
             return value;
         }
 
-        const [ok, decoded] = pcall(() =>
-            Serializer.unserialize(value as string),
-        );
+        const [ok, decoded] = pcall(() => Serializer.unserialize(value as string));
 
         return ok ? decoded : value;
     }

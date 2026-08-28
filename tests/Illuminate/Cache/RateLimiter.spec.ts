@@ -50,10 +50,7 @@ export = (): void => {
             limiter.for("user_limiter", (...args: Array<unknown>) => {
                 const userId = args[0] as string;
 
-                return [
-                    Limit.perSecond(3).by(userId),
-                    Limit.perMinute(5).by(userId),
-                ];
+                return [Limit.perSecond(3).by(userId), Limit.perMinute(5).by(userId)];
             });
 
             const userId1 = "123";
@@ -66,18 +63,8 @@ export = (): void => {
             const forUser2 = namedLimiter(userId2);
 
             for (let index = 0; index < 3; index++) {
-                expect(
-                    limiter.tooManyAttempts(
-                        forUser1[0].key,
-                        forUser1[0].maxAttempts,
-                    ),
-                ).to.equal(false);
-                expect(
-                    limiter.tooManyAttempts(
-                        forUser2[0].key,
-                        forUser2[0].maxAttempts,
-                    ),
-                ).to.equal(false);
+                expect(limiter.tooManyAttempts(forUser1[0].key, forUser1[0].maxAttempts)).to.equal(false);
+                expect(limiter.tooManyAttempts(forUser2[0].key, forUser2[0].maxAttempts)).to.equal(false);
 
                 limiter.hit(forUser1[0].key, forUser1[0].decaySeconds);
                 limiter.hit(forUser2[0].key, forUser2[0].decaySeconds);

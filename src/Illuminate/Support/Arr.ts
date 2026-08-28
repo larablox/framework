@@ -1,18 +1,11 @@
-import {
-    InvalidArgumentException,
-    ItemNotFoundException,
-    MultipleItemsFoundException,
-} from "Illuminate/Exception";
+import { InvalidArgumentException, ItemNotFoundException, MultipleItemsFoundException } from "Illuminate/Exception";
 import { Util } from "Illuminate/Container/Util";
 
 /** A nested table addressed by string keys, as produced by an object literal. */
 export type ArrayAccessible = Record<string, unknown>;
 
 /** PHP: `fn ($value, $key)`. */
-export type ArrCallback<TValue, TReturn> = (
-    value: TValue,
-    key: string | number,
-) => TReturn;
+export type ArrCallback<TValue, TReturn> = (value: TValue, key: string | number) => TReturn;
 
 /**
  * PHP: `Illuminate\Support\Arr`.
@@ -39,9 +32,7 @@ export class Arr {
     }
 
     /** If the given value is not an array and not null, wrap it in one. */
-    public static wrap<T extends defined>(
-        value: T | Array<T> | undefined,
-    ): Array<T> {
+    public static wrap<T extends defined>(value: T | Array<T> | undefined): Array<T> {
         return Util.arrayWrap(value);
     }
 
@@ -50,11 +41,7 @@ export class Arr {
     // -----------------------------------------------------------------
 
     /** Get an item from an array using "dot" notation. */
-    public static get(
-        target: unknown,
-        key?: string,
-        defaultValue?: unknown,
-    ): unknown {
+    public static get(target: unknown, key?: string, defaultValue?: unknown): unknown {
         if (!Arr.accessible(target)) {
             return defaultValue;
         }
@@ -112,10 +99,7 @@ export class Arr {
     }
 
     /** Determine if all keys exist in an array using "dot" notation. */
-    public static hasAll(
-        target: unknown,
-        keys: string | Array<string>,
-    ): boolean {
+    public static hasAll(target: unknown, keys: string | Array<string>): boolean {
         const list = Util.arrayWrap(keys);
 
         if (!Arr.accessible(target) || list.isEmpty()) {
@@ -132,10 +116,7 @@ export class Arr {
     }
 
     /** Determine if any of the keys exist in an array using "dot" notation. */
-    public static hasAny(
-        target: unknown,
-        keys: string | Array<string>,
-    ): boolean {
+    public static hasAny(target: unknown, keys: string | Array<string>): boolean {
         const list = Util.arrayWrap(keys);
 
         if (!Arr.accessible(target) || list.isEmpty()) {
@@ -152,11 +133,7 @@ export class Arr {
     }
 
     /** Set an array item to a given value using "dot" notation. */
-    public static set(
-        target: ArrayAccessible,
-        key: string,
-        value: unknown,
-    ): ArrayAccessible {
+    public static set(target: ArrayAccessible, key: string, value: unknown): ArrayAccessible {
         const segments = key.split(".");
         let current = target;
 
@@ -179,11 +156,7 @@ export class Arr {
     }
 
     /** Add an element to an array using "dot" notation if it doesn't exist. */
-    public static add(
-        target: ArrayAccessible,
-        key: string,
-        value: unknown,
-    ): ArrayAccessible {
+    public static add(target: ArrayAccessible, key: string, value: unknown): ArrayAccessible {
         if (Arr.get(target, key) === undefined) {
             Arr.set(target, key, value);
         }
@@ -192,11 +165,7 @@ export class Arr {
     }
 
     /** Push an item into an array using "dot" notation. */
-    public static push(
-        target: ArrayAccessible,
-        key: string,
-        ...values: Array<defined>
-    ): ArrayAccessible {
+    public static push(target: ArrayAccessible, key: string, ...values: Array<defined>): ArrayAccessible {
         const list = (Arr.get(target, key, []) ?? []) as Array<defined>;
 
         for (const value of values) {
@@ -207,10 +176,7 @@ export class Arr {
     }
 
     /** Remove one or many array items from a given array using "dot" notation. */
-    public static forget(
-        target: ArrayAccessible,
-        keys: string | Array<string>,
-    ): void {
+    public static forget(target: ArrayAccessible, keys: string | Array<string>): void {
         for (const key of Util.arrayWrap(keys)) {
             if (Arr.exists(target, key)) {
                 delete target[key];
@@ -241,11 +207,7 @@ export class Arr {
     }
 
     /** Get a value from the array, and remove it. */
-    public static pull(
-        target: ArrayAccessible,
-        key: string,
-        defaultValue?: unknown,
-    ): unknown {
+    public static pull(target: ArrayAccessible, key: string, defaultValue?: unknown): unknown {
         const value = Arr.get(target, key, defaultValue);
 
         Arr.forget(target, key);
@@ -254,10 +216,7 @@ export class Arr {
     }
 
     /** Get a subset of the items from the given array. */
-    public static only(
-        target: ArrayAccessible,
-        keys: string | Array<string>,
-    ): ArrayAccessible {
+    public static only(target: ArrayAccessible, keys: string | Array<string>): ArrayAccessible {
         const wanted = Util.arrayWrap(keys);
         const result: ArrayAccessible = {};
 
@@ -271,10 +230,7 @@ export class Arr {
     }
 
     /** Get all of the given array except for a specified array of keys. */
-    public static except(
-        target: ArrayAccessible,
-        keys: string | Array<string>,
-    ): ArrayAccessible {
+    public static except(target: ArrayAccessible, keys: string | Array<string>): ArrayAccessible {
         const result: ArrayAccessible = {};
         const unwanted = Util.arrayWrap(keys);
 
@@ -322,10 +278,7 @@ export class Arr {
     }
 
     /** Prepend the key names of an associative array. */
-    public static prependKeysWith(
-        target: ArrayAccessible,
-        prependWith: string,
-    ): ArrayAccessible {
+    public static prependKeysWith(target: ArrayAccessible, prependWith: string): ArrayAccessible {
         const result: ArrayAccessible = {};
 
         for (const [key, value] of pairs(target)) {
@@ -336,25 +289,14 @@ export class Arr {
     }
 
     /** Flatten a multi-dimensional associative array with dots. */
-    public static dot(
-        target: ArrayAccessible,
-        prepend = "",
-        depth = math.huge,
-    ): ArrayAccessible {
+    public static dot(target: ArrayAccessible, prepend = "", depth = math.huge): ArrayAccessible {
         const results: ArrayAccessible = {};
 
-        const flatten = (
-            data: ArrayAccessible,
-            prefix: string,
-            currentDepth: number,
-        ): void => {
+        const flatten = (data: ArrayAccessible, prefix: string, currentDepth: number): void => {
             for (const [key, value] of pairs(data)) {
                 const newKey = `${prefix}${key}`;
 
-                const nested =
-                    Arr.accessible(value) && currentDepth < depth
-                        ? (value as ArrayAccessible)
-                        : undefined;
+                const nested = Arr.accessible(value) && currentDepth < depth ? (value as ArrayAccessible) : undefined;
 
                 if (nested !== undefined && !Arr.isEmptyTable(nested)) {
                     flatten(nested, `${newKey}.`, currentDepth + 1);
@@ -409,11 +351,7 @@ export class Arr {
     // -----------------------------------------------------------------
 
     /** Get a string item from an array using "dot" notation. */
-    public static string(
-        target: unknown,
-        key: string,
-        defaultValue?: string,
-    ): string {
+    public static string(target: unknown, key: string, defaultValue?: string): string {
         const value = Arr.get(target, key, defaultValue);
 
         if (!typeIs(value, "string")) {
@@ -426,11 +364,7 @@ export class Arr {
     }
 
     /** Get an integer item from an array using "dot" notation. */
-    public static integer(
-        target: unknown,
-        key: string,
-        defaultValue?: number,
-    ): number {
+    public static integer(target: unknown, key: string, defaultValue?: number): number {
         const value = Arr.get(target, key, defaultValue);
 
         if (!typeIs(value, "number") || math.floor(value) !== value) {
@@ -443,11 +377,7 @@ export class Arr {
     }
 
     /** Get a boolean item from an array using "dot" notation. */
-    public static boolean(
-        target: unknown,
-        key: string,
-        defaultValue?: boolean,
-    ): boolean {
+    public static boolean(target: unknown, key: string, defaultValue?: boolean): boolean {
         const value = Arr.get(target, key, defaultValue);
 
         if (!typeIs(value, "boolean")) {
@@ -460,11 +390,7 @@ export class Arr {
     }
 
     /** Get an array item from an array using "dot" notation. */
-    public static array(
-        target: unknown,
-        key: string,
-        defaultValue?: Array<defined>,
-    ): Array<defined> {
+    public static array(target: unknown, key: string, defaultValue?: Array<defined>): Array<defined> {
         const value = Arr.get(target, key, defaultValue);
 
         if (!Arr.accessible(value)) {
@@ -511,31 +437,22 @@ export class Arr {
     }
 
     /** Get the first item, but only if exactly one item matches. */
-    public static sole<T extends defined>(
-        list: Array<T>,
-        callback?: ArrCallback<T, boolean>,
-    ): T {
-        const matched =
-            callback === undefined ? list : Arr.where(list, callback);
+    public static sole<T extends defined>(list: Array<T>, callback?: ArrCallback<T, boolean>): T {
+        const matched = callback === undefined ? list : Arr.where(list, callback);
 
         if (matched.isEmpty()) {
             throw new ItemNotFoundException("No items were found.");
         }
 
         if (matched.size() > 1) {
-            throw new MultipleItemsFoundException(
-                `${matched.size()} items were found.`,
-            );
+            throw new MultipleItemsFoundException(`${matched.size()} items were found.`);
         }
 
         return matched[0];
     }
 
     /** Take the first or last given number of items from an array. */
-    public static take<T extends defined>(
-        list: Array<T>,
-        limit: number,
-    ): Array<T> {
+    public static take<T extends defined>(list: Array<T>, limit: number): Array<T> {
         if (limit < 0) {
             return Arr.slice(list, math.max(list.size() + limit, 0), -limit);
         }
@@ -544,10 +461,7 @@ export class Arr {
     }
 
     /** Determine if all items pass the given truth test. */
-    public static every<T extends defined>(
-        list: Array<T>,
-        callback: ArrCallback<T, boolean>,
-    ): boolean {
+    public static every<T extends defined>(list: Array<T>, callback: ArrCallback<T, boolean>): boolean {
         for (let index = 0; index < list.size(); index++) {
             if (!callback(list[index], index)) {
                 return false;
@@ -558,10 +472,7 @@ export class Arr {
     }
 
     /** Determine if some items pass the given truth test. */
-    public static some<T extends defined>(
-        list: Array<T>,
-        callback: ArrCallback<T, boolean>,
-    ): boolean {
+    public static some<T extends defined>(list: Array<T>, callback: ArrCallback<T, boolean>): boolean {
         for (let index = 0; index < list.size(); index++) {
             if (callback(list[index], index)) {
                 return true;
@@ -572,10 +483,7 @@ export class Arr {
     }
 
     /** Filter the array using the given callback. */
-    public static where<T extends defined>(
-        list: Array<T>,
-        callback: ArrCallback<T, boolean>,
-    ): Array<T> {
+    public static where<T extends defined>(list: Array<T>, callback: ArrCallback<T, boolean>): Array<T> {
         const result = new Array<T>();
 
         for (let index = 0; index < list.size(); index++) {
@@ -588,17 +496,12 @@ export class Arr {
     }
 
     /** Filter the array using the negation of the given callback. */
-    public static reject<T extends defined>(
-        list: Array<T>,
-        callback: ArrCallback<T, boolean>,
-    ): Array<T> {
+    public static reject<T extends defined>(list: Array<T>, callback: ArrCallback<T, boolean>): Array<T> {
         return Arr.where(list, (value, key) => !callback(value, key));
     }
 
     /** Filter items where the value is not null. */
-    public static whereNotNull<T extends defined>(
-        list: Array<T | undefined>,
-    ): Array<T> {
+    public static whereNotNull<T extends defined>(list: Array<T | undefined>): Array<T> {
         const result = new Array<T>();
 
         for (const value of list) {
@@ -660,10 +563,7 @@ export class Arr {
     }
 
     /** Run a map over each nested chunk of items. */
-    public static mapSpread<TResult extends defined>(
-        list: Array<Array<defined>>,
-        callback: Callback,
-    ): Array<TResult> {
+    public static mapSpread<TResult extends defined>(list: Array<Array<defined>>, callback: Callback): Array<TResult> {
         return Arr.map(list, (chunk, key) => {
             const args = table.clone(chunk);
 
@@ -674,10 +574,7 @@ export class Arr {
     }
 
     /** Key an array by a field or using a callback. */
-    public static keyBy<T extends defined>(
-        list: Array<T>,
-        keyBy: string | ArrCallback<T, string>,
-    ): ArrayAccessible {
+    public static keyBy<T extends defined>(list: Array<T>, keyBy: string | ArrCallback<T, string>): ArrayAccessible {
         const result: ArrayAccessible = {};
 
         for (let index = 0; index < list.size(); index++) {
@@ -698,10 +595,7 @@ export class Arr {
      * PHP also keys the result when a second argument is given; that produces an
      * ordered map, so it lives on `Collection::pluck` instead.
      */
-    public static pluck<T extends defined>(
-        list: Array<T>,
-        value: string,
-    ): Array<defined> {
+    public static pluck<T extends defined>(list: Array<T>, value: string): Array<defined> {
         const result = new Array<defined>();
 
         for (const item of list) {
@@ -716,10 +610,7 @@ export class Arr {
     }
 
     /** Select an array of values from an array of tables. */
-    public static select<T extends defined>(
-        list: Array<T>,
-        keys: string | Array<string>,
-    ): Array<ArrayAccessible> {
+    public static select<T extends defined>(list: Array<T>, keys: string | Array<string>): Array<ArrayAccessible> {
         const wanted = Util.arrayWrap(keys);
 
         return Arr.map(list, (item) => {
@@ -736,30 +627,21 @@ export class Arr {
     }
 
     /** Get a subset of the items from the given array by value. */
-    public static onlyValues<T extends defined>(
-        list: Array<T>,
-        values: T | Array<T>,
-    ): Array<T> {
+    public static onlyValues<T extends defined>(list: Array<T>, values: T | Array<T>): Array<T> {
         const wanted = Util.arrayWrap(values);
 
         return Arr.where(list, (value) => wanted.includes(value));
     }
 
     /** Get all of the given array except for a specified array of values. */
-    public static exceptValues<T extends defined>(
-        list: Array<T>,
-        values: T | Array<T>,
-    ): Array<T> {
+    public static exceptValues<T extends defined>(list: Array<T>, values: T | Array<T>): Array<T> {
         const unwanted = Util.arrayWrap(values);
 
         return Arr.where(list, (value) => !unwanted.includes(value));
     }
 
     /** Push an item onto the beginning of an array. */
-    public static prepend<T extends defined>(
-        list: Array<T>,
-        value: T,
-    ): Array<T> {
+    public static prepend<T extends defined>(list: Array<T>, value: T): Array<T> {
         const result = table.clone(list);
 
         result.unshift(value);
@@ -783,10 +665,7 @@ export class Arr {
     }
 
     /** Flatten a multi-dimensional array into a single level. */
-    public static flatten(
-        list: Array<defined>,
-        depth = math.huge,
-    ): Array<defined> {
+    public static flatten(list: Array<defined>, depth = math.huge): Array<defined> {
         const result = new Array<defined>();
 
         for (const item of list) {
@@ -796,10 +675,7 @@ export class Arr {
                 continue;
             }
 
-            const values =
-                depth === 1
-                    ? (item as Array<defined>)
-                    : Arr.flatten(item as Array<defined>, depth - 1);
+            const values = depth === 1 ? (item as Array<defined>) : Arr.flatten(item as Array<defined>, depth - 1);
 
             for (const value of values) {
                 result.push(value);
@@ -810,9 +686,7 @@ export class Arr {
     }
 
     /** Cross join the given arrays, returning all possible permutations. */
-    public static crossJoin(
-        ...arrays: Array<Array<defined>>
-    ): Array<Array<defined>> {
+    public static crossJoin(...arrays: Array<Array<defined>>): Array<Array<defined>> {
         let results: Array<Array<defined>> = [[]];
 
         for (const list of arrays) {
@@ -834,9 +708,7 @@ export class Arr {
     }
 
     /** Divide an array into two arrays: one of keys, one of values. */
-    public static divide(
-        target: ArrayAccessible,
-    ): [Array<string>, Array<defined>] {
+    public static divide(target: ArrayAccessible): [Array<string>, Array<defined>] {
         const keys = new Array<string>();
         const values = new Array<defined>();
 
@@ -849,11 +721,7 @@ export class Arr {
     }
 
     /** Join all items using a string, with a separate glue for the final item. */
-    public static join(
-        list: Array<defined>,
-        glue: string,
-        finalGlue = "",
-    ): string {
+    public static join(list: Array<defined>, glue: string, finalGlue = ""): string {
         if (finalGlue === "") {
             return list.map((value) => tostring(value)).join(glue);
         }
@@ -873,10 +741,7 @@ export class Arr {
     }
 
     /** Get one or a specified number of random values from an array. */
-    public static random<T extends defined>(
-        list: Array<T>,
-        count?: number,
-    ): T | Array<T> | undefined {
+    public static random<T extends defined>(list: Array<T>, count?: number): T | Array<T> | undefined {
         const requested = count ?? 1;
 
         if (requested > list.size()) {
@@ -938,24 +803,16 @@ export class Arr {
     }
 
     /** Sort the array in descending order. */
-    public static sortDesc<T extends defined>(
-        list: Array<T>,
-        callback?: string | ArrCallback<T, defined>,
-    ): Array<T> {
+    public static sortDesc<T extends defined>(list: Array<T>, callback?: string | ArrCallback<T, defined>): Array<T> {
         return Arr.sort(list, callback, true);
     }
 
     /** Recursively sort an array by keys and values. */
-    public static sortRecursive(
-        list: Array<defined>,
-        descending = false,
-    ): Array<defined> {
+    public static sortRecursive(list: Array<defined>, descending = false): Array<defined> {
         const sorted = Arr.sort(list, undefined, descending);
 
         return Arr.map(sorted, (value) =>
-            Util.isArray(value)
-                ? Arr.sortRecursive(value as Array<defined>, descending)
-                : value,
+            Util.isArray(value) ? Arr.sortRecursive(value as Array<defined>, descending) : value,
         );
     }
 
@@ -970,18 +827,11 @@ export class Arr {
             return items as Array<defined>;
         }
 
-        if (
-            typeIs(items, "table") &&
-            typeIs((items as { all?: unknown }).all, "function")
-        ) {
-            return ((items as { all: Callback }).all as Callback)(
-                items,
-            ) as Array<defined>;
+        if (typeIs(items, "table") && typeIs((items as { all?: unknown }).all, "function")) {
+            return ((items as { all: Callback }).all as Callback)(items) as Array<defined>;
         }
 
-        throw new InvalidArgumentException(
-            "Items cannot be represented by a scalar value.",
-        );
+        throw new InvalidArgumentException("Items cannot be represented by a scalar value.");
     }
 
     // -----------------------------------------------------------------
@@ -989,18 +839,10 @@ export class Arr {
     // -----------------------------------------------------------------
 
     /** Take `length` items starting at `start`. */
-    private static slice<T extends defined>(
-        list: Array<T>,
-        start: number,
-        length: number,
-    ): Array<T> {
+    private static slice<T extends defined>(list: Array<T>, start: number, length: number): Array<T> {
         const result = new Array<T>();
 
-        for (
-            let index = start;
-            index < math.min(start + length, list.size());
-            index++
-        ) {
+        for (let index = start; index < math.min(start + length, list.size()); index++) {
             result.push(list[index]);
         }
 

@@ -25,9 +25,7 @@ export = (): void => {
             // PHP: SupportStrTest::testPosition (encoding argument dropped, see Slicing.spec.ts)
             expect(Str.position("Hello, World!", "W")).to.equal(7);
             expect(Str.position("This is a test string.", "test")).to.equal(10);
-            expect(
-                Str.position("This is a test string, test again.", "test", 15),
-            ).to.equal(23);
+            expect(Str.position("This is a test string, test again.", "test", 15)).to.equal(23);
             expect(Str.position("Hello, World!", "Hello")).to.equal(0);
             expect(Str.position("Hello, World!", "World!")).to.equal(7);
             expect(Str.position("Hello, World!", "W", -6)).to.equal(7);
@@ -72,9 +70,7 @@ export = (): void => {
             expect(Str.doesntStartWith("jason", "jas")).to.equal(false);
             expect(Str.doesntStartWith("jason", "jason")).to.equal(false);
             expect(Str.doesntStartWith("jason", ["jas"])).to.equal(false);
-            expect(Str.doesntStartWith("jason", ["day", "jas"])).to.equal(
-                false,
-            );
+            expect(Str.doesntStartWith("jason", ["day", "jas"])).to.equal(false);
             expect(Str.doesntStartWith("jason", "day")).to.equal(true);
             expect(Str.doesntStartWith("jason", ["day"])).to.equal(true);
             expect(Str.doesntStartWith("0123", "0")).to.equal(false);
@@ -156,9 +152,7 @@ export = (): void => {
 
         it("contains() checks a haystack for one or more needles", () => {
             // PHP: SupportStrTest::testStrContains / strContainsProvider
-            const cases: Array<
-                [string, string | Array<string>, boolean, boolean?]
-            > = [
+            const cases: Array<[string, string | Array<string>, boolean, boolean?]> = [
                 ["Taylor", "ylo", true, true],
                 ["Taylor", "ylo", true, false],
                 ["Taylor", "taylor", true, true],
@@ -174,9 +168,7 @@ export = (): void => {
             ];
 
             for (const [haystack, needles, expected, ignoreCase] of cases) {
-                expect(
-                    Str.contains(haystack, needles, ignoreCase ?? false),
-                ).to.equal(expected);
+                expect(Str.contains(haystack, needles, ignoreCase ?? false)).to.equal(expected);
             }
         });
 
@@ -193,9 +185,7 @@ export = (): void => {
             ];
 
             for (const [haystack, needles, expected, ignoreCase] of cases) {
-                expect(Str.containsAll(haystack, needles, ignoreCase)).to.equal(
-                    expected,
-                );
+                expect(Str.containsAll(haystack, needles, ignoreCase)).to.equal(expected);
             }
         });
 

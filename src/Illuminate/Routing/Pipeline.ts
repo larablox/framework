@@ -19,9 +19,7 @@ import type { Passable } from "Illuminate/Contracts/Pipeline/Pipeline";
 export class Pipeline extends BasePipeline {
     /** Handle the value returned from each pipe before passing it to the next. */
     protected handleCarry(carry: unknown): unknown {
-        return isResponsable(carry)
-            ? carry.toResponse(this.getContainer().make<Request>("request"))
-            : carry;
+        return isResponsable(carry) ? carry.toResponse(this.getContainer().make<Request>("request")) : carry;
     }
 
     /** Handle the given exception. */
@@ -29,11 +27,7 @@ export class Pipeline extends BasePipeline {
         // The container is asked for directly rather than through
         // `getContainer()`: that one throws when there is none, and an
         // exception raised while handling an exception buries the first.
-        if (
-            this.container === undefined ||
-            !this.container.bound(Handler) ||
-            !(passable instanceof Request)
-        ) {
+        if (this.container === undefined || !this.container.bound(Handler) || !(passable instanceof Request)) {
             throw e;
         }
 

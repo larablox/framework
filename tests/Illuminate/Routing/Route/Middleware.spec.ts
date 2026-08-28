@@ -47,11 +47,7 @@ export = (): void => {
 
             r.get("foo/bar", { middleware: [middleware], uses: () => "hello" });
 
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("caught");
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("caught");
         });
 
         // PHP: RoutingRouteTest::testMiddlewareCanBeSkipped
@@ -70,11 +66,7 @@ export = (): void => {
                 uses: () => "hello",
             }).withoutMiddleware(RoutingTestMiddlewareGroupTwo);
 
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("hello");
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("hello");
         });
 
         // PHP: RoutingRouteTest::testMiddlewareWorksIfControllerThrowsHttpResponseException
@@ -89,21 +81,14 @@ export = (): void => {
                 },
             });
 
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("caught");
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("caught");
 
             // After calling the action: the middleware's `next()` sees the
             // response the exception carried, and can still transform it.
             r = router();
             const response = new Response("hello");
 
-            const afterMiddleware = (
-                request: Request,
-                _next: (request: Request) => Response,
-            ) => {
+            const afterMiddleware = (request: Request, _next: (request: Request) => Response) => {
                 const seen = _next(request);
                 expect(seen).to.equal(response);
 
@@ -117,11 +102,7 @@ export = (): void => {
                 },
             });
 
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("hello caught");
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("hello caught");
         });
 
         // PHP: RoutingRouteTest::testReturnsResponseWhenMiddlewareReturnsResponsable
@@ -147,17 +128,9 @@ export = (): void => {
                 uses: () => "hello",
                 middleware: ["foo", "bar", "baz"],
             });
-            r.aliasMiddleware(
-                "foo",
-                (req: Request, _next: (request: Request) => unknown) =>
-                    _next(req),
-            );
+            r.aliasMiddleware("foo", (req: Request, _next: (request: Request) => unknown) => _next(req));
             r.aliasMiddleware("bar", () => new ResponsableResponse());
-            r.aliasMiddleware(
-                "baz",
-                (req: Request, _next: (request: Request) => unknown) =>
-                    _next(req),
-            );
+            r.aliasMiddleware("baz", (req: Request, _next: (request: Request) => unknown) => _next(req));
 
             expect(r.dispatch(request).content()).to.equal("bar");
         });
@@ -168,11 +141,7 @@ export = (): void => {
             r.get("foo/bar", { middleware: ["foo"], uses: () => "hello" });
             r.aliasMiddleware("foo", () => "caught");
 
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("caught");
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("caught");
         });
 
         // PHP: RoutingRouteTest::testControllerClosureMiddleware
@@ -180,18 +149,13 @@ export = (): void => {
             class RouteTestClosureMiddlewareController extends Controller {
                 public constructor() {
                     super();
-                    this.middleware(
-                        (
-                            request: Request,
-                            _next: (request: Request) => Response,
-                        ) => {
-                            const response = _next(request);
+                    this.middleware((request: Request, _next: (request: Request) => Response) => {
+                        const response = _next(request);
 
-                            return response.setContent(
-                                `${response.content()}-${request.offsetGet("foo-middleware") ?? ""}-controller-closure`,
-                            );
-                        },
-                    );
+                        return response.setContent(
+                            `${response.content()}-${request.offsetGet("foo-middleware") ?? ""}-controller-closure`,
+                        );
+                    });
                 }
 
                 public index(): string {
@@ -204,20 +168,15 @@ export = (): void => {
                 uses: [RouteTestClosureMiddlewareController, "index"],
                 middleware: ["foo"],
             });
-            r.aliasMiddleware(
-                "foo",
-                (request: Request, _next: (request: Request) => unknown) => {
-                    request.offsetSet("foo-middleware", "foo-middleware");
+            r.aliasMiddleware("foo", (request: Request, _next: (request: Request) => unknown) => {
+                request.offsetSet("foo-middleware", "foo-middleware");
 
-                    return _next(request);
-                },
+                return _next(request);
+            });
+
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal(
+                "index-foo-middleware-controller-closure",
             );
-
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("index-foo-middleware-controller-closure");
         });
 
         // PHP: RoutingRouteTest::testMiddlewareGroups
@@ -225,10 +184,7 @@ export = (): void => {
             let sawGroupOne = false;
 
             class RoutingTestMiddlewareGroupOne {
-                public handle(
-                    request: Request,
-                    _next: (request: Request) => unknown,
-                ): unknown {
+                public handle(request: Request, _next: (request: Request) => unknown): unknown {
                     sawGroupOne = true;
 
                     return _next(request);
@@ -236,11 +192,7 @@ export = (): void => {
             }
 
             class RoutingTestMiddlewareGroupTwo {
-                public handle(
-                    _request: Request,
-                    _next: Callback,
-                    parameter?: string,
-                ): unknown {
+                public handle(_request: Request, _next: Callback, parameter?: string): unknown {
                     return new Response(`caught ${parameter}`);
                 }
             }
@@ -249,16 +201,9 @@ export = (): void => {
             r.get("foo/bar", { middleware: ["web"], uses: () => "hello" });
 
             r.aliasMiddleware("two", RoutingTestMiddlewareGroupTwo);
-            r.middlewareGroup("web", [
-                RoutingTestMiddlewareGroupOne,
-                "two:taylor",
-            ]);
+            r.middlewareGroup("web", [RoutingTestMiddlewareGroupOne, "two:taylor"]);
 
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("caught taylor");
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("caught taylor");
             expect(sawGroupOne).to.equal(true);
         });
 
@@ -267,10 +212,7 @@ export = (): void => {
             let sawGroupOne = false;
 
             class RoutingTestMiddlewareGroupOne {
-                public handle(
-                    request: Request,
-                    _next: (request: Request) => unknown,
-                ): unknown {
+                public handle(request: Request, _next: (request: Request) => unknown): unknown {
                     sawGroupOne = true;
 
                     return _next(request);
@@ -278,11 +220,7 @@ export = (): void => {
             }
 
             class RoutingTestMiddlewareGroupTwo {
-                public handle(
-                    _request: Request,
-                    _next: Callback,
-                    parameter?: string,
-                ): unknown {
+                public handle(_request: Request, _next: Callback, parameter?: string): unknown {
                     return new Response(`caught ${parameter}`);
                 }
             }
@@ -294,11 +232,7 @@ export = (): void => {
             r.middlewareGroup("first", ["two:abigail"]);
             r.middlewareGroup("web", [RoutingTestMiddlewareGroupOne, "first"]);
 
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("caught abigail");
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("caught abigail");
             expect(sawGroupOne).to.equal(true);
         });
 
@@ -313,10 +247,7 @@ export = (): void => {
             let parameterTwo: Array<string> | undefined;
 
             class RouteTestControllerMiddleware {
-                public handle(
-                    request: Request,
-                    _next: (request: Request) => unknown,
-                ): unknown {
+                public handle(request: Request, _next: (request: Request) => unknown): unknown {
                     sawMiddleware = true;
 
                     return _next(request);
@@ -324,11 +255,7 @@ export = (): void => {
             }
 
             class RouteTestControllerParameterizedMiddlewareOne {
-                public handle(
-                    request: Request,
-                    _next: (request: Request) => unknown,
-                    parameter?: string,
-                ): unknown {
+                public handle(request: Request, _next: (request: Request) => unknown, parameter?: string): unknown {
                     parameterOne = parameter;
 
                     return _next(request);
@@ -351,15 +278,8 @@ export = (): void => {
                 public constructor() {
                     super();
                     this.middleware(RouteTestControllerMiddleware);
-                    this.middleware([
-                        RouteTestControllerParameterizedMiddlewareOne,
-                        "0",
-                    ]);
-                    this.middleware([
-                        RouteTestControllerParameterizedMiddlewareTwo,
-                        "foo",
-                        "bar",
-                    ]);
+                    this.middleware([RouteTestControllerParameterizedMiddlewareOne, "0"]);
+                    this.middleware([RouteTestControllerParameterizedMiddlewareTwo, "foo", "bar"]);
                 }
 
                 public index(): string {
@@ -370,11 +290,7 @@ export = (): void => {
             const r = router();
             r.get("foo/bar", [RouteTestControllerStub, "index"]);
 
-            expect(
-                r
-                    .dispatch(new Request({} as Player, "GET", "foo/bar"))
-                    .content(),
-            ).to.equal("Hello World");
+            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("Hello World");
             expect(sawMiddleware).to.equal(true);
             expect(parameterOne).to.equal("0");
             expectDeepEqual(parameterTwo, ["foo", "bar"]);

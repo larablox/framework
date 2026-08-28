@@ -31,9 +31,7 @@ export = (): void => {
                 { name: "Charmander", type: "Fire" },
             ]);
 
-            const result = data.mapWithKeys(
-                (pokemon) => [pokemon.name, pokemon.type] as [string, string],
-            );
+            const result = data.mapWithKeys((pokemon) => [pokemon.name, pokemon.type] as [string, string]);
 
             expect(result.get("Blastoise")).to.equal("Water");
             expect(result.get("Charmander")).to.equal("Fire");
@@ -48,12 +46,7 @@ export = (): void => {
 
             const flattened = data.flatMap((person) => person.hobbies);
 
-            expectDeepEqual(flattened.all(), [
-                "programming",
-                "basketball",
-                "music",
-                "powerlifting",
-            ]);
+            expectDeepEqual(flattened.all(), ["programming", "basketball", "music", "powerlifting"]);
         });
 
         it("transform() mutates every item in place", () => {
@@ -106,14 +99,8 @@ export = (): void => {
             expect(keyed.get("taylor")).to.equal("foo");
             expect(keyed.get("dayle")).to.equal("bar");
 
-            const nested = new Collection([
-                { user: { name: "taylor" } },
-                { user: { name: "dayle" } },
-            ]);
-            expectDeepEqual(nested.pluck("user.name").all(), [
-                "taylor",
-                "dayle",
-            ]);
+            const nested = new Collection([{ user: { name: "taylor" } }, { user: { name: "dayle" } }]);
+            expectDeepEqual(nested.pluck("user.name").all(), ["taylor", "dayle"]);
         });
 
         it("keyBy() re-keys the collection by a field or a callback", () => {
@@ -142,9 +129,7 @@ export = (): void => {
             ]);
             expect(data.implode(",", "name")).to.equal("taylor,dayle");
 
-            expect(new Collection(["a", "b", "c"]).join(", ")).to.equal(
-                "a, b, c",
-            );
+            expect(new Collection(["a", "b", "c"]).join(", ")).to.equal("a, b, c");
             expect(new Collection(["a"]).join(", ")).to.equal("a");
             expect(new Collection([]).join(", ")).to.equal("");
         });

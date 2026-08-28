@@ -47,16 +47,8 @@ export class MethodNotAllowedHttpException extends HttpException {
 
 /** PHP: `Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException`. */
 export class TooManyRequestsHttpException extends HttpException {
-    public constructor(
-        retryAfter?: number,
-        message = "",
-        headers: Record<string, string> = {},
-    ) {
-        super(
-            429,
-            message,
-            TooManyRequestsHttpException.withRetryAfter(headers, retryAfter),
-        );
+    public constructor(retryAfter?: number, message = "", headers: Record<string, string> = {}) {
+        super(429, message, TooManyRequestsHttpException.withRetryAfter(headers, retryAfter));
     }
 
     /**
@@ -66,10 +58,7 @@ export class TooManyRequestsHttpException extends HttpException {
      * compiler emits a call whose type `luau-lsp` cannot pin down, and the
      * analyzer is the only thing here that reads the generated Luau.
      */
-    protected static withRetryAfter(
-        headers: Record<string, string>,
-        retryAfter?: number,
-    ): Record<string, string> {
+    protected static withRetryAfter(headers: Record<string, string>, retryAfter?: number): Record<string, string> {
         const merged = table.clone(headers);
 
         if (retryAfter !== undefined) {

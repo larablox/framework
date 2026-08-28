@@ -9,9 +9,7 @@ import { RuntimeException } from "Illuminate/Exception";
  * signature through this alias yields a plain function type, which is always
  * compiled as a dot call.
  */
-export type Forwarded<T> = T extends (...args: infer A) => infer R
-    ? (...args: A) => R
-    : never;
+export type Forwarded<T> = T extends (...args: infer A) => infer R ? (...args: A) => R : never;
 
 /**
  * Stand-in for `Facade::__callStatic()`.
@@ -31,13 +29,10 @@ export function Forwards() {
         const metatable = getmetatable(target) as object | undefined;
 
         if (metatable === undefined) {
-            throw new RuntimeException(
-                "A facade must extend Facade to forward calls.",
-            );
+            throw new RuntimeException("A facade must extend Facade to forward calls.");
         }
 
-        const inherited = rawget(metatable, "__index") as
-            Record<string, unknown> | undefined;
+        const inherited = rawget(metatable, "__index") as Record<string, unknown> | undefined;
 
         rawset(metatable, "__index", (_receiver: unknown, key: string) => {
             const owned = inherited?.[key];
@@ -52,21 +47,16 @@ export function Forwards() {
             // dot call, so this closure is never handed a `self` argument.
             return (...args: Array<unknown>) => {
                 const facade = target as unknown as Record<string, Callback>;
-                const root = facade.getFacadeRoot(target) as
-                    Record<string, unknown> | undefined;
+                const root = facade.getFacadeRoot(target) as Record<string, unknown> | undefined;
 
                 if (root === undefined) {
-                    throw new RuntimeException(
-                        "A facade root has not been set.",
-                    );
+                    throw new RuntimeException("A facade root has not been set.");
                 }
 
                 const method = root[key];
 
                 if (!typeIs(method, "function")) {
-                    throw new RuntimeException(
-                        `Method [${key}] does not exist on the facade root.`,
-                    );
+                    throw new RuntimeException(`Method [${key}] does not exist on the facade root.`);
                 }
 
                 return (method as Callback)(root, ...args);

@@ -7,16 +7,8 @@ import { NullHandler } from "@larablox/monolog/out/Monolog/Handler/NullHandler";
 import { TestHandler } from "@larablox/monolog/out/Monolog/Handler/TestHandler";
 import { Level } from "@larablox/monolog/out/Monolog/Level";
 import { Logger as Monolog } from "@larablox/monolog/out/Monolog/Logger";
-import type {
-    Dispatcher as DispatcherContract,
-    EventName,
-    Listener,
-} from "Illuminate/Contracts/Events/Dispatcher";
-import type {
-    LogContext,
-    LogLevel,
-    Logger as LoggerContract,
-} from "Illuminate/Contracts/Log/Logger";
+import type { Dispatcher as DispatcherContract, EventName, Listener } from "Illuminate/Contracts/Events/Dispatcher";
+import type { LogContext, LogLevel, Logger as LoggerContract } from "Illuminate/Contracts/Log/Logger";
 
 /**
  * PHP: `Illuminate\Tests\Log\LogLoggerTest`.
@@ -95,11 +87,7 @@ class RecordingLogger implements LoggerContract {
         this.log("debug", message, context);
     }
 
-    public log(
-        level: LogLevel,
-        message: unknown,
-        context: LogContext = {},
-    ): void {
+    public log(level: LogLevel, message: unknown, context: LogContext = {}): void {
         this.calls.push({ level, message, context });
     }
 }
@@ -108,10 +96,7 @@ class RecordingLogger implements LoggerContract {
 class RecordingDispatcher implements DispatcherContract {
     public listenCalls = new Array<[EventName | Array<EventName>, Listener]>();
 
-    public listen(
-        events: EventName | Array<EventName>,
-        listener: Listener,
-    ): void {
+    public listen(events: EventName | Array<EventName>, listener: Listener): void {
         this.listenCalls.push([events, listener]);
     }
 
@@ -216,10 +201,7 @@ export = (): void => {
             // PHP: LogLoggerTest::testListenShortcutFailsWithNoDispatcher
             const writer = new Logger(new RecordingLogger());
 
-            expectThrows(
-                () => writer.listen(() => {}),
-                "Events dispatcher has not been set.",
-            );
+            expectThrows(() => writer.listen(() => {}), "Events dispatcher has not been set.");
         });
 
         it("listen() shortcut registers the callback against MessageLogged", () => {

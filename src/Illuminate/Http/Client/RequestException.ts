@@ -15,9 +15,6 @@ import type { Response } from "Illuminate/Http/Client/Response";
 export class RequestException extends HttpClientException {
     /** Create a new exception instance. */
     public constructor(public readonly response: Response) {
-        super(
-            `HTTP request returned status code ${response.status()}`,
-            response.status(),
-        );
+        super(`HTTP request returned status code ${response.status()}`, response.status());
     }
 }

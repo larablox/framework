@@ -38,29 +38,19 @@ export class DataStoreLock extends Lock {
 
     /** Attempt to acquire the lock. */
     public acquire(): boolean {
-        const expiresAt =
-            this.seconds === 0
-                ? 0
-                : InteractsWithTime.currentTime() + math.floor(this.seconds);
+        const expiresAt = this.seconds === 0 ? 0 : InteractsWithTime.currentTime() + math.floor(this.seconds);
 
         // `UpdateAsync` types the transform as returning a `LuaTuple`; only the
         // value is used, and returning nothing leaves a live lock alone.
         const transform = (held?: LockRecord): LockRecord | undefined => {
             const alive =
-                held !== undefined &&
-                (held.expiresAt === 0 ||
-                    held.expiresAt > InteractsWithTime.currentTime());
+                held !== undefined && (held.expiresAt === 0 || held.expiresAt > InteractsWithTime.currentTime());
 
             return alive ? undefined : { owner: this.ownerId, expiresAt };
         };
 
         const written = DataStoreRequest.run(() => {
-            const [value] = this.store
-                .store()
-                .UpdateAsync<LockRecord, LockRecord>(
-                    this.key(),
-                    transform as never,
-                );
+            const [value] = this.store.store().UpdateAsync<LockRecord, LockRecord>(this.key(), transform as never);
 
             return value;
         });

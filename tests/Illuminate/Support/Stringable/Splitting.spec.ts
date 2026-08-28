@@ -18,36 +18,18 @@ export = (): void => {
     describe("Stringable splitting", () => {
         it("explode() splits the string into a collection", () => {
             // PHP: SupportStringableTest::testExplode
-            expect(
-                arraysEqual(Str.of("Foo Bar Baz").explode(" ").all(), [
-                    "Foo",
-                    "Bar",
-                    "Baz",
-                ]),
-            ).to.equal(true);
+            expect(arraysEqual(Str.of("Foo Bar Baz").explode(" ").all(), ["Foo", "Bar", "Baz"])).to.equal(true);
 
             // with limit
-            expect(
-                arraysEqual(Str.of("Foo Bar Baz").explode(" ", 2).all(), [
-                    "Foo",
-                    "Bar Baz",
-                ]),
-            ).to.equal(true);
-            expect(
-                arraysEqual(Str.of("Foo Bar Baz").explode(" ", -1).all(), [
-                    "Foo",
-                    "Bar",
-                ]),
-            ).to.equal(true);
+            expect(arraysEqual(Str.of("Foo Bar Baz").explode(" ", 2).all(), ["Foo", "Bar Baz"])).to.equal(true);
+            expect(arraysEqual(Str.of("Foo Bar Baz").explode(" ", -1).all(), ["Foo", "Bar"])).to.equal(true);
         });
 
         it("split() breaks the string into fixed-size chunks", () => {
             // PHP: SupportStringableTest::testChunk
             const chunks = Str.of("foobarbaz").split(3);
 
-            expect(arraysEqual(chunks.all(), ["foo", "bar", "baz"])).to.equal(
-                true,
-            );
+            expect(arraysEqual(chunks.all(), ["foo", "bar", "baz"])).to.equal(true);
         });
     });
 };

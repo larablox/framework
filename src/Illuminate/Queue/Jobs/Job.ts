@@ -4,11 +4,7 @@ import { ManuallyFailedException } from "Illuminate/Queue/ManuallyFailedExceptio
 import type { Abstract } from "Illuminate/Container/Types";
 import type { Container } from "Illuminate/Contracts/Container/Container";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type {
-    Job as JobContract,
-    JobHandler,
-    JobPayload,
-} from "Illuminate/Contracts/Queue/Job";
+import type { Job as JobContract, JobHandler, JobPayload } from "Illuminate/Contracts/Queue/Job";
 
 /**
  * PHP: `Illuminate\Queue\Jobs\Job`.
@@ -135,11 +131,7 @@ export abstract class Job {
             const events = this.container.make<Dispatcher>("events");
 
             events.dispatch(
-                new JobFailed(
-                    this.connectionName,
-                    this as unknown as JobContract,
-                    e ?? new ManuallyFailedException(),
-                ),
+                new JobFailed(this.connectionName, this as unknown as JobContract, e ?? new ManuallyFailedException()),
             );
         }
     }
@@ -155,15 +147,7 @@ export abstract class Job {
         const handler = (this.instance as Record<string, unknown>).failed;
 
         if (typeIs(handler, "function")) {
-            (
-                handler as (
-                    self: object,
-                    data: unknown,
-                    e: unknown,
-                    uuid: string,
-                    job: JobContract,
-                ) => void
-            )(
+            (handler as (self: object, data: unknown, e: unknown, uuid: string, job: JobContract) => void)(
                 this.instance,
                 payload.data,
                 e,

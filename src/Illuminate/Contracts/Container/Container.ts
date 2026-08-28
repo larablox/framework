@@ -33,10 +33,7 @@ export interface Container {
     alias(abstract: Abstract, alias: Abstract): void;
 
     /** Assign a set of tags to a given binding. */
-    tag(
-        abstracts: Abstract | Array<Abstract>,
-        tags: string | Array<string>,
-    ): void;
+    tag(abstracts: Abstract | Array<Abstract>, tags: string | Array<string>): void;
 
     /** Resolve all of the bindings for a given tag. */
     tagged(tag: string): RewindableGenerator;
@@ -45,10 +42,7 @@ export interface Container {
     bind(abstract: Abstract, concrete?: Concrete, shared?: boolean): void;
 
     /** Bind a callback to resolve with Container::call. */
-    bindMethod(
-        method: string | [Abstract, string],
-        callback: MethodBindingClosure,
-    ): void;
+    bindMethod(method: string | [Abstract, string], callback: MethodBindingClosure): void;
 
     /** Register a binding if it hasn't already been registered. */
     bindIf(abstract: Abstract, concrete?: Concrete, shared?: boolean): void;
@@ -72,11 +66,7 @@ export interface Container {
     instance<T extends defined>(abstract: Abstract, instance: T): T;
 
     /** Add a contextual binding to the container. */
-    addContextualBinding(
-        concrete: BuildStackEntry,
-        abstract: Abstract,
-        implementation: ContextualImplementation,
-    ): void;
+    addContextualBinding(concrete: BuildStackEntry, abstract: Abstract, implementation: ContextualImplementation): void;
 
     /** Define a contextual binding. */
     when(concrete: Abstract | Array<Abstract>): ContextualBindingBuilder;
@@ -88,41 +78,25 @@ export interface Container {
     flush(): void;
 
     /** Resolve the given type from the container. */
-    make<T extends object>(
-        abstract: AbstractClass<T>,
-        parameters?: ParameterList,
-    ): T;
+    make<T extends object>(abstract: AbstractClass<T>, parameters?: ParameterList): T;
     make<T>(abstract: Contract<T>, parameters?: ParameterList): T;
     make<T = unknown>(abstract: string, parameters?: ParameterList): T;
     make(abstract: Abstract, parameters?: ParameterList): unknown;
 
     /** Call the given Closure / class@method and inject its dependencies. */
-    call(
-        callback: CallableTarget,
-        parameters?: ParameterList,
-        defaultMethod?: string,
-    ): unknown;
+    call(callback: CallableTarget, parameters?: ParameterList, defaultMethod?: string): unknown;
 
     /** Determine if the given abstract type has been resolved. */
     resolved(abstract: Abstract): boolean;
 
     /** Register a new before resolving callback. */
-    beforeResolving(
-        abstract: Abstract | BeforeResolvingCallback,
-        callback?: BeforeResolvingCallback,
-    ): void;
+    beforeResolving(abstract: Abstract | BeforeResolvingCallback, callback?: BeforeResolvingCallback): void;
 
     /** Register a new resolving callback. */
-    resolving(
-        abstract: Abstract | ResolvingCallback,
-        callback?: ResolvingCallback,
-    ): void;
+    resolving(abstract: Abstract | ResolvingCallback, callback?: ResolvingCallback): void;
 
     /** Register a new after resolving callback. */
-    afterResolving(
-        abstract: Abstract | ResolvingCallback,
-        callback?: ResolvingCallback,
-    ): void;
+    afterResolving(abstract: Abstract | ResolvingCallback, callback?: ResolvingCallback): void;
 
     /** Get the container's bindings. */
     getBindings(): Array<[Abstract, Binding]>;

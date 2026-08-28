@@ -33,35 +33,23 @@ export = (): void => {
         it("isUrl() reports whether the string looks like a URL", () => {
             // PHP: SupportStringableTest::testIsUrl
             expect(Str.of("https://laravel.com").isUrl()).to.equal(true);
-            expect(Str.of("https://laravel.com").isUrl(["https"])).to.equal(
-                true,
-            );
+            expect(Str.of("https://laravel.com").isUrl(["https"])).to.equal(true);
 
             expect(Str.of("invalid url").isUrl()).to.equal(false);
-            expect(Str.of("https://laravel.com").isUrl(["http"])).to.equal(
-                false,
-            );
+            expect(Str.of("https://laravel.com").isUrl(["http"])).to.equal(false);
         });
 
         it("isUuid() reports whether the string is a valid UUID", () => {
             // PHP: SupportStringableTest::testIsUuid (the `$version` cases
             // are dropped, see class comment)
-            expect(
-                Str.of("2cdc7039-65a6-4ac7-8e5d-d554a98e7b15").isUuid(),
-            ).to.equal(true);
-            expect(Str.of("2cdc7039-65a6-4ac7-8e5d-d554a98").isUuid()).to.equal(
-                false,
-            );
+            expect(Str.of("2cdc7039-65a6-4ac7-8e5d-d554a98e7b15").isUuid()).to.equal(true);
+            expect(Str.of("2cdc7039-65a6-4ac7-8e5d-d554a98").isUuid()).to.equal(false);
         });
 
         it("isUlid() reports whether the string is a valid ULID", () => {
             // PHP: SupportStringableTest::testIsUlid
-            expect(Str.of("01GJSNW9MAF792C0XYY8RX6QFT").isUlid()).to.equal(
-                true,
-            );
-            expect(
-                Str.of("01GJSNW9MAF-792C0XYY8RX6ssssss-QFT").isUlid(),
-            ).to.equal(false);
+            expect(Str.of("01GJSNW9MAF792C0XYY8RX6QFT").isUlid()).to.equal(true);
+            expect(Str.of("01GJSNW9MAF-792C0XYY8RX6ssssss-QFT").isUlid()).to.equal(false);
         });
 
         it("isJson() validates JSON, including the malformed cases", () => {
@@ -69,22 +57,16 @@ export = (): void => {
             expect(Str.of("1").isJson()).to.equal(true);
             expect(Str.of("[1,2,3]").isJson()).to.equal(true);
             expect(Str.of("[1,   2,   3]").isJson()).to.equal(true);
-            expect(
-                Str.of('{"first": "John", "last": "Doe"}').isJson(),
-            ).to.equal(true);
-            expect(
-                Str.of(
-                    '[{"first": "John", "last": "Doe"}, {"first": "Jane", "last": "Doe"}]',
-                ).isJson(),
-            ).to.equal(true);
+            expect(Str.of('{"first": "John", "last": "Doe"}').isJson()).to.equal(true);
+            expect(Str.of('[{"first": "John", "last": "Doe"}, {"first": "Jane", "last": "Doe"}]').isJson()).to.equal(
+                true,
+            );
 
             expect(Str.of("1,").isJson()).to.equal(false);
             expect(Str.of("[1,2,3").isJson()).to.equal(false);
             expect(Str.of("[1,   2   3]").isJson()).to.equal(false);
             expect(Str.of('{first: "John"}').isJson()).to.equal(false);
-            expect(
-                Str.of('[{first: "John"}, {first: "Jane"}]').isJson(),
-            ).to.equal(false);
+            expect(Str.of('[{first: "John"}, {first: "Jane"}]').isJson()).to.equal(false);
             expect(Str.of("").isJson()).to.equal(false);
         });
 
@@ -113,36 +95,22 @@ export = (): void => {
 
         it("containsAll() reports whether the string contains every value", () => {
             // PHP: SupportStringableTest::testContainsAll
-            expect(
-                Str.of("taylor otwell").containsAll(["taylor", "otwell"]),
-            ).to.equal(true);
-            expect(
-                Str.of("taylor otwell").containsAll(["TAYLOR", "OTWELL"], true),
-            ).to.equal(true);
-            expect(Str.of("taylor otwell").containsAll(["taylor"])).to.equal(
-                true,
-            );
-            expect(
-                Str.of("taylor otwell").containsAll(["taylor", "xxx"]),
-            ).to.equal(false);
+            expect(Str.of("taylor otwell").containsAll(["taylor", "otwell"])).to.equal(true);
+            expect(Str.of("taylor otwell").containsAll(["TAYLOR", "OTWELL"], true)).to.equal(true);
+            expect(Str.of("taylor otwell").containsAll(["taylor"])).to.equal(true);
+            expect(Str.of("taylor otwell").containsAll(["taylor", "xxx"])).to.equal(false);
         });
 
         it("doesntContain() reports the inverse of contains()", () => {
             // PHP: SupportStringableTest::testDoesntContain
             expect(Str.of("taylor").doesntContain("xxx")).to.equal(true);
             expect(Str.of("taylor").doesntContain(["xxx"])).to.equal(true);
-            expect(Str.of("taylor").doesntContain(["xxx", "yyy"])).to.equal(
-                true,
-            );
+            expect(Str.of("taylor").doesntContain(["xxx", "yyy"])).to.equal(true);
             expect(Str.of("taylor").doesntContain("")).to.equal(true);
             expect(Str.of("taylor").doesntContain("ylo")).to.equal(false);
             expect(Str.of("taylor").doesntContain("taylor")).to.equal(false);
-            expect(Str.of("taylor").doesntContain(["xxx", "ylo"])).to.equal(
-                false,
-            );
-            expect(Str.of("taylor").doesntContain(["LOR"], true)).to.equal(
-                false,
-            );
+            expect(Str.of("taylor").doesntContain(["xxx", "ylo"])).to.equal(false);
+            expect(Str.of("taylor").doesntContain(["LOR"], true)).to.equal(false);
         });
 
         it("startsWith()/doesntStartWith() check the prefix", () => {
@@ -207,21 +175,12 @@ export = (): void => {
             // `Str/Slicing.spec.ts`'s class comment for the equivalent note
             // on `substr()`)
             expect(Str.of("Hello, World!").position("W")).to.equal(7);
-            expect(Str.of("This is a test string.").position("test")).to.equal(
-                10,
-            );
-            expect(
-                Str.of("This is a test string, test again.").position(
-                    "test",
-                    15,
-                ),
-            ).to.equal(23);
+            expect(Str.of("This is a test string.").position("test")).to.equal(10);
+            expect(Str.of("This is a test string, test again.").position("test", 15)).to.equal(23);
             expect(Str.of("Hello, World!").position("Hello")).to.equal(0);
             expect(Str.of("Hello, World!").position("World!")).to.equal(7);
             expect(Str.of("Hello, World!").position("W", -6)).to.equal(7);
-            expect(
-                Str.of("Äpfel, Birnen und Kirschen").position("Kirschen", -10),
-            ).to.equal(18);
+            expect(Str.of("Äpfel, Birnen und Kirschen").position("Kirschen", -10)).to.equal(18);
             expect(Str.of("Hello, World!").position("w")).to.equal(undefined);
             expect(Str.of("Hello, World!").position("X")).to.equal(undefined);
             expect(Str.of("").position("test")).to.equal(undefined);

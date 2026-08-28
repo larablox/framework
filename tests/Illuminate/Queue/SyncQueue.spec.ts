@@ -111,10 +111,7 @@ export = (): void => {
             // same three contracts before pushing.
             container.instance("app", container);
             container.instance("events", new Dispatcher(container));
-            container.singleton(
-                BusDispatcher,
-                () => new BusDispatcher(container),
-            );
+            container.singleton(BusDispatcher, () => new BusDispatcher(container));
 
             sync.setContainer(container);
 

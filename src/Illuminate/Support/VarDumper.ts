@@ -32,9 +32,7 @@ export class VarDumper {
      *
      * Passing nothing restores the default, exactly as PHP's `null` does.
      */
-    public static setHandler(
-        handler?: (value: unknown) => void,
-    ): ((value: unknown) => void) | undefined {
+    public static setHandler(handler?: (value: unknown) => void): ((value: unknown) => void) | undefined {
         const previous = VarDumper.handler;
 
         VarDumper.handler = handler;

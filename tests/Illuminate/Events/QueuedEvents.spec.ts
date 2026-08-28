@@ -117,23 +117,13 @@ class RecordingQueue implements Queue {
         return undefined;
     }
 
-    public later(
-        delay: DelayValue,
-        job: unknown,
-        data?: unknown,
-        queue?: string,
-    ): unknown {
+    public later(delay: DelayValue, job: unknown, data?: unknown, queue?: string): unknown {
         this.laterCalls.push({ delay, job, data, queue });
 
         return undefined;
     }
 
-    public laterOn(
-        queue: string,
-        delay: DelayValue,
-        job: unknown,
-        data?: unknown,
-    ): unknown {
+    public laterOn(queue: string, delay: DelayValue, job: unknown, data?: unknown): unknown {
         this.laterOnCalls.push({ queue, delay, job, data });
 
         return undefined;
@@ -182,10 +172,7 @@ export = (): void => {
             }
 
             const container = new Container();
-            container.bind(
-                "TestDispatcherQueuedHandler",
-                TestDispatcherQueuedHandler,
-            );
+            container.bind("TestDispatcherQueuedHandler", TestDispatcherQueuedHandler);
             const d = new Dispatcher(container);
             const factory = new RecordingQueueFactory();
 
@@ -221,18 +208,12 @@ export = (): void => {
             }
 
             const container = new Container();
-            container.bind(
-                "TestDispatcherConnectionQueuedHandler",
-                TestDispatcherConnectionQueuedHandler,
-            );
+            container.bind("TestDispatcherConnectionQueuedHandler", TestDispatcherConnectionQueuedHandler);
             const d = new Dispatcher(container);
             const factory = new RecordingQueueFactory();
             d.setQueueResolver(() => factory);
 
-            d.listen(
-                "some.event",
-                "TestDispatcherConnectionQueuedHandler@handle",
-            );
+            d.listen("some.event", "TestDispatcherConnectionQueuedHandler@handle");
             d.dispatch("some.event", ["foo", "bar"]);
 
             expectDeepEqual(factory.connectionCalls, ["redis"]);
@@ -268,9 +249,7 @@ export = (): void => {
             d.dispatch("some.event", ["foo", "bar"]);
 
             expect(factory.queue.pushOnCalls.size()).to.equal(1);
-            expect(factory.queue.pushOnCalls[0].queue).to.equal(
-                "some_other_queue",
-            );
+            expect(factory.queue.pushOnCalls[0].queue).to.equal("some_other_queue");
         });
 
         it("viaConnection() overrides the connection property", () => {
@@ -289,10 +268,7 @@ export = (): void => {
             }
 
             const container = new Container();
-            container.bind(
-                "TestDispatcherGetConnection",
-                TestDispatcherGetConnection,
-            );
+            container.bind("TestDispatcherGetConnection", TestDispatcherGetConnection);
             const d = new Dispatcher(container);
             const factory = new RecordingQueueFactory();
             d.setQueueResolver(() => factory);
@@ -341,9 +317,7 @@ export = (): void => {
                     //
                 }
 
-                public viaQueue(event: {
-                    useHighPriorityQueue?: boolean;
-                }): string {
+                public viaQueue(event: { useHighPriorityQueue?: boolean }): string {
                     if (event.useHighPriorityQueue) {
                         return "p0";
                     }
@@ -353,10 +327,7 @@ export = (): void => {
             }
 
             const container = new Container();
-            container.bind(
-                "TestDispatcherGetQueueDynamically",
-                TestDispatcherGetQueueDynamically,
-            );
+            container.bind("TestDispatcherGetQueueDynamically", TestDispatcherGetQueueDynamically);
             const d = new Dispatcher(container);
             const factory = new RecordingQueueFactory();
             d.setQueueResolver(() => factory);
@@ -376,9 +347,7 @@ export = (): void => {
                     //
                 }
 
-                public viaConnection(event: {
-                    shouldUseRedisConnection?: boolean;
-                }): string {
+                public viaConnection(event: { shouldUseRedisConnection?: boolean }): string {
                     if (event.shouldUseRedisConnection) {
                         return "redis";
                     }
@@ -388,22 +357,13 @@ export = (): void => {
             }
 
             const container = new Container();
-            container.bind(
-                "TestDispatcherGetConnectionDynamically",
-                TestDispatcherGetConnectionDynamically,
-            );
+            container.bind("TestDispatcherGetConnectionDynamically", TestDispatcherGetConnectionDynamically);
             const d = new Dispatcher(container);
             const factory = new RecordingQueueFactory();
             d.setQueueResolver(() => factory);
 
-            d.listen(
-                "some.event",
-                "TestDispatcherGetConnectionDynamically@handle",
-            );
-            d.dispatch("some.event", [
-                { shouldUseRedisConnection: true },
-                "bar",
-            ]);
+            d.listen("some.event", "TestDispatcherGetConnectionDynamically@handle");
+            d.dispatch("some.event", [{ shouldUseRedisConnection: true }, "bar"]);
 
             expectDeepEqual(factory.connectionCalls, ["redis"]);
         });
@@ -428,10 +388,7 @@ export = (): void => {
             }
 
             const container = new Container();
-            container.bind(
-                "TestDispatcherGetDelayDynamically",
-                TestDispatcherGetDelayDynamically,
-            );
+            container.bind("TestDispatcherGetDelayDynamically", TestDispatcherGetDelayDynamically);
             const d = new Dispatcher(container);
             const factory = new RecordingQueueFactory();
             d.setQueueResolver(() => factory);
@@ -487,10 +444,7 @@ export = (): void => {
                     public readonly b: unknown,
                 ) {}
 
-                public handle(
-                    job: unknown,
-                    _next: (job: unknown) => void,
-                ): void {
+                public handle(job: unknown, _next: (job: unknown) => void): void {
                     _next(job);
                 }
             }
@@ -507,10 +461,7 @@ export = (): void => {
             }
 
             const container = new Container();
-            container.bind(
-                "TestDispatcherMiddleware",
-                TestDispatcherMiddleware,
-            );
+            container.bind("TestDispatcherMiddleware", TestDispatcherMiddleware);
             const d = new Dispatcher(container);
             const factory = new RecordingQueueFactory();
             d.setQueueResolver(() => factory);

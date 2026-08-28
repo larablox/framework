@@ -37,13 +37,7 @@ export = (): void => {
             const [ok, err] = pcall(() => container.make(HubContract));
 
             expect(ok).to.equal(false);
-            expect(
-                tostring(err).find(
-                    "Illuminate\\Contracts\\Pipeline\\Hub",
-                    1,
-                    true,
-                )[0] !== undefined,
-            ).to.equal(true);
+            expect(tostring(err).find("Illuminate\\Contracts\\Pipeline\\Hub", 1, true)[0] !== undefined).to.equal(true);
         });
     });
 };

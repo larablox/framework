@@ -11,21 +11,10 @@ export interface Tag extends ContextualAttribute {
 export function Tag(tag: string) {
     const instance: Tag = {
         tag,
-        resolve: (attribute: never, container: Container) =>
-            container.tagged((attribute as Tag).tag),
+        resolve: (attribute: never, container: Container) => container.tagged((attribute as Tag).tag),
     };
 
-    return (
-        owner: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
-        addParameterAttribute(
-            owner,
-            propertyKey,
-            parameterIndex,
-            Tag,
-            instance,
-        );
+    return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+        addParameterAttribute(owner, propertyKey, parameterIndex, Tag, instance);
     };
 }

@@ -84,15 +84,7 @@ export = (): void => {
     describe("Http.Request", () => {
         // PHP: HttpRequestTest::testMethodMethod
         it("returns the method it was constructed with, uppercased", () => {
-            for (const method of [
-                "GET",
-                "HEAD",
-                "POST",
-                "PUT",
-                "PATCH",
-                "DELETE",
-                "OPTIONS",
-            ]) {
+            for (const method of ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]) {
                 const request = new Request(player, method, "");
                 expect(request.method()).to.equal(method);
             }
@@ -101,51 +93,28 @@ export = (): void => {
         // PHP: HttpRequestTest::testPathMethod
         it("normalizes the path", () => {
             expect(new Request(player, "GET", "").path()).to.equal("/");
-            expect(new Request(player, "GET", "/foo/bar").path()).to.equal(
-                "foo/bar",
-            );
+            expect(new Request(player, "GET", "/foo/bar").path()).to.equal("foo/bar");
         });
 
         // PHP: HttpRequestTest::testDecodedPathMethod
         it("has no percent-decoding to do, so decodedPath() is path()", () => {
-            expect(
-                new Request(player, "GET", "/foo bar").decodedPath(),
-            ).to.equal("foo bar");
+            expect(new Request(player, "GET", "/foo bar").decodedPath()).to.equal("foo bar");
         });
 
         // PHP: HttpRequestTest::testSegmentMethod (data provider inlined)
         it("returns a single 1-indexed segment, or the default", () => {
-            expect(
-                new Request(player, "GET", "").segment(1, "default"),
-            ).to.equal("default");
-            expect(
-                new Request(player, "GET", "foo/bar//baz").segment(1),
-            ).to.equal("foo");
-            expect(
-                new Request(player, "GET", "foo/bar//baz").segment(2),
-            ).to.equal("bar");
-            expect(
-                new Request(player, "GET", "foo/bar//baz").segment(3),
-            ).to.equal("baz");
+            expect(new Request(player, "GET", "").segment(1, "default")).to.equal("default");
+            expect(new Request(player, "GET", "foo/bar//baz").segment(1)).to.equal("foo");
+            expect(new Request(player, "GET", "foo/bar//baz").segment(2)).to.equal("bar");
+            expect(new Request(player, "GET", "foo/bar//baz").segment(3)).to.equal("baz");
         });
 
         // PHP: HttpRequestTest::testSegmentsMethod (data provider inlined)
         it("returns every path segment", () => {
-            expect(new Request(player, "GET", "").segments().size()).to.equal(
-                0,
-            );
-            expectDeepEqual(new Request(player, "GET", "foo/bar").segments(), [
-                "foo",
-                "bar",
-            ]);
-            expectDeepEqual(
-                new Request(player, "GET", "foo/bar//baz").segments(),
-                ["foo", "bar", "baz"],
-            );
-            expectDeepEqual(
-                new Request(player, "GET", "foo/0/bar").segments(),
-                ["foo", "0", "bar"],
-            );
+            expect(new Request(player, "GET", "").segments().size()).to.equal(0);
+            expectDeepEqual(new Request(player, "GET", "foo/bar").segments(), ["foo", "bar"]);
+            expectDeepEqual(new Request(player, "GET", "foo/bar//baz").segments(), ["foo", "bar", "baz"]);
+            expectDeepEqual(new Request(player, "GET", "foo/0/bar").segments(), ["foo", "0", "bar"]);
         });
 
         // PHP: HttpRequestTest::testIsMethod
@@ -184,11 +153,7 @@ export = (): void => {
             const request = new Request(player, "GET", "/foo/bar");
 
             request.setRouteResolver(() => {
-                const route = new Route(
-                    "GET",
-                    "/foo/{required}/{optional?}",
-                    {},
-                );
+                const route = new Route("GET", "/foo/{required}/{optional?}", {});
                 route.bind(request);
 
                 return route;
@@ -526,12 +491,9 @@ export = (): void => {
             request = new Request(player, "GET", "/", {
                 developer: { name: "Taylor", age: undefined },
             });
-            expectDeepEqual(
-                request.all(["developer.name", "developer.skills"]),
-                {
-                    developer: { name: "Taylor", skills: undefined },
-                },
-            );
+            expectDeepEqual(request.all(["developer.name", "developer.skills"]), {
+                developer: { name: "Taylor", skills: undefined },
+            });
         });
 
         // PHP: HttpRequestTest::testKeysMethod

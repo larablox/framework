@@ -35,9 +35,7 @@ interface ResolvedLimit {
  */
 export class ThrottleRequests {
     /** Create a new request throttler. */
-    public constructor(
-        @Inject(RateLimiter) protected readonly limiter: RateLimiter,
-    ) {}
+    public constructor(@Inject(RateLimiter) protected readonly limiter: RateLimiter) {}
 
     /** Handle an incoming request. */
     public handle(
@@ -47,16 +45,10 @@ export class ThrottleRequests {
         decayMinutes: number | string = 1,
         prefix = "",
     ): unknown {
-        const named =
-            typeIs(maxAttempts, "string") &&
-            this.limiter.limiter(maxAttempts) !== undefined;
+        const named = typeIs(maxAttempts, "string") && this.limiter.limiter(maxAttempts) !== undefined;
 
         if (named) {
-            return this.handleRequestUsingNamedLimiter(
-                request,
-                _next,
-                maxAttempts as string,
-            );
+            return this.handleRequestUsingNamedLimiter(request, _next, maxAttempts as string);
         }
 
         return this.handleRequest(request, _next, [
@@ -69,14 +61,8 @@ export class ThrottleRequests {
     }
 
     /** Handle a request that is limited by a named limiter. */
-    protected handleRequestUsingNamedLimiter(
-        request: Request,
-        _next: Next,
-        limiterName: string,
-    ): unknown {
-        const limiter = this.limiter.limiter(limiterName) as (
-            request: Request,
-        ) => unknown;
+    protected handleRequestUsingNamedLimiter(request: Request, _next: Next, limiterName: string): unknown {
+        const limiter = this.limiter.limiter(limiterName) as (request: Request) => unknown;
 
         const limiterResponse = limiter(request);
 
@@ -90,9 +76,7 @@ export class ThrottleRequests {
 
         const limits = new Array<ResolvedLimit>();
 
-        for (const limit of Util.arrayWrap(
-            limiterResponse as Limit | Array<Limit>,
-        )) {
+        for (const limit of Util.arrayWrap(limiterResponse as Limit | Array<Limit>)) {
             limits.push({
                 key: `${limiterName}:${limit.key}`,
                 maxAttempts: limit.maxAttempts,
@@ -104,11 +88,7 @@ export class ThrottleRequests {
     }
 
     /** Handle an incoming request against the given limits. */
-    protected handleRequest(
-        request: Request,
-        _next: Next,
-        limits: Array<ResolvedLimit>,
-    ): unknown {
+    protected handleRequest(request: Request, _next: Next, limits: Array<ResolvedLimit>): unknown {
         for (const limit of limits) {
             if (this.limiter.tooManyAttempts(limit.key, limit.maxAttempts)) {
                 throw this.buildException(limit.key, limit.maxAttempts);
@@ -149,16 +129,10 @@ export class ThrottleRequests {
     }
 
     /** Create a "too many attempts" exception. */
-    protected buildException(
-        key: string,
-        maxAttempts: number,
-    ): ThrottleRequestsException {
+    protected buildException(key: string, maxAttempts: number): ThrottleRequestsException {
         const retryAfter = this.getTimeUntilNextRetry(key);
 
-        return new ThrottleRequestsException(
-            "Too Many Attempts.",
-            this.getHeaders(maxAttempts, 0, retryAfter),
-        );
+        return new ThrottleRequestsException("Too Many Attempts.", this.getHeaders(maxAttempts, 0, retryAfter));
     }
 
     /** Get the number of seconds until the next retry. */
@@ -173,17 +147,11 @@ export class ThrottleRequests {
         remainingAttempts: number,
         retryAfter?: number,
     ): Response {
-        return response.withHeaders(
-            this.getHeaders(maxAttempts, remainingAttempts, retryAfter),
-        );
+        return response.withHeaders(this.getHeaders(maxAttempts, remainingAttempts, retryAfter));
     }
 
     /** Get the limit headers information. */
-    protected getHeaders(
-        maxAttempts: number,
-        remainingAttempts: number,
-        retryAfter?: number,
-    ): Record<string, string> {
+    protected getHeaders(maxAttempts: number, remainingAttempts: number, retryAfter?: number): Record<string, string> {
         const headers: Record<string, string> = {
             ["X-RateLimit-Limit"]: tostring(maxAttempts),
             ["X-RateLimit-Remaining"]: tostring(remainingAttempts),
@@ -191,19 +159,14 @@ export class ThrottleRequests {
 
         if (retryAfter !== undefined) {
             headers["Retry-After"] = tostring(retryAfter);
-            headers["X-RateLimit-Reset"] = tostring(
-                InteractsWithTime.availableAt(retryAfter),
-            );
+            headers["X-RateLimit-Reset"] = tostring(InteractsWithTime.availableAt(retryAfter));
         }
 
         return headers;
     }
 
     /** Calculate the number of remaining attempts. */
-    protected calculateRemainingAttempts(
-        key: string,
-        maxAttempts: number,
-    ): number {
+    protected calculateRemainingAttempts(key: string, maxAttempts: number): number {
         return this.limiter.retriesLeft(key, maxAttempts);
     }
 }

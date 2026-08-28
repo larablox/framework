@@ -3,10 +3,7 @@ import { Queue } from "Illuminate/Queue/Queue";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Delay } from "Illuminate/Support/InteractsWithTime";
 import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type {
-    JobTarget,
-    Queue as QueueContract,
-} from "Illuminate/Contracts/Queue/Queue";
+import type { JobTarget, Queue as QueueContract } from "Illuminate/Contracts/Queue/Queue";
 
 /**
  * PHP: `Illuminate\Queue\NullQueue`.
@@ -78,21 +75,12 @@ export class NullQueue extends Queue implements QueueContract {
     }
 
     /** Push a raw payload onto the queue. */
-    public pushRaw(
-        payload: JobPayload,
-        queue?: string,
-        options?: ArrayAccessible,
-    ): unknown {
+    public pushRaw(payload: JobPayload, queue?: string, options?: ArrayAccessible): unknown {
         return undefined;
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(
-        delay: Delay,
-        job: JobTarget,
-        data: unknown = "",
-        queue?: string,
-    ): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = "", queue?: string): unknown {
         return undefined;
     }
 

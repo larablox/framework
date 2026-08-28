@@ -6,10 +6,7 @@ import type { Container } from "Illuminate/Contracts/Container/Container";
 import type { Hub as HubContract } from "Illuminate/Contracts/Pipeline/Hub";
 
 /** PHP: the closure a pipeline is registered with. */
-export type PipelineBuilder = (
-    pipeline: Pipeline,
-    passable: unknown,
-) => unknown;
+export type PipelineBuilder = (pipeline: Pipeline, passable: unknown) => unknown;
 
 /** PHP: `Illuminate\Pipeline\Hub`. */
 export class Hub implements HubContract {
@@ -34,9 +31,7 @@ export class Hub implements HubContract {
         const builder = this.pipelines.get(pipeline);
 
         if (builder === undefined) {
-            throw new InvalidArgumentException(
-                `Pipeline [${pipeline}] is not defined.`,
-            );
+            throw new InvalidArgumentException(`Pipeline [${pipeline}] is not defined.`);
         }
 
         return builder(new Pipeline(this.container), object);

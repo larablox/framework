@@ -13,12 +13,7 @@ export interface FailedJobRecord {
 /** PHP: `Illuminate\Queue\Failed\FailedJobProviderInterface`. */
 export interface FailedJobProviderInterface {
     /** Log a failed job into storage. */
-    log(
-        connection: string,
-        queue: string,
-        payload: JobPayload,
-        exception: unknown,
-    ): string | number | undefined;
+    log(connection: string, queue: string, payload: JobPayload, exception: unknown): string | number | undefined;
 
     /** Get the IDs of all of the failed jobs. */
     ids(queue?: string): Array<string | number>;

@@ -4,14 +4,8 @@ import { Serializer } from "Illuminate/Support/Serializer";
 import { Concurrency } from "Illuminate/Support/Concurrency";
 import { DataStoreRequest } from "Illuminate/Support/DataStoreRequest";
 import { Str } from "Illuminate/Support/Str";
-import type {
-    JobPayload,
-    JobPayloadData,
-} from "Illuminate/Contracts/Queue/Job";
-import type {
-    FailedJobProviderInterface,
-    FailedJobRecord,
-} from "Illuminate/Queue/Failed/FailedJobProviderInterface";
+import type { JobPayload, JobPayloadData } from "Illuminate/Contracts/Queue/Job";
+import type { FailedJobProviderInterface, FailedJobRecord } from "Illuminate/Queue/Failed/FailedJobProviderInterface";
 
 const DataStoreService = game.GetService("DataStoreService");
 
@@ -67,12 +61,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     }
 
     /** Log a failed job into storage. */
-    public log(
-        connection: string,
-        queue: string,
-        payload: JobPayload,
-        exception: unknown,
-    ): string {
+    public log(connection: string, queue: string, payload: JobPayload, exception: unknown): string {
         const id = Str.orderedUuid();
 
         const record: StoredFailure = {
@@ -84,9 +73,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
             failed_at: InteractsWithTime.currentTime(),
         };
 
-        DataStoreRequest.run(() =>
-            this.store().SetAsync(this.prefix + id, record),
-        );
+        DataStoreRequest.run(() => this.store().SetAsync(this.prefix + id, record));
 
         return id;
     }
@@ -99,9 +86,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
      * `all()` is the only listing here, so it is walked backwards.
      */
     public ids(queue?: string): Array<string | number> {
-        const listed = this.all().filter(
-            (record) => queue === undefined || record.queue === queue,
-        );
+        const listed = this.all().filter((record) => queue === undefined || record.queue === queue);
         const ids = new Array<string | number>();
 
         for (let index = listed.size() - 1; index >= 0; index--) {
@@ -119,9 +104,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
 
         // A forgotten job stays in the listing unless it is excluded, and
         // reading a tombstone costs as much as reading a failure.
-        const pages = DataStoreRequest.run(() =>
-            store.ListKeysAsync(this.prefix, undefined, undefined, true),
-        );
+        const pages = DataStoreRequest.run(() => store.ListKeysAsync(this.prefix, undefined, undefined, true));
 
         while (true) {
             const page = pages.GetCurrentPage() as Array<DataStoreKey>;
@@ -133,9 +116,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
             const read = Concurrency.run(
                 page.map((entry) => () => {
                     const held = DataStoreRequest.run(() => {
-                        const [value] = store.GetAsync<StoredFailure>(
-                            entry.KeyName,
-                        );
+                        const [value] = store.GetAsync<StoredFailure>(entry.KeyName);
 
                         return value;
                     });
@@ -173,9 +154,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     /** Get a single failed job. */
     public find(id: string | number): FailedJobRecord | undefined {
         const held = DataStoreRequest.run(() => {
-            const [value] = this.store().GetAsync<StoredFailure>(
-                this.prefix + tostring(id),
-            );
+            const [value] = this.store().GetAsync<StoredFailure>(this.prefix + tostring(id));
 
             return value;
         });
@@ -186,9 +165,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     /** Delete a single failed job from storage. */
     public forget(id: string | number): boolean {
         const held = DataStoreRequest.run(() => {
-            const [value] = this.store().RemoveAsync<StoredFailure>(
-                this.prefix + tostring(id),
-            );
+            const [value] = this.store().RemoveAsync<StoredFailure>(this.prefix + tostring(id));
 
             return value;
         });
@@ -198,23 +175,14 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
 
     /** Flush all of the failed jobs from storage. */
     public flush(hours?: number): void {
-        const cutoff =
-            hours === undefined
-                ? undefined
-                : InteractsWithTime.currentTime() - hours * 3600;
+        const cutoff = hours === undefined ? undefined : InteractsWithTime.currentTime() - hours * 3600;
 
-        this.remove(
-            this.all().filter(
-                (record) => cutoff === undefined || record.failed_at <= cutoff,
-            ),
-        );
+        this.remove(this.all().filter((record) => cutoff === undefined || record.failed_at <= cutoff));
     }
 
     /** Prune all of the entries older than the given time. */
     public prune(before: number): number {
-        return this.remove(
-            this.all().filter((record) => record.failed_at < before),
-        );
+        return this.remove(this.all().filter((record) => record.failed_at < before));
     }
 
     /** Remove the given failures, and answer how many went. */
@@ -223,9 +191,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
 
         Concurrency.run(
             records.map((record) => () => {
-                DataStoreRequest.run(() =>
-                    store.RemoveAsync(this.prefix + tostring(record.id)),
-                );
+                DataStoreRequest.run(() => store.RemoveAsync(this.prefix + tostring(record.id)));
 
                 return true;
             }),
@@ -239,8 +205,7 @@ export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
         return this.all()
             .filter(
                 (record) =>
-                    (connection === undefined ||
-                        record.connection === connection) &&
+                    (connection === undefined || record.connection === connection) &&
                     (queue === undefined || record.queue === queue),
             )
             .size();

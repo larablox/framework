@@ -1,8 +1,5 @@
 import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type {
-    Application,
-    Bootstrapper,
-} from "Illuminate/Contracts/Foundation/Application";
+import type { Application, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
 import type { Constructor } from "Illuminate/Container/Types";
 import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config/Repository";
 
@@ -28,9 +25,7 @@ export class RegisterProviders implements Bootstrapper {
     protected mergeAdditionalProviders(app: Application): void {
         const config = app.make<ConfigRepository>("config");
 
-        const providers = (config.get("app.providers", []) ?? []) as Array<
-            Constructor<ServiceProvider>
-        >;
+        const providers = (config.get("app.providers", []) ?? []) as Array<Constructor<ServiceProvider>>;
 
         for (const provider of RegisterProviders.merged) {
             if (!providers.includes(provider)) {

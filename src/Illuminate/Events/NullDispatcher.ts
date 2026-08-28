@@ -1,8 +1,4 @@
-import type {
-    Dispatcher as DispatcherContract,
-    EventName,
-    Listener,
-} from "Illuminate/Contracts/Events/Dispatcher";
+import type { Dispatcher as DispatcherContract, EventName, Listener } from "Illuminate/Contracts/Events/Dispatcher";
 import type { Abstract } from "Illuminate/Container/Types";
 
 /**
@@ -24,11 +20,7 @@ export class NullDispatcher implements DispatcherContract {
        arguments is the whole point of these three. */
 
     /** Do not fire an event. */
-    public dispatch(
-        event: EventName | object,
-        payload?: unknown,
-        halt?: boolean,
-    ): unknown {
+    public dispatch(event: EventName | object, payload?: unknown, halt?: boolean): unknown {
         return undefined;
     }
 
@@ -45,10 +37,7 @@ export class NullDispatcher implements DispatcherContract {
     /* eslint-enable @typescript-eslint/no-unused-vars */
 
     /** Register an event listener with the dispatcher. */
-    public listen(
-        events: EventName | Array<EventName>,
-        listener: Listener,
-    ): void {
+    public listen(events: EventName | Array<EventName>, listener: Listener): void {
         this.dispatcher.listen(events, listener);
     }
 

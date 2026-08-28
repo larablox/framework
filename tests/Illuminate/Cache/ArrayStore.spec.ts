@@ -128,11 +128,7 @@ export = (): void => {
             class RecordingArrayStore extends ArrayStore {
                 public putCalls = new Array<[string, unknown, number]>();
 
-                public put(
-                    key: string,
-                    value: unknown,
-                    seconds: number,
-                ): boolean {
+                public put(key: string, value: unknown, seconds: number): boolean {
                     this.putCalls.push([key, value, seconds]);
 
                     return super.put(key, value, seconds);
@@ -379,10 +375,7 @@ export = (): void => {
 
             expect(firstLock.get()).to.equal(true);
 
-            const secondLock = store.restoreLock(
-                "foo",
-                "other_owner",
-            ) as ArrayLock;
+            const secondLock = store.restoreLock("foo", "other_owner") as ArrayLock;
 
             expect(secondLock.isOwnedByCurrentProcess()).to.equal(false);
         });

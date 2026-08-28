@@ -14,19 +14,14 @@ import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config
  * `cache.psr6` and `memcached.connector` have nothing to bind here.
  */
 @DeferrableProvider()
-export class CacheServiceProvider
-    extends ServiceProvider
-    implements DeferrableProvider
-{
+export class CacheServiceProvider extends ServiceProvider implements DeferrableProvider {
     /** Register the service provider. */
     public register(): void {
         const app: Application = this.app;
 
         this.app.singleton("cache", () => new CacheManager(app));
 
-        this.app.singleton("cache.store", () =>
-            app.make<Factory>("cache").store(),
-        );
+        this.app.singleton("cache.store", () => app.make<Factory>("cache").store());
 
         this.app.singleton(
             RateLimiter,
@@ -35,9 +30,7 @@ export class CacheServiceProvider
                     app
                         .make<Factory>("cache")
                         .store(
-                            app
-                                .make<ConfigRepository>("config")
-                                .get("cache.limiter") as string | undefined,
+                            app.make<ConfigRepository>("config").get("cache.limiter") as string | undefined,
                         ) as Repository,
                 ),
         );

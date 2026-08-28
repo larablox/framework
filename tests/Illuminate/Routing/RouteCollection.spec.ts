@@ -67,12 +67,8 @@ export = (): void => {
             routeCollection.add(routeIndex);
 
             expect(routeIndex.getName()).to.equal("route_name");
-            expect(routeCollection.getByName("route_name")?.getName()).to.equal(
-                "route_name",
-            );
-            expect(routeCollection.getByName("route_name")).to.equal(
-                routeIndex,
-            );
+            expect(routeCollection.getByName("route_name")?.getName()).to.equal("route_name");
+            expect(routeCollection.getByName("route_name")).to.equal(routeIndex);
         });
 
         // PHP: RouteCollectionTest::testRouteCollectionCanRetrieveByAction
@@ -157,9 +153,7 @@ export = (): void => {
             expect(routeCollection.getByName("route_name")).to.equal(undefined);
 
             routeCollection.refreshNameLookups();
-            expect(routeCollection.getByName("route_name")).to.equal(
-                routeIndex,
-            );
+            expect(routeCollection.getByName("route_name")).to.equal(routeIndex);
         });
 
         // PHP: RouteCollectionTest::testRouteCollectionCanGetAllRoutes
@@ -182,11 +176,7 @@ export = (): void => {
             routeCollection.add(routeShow);
             routeCollection.add(routeNew);
 
-            expectDeepEqual(routeCollection.getRoutes(), [
-                routeIndex,
-                routeShow,
-                routeNew,
-            ]);
+            expectDeepEqual(routeCollection.getRoutes(), [routeIndex, routeShow, routeNew]);
         });
 
         // PHP: RouteCollectionTest::testRouteCollectionCanGetRoutesByName
@@ -260,29 +250,17 @@ export = (): void => {
             routeCollection.add(routeB);
 
             expect(routeCollection.getByName("routeA")).to.equal(routeA);
-            expect(
-                routeCollection.getByAction(routeA.getActionName()),
-            ).to.equal(routeA);
-            expect(routeCollection.getByName("overwrittenRouteA")).to.equal(
-                routeB,
-            );
-            expect(
-                routeCollection.getByAction(routeB.getActionName()),
-            ).to.equal(routeB);
+            expect(routeCollection.getByAction(routeA.getActionName())).to.equal(routeA);
+            expect(routeCollection.getByName("overwrittenRouteA")).to.equal(routeB);
+            expect(routeCollection.getByAction(routeB.getActionName())).to.equal(routeB);
 
             routeCollection.refreshNameLookups();
             routeCollection.refreshActionLookups();
 
             expect(routeCollection.getByName("routeA")).to.equal(undefined);
-            expect(
-                routeCollection.getByAction(routeA.getActionName()),
-            ).to.equal(undefined);
-            expect(routeCollection.getByName("overwrittenRouteA")).to.equal(
-                routeB,
-            );
-            expect(
-                routeCollection.getByAction(routeB.getActionName()),
-            ).to.equal(routeB);
+            expect(routeCollection.getByAction(routeA.getActionName())).to.equal(undefined);
+            expect(routeCollection.getByName("overwrittenRouteA")).to.equal(routeB);
+            expect(routeCollection.getByAction(routeB.getActionName())).to.equal(routeB);
         });
 
         // PHP: RouteCollectionTest::testRouteCollectionRequestMethodNotAllowed

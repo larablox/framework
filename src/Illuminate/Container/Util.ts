@@ -1,8 +1,5 @@
 import type { Abstract } from "Illuminate/Container/Types";
-import type {
-    ParameterAttribute,
-    ParameterDependency,
-} from "Illuminate/Container/Attributes/Inject";
+import type { ParameterAttribute, ParameterDependency } from "Illuminate/Container/Attributes/Inject";
 
 /**
  * @internal
@@ -25,9 +22,7 @@ export class Util {
      *
      * From `Arr::wrap()` in Illuminate\Support.
      */
-    public static arrayWrap<T extends defined>(
-        value: T | Array<T> | undefined,
-    ): Array<T> {
+    public static arrayWrap<T extends defined>(value: T | Array<T> | undefined): Array<T> {
         if (value === undefined) {
             return [];
         }
@@ -55,10 +50,7 @@ export class Util {
      * carries entries, so a table with neither is the empty list.
      */
     public static isEmptyArray(value: unknown): boolean {
-        if (
-            !typeIs(value, "table") ||
-            getmetatable(value as object) !== undefined
-        ) {
+        if (!typeIs(value, "table") || getmetatable(value as object) !== undefined) {
             return false;
         }
 
@@ -74,10 +66,7 @@ export class Util {
      *
      * From the global `value()` helper in Illuminate\Support.
      */
-    public static unwrapIfClosure(
-        value: unknown,
-        ...args: Array<unknown>
-    ): unknown {
+    public static unwrapIfClosure(value: unknown, ...args: Array<unknown>): unknown {
         return typeIs(value, "function") ? (value as Callback)(...args) : value;
     }
 

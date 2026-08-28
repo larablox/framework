@@ -23,11 +23,7 @@ type RenderCallback = (e: unknown, request: Request) => unknown;
 type ContextCallback = (e: unknown, context: LogContext) => LogContext;
 
 /** PHP: the closure `respondUsing()` registers. */
-type FinalizeCallback = (
-    response: Response,
-    e: unknown,
-    request: Request,
-) => Response;
+type FinalizeCallback = (response: Response, e: unknown, request: Request) => Response;
 
 /**
  * PHP: `Illuminate\Foundation\Exceptions\Handler`.
@@ -82,9 +78,7 @@ export class Handler implements ExceptionHandler {
     protected finalizeResponseCallback?: FinalizeCallback;
 
     /** The registered exception mappings. */
-    protected exceptionMap = new Array<
-        [AbstractClass, (e: unknown) => unknown]
-    >();
+    protected exceptionMap = new Array<[AbstractClass, (e: unknown) => unknown]>();
 
     /**
      * A list of the internal exception types that should not be reported.
@@ -92,10 +86,7 @@ export class Handler implements ExceptionHandler {
      * PHP's list is longer only because it has more to list: the authentication,
      * authorisation, validation and model exceptions are not ported yet.
      */
-    protected internalDontReport: Array<AbstractClass> = [
-        HttpException,
-        HttpResponseException,
-    ];
+    protected internalDontReport: Array<AbstractClass> = [HttpException, HttpResponseException];
 
     /** Indicates that an exception instance should only be reported once. */
     protected withoutDuplicates = false;
@@ -143,20 +134,11 @@ export class Handler implements ExceptionHandler {
      * arguments. A class as the second argument is constructed the way PHP
      * constructs it: `new $to('', 0, $exception)`.
      */
-    public map(
-        from: AbstractClass,
-        to: AbstractClass | ((e: unknown) => unknown),
-    ): this {
+    public map(from: AbstractClass, to: AbstractClass | ((e: unknown) => unknown)): this {
         const mapper = typeIs(to, "function")
             ? (to as (e: unknown) => unknown)
             : (e: unknown) =>
-                  new (
-                      to as unknown as new (
-                          message: string,
-                          code: number,
-                          previous: unknown,
-                      ) => object
-                  )("", 0, e);
+                  new (to as unknown as new (message: string, code: number, previous: unknown) => object)("", 0, e);
 
         this.exceptionMap.push([from, mapper]);
 
@@ -187,18 +169,10 @@ export class Handler implements ExceptionHandler {
     }
 
     /** Remove the given exception class from the list of exceptions that should be ignored. */
-    public stopIgnoring(
-        exceptions: AbstractClass | Array<AbstractClass>,
-    ): this {
+    public stopIgnoring(exceptions: AbstractClass | Array<AbstractClass>): this {
         for (const exception of Arr.wrap(exceptions)) {
-            this.dontReportTypes = this.without(
-                this.dontReportTypes,
-                exception,
-            );
-            this.internalDontReport = this.without(
-                this.internalDontReport,
-                exception,
-            );
+            this.dontReportTypes = this.without(this.dontReportTypes, exception);
+            this.internalDontReport = this.without(this.internalDontReport, exception);
         }
 
         return this;
@@ -242,10 +216,7 @@ export class Handler implements ExceptionHandler {
         // PHP: `Reflector::isCallable([$e, 'report'])` -- an exception that
         // knows how to report itself. The container makes the call so that the
         // method's own dependencies are resolved.
-        if (
-            this.hasMethod(e, "report") &&
-            this.container.call([e as object, "report"]) !== false
-        ) {
+        if (this.hasMethod(e, "report") && this.container.call([e as object, "report"]) !== false) {
             return;
         }
 
@@ -282,11 +253,7 @@ export class Handler implements ExceptionHandler {
 
     /** Determine if the exception is in the "do not report" list. */
     protected shouldntReport(e: unknown): boolean {
-        if (
-            this.withoutDuplicates &&
-            typeIs(e, "table") &&
-            this.reportedExceptionMap.get(e as object) === true
-        ) {
+        if (this.withoutDuplicates && typeIs(e, "table") && this.reportedExceptionMap.get(e as object) === true) {
             return true;
         }
 
@@ -362,9 +329,7 @@ export class Handler implements ExceptionHandler {
             return {};
         }
 
-        const [ok, player] = pcall(
-            () => this.container.make<Request>("request").player().UserId,
-        );
+        const [ok, player] = pcall(() => this.container.make<Request>("request").player().UserId);
 
         return ok ? { userId: player } : {};
     }
@@ -398,20 +363,12 @@ export class Handler implements ExceptionHandler {
             const response = this.callMethod(exception, "render", request);
 
             if (response !== undefined) {
-                return this.finalizeRenderedResponse(
-                    request,
-                    response as Response,
-                    exception,
-                );
+                return this.finalizeRenderedResponse(request, response as Response, exception);
             }
         }
 
         if (isResponsable(exception)) {
-            return this.finalizeRenderedResponse(
-                request,
-                exception.toResponse(request) as Response,
-                exception,
-            );
+            return this.finalizeRenderedResponse(request, exception.toResponse(request) as Response, exception);
         }
 
         exception = this.prepareException(exception);
@@ -419,34 +376,18 @@ export class Handler implements ExceptionHandler {
         const rendered = this.renderViaCallbacks(request, exception);
 
         if (rendered !== undefined) {
-            return this.finalizeRenderedResponse(
-                request,
-                rendered as Response,
-                exception,
-            );
+            return this.finalizeRenderedResponse(request, rendered as Response, exception);
         }
 
         if (exception instanceof HttpResponseException) {
-            return this.finalizeRenderedResponse(
-                request,
-                exception.getResponse(),
-                exception,
-            );
+            return this.finalizeRenderedResponse(request, exception.getResponse(), exception);
         }
 
-        return this.finalizeRenderedResponse(
-            request,
-            this.renderExceptionResponse(request, exception),
-            exception,
-        );
+        return this.finalizeRenderedResponse(request, this.renderExceptionResponse(request, exception), exception);
     }
 
     /** Prepare the final, rendered response to be returned to the caller. */
-    protected finalizeRenderedResponse(
-        request: Request,
-        response: Response,
-        e: unknown,
-    ): Response {
+    protected finalizeRenderedResponse(request: Request, response: Response, e: unknown): Response {
         return this.finalizeResponseCallback !== undefined
             ? this.finalizeResponseCallback(response, e, request)
             : response;
@@ -509,12 +450,8 @@ export class Handler implements ExceptionHandler {
     protected prepareJsonResponse(request: Request, e: unknown): Response {
         return new Response(
             this.convertExceptionToArray(e),
-            this.isHttpException(e)
-                ? (e as HttpException).getStatusCode()
-                : Response.HTTP_INTERNAL_SERVER_ERROR,
-            this.isHttpException(e)
-                ? (e as HttpException).getHeaders()
-                : undefined,
+            this.isHttpException(e) ? (e as HttpException).getStatusCode() : Response.HTTP_INTERNAL_SERVER_ERROR,
+            this.isHttpException(e) ? (e as HttpException).getHeaders() : undefined,
         );
     }
 
@@ -528,17 +465,13 @@ export class Handler implements ExceptionHandler {
     protected convertExceptionToArray(e: unknown): Record<string, unknown> {
         if (!this.debug()) {
             return {
-                message: this.isHttpException(e)
-                    ? this.message(e)
-                    : "Server Error",
+                message: this.isHttpException(e) ? this.message(e) : "Server Error",
             };
         }
 
         return {
             message: this.message(e),
-            exception: typeIs(e, "table")
-                ? Reflector.className(Reflector.classOf(e as object))
-                : typeOf(e),
+            exception: typeIs(e, "table") ? Reflector.className(Reflector.classOf(e as object)) : typeOf(e),
         };
     }
 
@@ -579,40 +512,23 @@ export class Handler implements ExceptionHandler {
 
     /** PHP: `method_exists($e, $method)`. */
     protected hasMethod(e: unknown, method: string): boolean {
-        return (
-            typeIs(e, "table") &&
-            typeIs((e as Record<string, unknown>)[method], "function")
-        );
+        return typeIs(e, "table") && typeIs((e as Record<string, unknown>)[method], "function");
     }
 
     /** PHP: `$e->{$method}(...$arguments)`, on a value with no type to call it through. */
-    protected callMethod(
-        e: unknown,
-        method: string,
-        ...args: Array<unknown>
-    ): unknown {
-        const callback = (e as Record<string, unknown>)[method] as (
-            self: object,
-            ...rest: Array<unknown>
-        ) => unknown;
+    protected callMethod(e: unknown, method: string, ...args: Array<unknown>): unknown {
+        const callback = (e as Record<string, unknown>)[method] as (self: object, ...rest: Array<unknown>) => unknown;
 
         return callback(e as object, ...args);
     }
 
     /** PHP: `config('app.debug')`, which has no helper here. */
     protected debug(): boolean {
-        return (
-            this.container
-                .make<ConfigRepository>("config")
-                .get("app.debug", false) === true
-        );
+        return this.container.make<ConfigRepository>("config").get("app.debug", false) === true;
     }
 
     /** The list without the given entry. */
-    protected without(
-        list: Array<AbstractClass>,
-        entry: AbstractClass,
-    ): Array<AbstractClass> {
+    protected without(list: Array<AbstractClass>, entry: AbstractClass): Array<AbstractClass> {
         const kept = new Array<AbstractClass>();
 
         for (const candidate of list) {

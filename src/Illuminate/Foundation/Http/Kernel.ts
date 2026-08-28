@@ -13,10 +13,7 @@ import { Terminating } from "Illuminate/Foundation/Events/Terminating";
 import { ThrottleRequests } from "Illuminate/Routing/Middleware/ThrottleRequests";
 import { Util } from "Illuminate/Container/Util";
 import type { Abstract, Constructor } from "Illuminate/Container/Types";
-import type {
-    Application,
-    Bootstrapper,
-} from "Illuminate/Contracts/Foundation/Application";
+import type { Application, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
 import type { Kernel as KernelContract } from "Illuminate/Contracts/Http/Kernel";
 import type { Passable } from "Illuminate/Contracts/Pipeline/Pipeline";
@@ -98,10 +95,7 @@ export class Kernel implements KernelContract {
      * is longer only because it has more middleware to order; what is here is
      * PHP's list with everything unported struck out, in PHP's order.
      */
-    protected middlewarePriority: Array<Pipe> = [
-        ThrottleRequests,
-        SubstituteBindings,
-    ];
+    protected middlewarePriority: Array<Pipe> = [ThrottleRequests, SubstituteBindings];
 
     /** Create a new HTTP kernel instance. */
     public constructor(
@@ -142,10 +136,7 @@ export class Kernel implements KernelContract {
     }
 
     /** Send the given request through the middleware / router. */
-    protected sendRequestThroughRouter(
-        request: Request,
-        app: Application,
-    ): Response {
+    protected sendRequestThroughRouter(request: Request, app: Application): Response {
         app.instance("request", request);
 
         // PHP also clears the `Request` facade's resolved instance; there is no
@@ -155,15 +146,9 @@ export class Kernel implements KernelContract {
 
         const pipeline = new Pipeline(app)
             .send(request)
-            .through(
-                app.shouldSkipMiddleware()
-                    ? new Array<Pipe>()
-                    : this.middleware,
-            );
+            .through(app.shouldSkipMiddleware() ? new Array<Pipe>() : this.middleware);
 
-        return pipeline.then((passable: Passable) =>
-            this.dispatchToRouter(passable as Request, app),
-        ) as Response;
+        return pipeline.then((passable: Passable) => this.dispatchToRouter(passable as Request, app)) as Response;
     }
 
     /** Bootstrap the application for HTTP requests. */
@@ -191,11 +176,7 @@ export class Kernel implements KernelContract {
      * does, and more sharply: the worker defers this, so by the time it runs
      * the kernel has very likely been asked to serve something else.
      */
-    public terminate(
-        request: Request,
-        response: Response,
-        app: Application = this.app,
-    ): void {
+    public terminate(request: Request, response: Response, app: Application = this.app): void {
         this.events(app).dispatch(new Terminating());
 
         this.terminateMiddleware(request, response, app);
@@ -225,19 +206,12 @@ export class Kernel implements KernelContract {
     }
 
     /** Call the terminate method on any terminable middleware. */
-    protected terminateMiddleware(
-        request: Request,
-        response: Response,
-        app: Application,
-    ): void {
+    protected terminateMiddleware(request: Request, response: Response, app: Application): void {
         if (app.shouldSkipMiddleware()) {
             return;
         }
 
-        const middlewares = [
-            ...this.gatherRouteMiddleware(request),
-            ...this.middleware,
-        ];
+        const middlewares = [...this.gatherRouteMiddleware(request), ...this.middleware];
 
         for (const middleware of middlewares) {
             // PHP skips anything that is not a string, which is its way of
@@ -252,13 +226,11 @@ export class Kernel implements KernelContract {
             const terminate = instance.terminate;
 
             if (typeIs(terminate, "function")) {
-                (
-                    terminate as (
-                        self: object,
-                        request: Request,
-                        response: Response,
-                    ) => void
-                )(instance, request, response);
+                (terminate as (self: object, request: Request, response: Response) => void)(
+                    instance,
+                    request,
+                    response,
+                );
             }
         }
     }
@@ -266,11 +238,7 @@ export class Kernel implements KernelContract {
     /** Register a callback to be invoked when the request lifecycle duration exceeds a given amount of time. */
     public whenRequestLifecycleIsLongerThan(
         threshold: number,
-        handler: (
-            startedAt: number,
-            request: Request,
-            response: Response,
-        ) => void,
+        handler: (startedAt: number, request: Request, response: Response) => void,
     ): void {
         this.requestLifecycleDurationHandlers.push({
             threshold: threshold,
@@ -280,9 +248,7 @@ export class Kernel implements KernelContract {
 
     /** When the request being handled started, as `os.clock()` read it. */
     public requestStartedAt(app: Application = this.app): number | undefined {
-        return app.bound(RequestStartedAt)
-            ? (app.make(RequestStartedAt) as number)
-            : undefined;
+        return app.bound(RequestStartedAt) ? (app.make(RequestStartedAt) as number) : undefined;
     }
 
     /** Gather the route middleware for the given request. */
@@ -291,9 +257,7 @@ export class Kernel implements KernelContract {
         // when not, so PHP's return type is mixed and so is this one.
         const route = request.route() as Route | undefined;
 
-        return route !== undefined
-            ? this.router.gatherRouteMiddleware(route)
-            : new Array<Pipe>();
+        return route !== undefined ? this.router.gatherRouteMiddleware(route) : new Array<Pipe>();
     }
 
     /**
@@ -324,10 +288,7 @@ export class Kernel implements KernelContract {
             return [middleware, []];
         }
 
-        return [
-            middleware.sub(1, separator - 1),
-            middleware.sub(separator + 1).split(","),
-        ];
+        return [middleware.sub(1, separator - 1), middleware.sub(separator + 1).split(",")];
     }
 
     /** Determine whether the container can resolve the given middleware by name. */
@@ -347,10 +308,7 @@ export class Kernel implements KernelContract {
     protected isInstance(value: object): boolean {
         const metatable = getmetatable(value) as object | undefined;
 
-        return (
-            metatable !== undefined &&
-            rawget(metatable, "__index") === metatable
-        );
+        return metatable !== undefined && rawget(metatable, "__index") === metatable;
     }
 
     // -----------------------------------------------------------------
@@ -385,9 +343,7 @@ export class Kernel implements KernelContract {
         const groupMiddleware = this.middlewareGroups[group];
 
         if (groupMiddleware === undefined) {
-            throw new InvalidArgumentException(
-                `The [${group}] middleware group has not been defined.`,
-            );
+            throw new InvalidArgumentException(`The [${group}] middleware group has not been defined.`);
         }
 
         if (!groupMiddleware.includes(middleware)) {
@@ -404,9 +360,7 @@ export class Kernel implements KernelContract {
         const groupMiddleware = this.middlewareGroups[group];
 
         if (groupMiddleware === undefined) {
-            throw new InvalidArgumentException(
-                `The [${group}] middleware group has not been defined.`,
-            );
+            throw new InvalidArgumentException(`The [${group}] middleware group has not been defined.`);
         }
 
         if (!groupMiddleware.includes(middleware)) {
@@ -441,33 +395,22 @@ export class Kernel implements KernelContract {
     }
 
     /** Add the given middleware to the middleware priority list before other middleware. */
-    public addToMiddlewarePriorityBefore(
-        before: Pipe | Array<Pipe>,
-        middleware: Pipe,
-    ): this {
+    public addToMiddlewarePriorityBefore(before: Pipe | Array<Pipe>, middleware: Pipe): this {
         return this.addToMiddlewarePriorityRelative(before, middleware, false);
     }
 
     /** Add the given middleware to the middleware priority list after other middleware. */
-    public addToMiddlewarePriorityAfter(
-        after: Pipe | Array<Pipe>,
-        middleware: Pipe,
-    ): this {
+    public addToMiddlewarePriorityAfter(after: Pipe | Array<Pipe>, middleware: Pipe): this {
         return this.addToMiddlewarePriorityRelative(after, middleware);
     }
 
     /** Add the given middleware to the middleware priority list relative to other middleware. */
-    protected addToMiddlewarePriorityRelative(
-        existing: Pipe | Array<Pipe>,
-        middleware: Pipe,
-        after = true,
-    ): this {
+    protected addToMiddlewarePriorityRelative(existing: Pipe | Array<Pipe>, middleware: Pipe, after = true): this {
         if (!this.middlewarePriority.includes(middleware)) {
             let index = after ? 0 : this.middlewarePriority.size();
 
             for (const existingMiddleware of Arr.wrap(existing)) {
-                const middlewareIndex =
-                    this.middlewarePriority.indexOf(existingMiddleware);
+                const middlewareIndex = this.middlewarePriority.indexOf(existingMiddleware);
 
                 if (middlewareIndex < 0) {
                     continue;
@@ -497,10 +440,7 @@ export class Kernel implements KernelContract {
         this.router.middlewarePriority = this.middlewarePriority;
 
         for (const [group, middleware] of pairs(this.middlewareGroups)) {
-            this.router.middlewareGroup(
-                group as string,
-                middleware as Array<Pipe>,
-            );
+            this.router.middlewareGroup(group as string, middleware as Array<Pipe>);
         }
 
         for (const [alias, middleware] of pairs(this.middlewareAliases)) {
@@ -579,11 +519,7 @@ export class Kernel implements KernelContract {
     }
 
     /** Render the exception to a response. */
-    protected renderException(
-        request: Request,
-        e: unknown,
-        app: Application = this.app,
-    ): Response {
+    protected renderException(request: Request, e: unknown, app: Application = this.app): Response {
         return app.make<Handler>(Handler).render(request, e);
     }
 

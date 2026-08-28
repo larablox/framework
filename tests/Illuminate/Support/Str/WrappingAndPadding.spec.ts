@@ -60,9 +60,7 @@ export = (): void => {
             expect(Str.unwrap('"value', '"')).to.equal("value");
             expect(Str.unwrap('value"', '"')).to.equal("value");
             expect(Str.unwrap("foo-bar-baz", "foo-", "-baz")).to.equal("bar");
-            expect(Str.unwrap('{some: "json"}', "{", "}")).to.equal(
-                'some: "json"',
-            );
+            expect(Str.unwrap('{some: "json"}', "{", "}")).to.equal('some: "json"');
         });
 
         it("chopStart() removes a needle from the start of a string", () => {
@@ -71,18 +69,10 @@ export = (): void => {
             expect(Str.chopStart("", "")).to.equal("");
             expect(Str.chopStart("Laravel", "")).to.equal("Laravel");
             expect(Str.chopStart("Ship it", ["", "Ship "])).to.equal("it");
-            expect(
-                Str.chopStart("http://laravel.com", ["https://", "http://"]),
-            ).to.equal("laravel.com");
-            expect(Str.chopStart("http://-http://", "http://")).to.equal(
-                "-http://",
-            );
-            expect(
-                Str.chopStart("http://www.laravel.com", ["http://", "www."]),
-            ).to.equal("www.laravel.com");
-            expect(
-                Str.chopStart("http://http-is-fun.test", "http://"),
-            ).to.equal("http-is-fun.test");
+            expect(Str.chopStart("http://laravel.com", ["https://", "http://"])).to.equal("laravel.com");
+            expect(Str.chopStart("http://-http://", "http://")).to.equal("-http://");
+            expect(Str.chopStart("http://www.laravel.com", ["http://", "www."])).to.equal("www.laravel.com");
+            expect(Str.chopStart("http://http-is-fun.test", "http://")).to.equal("http-is-fun.test");
             // Multibyte emoji tests
             expect(Str.chopStart("🌊✋", "✋")).to.equal("🌊✋");
             expect(Str.chopStart("🚀🌟💫", "🚀🌟")).to.equal("💫");
@@ -94,9 +84,7 @@ export = (): void => {
             expect(Str.chopStart("Hello🌍World", "Hello🌍")).to.equal("World");
             // Multiple needle array with multibyte
             expect(Str.chopStart("🌊✋🎉", ["🚀", "🌊"])).to.equal("✋🎉");
-            expect(
-                Str.chopStart("こんにちは世界", ["Hello", "こんにちは"]),
-            ).to.equal("世界");
+            expect(Str.chopStart("こんにちは世界", ["Hello", "こんにちは"])).to.equal("世界");
         });
 
         it("chopEnd() removes a needle from the end of a string", () => {
@@ -105,20 +93,14 @@ export = (): void => {
             expect(Str.chopEnd("", "")).to.equal("");
             expect(Str.chopEnd("Laravel", "")).to.equal("Laravel");
             expect(Str.chopEnd("Ship it", ["", " it"])).to.equal("Ship");
-            expect(Str.chopEnd("path/to/file.php", [".php", "file"])).to.equal(
-                "path/to/file",
-            );
+            expect(Str.chopEnd("path/to/file.php", [".php", "file"])).to.equal("path/to/file");
             expect(Str.chopEnd(".php-.php", ".php")).to.equal(".php-");
-            expect(Str.chopEnd("path/to/php.php", ".php")).to.equal(
-                "path/to/php",
-            );
+            expect(Str.chopEnd("path/to/php.php", ".php")).to.equal("path/to/php");
             // Multibyte emoji tests
             expect(Str.chopEnd("✋🌊", "✋")).to.equal("✋🌊");
             expect(Str.chopEnd("🌟💫🚀", "💫🚀")).to.equal("🌟");
             // Multibyte character tests (Japanese, Chinese, Arabic, ...)
-            expect(
-                Str.chopEnd("世界こんにちは", ["Hello", "こんにちは"]),
-            ).to.equal("世界");
+            expect(Str.chopEnd("世界こんにちは", ["Hello", "こんにちは"])).to.equal("世界");
             expect(Str.chopEnd("世界你好", "你好")).to.equal("世界");
             expect(Str.chopEnd("بك مرحبا", " مرحبا")).to.equal("بك");
             // Mixed multibyte and ASCII
@@ -133,9 +115,7 @@ export = (): void => {
             expect(Str.padBoth("Alien", 10, "_")).to.equal("__Alien___");
             expect(Str.padBoth("Alien", 10)).to.equal("  Alien   ");
             expect(Str.padBoth("❤MultiByte☆", 16)).to.equal("  ❤MultiByte☆   ");
-            expect(Str.padBoth("❤MultiByte☆", 16, "❤☆")).to.equal(
-                "❤☆❤MultiByte☆❤☆❤",
-            );
+            expect(Str.padBoth("❤MultiByte☆", 16, "❤☆")).to.equal("❤☆❤MultiByte☆❤☆❤");
         });
 
         it("padLeft() pads the left side of a string", () => {
@@ -143,114 +123,60 @@ export = (): void => {
             expect(Str.padLeft("Alien", 10, "-=")).to.equal("-=-=-Alien");
             expect(Str.padLeft("Alien", 10)).to.equal("     Alien");
             expect(Str.padLeft("❤MultiByte☆", 16)).to.equal("     ❤MultiByte☆");
-            expect(Str.padLeft("❤MultiByte☆", 16, "❤☆")).to.equal(
-                "❤☆❤☆❤❤MultiByte☆",
-            );
+            expect(Str.padLeft("❤MultiByte☆", 16, "❤☆")).to.equal("❤☆❤☆❤❤MultiByte☆");
         });
 
         it("padRight() pads the right side of a string", () => {
             // PHP: SupportStrTest::testPadRight
             expect(Str.padRight("Alien", 10, "-=")).to.equal("Alien-=-=-");
             expect(Str.padRight("Alien", 10)).to.equal("Alien     ");
-            expect(Str.padRight("❤MultiByte☆", 16)).to.equal(
-                "❤MultiByte☆     ",
-            );
-            expect(Str.padRight("❤MultiByte☆", 16, "❤☆")).to.equal(
-                "❤MultiByte☆❤☆❤☆❤",
-            );
+            expect(Str.padRight("❤MultiByte☆", 16)).to.equal("❤MultiByte☆     ");
+            expect(Str.padRight("❤MultiByte☆", 16, "❤☆")).to.equal("❤MultiByte☆❤☆❤☆❤");
         });
 
         it("mask() masks a portion of a string", () => {
             // PHP: SupportStrTest::testMask (ISO-8859-1 encoding cases
             // dropped, see class comment)
-            expect(Str.mask("taylor@email.com", "*", 3)).to.equal(
-                "tay*************",
-            );
-            expect(Str.mask("taylor@email.com", "*", 0, 6)).to.equal(
-                "******@email.com",
-            );
-            expect(Str.mask("taylor@email.com", "*", -13)).to.equal(
-                "tay*************",
-            );
-            expect(Str.mask("taylor@email.com", "*", -13, 3)).to.equal(
-                "tay***@email.com",
-            );
+            expect(Str.mask("taylor@email.com", "*", 3)).to.equal("tay*************");
+            expect(Str.mask("taylor@email.com", "*", 0, 6)).to.equal("******@email.com");
+            expect(Str.mask("taylor@email.com", "*", -13)).to.equal("tay*************");
+            expect(Str.mask("taylor@email.com", "*", -13, 3)).to.equal("tay***@email.com");
 
-            expect(Str.mask("taylor@email.com", "*", -17)).to.equal(
-                "****************",
-            );
-            expect(Str.mask("taylor@email.com", "*", -99, 5)).to.equal(
-                "*****r@email.com",
-            );
+            expect(Str.mask("taylor@email.com", "*", -17)).to.equal("****************");
+            expect(Str.mask("taylor@email.com", "*", -99, 5)).to.equal("*****r@email.com");
 
-            expect(Str.mask("taylor@email.com", "*", 16)).to.equal(
-                "taylor@email.com",
-            );
-            expect(Str.mask("taylor@email.com", "*", 16, 99)).to.equal(
-                "taylor@email.com",
-            );
+            expect(Str.mask("taylor@email.com", "*", 16)).to.equal("taylor@email.com");
+            expect(Str.mask("taylor@email.com", "*", 16, 99)).to.equal("taylor@email.com");
 
-            expect(Str.mask("taylor@email.com", "", 3)).to.equal(
-                "taylor@email.com",
-            );
+            expect(Str.mask("taylor@email.com", "", 3)).to.equal("taylor@email.com");
 
-            expect(Str.mask("taylor@email.com", "something", 3)).to.equal(
-                "taysssssssssssss",
-            );
-            expect(
-                Str.mask("taylor@email.com", Str.of("something").toString(), 3),
-            ).to.equal("taysssssssssssss");
+            expect(Str.mask("taylor@email.com", "something", 3)).to.equal("taysssssssssssss");
+            expect(Str.mask("taylor@email.com", Str.of("something").toString(), 3)).to.equal("taysssssssssssss");
 
             expect(Str.mask("这是一段中文", "*", 3)).to.equal("这是一***");
             expect(Str.mask("这是一段中文", "*", 0, 2)).to.equal("**一段中文");
 
-            expect(Str.mask("maan@email.com", "*", 2, 1)).to.equal(
-                "ma*n@email.com",
-            );
-            expect(Str.mask("maan@email.com", "*", 2, 3)).to.equal(
-                "ma***email.com",
-            );
-            expect(Str.mask("maan@email.com", "*", 2)).to.equal(
-                "ma************",
-            );
+            expect(Str.mask("maan@email.com", "*", 2, 1)).to.equal("ma*n@email.com");
+            expect(Str.mask("maan@email.com", "*", 2, 3)).to.equal("ma***email.com");
+            expect(Str.mask("maan@email.com", "*", 2)).to.equal("ma************");
 
-            expect(Str.mask("maria@email.com", "*", 4, 1)).to.equal(
-                "mari*@email.com",
-            );
-            expect(Str.mask("tamara@email.com", "*", 5, 1)).to.equal(
-                "tamar*@email.com",
-            );
+            expect(Str.mask("maria@email.com", "*", 4, 1)).to.equal("mari*@email.com");
+            expect(Str.mask("tamara@email.com", "*", 5, 1)).to.equal("tamar*@email.com");
 
-            expect(Str.mask("maria@email.com", "*", 0, 1)).to.equal(
-                "*aria@email.com",
-            );
-            expect(Str.mask("maria@email.com", "*", -1, 1)).to.equal(
-                "maria@email.co*",
-            );
-            expect(Str.mask("maria@email.com", "*", -1)).to.equal(
-                "maria@email.co*",
-            );
-            expect(Str.mask("maria@email.com", "*", -15)).to.equal(
-                "***************",
-            );
-            expect(Str.mask("maria@email.com", "*", 0)).to.equal(
-                "***************",
-            );
+            expect(Str.mask("maria@email.com", "*", 0, 1)).to.equal("*aria@email.com");
+            expect(Str.mask("maria@email.com", "*", -1, 1)).to.equal("maria@email.co*");
+            expect(Str.mask("maria@email.com", "*", -1)).to.equal("maria@email.co*");
+            expect(Str.mask("maria@email.com", "*", -15)).to.equal("***************");
+            expect(Str.mask("maria@email.com", "*", 0)).to.equal("***************");
         });
 
         it("substrReplace() replaces text within a portion of a string", () => {
             // PHP: SupportStrTest::testSubstrReplace
             expect(Str.substrReplace("1200", ":", 2, 0)).to.equal("12:00");
-            expect(
-                Str.substrReplace("The Framework", "Laravel ", 4, 0),
-            ).to.equal("The Laravel Framework");
-            expect(
-                Str.substrReplace(
-                    "Laravel Framework",
-                    "– The PHP Framework for Web Artisans",
-                    8,
-                ),
-            ).to.equal("Laravel – The PHP Framework for Web Artisans");
+            expect(Str.substrReplace("The Framework", "Laravel ", 4, 0)).to.equal("The Laravel Framework");
+            expect(Str.substrReplace("Laravel Framework", "– The PHP Framework for Web Artisans", 8)).to.equal(
+                "Laravel – The PHP Framework for Web Artisans",
+            );
             // Edge cases with negative offset or length
             expect(Str.substrReplace("1234", "567", -3, 3)).to.equal("1567");
             expect(Str.substrReplace("1234", "567", 2, -1)).to.equal("125674");

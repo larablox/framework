@@ -37,9 +37,7 @@ export class WithoutOverlapping {
 
     /** Process the job. */
     public handle(job: InteractsWithQueue, _next: Next): unknown {
-        const lock = Container.getInstance()
-            .make<Cache>("cache.store")
-            .lock(this.getLockKey(job), this.expiresAfter);
+        const lock = Container.getInstance().make<Cache>("cache.store").lock(this.getLockKey(job), this.expiresAfter);
 
         if (lock.get() === true) {
             try {

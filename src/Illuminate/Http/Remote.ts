@@ -81,9 +81,7 @@ export class Remote {
      */
     public static folder(): Folder {
         if (Remote.folderInstance === undefined) {
-            Remote.folderInstance = ReplicatedStorage.WaitForChild(
-                REMOTES_FOLDER,
-            ) as Folder;
+            Remote.folderInstance = ReplicatedStorage.WaitForChild(REMOTES_FOLDER) as Folder;
         }
 
         return Remote.folderInstance;
@@ -92,9 +90,7 @@ export class Remote {
     /** The remote carrying requests that expect a response. */
     public static call(): RemoteFunction {
         if (Remote.callRemote === undefined) {
-            Remote.callRemote = Remote.folder().WaitForChild(
-                "Call",
-            ) as RemoteFunction;
+            Remote.callRemote = Remote.folder().WaitForChild("Call") as RemoteFunction;
         }
 
         return Remote.callRemote;
@@ -103,9 +99,7 @@ export class Remote {
     /** The remote carrying requests that expect no response. */
     public static send(): RemoteEvent {
         if (Remote.sendRemote === undefined) {
-            Remote.sendRemote = Remote.folder().WaitForChild(
-                "Send",
-            ) as RemoteEvent;
+            Remote.sendRemote = Remote.folder().WaitForChild("Send") as RemoteEvent;
         }
 
         return Remote.sendRemote;
@@ -119,9 +113,7 @@ export class Remote {
      */
     public static stream(): UnreliableRemoteEvent {
         if (Remote.streamRemote === undefined) {
-            Remote.streamRemote = Remote.folder().WaitForChild(
-                "Stream",
-            ) as UnreliableRemoteEvent;
+            Remote.streamRemote = Remote.folder().WaitForChild("Stream") as UnreliableRemoteEvent;
         }
 
         return Remote.streamRemote;
@@ -130,9 +122,7 @@ export class Remote {
     /** The remote carrying server-to-client traffic. */
     public static push(): RemoteEvent {
         if (Remote.pushRemote === undefined) {
-            Remote.pushRemote = Remote.folder().WaitForChild(
-                "Push",
-            ) as RemoteEvent;
+            Remote.pushRemote = Remote.folder().WaitForChild("Push") as RemoteEvent;
         }
 
         return Remote.pushRemote;

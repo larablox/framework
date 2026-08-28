@@ -75,9 +75,7 @@ export = (): void => {
             // takes no arguments)
             expect(new Collection(["foo", "bar"]).count()).to.equal(2);
 
-            expect(
-                new Collection<number, number>([]).containsOneItem(),
-            ).to.equal(false);
+            expect(new Collection<number, number>([]).containsOneItem()).to.equal(false);
             expect(new Collection([1]).containsOneItem()).to.equal(true);
             expect(new Collection([1, 2]).containsOneItem()).to.equal(false);
         });
@@ -103,10 +101,7 @@ export = (): void => {
             // (adapted: the port has no `Arrayable` interface to call
             // `toArray()` through, so a nested `Collection` is used as the
             // item that needs resolving instead of a mocked `Arrayable`)
-            const c = new Collection([
-                new Collection(["foo", "array"]),
-                new Collection(["bar", "array"]),
-            ]);
+            const c = new Collection([new Collection(["foo", "array"]), new Collection(["bar", "array"])]);
 
             expectDeepEqual(c.toArray(), [
                 ["foo", "array"],
@@ -135,9 +130,7 @@ export = (): void => {
             const collection = Collection.wrap(new Collection(["foo"]));
             expectDeepEqual(collection.all(), ["foo"]);
 
-            expectDeepEqual(Collection.unwrap(new Collection(["foo"])), [
-                "foo",
-            ]);
+            expectDeepEqual(Collection.unwrap(new Collection(["foo"])), ["foo"]);
             expectDeepEqual(Collection.unwrap(["foo"]), ["foo"]);
         });
 
@@ -152,9 +145,7 @@ export = (): void => {
             const two = Collection.times(2, (index) => `slug-${index}`);
             expectDeepEqual(two.all(), ["slug-1", "slug-2"]);
 
-            expect(Collection.times(0, (index) => index).isEmpty()).to.equal(
-                true,
-            );
+            expect(Collection.times(0, (index) => index).isEmpty()).to.equal(true);
         });
 
         it("range() builds a collection of a numeric range", () => {

@@ -24,10 +24,7 @@ import type { Route } from "Illuminate/Routing/Route";
  * A closure that needs anything else should be a controller method, where the
  * parameter attributes work.
  */
-export class CallableDispatcher
-    extends ResolvesRouteDependencies()
-    implements CallableDispatcherContract
-{
+export class CallableDispatcher extends ResolvesRouteDependencies() implements CallableDispatcherContract {
     /** Create a new callable dispatcher instance. */
     public constructor(container: Container) {
         super();

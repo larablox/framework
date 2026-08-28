@@ -5,10 +5,7 @@ import { RegisterFacades } from "Illuminate/Foundation/Bootstrap/RegisterFacades
 import { RegisterProviders } from "Illuminate/Foundation/Bootstrap/RegisterProviders";
 import { RuntimeException } from "Illuminate/Exception";
 import type { Abstract, Constructor } from "Illuminate/Container/Types";
-import type {
-    Application,
-    Bootstrapper,
-} from "Illuminate/Contracts/Foundation/Application";
+import type { Application, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
 import type { Repository as ConfigRepository } from "Illuminate/Config/Repository";
 
 /**
@@ -57,12 +54,7 @@ export class Client {
      * HTTP and console kernels.
      */
     public static defaultBootstrappers(): Array<Constructor<Bootstrapper>> {
-        return [
-            LoadConfiguration,
-            RegisterFacades,
-            RegisterProviders,
-            BootProviders,
-        ];
+        return [LoadConfiguration, RegisterFacades, RegisterProviders, BootProviders];
     }
 
     /**
@@ -77,9 +69,7 @@ export class Client {
 
     /** Bootstrap the application, then warm it. */
     public boot(
-        bootstrappers: Array<
-            Constructor<Bootstrapper>
-        > = Client.defaultBootstrappers(),
+        bootstrappers: Array<Constructor<Bootstrapper>> = Client.defaultBootstrappers(),
         services?: Array<Abstract>,
     ): void {
         if (this.booted) {
@@ -106,8 +96,7 @@ export class Client {
     public warm(services?: Array<Abstract>): void {
         const configured =
             services ??
-            (this.app.make<ConfigRepository>("config").get("app.warm") as
-                Array<Abstract> | undefined) ??
+            (this.app.make<ConfigRepository>("config").get("app.warm") as Array<Abstract> | undefined) ??
             Client.defaultServicesToWarm();
 
         for (const service of configured) {

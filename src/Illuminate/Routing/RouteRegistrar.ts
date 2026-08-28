@@ -1,8 +1,5 @@
 import { Util } from "Illuminate/Container/Util";
-import type {
-    ActionAttributes,
-    ActionTarget,
-} from "Illuminate/Routing/RouteAction";
+import type { ActionAttributes, ActionTarget } from "Illuminate/Routing/RouteAction";
 import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
 import type { Route } from "Illuminate/Routing/Route";
 import type { Router } from "Illuminate/Routing/Router";
@@ -25,10 +22,7 @@ export class RouteRegistrar {
     public constructor(protected readonly router: Router) {}
 
     /** Set the value for a given attribute. */
-    public attribute<TKey extends keyof ActionAttributes>(
-        key: TKey,
-        value: ActionAttributes[TKey],
-    ): this {
+    public attribute<TKey extends keyof ActionAttributes>(key: TKey, value: ActionAttributes[TKey]): this {
         this.attributes[key] = value;
 
         return this;
@@ -36,9 +30,7 @@ export class RouteRegistrar {
 
     /** Set the middleware attached to the routes. */
     public middleware(middleware: Pipe | Array<Pipe>): this {
-        const merged = table.clone(
-            this.attributes.middleware ?? new Array<Pipe>(),
-        );
+        const merged = table.clone(this.attributes.middleware ?? new Array<Pipe>());
 
         for (const entry of Util.arrayWrap(middleware) as Array<Pipe>) {
             merged.push(entry);
@@ -49,9 +41,7 @@ export class RouteRegistrar {
 
     /** Specify middleware that should be removed from the routes. */
     public withoutMiddleware(middleware: Pipe | Array<Pipe>): this {
-        const merged = table.clone(
-            this.attributes.excluded_middleware ?? new Array<Pipe>(),
-        );
+        const merged = table.clone(this.attributes.excluded_middleware ?? new Array<Pipe>());
 
         for (const entry of Util.arrayWrap(middleware) as Array<Pipe>) {
             merged.push(entry);
@@ -126,11 +116,7 @@ export class RouteRegistrar {
     }
 
     /** Register a new route with the given verbs. */
-    public match(
-        methods: string | Array<string>,
-        uri: string,
-        action?: ActionTarget,
-    ): Route {
+    public match(methods: string | Array<string>, uri: string, action?: ActionTarget): Route {
         return this.router.match(methods, uri, this.compileAction(action));
     }
 

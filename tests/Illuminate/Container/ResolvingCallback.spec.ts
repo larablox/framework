@@ -159,10 +159,7 @@ export = (): void => {
             container.make(ResolvingContractStub);
             expect(callCounter).to.equal(1);
 
-            container.bind(
-                ResolvingContractStub,
-                ResolvingImplementationStubTwo,
-            );
+            container.bind(ResolvingContractStub, ResolvingImplementationStubTwo);
             container.make(ResolvingContractStub);
             expect(callCounter).to.equal(1);
         });
@@ -220,10 +217,7 @@ export = (): void => {
                 callCounter++;
             });
 
-            container.bind(
-                ResolvingContractStub,
-                () => new ResolvingImplementationStub(),
-            );
+            container.bind(ResolvingContractStub, () => new ResolvingImplementationStub());
 
             container.make(ResolvingContractStub);
             expect(callCounter).to.equal(1);
@@ -248,10 +242,7 @@ export = (): void => {
             });
 
             container.bind(ResolvingContractStub, ResolvingImplementationStub);
-            container.bind(
-                ResolvingContractStub,
-                () => new ResolvingImplementationStub(),
-            );
+            container.bind(ResolvingContractStub, () => new ResolvingImplementationStub());
 
             container.make(ResolvingContractStub);
             expect(callCounter).to.equal(1);
@@ -270,40 +261,25 @@ export = (): void => {
             // PHP: ResolvingCallbackTest::testParametersPassedIntoResolvingCallbacks
             const container = new Container();
 
-            container.resolving(
-                ResolvingContractStub,
-                (obj: unknown, app: unknown) => {
-                    expect(obj instanceof ResolvingContractStub).to.equal(true);
-                    expect(
-                        obj instanceof ResolvingImplementationStubTwo,
-                    ).to.equal(true);
-                    expect(app).to.equal(container);
-                },
-            );
-
-            container.afterResolving(
-                ResolvingContractStub,
-                (obj: unknown, app: unknown) => {
-                    expect(obj instanceof ResolvingContractStub).to.equal(true);
-                    expect(
-                        obj instanceof ResolvingImplementationStubTwo,
-                    ).to.equal(true);
-                    expect(app).to.equal(container);
-                },
-            );
-
-            container.afterResolving((obj: unknown, app: unknown) => {
+            container.resolving(ResolvingContractStub, (obj: unknown, app: unknown) => {
                 expect(obj instanceof ResolvingContractStub).to.equal(true);
-                expect(obj instanceof ResolvingImplementationStubTwo).to.equal(
-                    true,
-                );
+                expect(obj instanceof ResolvingImplementationStubTwo).to.equal(true);
                 expect(app).to.equal(container);
             });
 
-            container.bind(
-                ResolvingContractStub,
-                ResolvingImplementationStubTwo,
-            );
+            container.afterResolving(ResolvingContractStub, (obj: unknown, app: unknown) => {
+                expect(obj instanceof ResolvingContractStub).to.equal(true);
+                expect(obj instanceof ResolvingImplementationStubTwo).to.equal(true);
+                expect(app).to.equal(container);
+            });
+
+            container.afterResolving((obj: unknown, app: unknown) => {
+                expect(obj instanceof ResolvingContractStub).to.equal(true);
+                expect(obj instanceof ResolvingImplementationStubTwo).to.equal(true);
+                expect(app).to.equal(container);
+            });
+
+            container.bind(ResolvingContractStub, ResolvingImplementationStubTwo);
             container.make(ResolvingContractStub);
         });
 
@@ -327,10 +303,7 @@ export = (): void => {
             expect(resolvingCallCounter).to.equal(1);
             expect(rebindCallCounter).to.equal(0);
 
-            container.bind(
-                ResolvingContractStub,
-                ResolvingImplementationStubTwo,
-            );
+            container.bind(ResolvingContractStub, ResolvingImplementationStubTwo);
             expect(resolvingCallCounter).to.equal(2);
             expect(rebindCallCounter).to.equal(1);
 
@@ -338,10 +311,7 @@ export = (): void => {
             expect(resolvingCallCounter).to.equal(3);
             expect(rebindCallCounter).to.equal(1);
 
-            container.bind(
-                ResolvingContractStub,
-                () => new ResolvingImplementationStubTwo(),
-            );
+            container.bind(ResolvingContractStub, () => new ResolvingImplementationStubTwo());
             expect(resolvingCallCounter).to.equal(4);
             expect(rebindCallCounter).to.equal(2);
 
@@ -364,19 +334,13 @@ export = (): void => {
             container.make(ResolvingContractStub);
             expect(callCounter).to.equal(1);
 
-            container.bind(
-                ResolvingContractStub,
-                ResolvingImplementationStubTwo,
-            );
+            container.bind(ResolvingContractStub, ResolvingImplementationStubTwo);
             expect(callCounter).to.equal(1);
 
             container.make(ResolvingImplementationStubTwo);
             expect(callCounter).to.equal(2);
 
-            container.bind(
-                ResolvingContractStub,
-                () => new ResolvingImplementationStubTwo(),
-            );
+            container.bind(ResolvingContractStub, () => new ResolvingImplementationStubTwo());
             expect(callCounter).to.equal(2);
 
             container.make(ResolvingContractStub);

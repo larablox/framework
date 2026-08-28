@@ -15,23 +15,10 @@ export function Give(target: Abstract, params?: ParameterList) {
         class: target,
         params,
         resolve: (attribute: never, container: Container) =>
-            container.make(
-                (attribute as Give).class,
-                (attribute as Give).params,
-            ),
+            container.make((attribute as Give).class, (attribute as Give).params),
     };
 
-    return (
-        owner: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
-        addParameterAttribute(
-            owner,
-            propertyKey,
-            parameterIndex,
-            Give,
-            instance,
-        );
+    return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+        addParameterAttribute(owner, propertyKey, parameterIndex, Give, instance);
     };
 }

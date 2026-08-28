@@ -36,11 +36,8 @@ export class MemoryStoreLock extends Lock {
             .lockMap()
             .UpdateAsync(
                 this.key(),
-                (held: unknown) =>
-                    held === undefined ? (this.ownerId as never) : undefined,
-                this.seconds === 0
-                    ? this.store.maxExpiration()
-                    : math.max(1, math.floor(this.seconds)),
+                (held: unknown) => (held === undefined ? (this.ownerId as never) : undefined),
+                this.seconds === 0 ? this.store.maxExpiration() : math.max(1, math.floor(this.seconds)),
             );
 
         return written !== undefined;

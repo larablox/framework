@@ -1,9 +1,6 @@
 ﻿/// <reference types="@rbxts/testez/globals" />
 import { DataStoreLock } from "Illuminate/Cache/DataStoreLock";
-import {
-    DataStoreStore,
-    MAX_KEY_LENGTH,
-} from "Illuminate/Cache/DataStoreStore";
+import { DataStoreStore, MAX_KEY_LENGTH } from "Illuminate/Cache/DataStoreStore";
 import { InvalidArgumentException } from "Illuminate/Exception";
 
 /**

@@ -5,9 +5,7 @@ import type { Job } from "Illuminate/Contracts/Queue/Job";
 export class TimeoutExceededException extends MaxAttemptsExceededException {
     /** Create a new instance for the given job. */
     public static forJob(job: Job): TimeoutExceededException {
-        const e = new TimeoutExceededException(
-            `${job.resolveName()} has timed out.`,
-        );
+        const e = new TimeoutExceededException(`${job.resolveName()} has timed out.`);
 
         e.job = job;
 

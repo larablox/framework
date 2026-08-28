@@ -30,17 +30,10 @@ export interface ParameterDependency {
 }
 
 /** class -> method -> parameter index -> declaration. */
-const injected = new Map<
-    object,
-    Map<string, Map<number, ParameterDependency>>
->();
+const injected = new Map<object, Map<string, Map<number, ParameterDependency>>>();
 
 /** Get, creating on the way, the record for one parameter. */
-function declarationFor(
-    target: object,
-    propertyKey: unknown,
-    parameterIndex: number,
-): ParameterDependency {
+function declarationFor(target: object, propertyKey: unknown, parameterIndex: number): ParameterDependency {
     const method = typeIs(propertyKey, "string") ? propertyKey : CONSTRUCTOR;
 
     let methods = injected.get(target);
@@ -80,11 +73,7 @@ function declarationFor(
  * ```
  */
 export function Inject(abstract: Abstract) {
-    return (
-        target: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
+    return (target: object, propertyKey: unknown, parameterIndex: number): void => {
         declarationFor(target, propertyKey, parameterIndex).abstract = abstract;
     };
 }
@@ -120,10 +109,7 @@ export function addParameterAttribute(
     attribute: Callback,
     instance: ContextualAttribute,
 ): void {
-    declarationFor(target, propertyKey, parameterIndex).attributes.push([
-        attribute,
-        instance,
-    ]);
+    declarationFor(target, propertyKey, parameterIndex).attributes.push([attribute, instance]);
 }
 
 /**
@@ -142,10 +128,7 @@ export function addParameterAttribute(
  * declares its own constructor and annotates nothing therefore inherits the
  * parent's dependencies -- annotate it to override them.
  */
-export function getInjectedDependencies(
-    target: unknown,
-    method: string = CONSTRUCTOR,
-): Array<ParameterDependency> {
+export function getInjectedDependencies(target: unknown, method: string = CONSTRUCTOR): Array<ParameterDependency> {
     if (!typeIs(target, "table")) {
         return [];
     }

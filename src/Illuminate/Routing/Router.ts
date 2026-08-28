@@ -16,10 +16,7 @@ import { Str } from "Illuminate/Support/Str";
 import { Util } from "Illuminate/Container/Util";
 import { isArrayable } from "Illuminate/Contracts/Support/Arrayable";
 import { isResponsable } from "Illuminate/Contracts/Support/Responsable";
-import type {
-    ActionAttributes,
-    ActionTarget,
-} from "Illuminate/Routing/RouteAction";
+import type { ActionAttributes, ActionTarget } from "Illuminate/Routing/RouteAction";
 import type { Container } from "Illuminate/Contracts/Container/Container";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
 import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
@@ -48,15 +45,7 @@ export type BinderCallback = (value: string, route: Route) => unknown;
  */
 export class Router {
     /** All of the verbs supported by the router. */
-    public static readonly verbs: Array<string> = [
-        "GET",
-        "HEAD",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE",
-        "OPTIONS",
-    ];
+    public static readonly verbs: Array<string> = ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"];
 
     /** The route collection instance. */
     protected routes = new RouteCollection();
@@ -80,10 +69,7 @@ export class Router {
      * collected. Clearing on the way out would be wrong -- PHP leaves these
      * readable after the response, and terminable middleware runs then.
      */
-    protected readonly dispatching = setmetatable(
-        new Map<thread, DispatchedOnThread>(),
-        { __mode: "k" },
-    );
+    protected readonly dispatching = setmetatable(new Map<thread, DispatchedOnThread>(), { __mode: "k" });
 
     /** All of the short-hand keys for middlewares. */
     protected middlewareAliases = new OrderedMap<string, Pipe>();
@@ -140,18 +126,12 @@ export class Router {
     }
 
     /** Register a new DELETE route with the router. */
-    public delete(
-        uri: string,
-        action?: ActionTarget | ActionAttributes,
-    ): Route {
+    public delete(uri: string, action?: ActionTarget | ActionAttributes): Route {
         return this.addRoute(["DELETE"], uri, action);
     }
 
     /** Register a new OPTIONS route with the router. */
-    public options(
-        uri: string,
-        action?: ActionTarget | ActionAttributes,
-    ): Route {
+    public options(uri: string, action?: ActionTarget | ActionAttributes): Route {
         return this.addRoute(["OPTIONS"], uri, action);
     }
 
@@ -161,11 +141,7 @@ export class Router {
     }
 
     /** Register a new route with the given verbs. */
-    public match(
-        methods: string | Array<string>,
-        uri: string,
-        action?: ActionTarget | ActionAttributes,
-    ): Route {
+    public match(methods: string | Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route {
         const upper = new Array<string>();
 
         for (const method of Util.arrayWrap(methods)) {
@@ -183,10 +159,7 @@ export class Router {
      * and says so at registration. It answers POST, and -- like any route -- a
      * verb and URI identify exactly one route, so give it a path of its own.
      */
-    public stream(
-        uri: string,
-        action?: ActionTarget | ActionAttributes,
-    ): Route {
+    public stream(uri: string, action?: ActionTarget | ActionAttributes): Route {
         return this.addRoute(["POST"], uri, action).setTransports(["stream"]);
     }
 
@@ -254,45 +227,22 @@ export class Router {
 
     /** Update the group stack with the given attributes. */
     protected updateGroupStack(attributes: ActionAttributes): void {
-        this.groupStack.push(
-            this.hasGroupStack()
-                ? this.mergeWithLastGroup(attributes)
-                : attributes,
-        );
+        this.groupStack.push(this.hasGroupStack() ? this.mergeWithLastGroup(attributes) : attributes);
     }
 
     /** Merge the given array with the last group stack. */
-    public mergeWithLastGroup(
-        attributes: ActionAttributes,
-        prependExistingPrefix = true,
-    ): ActionAttributes {
-        return RouteGroup.merge(
-            attributes,
-            this.groupStack[this.groupStack.size() - 1],
-            prependExistingPrefix,
-        );
+    public mergeWithLastGroup(attributes: ActionAttributes, prependExistingPrefix = true): ActionAttributes {
+        return RouteGroup.merge(attributes, this.groupStack[this.groupStack.size() - 1], prependExistingPrefix);
     }
 
     /** Add a route to the underlying route collection. */
-    public addRoute(
-        methods: Array<string>,
-        uri: string,
-        action?: ActionTarget | ActionAttributes,
-    ): Route {
+    public addRoute(methods: Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route {
         return this.routes.add(this.createRoute(methods, uri, action));
     }
 
     /** Create a new route instance. */
-    protected createRoute(
-        methods: Array<string>,
-        uri: string,
-        action?: ActionTarget | ActionAttributes,
-    ): Route {
-        const route = this.newRoute(
-            methods,
-            this.prefixWithGroup(uri),
-            RouteAction.parse(uri, action),
-        );
+    protected createRoute(methods: Array<string>, uri: string, action?: ActionTarget | ActionAttributes): Route {
+        const route = this.newRoute(methods, this.prefixWithGroup(uri), RouteAction.parse(uri, action));
 
         // If we have groups that need to be merged, we will merge them now after this
         // route has already been created and is ready to go. After we're done with
@@ -307,22 +257,13 @@ export class Router {
     }
 
     /** Create a new Route object. */
-    public newRoute(
-        methods: Array<string>,
-        uri: string,
-        action: ActionAttributes,
-    ): Route {
-        return new Route(methods, uri, action)
-            .setRouter(this)
-            .setContainer(this.container);
+    public newRoute(methods: Array<string>, uri: string, action: ActionAttributes): Route {
+        return new Route(methods, uri, action).setRouter(this).setContainer(this.container);
     }
 
     /** Prefix the given URI with the last prefix. */
     protected prefixWithGroup(uri: string): string {
-        const prefixed = Str.trim(
-            `${Str.trim(this.getLastGroupPrefix(), "/")}/${Str.trim(uri, "/")}`,
-            "/",
-        );
+        const prefixed = Str.trim(`${Str.trim(this.getLastGroupPrefix(), "/")}/${Str.trim(uri, "/")}`, "/");
 
         return prefixed === "" ? "/" : prefixed;
     }
@@ -373,10 +314,7 @@ export class Router {
      * *this* request out of arrives with the request. It defaults to the
      * router's own, which is what every caller outside the kernel wants.
      */
-    public dispatch(
-        request: Request,
-        container: Container = this.container,
-    ): Response {
+    public dispatch(request: Request, container: Container = this.container): Response {
         // Replaced rather than written into: a coroutine that has dispatched
         // before still holds that route, and nothing would clear it until this
         // request matched -- which is after the global middleware has run and
@@ -389,10 +327,7 @@ export class Router {
     }
 
     /** Dispatch the request to a route and return the response. */
-    public dispatchToRoute(
-        request: Request,
-        container: Container = this.container,
-    ): Response {
+    public dispatchToRoute(request: Request, container: Container = this.container): Response {
         return this.runRoute(request, this.findRoute(request, container));
     }
 
@@ -423,10 +358,7 @@ export class Router {
 
         this.events.dispatch(new RouteMatched(route, request));
 
-        return this.prepareResponse(
-            request,
-            this.runRouteWithinStack(route, request),
-        );
+        return this.prepareResponse(request, this.runRouteWithinStack(route, request));
     }
 
     /** Run the given route within a Stack "onion" instance. */
@@ -436,46 +368,30 @@ export class Router {
         const container = route.getContainer() ?? this.container;
 
         const shouldSkipMiddleware =
-            container.bound("middleware.disable") &&
-            container.make("middleware.disable") === true;
+            container.bound("middleware.disable") && container.make("middleware.disable") === true;
 
-        const middleware = shouldSkipMiddleware
-            ? new Array<Pipe>()
-            : this.gatherRouteMiddleware(route);
+        const middleware = shouldSkipMiddleware ? new Array<Pipe>() : this.gatherRouteMiddleware(route);
 
         // Named rather than chained: `then` is a Luau keyword, so the compiler
         // has to index it as a string, and chaining leaves it reading from the
         // `_` placeholder -- which `luau-lsp analyze` flags.
-        const pipeline = new Pipeline(container)
-            .send(request)
-            .through(middleware);
+        const pipeline = new Pipeline(container).send(request).through(middleware);
 
-        return pipeline.then((passable) =>
-            this.prepareResponse(passable as Request, route.run()),
-        );
+        return pipeline.then((passable) => this.prepareResponse(passable as Request, route.run()));
     }
 
     /** Gather the middleware for the given route with resolved class names. */
     public gatherRouteMiddleware(route: Route): Array<Pipe> {
-        return this.resolveMiddleware(
-            route.gatherMiddleware(),
-            route.excludedMiddleware(),
-        );
+        return this.resolveMiddleware(route.gatherMiddleware(), route.excludedMiddleware());
     }
 
     /** Resolve a flat array of middleware classes from the provided array. */
-    public resolveMiddleware(
-        middleware: Array<Pipe>,
-        excluded: Array<Pipe> = [],
-    ): Array<Pipe> {
+    public resolveMiddleware(middleware: Array<Pipe>, excluded: Array<Pipe> = []): Array<Pipe> {
         const resolvedExcluded = this.flatten(excluded);
         const resolved = new Array<Pipe>();
 
         for (const entry of this.flatten(middleware)) {
-            if (
-                !typeIs(entry, "function") &&
-                resolvedExcluded.includes(entry)
-            ) {
+            if (!typeIs(entry, "function") && resolvedExcluded.includes(entry)) {
                 continue;
             }
 
@@ -495,11 +411,7 @@ export class Router {
         const flattened = new Array<Pipe>();
 
         for (const entry of middleware) {
-            const resolved = MiddlewareNameResolver.resolve(
-                entry,
-                this.middlewareAliases,
-                this.middlewareGroups,
-            );
+            const resolved = MiddlewareNameResolver.resolve(entry, this.middlewareAliases, this.middlewareGroups);
 
             // Only a group name resolves to several middleware. A class that
             // carries its arguments beside it is a list too, and flattening
@@ -557,9 +469,7 @@ export class Router {
         if (value instanceof OrderedMap) {
             const plain: Record<string, unknown> = {};
 
-            for (const [key, entry] of (
-                value as OrderedMap<defined, defined>
-            ).entries()) {
+            for (const [key, entry] of (value as OrderedMap<defined, defined>).entries()) {
                 plain[tostring(key)] = entry;
             }
 
@@ -597,15 +507,8 @@ export class Router {
     }
 
     /** Call the binding callback for the given key. */
-    protected performBinding(
-        key: string,
-        value: defined,
-        route: Route,
-    ): defined {
-        return (this.binders.get(key) as BinderCallback)(
-            value as string,
-            route,
-        ) as defined;
+    protected performBinding(key: string, value: defined, route: Route): defined {
+        return (this.binders.get(key) as BinderCallback)(value as string, route) as defined;
     }
 
     /** Get the global "where" patterns. */
@@ -783,10 +686,7 @@ export class Router {
 
     /** Determine if the current route matches a pattern. */
     public currentRouteNamed(...patterns: Array<string>): boolean {
-        return (
-            this.current() !== undefined &&
-            (this.current() as Route).named(...patterns)
-        );
+        return this.current() !== undefined && (this.current() as Route).named(...patterns);
     }
 
     /** Get the current route action. */

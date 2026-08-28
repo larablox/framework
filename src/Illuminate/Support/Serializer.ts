@@ -91,14 +91,10 @@ export class Serializer {
     public static serialize(value: unknown): string {
         const encoded = encode(value, new Map<object, boolean>());
 
-        const [ok, result] = pcall(() =>
-            HttpService.JSONEncode(encoded as defined),
-        );
+        const [ok, result] = pcall(() => HttpService.JSONEncode(encoded as defined));
 
         if (!ok) {
-            throw new SerializationException(
-                `Unable to encode payload: ${tostring(result)}`,
-            );
+            throw new SerializationException(`Unable to encode payload: ${tostring(result)}`);
         }
 
         return result as string;
@@ -109,9 +105,7 @@ export class Serializer {
         const [ok, decoded] = pcall(() => HttpService.JSONDecode(payload));
 
         if (!ok) {
-            throw new SerializationException(
-                `Unable to decode payload: ${tostring(decoded)}`,
-            );
+            throw new SerializationException(`Unable to decode payload: ${tostring(decoded)}`);
         }
 
         return decode(decoded);
@@ -120,18 +114,12 @@ export class Serializer {
 
 /** Turn one value into something `JSONEncode` accepts. */
 function encode(value: unknown, seen: Map<object, boolean>): unknown {
-    if (
-        typeIs(value, "number") ||
-        typeIs(value, "string") ||
-        typeIs(value, "boolean")
-    ) {
+    if (typeIs(value, "number") || typeIs(value, "string") || typeIs(value, "boolean")) {
         return value;
     }
 
     if (typeIs(value, "function")) {
-        throw new SerializationException(
-            "Serialization of a function is not allowed.",
-        );
+        throw new SerializationException("Serialization of a function is not allowed.");
     }
 
     if (typeIs(value, "Instance")) {
@@ -149,8 +137,7 @@ function encode(value: unknown, seen: Map<object, boolean>): unknown {
     if (typeIs(value, "CFrame")) {
         // Spelled out: a LuaTuple inside an array literal nests instead of
         // flattening, and the twelve components have to stay a flat list.
-        const [x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22] =
-            value.GetComponents();
+        const [x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22] = value.GetComponents();
 
         return {
             [TYPE_KEY]: "cframe",
@@ -173,12 +160,7 @@ function encode(value: unknown, seen: Map<object, boolean>): unknown {
     if (typeIs(value, "UDim2")) {
         return {
             [TYPE_KEY]: "udim2",
-            components: [
-                value.X.Scale,
-                value.X.Offset,
-                value.Y.Scale,
-                value.Y.Offset,
-            ],
+            components: [value.X.Scale, value.X.Offset, value.Y.Scale, value.Y.Offset],
         };
     }
 
@@ -210,9 +192,7 @@ function encode(value: unknown, seen: Map<object, boolean>): unknown {
         return encodeTable(value as object, seen);
     }
 
-    throw new SerializationException(
-        `Serialization of a [${typeOf(value)}] value is not supported.`,
-    );
+    throw new SerializationException(`Serialization of a [${typeOf(value)}] value is not supported.`);
 }
 
 /** An `Instance` becomes an identifier, never the instance itself. */
@@ -234,16 +214,12 @@ function encodeInstance(instance: Instance): unknown {
 /** A table is a class instance, a list or a map. */
 function encodeTable(value: object, seen: Map<object, boolean>): unknown {
     if (seen.get(value) === true) {
-        throw new SerializationException(
-            "Serialization of a cyclic value is not supported.",
-        );
+        throw new SerializationException("Serialization of a cyclic value is not supported.");
     }
 
     seen.set(value, true);
 
-    const klass = Reflector.isInstance(value)
-        ? Reflector.classOf(value)
-        : undefined;
+    const klass = Reflector.isInstance(value) ? Reflector.classOf(value) : undefined;
 
     const entries = value as unknown as Record<string, unknown>;
 
@@ -269,10 +245,7 @@ function encodeTable(value: object, seen: Map<object, boolean>): unknown {
         const pairsList = new Array<defined>();
 
         for (const [key, item] of pairs(entries)) {
-            pairsList.push([
-                encode(key, seen),
-                encode(item, seen),
-            ] as unknown as defined);
+            pairsList.push([encode(key, seen), encode(item, seen)] as unknown as defined);
         }
 
         encoded = { [TYPE_KEY]: "map", entries: pairsList };
@@ -349,11 +322,7 @@ function decodeClass(name: string, fields: unknown): object {
 /** Rebuild one of the tagged datatypes. */
 function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
     if (tag === "vector3") {
-        return new Vector3(
-            entries.x as number,
-            entries.y as number,
-            entries.z as number,
-        );
+        return new Vector3(entries.x as number, entries.y as number, entries.z as number);
     }
 
     if (tag === "vector2") {
@@ -380,11 +349,7 @@ function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
     }
 
     if (tag === "color3") {
-        return new Color3(
-            entries.r as number,
-            entries.g as number,
-            entries.b as number,
-        );
+        return new Color3(entries.r as number, entries.g as number, entries.b as number);
     }
 
     if (tag === "udim") {
@@ -394,12 +359,7 @@ function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
     if (tag === "udim2") {
         const components = entries.components as Array<number>;
 
-        return new UDim2(
-            components[0],
-            components[1],
-            components[2],
-            components[3],
-        );
+        return new UDim2(components[0], components[1], components[2], components[3]);
     }
 
     if (tag === "datetime") {
@@ -448,9 +408,7 @@ function decodeEnum(enumType: string, name: string): EnumItem {
     const item = enums[enumType]?.[name];
 
     if (item === undefined) {
-        throw new SerializationException(
-            `Unknown enum item [Enum.${enumType}.${name}].`,
-        );
+        throw new SerializationException(`Unknown enum item [Enum.${enumType}.${name}].`);
     }
 
     return item;
@@ -464,9 +422,7 @@ function decodeInstance(entries: Record<string, unknown>): Instance {
         const player = Players.GetPlayerByUserId(entries.id as number);
 
         if (player === undefined) {
-            throw new InstanceNotFoundException(
-                `No player with id [${entries.id}] is in this server.`,
-            );
+            throw new InstanceNotFoundException(`No player with id [${entries.id}] is in this server.`);
         }
 
         return player;
@@ -481,9 +437,7 @@ function decodeInstance(entries: Record<string, unknown>): Instance {
     }
 
     if (current === undefined) {
-        throw new InstanceNotFoundException(
-            `No instance is at [${path}] in this server.`,
-        );
+        throw new InstanceNotFoundException(`No instance is at [${path}] in this server.`);
     }
 
     return current;

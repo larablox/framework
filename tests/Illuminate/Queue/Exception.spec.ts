@@ -23,9 +23,7 @@ export = (): void => {
 
             const e = TimeoutExceededException.forJob(job);
 
-            expect(e.getMessage()).to.equal(
-                "App.Jobs.UnderlyingJob has timed out.",
-            );
+            expect(e.getMessage()).to.equal("App.Jobs.UnderlyingJob has timed out.");
             expect(e.job).to.equal(job);
         });
 
@@ -35,19 +33,14 @@ export = (): void => {
 
             const e = MaxAttemptsExceededException.forJob(job);
 
-            expect(e.getMessage()).to.equal(
-                "App.Jobs.UnderlyingJob has been attempted too many times.",
-            );
+            expect(e.getMessage()).to.equal("App.Jobs.UnderlyingJob has been attempted too many times.");
             expect(e.job).to.equal(job);
         });
 
         it("TimeoutExceededException is a MaxAttemptsExceededException", () => {
             const job = fakeJob("Job");
 
-            expect(
-                TimeoutExceededException.forJob(job) instanceof
-                    MaxAttemptsExceededException,
-            ).to.equal(true);
+            expect(TimeoutExceededException.forJob(job) instanceof MaxAttemptsExceededException).to.equal(true);
         });
     });
 };

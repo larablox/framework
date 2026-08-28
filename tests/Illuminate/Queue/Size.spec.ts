@@ -37,13 +37,7 @@ function drain(): void {
  * reasoning at length.
  */
 function memoryStoreQueue(): MemoryStoreQueue {
-    const queue = new MemoryStoreQueue(
-        HttpService.GenerateGUID(false),
-        60,
-        0,
-        30,
-        "queue-test:",
-    );
+    const queue = new MemoryStoreQueue(HttpService.GenerateGUID(false), 60, 0, 30, "queue-test:");
     made.push(queue);
 
     return queue;

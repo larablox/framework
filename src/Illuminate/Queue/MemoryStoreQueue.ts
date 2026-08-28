@@ -9,16 +9,9 @@ import { Serializer } from "Illuminate/Support/Serializer";
 import { Str } from "Illuminate/Support/Str";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type {
-    Job,
-    JobPayload,
-    JobPayloadData,
-} from "Illuminate/Contracts/Queue/Job";
+import type { Job, JobPayload, JobPayloadData } from "Illuminate/Contracts/Queue/Job";
 import type { ClearableQueue } from "Illuminate/Contracts/Queue/ClearableQueue";
-import type {
-    JobTarget,
-    Queue as QueueContract,
-} from "Illuminate/Contracts/Queue/Queue";
+import type { JobTarget, Queue as QueueContract } from "Illuminate/Contracts/Queue/Queue";
 
 const MemoryStoreService = game.GetService("MemoryStoreService");
 
@@ -58,10 +51,7 @@ const MAX_PAGE = 100;
  * Two limits are the platform's, not Laravel's: an item may not exceed 32 KB,
  * and the game's whole memory quota is `64 KB + 1.2 KB * players`.
  */
-export class MemoryStoreQueue
-    extends Queue
-    implements QueueContract, ClearableQueue
-{
+export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQueue {
     /** Create a new MemoryStore queue instance. */
     public constructor(
         protected readonly defaultQueue = "default",
@@ -82,20 +72,13 @@ export class MemoryStoreQueue
     }
 
     /** The MemoryStore queue backing the given name. */
-    protected queueFor(
-        queue?: string,
-    ): ReturnType<MemoryStoreService["GetQueue"]> {
-        return MemoryStoreService.GetQueue(
-            `${this.prefix}${this.getQueue(queue)}`,
-            this.retryAfter,
-        );
+    protected queueFor(queue?: string): ReturnType<MemoryStoreService["GetQueue"]> {
+        return MemoryStoreService.GetQueue(`${this.prefix}${this.getQueue(queue)}`, this.retryAfter);
     }
 
     /** The sorted map holding the jobs that are not due yet. */
     protected delayedFor(queue?: string): MemoryStoreSortedMap {
-        return MemoryStoreService.GetSortedMap(
-            `${this.prefix}${this.getQueue(queue)}:delayed`,
-        );
+        return MemoryStoreService.GetSortedMap(`${this.prefix}${this.getQueue(queue)}:delayed`);
     }
 
     /**
@@ -108,9 +91,7 @@ export class MemoryStoreQueue
      * only invisible -- which leaves the delayed map to add.
      */
     public size(queue?: string): number {
-        return (
-            this.queueFor(queue).GetSizeAsync(false) + this.delayedSize(queue)
-        );
+        return this.queueFor(queue).GetSizeAsync(false) + this.delayedSize(queue);
     }
 
     /** Get the number of pending jobs. */
@@ -135,10 +116,7 @@ export class MemoryStoreQueue
     public reservedSize(queue?: string): number {
         const memoryStoreQueue = this.queueFor(queue);
 
-        return (
-            memoryStoreQueue.GetSizeAsync(false) -
-            memoryStoreQueue.GetSizeAsync(true)
-        );
+        return memoryStoreQueue.GetSizeAsync(false) - memoryStoreQueue.GetSizeAsync(true);
     }
 
     /**
@@ -192,10 +170,7 @@ export class MemoryStoreQueue
         for (;;) {
             // Read from the start every time rather than paging: the previous
             // pass removed what it saw, so the start is where the rest is.
-            const page = delayed.GetRangeAsync(
-                Enum.SortDirection.Ascending,
-                MAX_PAGE,
-            );
+            const page = delayed.GetRangeAsync(Enum.SortDirection.Ascending, MAX_PAGE);
 
             if (page.size() === 0) {
                 return removed;
@@ -251,11 +226,7 @@ export class MemoryStoreQueue
     /* eslint-enable @typescript-eslint/no-unused-vars */
 
     /** Create a payload array, counting attempts the way the Redis driver does. */
-    protected createPayloadArray(
-        job: JobTarget,
-        queue: string | undefined,
-        data: unknown = "",
-    ): JobPayload {
+    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ""): JobPayload {
         const payload = super.createPayloadArray(job, queue, data);
 
         payload.attempts = 0;
@@ -274,17 +245,12 @@ export class MemoryStoreQueue
      * `Instance` is handled -- rather than inside `pop()`, where it would leave
      * the job in storage to be read again forever.
      */
-    protected createObjectPayload(
-        job: object,
-        queue: string | undefined,
-    ): JobPayload {
+    protected createObjectPayload(job: object, queue: string | undefined): JobPayload {
         const payload = super.createObjectPayload(job, queue);
 
         const data = payload.data as JobPayloadData;
 
-        const [ok, command] = pcall(() =>
-            Serializer.serialize(data.command as object),
-        );
+        const [ok, command] = pcall(() => Serializer.serialize(data.command as object));
 
         if (!ok) {
             throw new RuntimeException(
@@ -293,9 +259,7 @@ export class MemoryStoreQueue
         }
 
         payload.data = {
-            commandName: Serializer.nameOf(
-                Reflector.classOf(job) ?? (job as object),
-            ),
+            commandName: Serializer.nameOf(Reflector.classOf(job) ?? (job as object)),
             command: command as string,
             batchId: data.batchId,
         };
@@ -327,28 +291,18 @@ export class MemoryStoreQueue
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(
-        delay: Delay,
-        job: JobTarget,
-        data: unknown = "",
-        queue?: string,
-    ): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = "", queue?: string): unknown {
         return this.enqueueUsing(
             job,
             this.createPayload(job, this.getQueue(queue), data, delay),
             queue,
             delay,
-            (payload, name, seconds) =>
-                this.laterRaw(seconds ?? 0, payload, name),
+            (payload, name, seconds) => this.laterRaw(seconds ?? 0, payload, name),
         );
     }
 
     /** Push a raw payload into the delayed map. */
-    protected laterRaw(
-        delay: Delay,
-        payload: JobPayload,
-        queue?: string,
-    ): string {
+    protected laterRaw(delay: Delay, payload: JobPayload, queue?: string): string {
         const availableAt = InteractsWithTime.availableAt(delay);
 
         this.delayedFor(queue).SetAsync(
@@ -373,11 +327,7 @@ export class MemoryStoreQueue
     }
 
     /** Delete a reserved job from the queue and release it. */
-    public deleteAndRelease(
-        queue: string,
-        job: MemoryStoreJob,
-        delay: Delay,
-    ): void {
+    public deleteAndRelease(queue: string, job: MemoryStoreJob, delay: Delay): void {
         this.deleteReserved(queue, job);
 
         this.release(queue, job.payload(), delay);
@@ -390,11 +340,7 @@ export class MemoryStoreQueue
         this.migrate(name);
 
         // An empty read answers with nothing at all, not an empty list.
-        const [read, id] = this.queueFor(name).ReadAsync(
-            1,
-            false,
-            this.blockFor,
-        );
+        const [read, id] = this.queueFor(name).ReadAsync(1, false, this.blockFor);
 
         const items = read as Array<string> | undefined;
 
@@ -402,14 +348,7 @@ export class MemoryStoreQueue
             return undefined;
         }
 
-        return new MemoryStoreJob(
-            this.container,
-            this,
-            items[0],
-            id,
-            this.connectionName,
-            name,
-        );
+        return new MemoryStoreJob(this.container, this, items[0], id, this.connectionName, name);
     }
 
     /** Move the delayed jobs that are ready onto the queue. */
@@ -418,10 +357,7 @@ export class MemoryStoreQueue
 
         const now = InteractsWithTime.currentTime();
 
-        const due = delayed.GetRangeAsync(
-            Enum.SortDirection.Ascending,
-            this.migrationBatchSize,
-        );
+        const due = delayed.GetRangeAsync(Enum.SortDirection.Ascending, this.migrationBatchSize);
 
         for (const item of due) {
             const key = item.key as string;
@@ -435,11 +371,7 @@ export class MemoryStoreQueue
             const [removed] = pcall(() => delayed.RemoveAsync(key));
 
             if (removed) {
-                this.queueFor(queue).AddAsync(
-                    item.value as string,
-                    this.expiration,
-                    0,
-                );
+                this.queueFor(queue).AddAsync(item.value as string, this.expiration, 0);
             }
         }
     }

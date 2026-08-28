@@ -109,8 +109,7 @@ export class Worker {
     public warm(services?: Array<Abstract>): void {
         const configured =
             services ??
-            (this.app.make<ConfigRepository>("config").get("app.warm") as
-                Array<Abstract> | undefined) ??
+            (this.app.make<ConfigRepository>("config").get("app.warm") as Array<Abstract> | undefined) ??
             Worker.defaultServicesToWarm();
 
         for (const service of configured) {
@@ -140,10 +139,7 @@ export class Worker {
         // kernel is still one object, holding the middleware stack and nothing
         // about any request; the sandbox is handed to it call by call instead.
         try {
-            this.dispatchEvent(
-                sandbox,
-                new RequestReceived(this.app, sandbox, request),
-            );
+            this.dispatchEvent(sandbox, new RequestReceived(this.app, sandbox, request));
 
             const response = kernel.handle(request, sandbox);
 
@@ -169,21 +165,13 @@ export class Worker {
     }
 
     /** Terminate the request, then throw the sandbox away. */
-    protected terminateRequest(
-        kernel: HttpKernel,
-        sandbox: Application,
-        request: Request,
-        response: Response,
-    ): void {
+    protected terminateRequest(kernel: HttpKernel, sandbox: Application, request: Request, response: Response): void {
         try {
             // `Kernel::terminate()` ends in `$this->app->terminate()`, and
             // `$this->app` is the sandbox -- which is the whole point.
             kernel.terminate(request, response, sandbox);
 
-            this.dispatchEvent(
-                sandbox,
-                new RequestTerminated(this.app, sandbox, request, response),
-            );
+            this.dispatchEvent(sandbox, new RequestTerminated(this.app, sandbox, request, response));
         } catch (e) {
             this.dispatchEvent(sandbox, new WorkerErrorOccurred(e, sandbox));
         } finally {
@@ -236,9 +224,7 @@ export class Worker {
      */
     protected bootedKernel(): HttpKernel {
         if (!this.booted || this.kernel === undefined) {
-            throw new RuntimeException(
-                "Worker has not booted. Unable to handle requests.",
-            );
+            throw new RuntimeException("Worker has not booted. Unable to handle requests.");
         }
 
         return this.kernel;

@@ -32,9 +32,7 @@ export function isShouldQueue(job: unknown): job is ShouldQueue {
 
     // PHP asks the question of a class as readily as of an object -- the event
     // dispatcher checks a listener's class before ever building it.
-    let current: object | undefined = Reflector.isInstance(job)
-        ? Reflector.classOf(job as object)
-        : (job as object);
+    let current: object | undefined = Reflector.isInstance(job) ? Reflector.classOf(job as object) : (job as object);
 
     while (current !== undefined) {
         if (Attributes.has(current, ShouldQueue)) {

@@ -28,18 +28,12 @@ export class SortedMiddleware extends Collection<number, Pipe> {
     }
 
     /** Sort the middleware by the given priority map. */
-    protected static sortMiddleware(
-        priorityMap: Array<Pipe>,
-        middleware: Array<Pipe>,
-    ): Array<Pipe> {
+    protected static sortMiddleware(priorityMap: Array<Pipe>, middleware: Array<Pipe>): Array<Pipe> {
         let lastIndex = 0;
         let lastPriorityIndex: number | undefined;
 
         for (let index = 0; index < middleware.size(); index++) {
-            const priorityIndex = SortedMiddleware.priorityMapIndex(
-                priorityMap,
-                middleware[index],
-            );
+            const priorityIndex = SortedMiddleware.priorityMapIndex(priorityMap, middleware[index]);
 
             if (priorityIndex === undefined) {
                 continue;
@@ -48,17 +42,10 @@ export class SortedMiddleware extends Collection<number, Pipe> {
             // This middleware is in the priority map. If we have encountered another
             // middleware that was also in the priority map and was at a lower
             // priority, we move this one above the previous encounter.
-            if (
-                lastPriorityIndex !== undefined &&
-                priorityIndex < lastPriorityIndex
-            ) {
+            if (lastPriorityIndex !== undefined && priorityIndex < lastPriorityIndex) {
                 return SortedMiddleware.sortMiddleware(
                     priorityMap,
-                    SortedMiddleware.moveMiddleware(
-                        middleware,
-                        index,
-                        lastIndex,
-                    ),
+                    SortedMiddleware.moveMiddleware(middleware, index, lastIndex),
                 );
             }
 
@@ -70,10 +57,7 @@ export class SortedMiddleware extends Collection<number, Pipe> {
     }
 
     /** Calculate the priority map index of the middleware. */
-    protected static priorityMapIndex(
-        priorityMap: Array<Pipe>,
-        middleware: Pipe,
-    ): number | undefined {
+    protected static priorityMapIndex(priorityMap: Array<Pipe>, middleware: Pipe): number | undefined {
         for (const name of SortedMiddleware.middlewareNames(middleware)) {
             const index = priorityMap.indexOf(name);
 
@@ -90,9 +74,7 @@ export class SortedMiddleware extends Collection<number, Pipe> {
         const names = new Array<Pipe>();
 
         // A class with its arguments beside it answers for the class.
-        const target = Util.isArray(middleware)
-            ? (middleware as Array<Pipe>)[0]
-            : middleware;
+        const target = Util.isArray(middleware) ? (middleware as Array<Pipe>)[0] : middleware;
 
         if (typeIs(target, "string")) {
             names.push(Str.before(target, ":"));
@@ -120,11 +102,7 @@ export class SortedMiddleware extends Collection<number, Pipe> {
     }
 
     /** Splice a middleware into a new position and remove the old entry. */
-    protected static moveMiddleware(
-        middleware: Array<Pipe>,
-        from: number,
-        to: number,
-    ): Array<Pipe> {
+    protected static moveMiddleware(middleware: Array<Pipe>, from: number, to: number): Array<Pipe> {
         const moved = new Array<Pipe>();
 
         // PHP splices a copy in at `to` and unsets the original, which has

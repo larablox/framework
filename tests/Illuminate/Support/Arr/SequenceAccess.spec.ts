@@ -49,19 +49,9 @@ export = (): void => {
 
             expect(Arr.first(array, (value) => value >= 150)).to.equal(200);
 
-            expect(Arr.first(array, (value) => value > 300)).to.equal(
-                undefined,
-            );
-            expect(
-                Arr.first(
-                    array,
-                    (value) => value > 300,
-                    "bar" as unknown as number,
-                ),
-            ).to.equal("bar");
-            expect(
-                Arr.first(array, (value, key) => (key as number) < 2),
-            ).to.equal(100);
+            expect(Arr.first(array, (value) => value > 300)).to.equal(undefined);
+            expect(Arr.first(array, (value) => value > 300, "bar" as unknown as number)).to.equal("bar");
+            expect(Arr.first(array, (value, key) => (key as number) < 2)).to.equal(100);
         });
 
         it("last() returns the last element passing a truth test", () => {
@@ -76,16 +66,8 @@ export = (): void => {
             expect(Arr.last(array, (value) => value < 250)).to.equal(200);
 
             expect(Arr.last(array, (value) => value > 300)).to.equal(undefined);
-            expect(
-                Arr.last(
-                    array,
-                    (value) => value > 300,
-                    "bar" as unknown as number,
-                ),
-            ).to.equal("bar");
-            expect(
-                Arr.last(array, (value, key) => (key as number) < 2),
-            ).to.equal(200);
+            expect(Arr.last(array, (value) => value > 300, "bar" as unknown as number)).to.equal("bar");
+            expect(Arr.last(array, (value, key) => (key as number) < 2)).to.equal(200);
         });
 
         it("sole() returns the only matching item, or throws", () => {
@@ -95,15 +77,11 @@ export = (): void => {
             expect(Arr.sole(["foo"])).to.equal("foo");
 
             const array = [{ name: "foo" }, { name: "bar" }];
-            expect(Arr.sole(array, (value) => value.name === "foo")).to.equal(
-                array[0],
-            );
+            expect(Arr.sole(array, (value) => value.name === "foo")).to.equal(array[0]);
 
             expectThrows(() => Arr.sole(["foo"], (value) => value === "baz"));
 
-            expectThrows(() =>
-                Arr.sole(["baz", "foo", "baz"], (value) => value === "baz"),
-            );
+            expectThrows(() => Arr.sole(["baz", "foo", "baz"], (value) => value === "baz"));
         });
 
         it("take() takes items from the front or back of an array", () => {
@@ -120,25 +98,13 @@ export = (): void => {
         it("every() / some() test every or some items with a callback", () => {
             // PHP: SupportArrTest::testEvery, ::testSome (iterable variants
             // dropped, see class comment)
-            expect(
-                Arr.every([1, 2], (value) => typeIs(value, "string")),
-            ).to.equal(false);
-            expect(
-                Arr.every(["foo", 2], (value) => typeIs(value, "string")),
-            ).to.equal(false);
-            expect(
-                Arr.every(["foo", "bar"], (value) => typeIs(value, "string")),
-            ).to.equal(true);
+            expect(Arr.every([1, 2], (value) => typeIs(value, "string"))).to.equal(false);
+            expect(Arr.every(["foo", 2], (value) => typeIs(value, "string"))).to.equal(false);
+            expect(Arr.every(["foo", "bar"], (value) => typeIs(value, "string"))).to.equal(true);
 
-            expect(
-                Arr.some([1, 2], (value) => typeIs(value, "string")),
-            ).to.equal(false);
-            expect(
-                Arr.some(["foo", 2], (value) => typeIs(value, "string")),
-            ).to.equal(true);
-            expect(
-                Arr.some(["foo", "bar"], (value) => typeIs(value, "string")),
-            ).to.equal(true);
+            expect(Arr.some([1, 2], (value) => typeIs(value, "string"))).to.equal(false);
+            expect(Arr.some(["foo", 2], (value) => typeIs(value, "string"))).to.equal(true);
+            expect(Arr.some(["foo", "bar"], (value) => typeIs(value, "string"))).to.equal(true);
         });
 
         it("where() filters a sequence using a callback", () => {
@@ -176,27 +142,18 @@ export = (): void => {
             // port's `undefined`, see `Arr.ts`'s "no nil-as-a-value" note in
             // `KeyedAccess.spec.ts`'s class comment; the `stdClass`/closure
             // sub-case is kept using plain stub objects)
-            expectDeepEqual(
-                Arr.whereNotNull([undefined, 0, false, "", undefined, []]),
-                [0, false, "", []],
-            );
+            expectDeepEqual(Arr.whereNotNull([undefined, 0, false, "", undefined, []]), [0, false, "", []]);
 
             expectDeepEqual(Arr.whereNotNull([1, 2, 3]), [1, 2, 3]);
             expectDeepEqual(Arr.whereNotNull([undefined, undefined]), []);
-            expectDeepEqual(
-                Arr.whereNotNull(["a", undefined, "b", undefined, "c"]),
-                ["a", "b", "c"],
-            );
+            expectDeepEqual(Arr.whereNotNull(["a", undefined, "b", undefined, "c"]), ["a", "b", "c"]);
         });
 
         it("partition() splits a sequence by a truth test", () => {
             // PHP: SupportArrTest::testPartition
             const array = ["John", "Jane", "Greg"];
 
-            const [matched, unmatched] = Arr.partition(
-                array,
-                (value) => value.find("J")[0] !== undefined,
-            );
+            const [matched, unmatched] = Arr.partition(array, (value) => value.find("J")[0] !== undefined);
             expectDeepEqual(matched, ["John", "Jane"]);
             expectDeepEqual(unmatched, ["Greg"]);
         });
@@ -228,10 +185,7 @@ export = (): void => {
             ];
 
             expectDeepEqual(
-                Arr.mapWithKeys(data, (pokemon) => [
-                    pokemon.name,
-                    pokemon.type,
-                ]),
+                Arr.mapWithKeys(data, (pokemon) => [pokemon.name, pokemon.type]),
                 {
                     Blastoise: "Water",
                     Charmander: "Fire",
@@ -248,19 +202,14 @@ export = (): void => {
             ];
 
             expectDeepEqual(
-                Arr.mapSpread(
-                    chunks,
-                    (numberValue: number, character: string) =>
-                        `${numberValue}-${character}`,
-                ),
+                Arr.mapSpread(chunks, (numberValue: number, character: string) => `${numberValue}-${character}`),
                 ["1-a", "2-b"],
             );
 
             expectDeepEqual(
                 Arr.mapSpread(
                     chunks,
-                    (numberValue: number, character: string, key: number) =>
-                        `${numberValue}-${character}-${key}`,
+                    (numberValue: number, character: string, key: number) => `${numberValue}-${character}-${key}`,
                 ),
                 ["1-a-0", "2-b-1"],
             );
@@ -287,24 +236,12 @@ export = (): void => {
             // `Arr.ts`'s doc comment; the `*`-wildcard segment sub-case in
             // `testArrayPluckWithNestedArrays` is dropped too, `Arr.get`'s
             // dot-notation walk has no wildcard support)
-            const data = [
-                { comments: { tags: ["#foo", "#bar"] } },
-                { comments: { tags: ["#baz"] } },
-            ];
+            const data = [{ comments: { tags: ["#foo", "#bar"] } }, { comments: { tags: ["#baz"] } }];
 
-            expectDeepEqual(Arr.pluck(data, "comments.tags"), [
-                ["#foo", "#bar"],
-                ["#baz"],
-            ]);
+            expectDeepEqual(Arr.pluck(data, "comments.tags"), [["#foo", "#bar"], ["#baz"]]);
 
-            const developers = [
-                { developer: { name: "Taylor" } },
-                { developer: { name: "Abigail" } },
-            ];
-            expectDeepEqual(Arr.pluck(developers, "developer.name"), [
-                "Taylor",
-                "Abigail",
-            ]);
+            const developers = [{ developer: { name: "Taylor" } }, { developer: { name: "Abigail" } }];
+            expectDeepEqual(Arr.pluck(developers, "developer.name"), ["Taylor", "Abigail"]);
 
             // Missing key -- undefined values are simply skipped, unlike
             // PHP's `null`-filled result (see class comment's "no
@@ -326,10 +263,7 @@ export = (): void => {
                 { name: "Abigail", age: 2 },
             ]);
 
-            expectDeepEqual(Arr.select(array, "name"), [
-                { name: "Taylor" },
-                { name: "Abigail" },
-            ]);
+            expectDeepEqual(Arr.select(array, "name"), [{ name: "Taylor" }, { name: "Abigail" }]);
 
             expectDeepEqual(Arr.select(array, "nonExistingKey"), [{}, {}]);
         });
@@ -341,119 +275,67 @@ export = (): void => {
             // are re-expressed as plain lists, see class comment)
             const array = ["foo", "bar", "baz", "qux"];
 
-            expectDeepEqual(Arr.onlyValues(array, ["foo", "baz"]), [
-                "foo",
-                "baz",
-            ]);
+            expectDeepEqual(Arr.onlyValues(array, ["foo", "baz"]), ["foo", "baz"]);
             expectDeepEqual(Arr.onlyValues(array, "baz"), ["baz"]);
             expectDeepEqual(Arr.onlyValues([], "foo"), []);
             expectDeepEqual(Arr.onlyValues(["foo", "bar"], []), []);
 
-            expectDeepEqual(Arr.exceptValues(array, ["foo", "baz"]), [
-                "bar",
-                "qux",
-            ]);
-            expectDeepEqual(Arr.exceptValues(array, "baz"), [
-                "foo",
-                "bar",
-                "qux",
-            ]);
+            expectDeepEqual(Arr.exceptValues(array, ["foo", "baz"]), ["bar", "qux"]);
+            expectDeepEqual(Arr.exceptValues(array, "baz"), ["foo", "bar", "qux"]);
             expectDeepEqual(Arr.exceptValues([], "foo"), []);
-            expectDeepEqual(Arr.exceptValues(["foo", "bar"], []), [
-                "foo",
-                "bar",
-            ]);
+            expectDeepEqual(Arr.exceptValues(["foo", "bar"], []), ["foo", "bar"]);
         });
 
         it("prepend() pushes a value onto the front of an array", () => {
             // PHP: SupportArrTest::testPrepend (every sub-case that supplies
             // a third, key argument is dropped -- this port's `prepend()` is
             // list-only, with no keyed form at all)
-            expectDeepEqual(
-                Arr.prepend(["one", "two", "three", "four"], "zero"),
-                ["zero", "one", "two", "three", "four"],
-            );
+            expectDeepEqual(Arr.prepend(["one", "two", "three", "four"], "zero"), [
+                "zero",
+                "one",
+                "two",
+                "three",
+                "four",
+            ]);
 
             expectDeepEqual(Arr.prepend([], "zero"), ["zero"]);
             expectDeepEqual(Arr.prepend([""], "zero"), ["zero", ""]);
-            expectDeepEqual(
-                Arr.prepend(["one", "two"] as unknown as Array<Array<string>>, [
-                    "zero",
-                ]),
-                [["zero"], "one", "two"],
-            );
+            expectDeepEqual(Arr.prepend(["one", "two"] as unknown as Array<Array<string>>, ["zero"]), [
+                ["zero"],
+                "one",
+                "two",
+            ]);
         });
 
         it("collapse() flattens one level of arrays", () => {
             // PHP: SupportArrTest::testCollapse (the `Collection`-element
             // sub-case is dropped, see class comment)
-            expectDeepEqual(Arr.collapse([["foo", "bar"], ["baz"]]), [
-                "foo",
-                "bar",
-                "baz",
-            ]);
+            expectDeepEqual(Arr.collapse([["foo", "bar"], ["baz"]]), ["foo", "bar", "baz"]);
 
-            expectDeepEqual(Arr.collapse([[1], [2], [3], ["foo", "bar"]]), [
-                1,
-                2,
-                3,
-                "foo",
-                "bar",
-            ]);
+            expectDeepEqual(Arr.collapse([[1], [2], [3], ["foo", "bar"]]), [1, 2, 3, "foo", "bar"]);
 
             expectDeepEqual(Arr.collapse([[], [], []]), []);
 
-            expectDeepEqual(Arr.collapse([[], [1, 2], [], ["foo", "bar"]]), [
-                1,
-                2,
-                "foo",
-                "bar",
-            ]);
+            expectDeepEqual(Arr.collapse([[], [1, 2], [], ["foo", "bar"]]), [1, 2, "foo", "bar"]);
         });
 
         it("flatten() flattens a multi-dimensional array", () => {
             // PHP: SupportArrTest::testFlatten, ::testFlattenWithDepth (the
             // `null`-item and `Collection`-element sub-cases are dropped,
             // see class comment)
-            expectDeepEqual(Arr.flatten(["#foo", "#bar", "#baz"]), [
-                "#foo",
-                "#bar",
-                "#baz",
-            ]);
+            expectDeepEqual(Arr.flatten(["#foo", "#bar", "#baz"]), ["#foo", "#bar", "#baz"]);
 
-            expectDeepEqual(Arr.flatten([["#foo", "#bar"], "#baz"]), [
-                "#foo",
-                "#bar",
-                "#baz",
-            ]);
+            expectDeepEqual(Arr.flatten([["#foo", "#bar"], "#baz"]), ["#foo", "#bar", "#baz"]);
 
-            expectDeepEqual(Arr.flatten([["#foo", ["#bar"]], ["#baz"]]), [
-                "#foo",
-                "#bar",
-                "#baz",
-            ]);
+            expectDeepEqual(Arr.flatten([["#foo", ["#bar"]], ["#baz"]]), ["#foo", "#bar", "#baz"]);
 
             // No depth flattens recursively.
             const deep = [["#foo", ["#bar", ["#baz"]]], "#zap"];
-            expectDeepEqual(Arr.flatten(deep), [
-                "#foo",
-                "#bar",
-                "#baz",
-                "#zap",
-            ]);
+            expectDeepEqual(Arr.flatten(deep), ["#foo", "#bar", "#baz", "#zap"]);
 
             // A depth only flattens that far.
-            expectDeepEqual(Arr.flatten(deep, 1), [
-                "#foo",
-                ["#bar", ["#baz"]],
-                "#zap",
-            ]);
-            expectDeepEqual(Arr.flatten(deep, 2), [
-                "#foo",
-                "#bar",
-                ["#baz"],
-                "#zap",
-            ]);
+            expectDeepEqual(Arr.flatten(deep, 1), ["#foo", ["#bar", ["#baz"]], "#zap"]);
+            expectDeepEqual(Arr.flatten(deep, 2), ["#foo", "#bar", ["#baz"], "#zap"]);
         });
 
         it("crossJoin() returns every combination across arrays", () => {
@@ -519,9 +401,7 @@ export = (): void => {
         it("join() joins a sequence with a glue, and a separate final glue", () => {
             // PHP: SupportArrTest::testJoin
             expect(Arr.join(["a", "b", "c"], ", ")).to.equal("a, b, c");
-            expect(Arr.join(["a", "b", "c"], ", ", " and ")).to.equal(
-                "a, b and c",
-            );
+            expect(Arr.join(["a", "b", "c"], ", ", " and ")).to.equal("a, b and c");
             expect(Arr.join(["a", "b"], ", ", " and ")).to.equal("a and b");
             expect(Arr.join(["a"], ", ", " and ")).to.equal("a");
             expect(Arr.join([], ", ", " and ")).to.equal("");
@@ -533,9 +413,7 @@ export = (): void => {
             // dropped -- `random()` has no `preserveKeys` parameter here, see
             // `agent_docs/porting-plan.md`)
             const options = ["foo", "bar", "baz"];
-            expect(options.includes(Arr.random(options) as string)).to.equal(
-                true,
-            );
+            expect(options.includes(Arr.random(options) as string)).to.equal(true);
 
             const none = Arr.random(options, 0);
             expectDeepEqual(none, []);
@@ -653,10 +531,7 @@ export = (): void => {
             };
             expectDeepEqual(Arr.from(stub), [4, 5, 6]);
 
-            expectThrows(
-                () => Arr.from(123),
-                "Items cannot be represented by a scalar value.",
-            );
+            expectThrows(() => Arr.from(123), "Items cannot be represented by a scalar value.");
         });
 
         it("string() / integer() / boolean() / array() read a typed dotted value", () => {
@@ -668,39 +543,22 @@ export = (): void => {
             const testArray = { string: "foo bar", integer: 1234 };
 
             expect(Arr.string(testArray, "string")).to.equal("foo bar");
-            expect(Arr.string(testArray, "missing_key", "default")).to.equal(
-                "default",
-            );
-            expectThrows(
-                () => Arr.string(testArray, "integer"),
-                InvalidArgumentException,
-            );
+            expect(Arr.string(testArray, "missing_key", "default")).to.equal("default");
+            expectThrows(() => Arr.string(testArray, "integer"), InvalidArgumentException);
 
             expect(Arr.integer(testArray, "integer")).to.equal(1234);
             expect(Arr.integer(testArray, "missing_key", 999)).to.equal(999);
-            expectThrows(
-                () => Arr.integer(testArray, "string"),
-                InvalidArgumentException,
-            );
+            expectThrows(() => Arr.integer(testArray, "string"), InvalidArgumentException);
 
             const boolArray = { string: "foo bar", boolean: true };
             expect(Arr.boolean(boolArray, "boolean")).to.equal(true);
             expect(Arr.boolean(boolArray, "missing_key", true)).to.equal(true);
-            expectThrows(
-                () => Arr.boolean(boolArray, "string"),
-                InvalidArgumentException,
-            );
+            expectThrows(() => Arr.boolean(boolArray, "string"), InvalidArgumentException);
 
             const arrayArray = { string: "foo bar", array: ["foo", "bar"] };
             expectDeepEqual(Arr.array(arrayArray, "array"), ["foo", "bar"]);
-            expectDeepEqual(Arr.array(arrayArray, "missing_key", [1, "two"]), [
-                1,
-                "two",
-            ]);
-            expectThrows(
-                () => Arr.array(arrayArray, "string"),
-                InvalidArgumentException,
-            );
+            expectDeepEqual(Arr.array(arrayArray, "missing_key", [1, "two"]), [1, "two"]);
+            expectThrows(() => Arr.array(arrayArray, "string"), InvalidArgumentException);
         });
     });
 };

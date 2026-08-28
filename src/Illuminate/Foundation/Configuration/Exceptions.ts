@@ -28,28 +28,21 @@ export class Exceptions {
     }
 
     /** Register a renderable callback. */
-    public renderable(
-        renderUsing: (e: unknown, request: Request) => unknown,
-    ): this {
+    public renderable(renderUsing: (e: unknown, request: Request) => unknown): this {
         this.handler.renderable(renderUsing);
 
         return this;
     }
 
     /** Register a callback to prepare the final, rendered exception response. */
-    public respond(
-        using: (response: Response, e: unknown, request: Request) => Response,
-    ): this {
+    public respond(using: (response: Response, e: unknown, request: Request) => Response): this {
         this.handler.respondUsing(using);
 
         return this;
     }
 
     /** Register a new exception mapping. */
-    public map(
-        from: AbstractClass,
-        to: AbstractClass | ((e: unknown) => unknown),
-    ): this {
+    public map(from: AbstractClass, to: AbstractClass | ((e: unknown) => unknown)): this {
         this.handler.map(from, to);
 
         return this;
@@ -63,9 +56,7 @@ export class Exceptions {
     }
 
     /** Register a closure that should be used to build exception context data. */
-    public context(
-        contextCallback: (e: unknown, context: LogContext) => LogContext,
-    ): this {
+    public context(contextCallback: (e: unknown, context: LogContext) => LogContext): this {
         this.handler.buildContextUsing(contextCallback);
 
         return this;
@@ -93,9 +84,7 @@ export class Exceptions {
     }
 
     /** Indicate that the given exception class should not be ignored. */
-    public stopIgnoring(
-        exceptions: AbstractClass | Array<AbstractClass>,
-    ): this {
+    public stopIgnoring(exceptions: AbstractClass | Array<AbstractClass>): this {
         this.handler.stopIgnoring(exceptions);
 
         return this;

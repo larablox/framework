@@ -15,22 +15,11 @@ export interface ContextualAttribute {
     readonly resolve?: (attribute: never, container: Container) => unknown;
 
     /** Run after the annotated dependency has been resolved. */
-    readonly after?: (
-        attribute: never,
-        instance: never,
-        container: Container,
-    ) => void;
+    readonly after?: (attribute: never, instance: never, container: Container) => void;
 }
 
 /** PHP: the handler registered with `Container::whenHasAttribute()`. */
-export type ContextualAttributeHandler = (
-    attribute: never,
-    container: Container,
-) => unknown;
+export type ContextualAttributeHandler = (attribute: never, container: Container) => unknown;
 
 /** PHP: the callback registered with `Container::afterResolvingAttribute()`. */
-export type AfterResolvingAttributeCallback = (
-    attribute: never,
-    instance: never,
-    container: Container,
-) => void;
+export type AfterResolvingAttributeCallback = (attribute: never, instance: never, container: Container) => void;

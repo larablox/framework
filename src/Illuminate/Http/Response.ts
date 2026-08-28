@@ -58,11 +58,7 @@ export class Response {
     protected responseException?: unknown;
 
     /** Create a new response instance. */
-    public constructor(
-        content?: unknown,
-        status: number = Response.HTTP_OK,
-        headers?: Record<string, string>,
-    ) {
+    public constructor(content?: unknown, status: number = Response.HTTP_OK, headers?: Record<string, string>) {
         this.responseContent = content;
         this.statusCode = status;
 
@@ -190,9 +186,6 @@ export class Response {
 
     /** Is the response empty? */
     public isEmpty(): boolean {
-        return (
-            this.statusCode === Response.HTTP_NO_CONTENT ||
-            this.statusCode === 304
-        );
+        return this.statusCode === Response.HTTP_NO_CONTENT || this.statusCode === 304;
     }
 }

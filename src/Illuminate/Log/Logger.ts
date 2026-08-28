@@ -1,11 +1,7 @@
 import { MessageLogged } from "Illuminate/Log/Events/MessageLogged";
 import { RuntimeException } from "Illuminate/Exception";
 import { Util } from "Illuminate/Container/Util";
-import type {
-    LogContext,
-    LogLevel,
-    Logger as LoggerContract,
-} from "Illuminate/Contracts/Log/Logger";
+import type { LogContext, LogLevel, Logger as LoggerContract } from "Illuminate/Contracts/Log/Logger";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
 
 /**
@@ -73,28 +69,17 @@ export class Logger implements LoggerContract {
     }
 
     /** Dynamically pass log calls into the writer. */
-    public write(
-        level: LogLevel,
-        message: unknown,
-        context?: LogContext,
-    ): void {
+    public write(level: LogLevel, message: unknown, context?: LogContext): void {
         this.writeLog(level, message, context);
     }
 
     /** Write a message to the log. */
-    protected writeLog(
-        level: LogLevel,
-        message: unknown,
-        context?: LogContext,
-    ): void {
+    protected writeLog(level: LogLevel, message: unknown, context?: LogContext): void {
         const handler = this.logger as unknown as {
             isHandling?: (self: unknown, level: LogLevel) => boolean;
         };
 
-        if (
-            typeIs(handler.isHandling, "function") &&
-            !handler.isHandling(this.logger, level)
-        ) {
+        if (typeIs(handler.isHandling, "function") && !handler.isHandling(this.logger, level)) {
             return;
         }
 
@@ -140,11 +125,7 @@ export class Logger implements LoggerContract {
     }
 
     /** Fires a log event. */
-    protected fireLogEvent(
-        level: LogLevel,
-        message: string,
-        context: LogContext,
-    ): void {
+    protected fireLogEvent(level: LogLevel, message: string, context: LogContext): void {
         this.dispatcher?.dispatch(new MessageLogged(level, message, context));
     }
 

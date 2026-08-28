@@ -45,21 +45,18 @@ function parseFinite(value: string, base?: number): number | undefined {
  * codepoints against this set instead.
  */
 const INVISIBLE_CODEPOINTS = new Set<number>([
-    0x0000, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x00a0, 0x00ad,
-    0x034f, 0x061c, 0x115f, 0x1160, 0x17b4, 0x17b5, 0x180e, 0x2000, 0x2001,
-    0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a,
-    0x200b, 0x200c, 0x200d, 0x200e, 0x200f, 0x202f, 0x205f, 0x2060, 0x2061,
-    0x2062, 0x2063, 0x2064, 0x2065, 0x206a, 0x206b, 0x206c, 0x206d, 0x206e,
-    0x206f, 0x2800, 0x3000, 0x3164, 0xfeff, 0xffa0, 0x1d159, 0x1d173, 0x1d174,
-    0x1d175, 0x1d176, 0x1d177, 0x1d178, 0x1d179, 0x1d17a, 0xe0020,
+    0x0000, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x00a0, 0x00ad, 0x034f, 0x061c, 0x115f, 0x1160, 0x17b4,
+    0x17b5, 0x180e, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a, 0x200b,
+    0x200c, 0x200d, 0x200e, 0x200f, 0x202f, 0x205f, 0x2060, 0x2061, 0x2062, 0x2063, 0x2064, 0x2065, 0x206a, 0x206b,
+    0x206c, 0x206d, 0x206e, 0x206f, 0x2800, 0x3000, 0x3164, 0xfeff, 0xffa0, 0x1d159, 0x1d173, 0x1d174, 0x1d175, 0x1d176,
+    0x1d177, 0x1d178, 0x1d179, 0x1d17a, 0xe0020,
 ]);
 
 const LOWER_ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 const UPPER_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const DIGITS = "0123456789";
 const SYMBOLS = "~!#$%^&*()-_.,<>?/\\{}[]|:;";
-const BASE64_ALPHABET =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /** Crockford's base32, as ULID uses. */
 const CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
@@ -183,14 +180,9 @@ export class Str {
     }
 
     /** Returns the portion of the string specified by the start and length. */
-    public static substr(
-        value: string,
-        start: number,
-        length?: number,
-    ): string {
+    public static substr(value: string, start: number, length?: number): string {
         const total = Str.length(value);
-        const from =
-            start < 0 ? math.max(total + start, 0) : math.min(start, total);
+        const from = start < 0 ? math.max(total + start, 0) : math.min(start, total);
         const take =
             length === undefined
                 ? total - from
@@ -225,9 +217,7 @@ export class Str {
 
     /** Take the first or last given number of characters. */
     public static take(value: string, limit: number): string {
-        return limit < 0
-            ? Str.substr(value, limit)
-            : Str.substr(value, 0, limit);
+        return limit < 0 ? Str.substr(value, limit) : Str.substr(value, 0, limit);
     }
 
     /** Reverse the given string. */
@@ -252,11 +242,7 @@ export class Str {
      * as well as in the position it answers. Luau's `string.find()` counts
      * bytes, so both ends are converted; the two only agree on ASCII.
      */
-    public static position(
-        haystack: string,
-        needle: string,
-        offset = 0,
-    ): number | undefined {
+    public static position(haystack: string, needle: string, offset = 0): number | undefined {
         const total = Str.length(haystack);
         const from = offset < 0 ? math.max(total + offset, 0) : offset;
 
@@ -281,11 +267,7 @@ export class Str {
     }
 
     /** Determine if a given string contains a given substring. */
-    public static contains(
-        haystack: string,
-        needles: string | Array<string>,
-        ignoreCase = false,
-    ): boolean {
+    public static contains(haystack: string, needles: string | Array<string>, ignoreCase = false): boolean {
         // PHP folds case with `mb_strtolower()`, not with the byte-wise
         // `strtolower()`, so `Str.lower()` is the one to use here.
         const subject = ignoreCase ? Str.lower(haystack) : haystack;
@@ -303,11 +285,7 @@ export class Str {
     }
 
     /** Determine if a given string contains all array values. */
-    public static containsAll(
-        haystack: string,
-        needles: Array<string>,
-        ignoreCase = false,
-    ): boolean {
+    public static containsAll(haystack: string, needles: Array<string>, ignoreCase = false): boolean {
         // PHP returns the `$any` flag, so an empty needle list is `false` --
         // "contains all of nothing" is not vacuously true here.
         let any = false;
@@ -324,19 +302,12 @@ export class Str {
     }
 
     /** Determine if a given string doesn't contain a given substring. */
-    public static doesntContain(
-        haystack: string,
-        needles: string | Array<string>,
-        ignoreCase = false,
-    ): boolean {
+    public static doesntContain(haystack: string, needles: string | Array<string>, ignoreCase = false): boolean {
         return !Str.contains(haystack, needles, ignoreCase);
     }
 
     /** Determine if a given string starts with a given substring. */
-    public static startsWith(
-        haystack: string,
-        needles: string | Array<string>,
-    ): boolean {
+    public static startsWith(haystack: string, needles: string | Array<string>): boolean {
         for (const needle of Util.arrayWrap(needles)) {
             if (needle !== "" && haystack.sub(1, needle.size()) === needle) {
                 return true;
@@ -347,24 +318,14 @@ export class Str {
     }
 
     /** Determine if a given string doesn't start with a given substring. */
-    public static doesntStartWith(
-        haystack: string,
-        needles: string | Array<string>,
-    ): boolean {
+    public static doesntStartWith(haystack: string, needles: string | Array<string>): boolean {
         return !Str.startsWith(haystack, needles);
     }
 
     /** Determine if a given string ends with a given substring. */
-    public static endsWith(
-        haystack: string,
-        needles: string | Array<string>,
-    ): boolean {
+    public static endsWith(haystack: string, needles: string | Array<string>): boolean {
         for (const needle of Util.arrayWrap(needles)) {
-            if (
-                needle !== "" &&
-                needle.size() <= haystack.size() &&
-                haystack.sub(-needle.size()) === needle
-            ) {
+            if (needle !== "" && needle.size() <= haystack.size() && haystack.sub(-needle.size()) === needle) {
                 return true;
             }
         }
@@ -373,10 +334,7 @@ export class Str {
     }
 
     /** Determine if a given string doesn't end with a given substring. */
-    public static doesntEndWith(
-        haystack: string,
-        needles: string | Array<string>,
-    ): boolean {
+    public static doesntEndWith(haystack: string, needles: string | Array<string>): boolean {
         return !Str.endsWith(haystack, needles);
     }
 
@@ -426,9 +384,7 @@ export class Str {
 
         const position = Str.lastIndexOf(subject, search);
 
-        return position === undefined
-            ? subject
-            : subject.sub(position + search.size());
+        return position === undefined ? subject : subject.sub(position + search.size());
     }
 
     /** Get the portion of a string before the first occurrence. */
@@ -463,11 +419,7 @@ export class Str {
     }
 
     /** Get the smallest possible portion of a string between two values. */
-    public static betweenFirst(
-        subject: string,
-        from: string,
-        to: string,
-    ): string {
+    public static betweenFirst(subject: string, from: string, to: string): string {
         if (from === "" || to === "") {
             return subject;
         }
@@ -476,12 +428,7 @@ export class Str {
     }
 
     /** Extract an excerpt from text that matches the first instance of a phrase. */
-    public static excerpt(
-        text: string,
-        phrase = "",
-        radius = 100,
-        omission = "...",
-    ): string | undefined {
+    public static excerpt(text: string, phrase = "", radius = 100, omission = "..."): string | undefined {
         const position =
             phrase === ""
                 ? 0
@@ -500,14 +447,10 @@ export class Str {
         // The whitespace next to the phrase is kept; only the outer edges are
         // trimmed, and the omission marks whichever side was actually cut.
         const startText = Str.ltrim(Str.substr(text, 0, position));
-        const endText = Str.rtrim(
-            Str.substr(text, position + Str.length(phrase)),
-        );
+        const endText = Str.rtrim(Str.substr(text, position + Str.length(phrase)));
 
         const startLength = Str.length(startText);
-        const start = Str.ltrim(
-            Str.substr(startText, math.max(startLength - radius, 0), radius),
-        );
+        const start = Str.ltrim(Str.substr(startText, math.max(startLength - radius, 0), radius));
         const tail = Str.rtrim(Str.substr(endText, 0, radius));
 
         return `${start === startText ? "" : omission}${start}${matched}${tail}${tail === endText ? "" : omission}`;
@@ -518,19 +461,13 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Replace all occurrences of the search string with the replacement. */
-    public static replace(
-        search: string | Array<string>,
-        replace: string | Array<string>,
-        subject: string,
-    ): string {
+    public static replace(search: string | Array<string>, replace: string | Array<string>, subject: string): string {
         const searches = Util.arrayWrap(search);
         const replacements = Util.arrayWrap(replace);
         let result = subject;
 
         for (let index = 0; index < searches.size(); index++) {
-            const replacement = typeIs(replace, "string")
-                ? (replace as string)
-                : (replacements[index] ?? "");
+            const replacement = typeIs(replace, "string") ? (replace as string) : (replacements[index] ?? "");
 
             result = Str.replaceAllPlain(result, searches[index], replacement);
         }
@@ -539,11 +476,7 @@ export class Str {
     }
 
     /** Replace a given value in the string sequentially with an array. */
-    public static replaceArray(
-        search: string,
-        replace: Array<string>,
-        subject: string,
-    ): string {
+    public static replaceArray(search: string, replace: Array<string>, subject: string): string {
         const segments = subject.split(search);
         let result = segments[0];
 
@@ -555,11 +488,7 @@ export class Str {
     }
 
     /** Replace the first occurrence of a given value in the string. */
-    public static replaceFirst(
-        search: string,
-        replace: string,
-        subject: string,
-    ): string {
+    public static replaceFirst(search: string, replace: string, subject: string): string {
         if (search === "") {
             return subject;
         }
@@ -574,11 +503,7 @@ export class Str {
     }
 
     /** Replace the first occurrence of the given value if it starts the string. */
-    public static replaceStart(
-        search: string,
-        replace: string,
-        subject: string,
-    ): string {
+    public static replaceStart(search: string, replace: string, subject: string): string {
         if (search === "" || !Str.startsWith(subject, search)) {
             return subject;
         }
@@ -587,11 +512,7 @@ export class Str {
     }
 
     /** Replace the last occurrence of a given value in the string. */
-    public static replaceLast(
-        search: string,
-        replace: string,
-        subject: string,
-    ): string {
+    public static replaceLast(search: string, replace: string, subject: string): string {
         if (search === "") {
             return subject;
         }
@@ -606,11 +527,7 @@ export class Str {
     }
 
     /** Replace the last occurrence of the given value if it ends the string. */
-    public static replaceEnd(
-        search: string,
-        replace: string,
-        subject: string,
-    ): string {
+    public static replaceEnd(search: string, replace: string, subject: string): string {
         if (search === "" || !Str.endsWith(subject, search)) {
             return subject;
         }
@@ -626,22 +543,14 @@ export class Str {
         limit?: number,
     ): string {
         const [result] = typeIs(replace, "function")
-            ? subject.gsub(
-                  pattern,
-                  (match: string) =>
-                      (replace as (match: string) => string)(match),
-                  limit,
-              )
+            ? subject.gsub(pattern, (match: string) => (replace as (match: string) => string)(match), limit)
             : subject.gsub(pattern, replace as string, limit);
 
         return result;
     }
 
     /** Remove any occurrence of the given string in the subject. */
-    public static remove(
-        search: string | Array<string>,
-        subject: string,
-    ): string {
+    public static remove(search: string | Array<string>, subject: string): string {
         return Str.replace(search, "", subject);
     }
 
@@ -657,10 +566,7 @@ export class Str {
     }
 
     /** Replace consecutive instances of a given character with a single one. */
-    public static deduplicate(
-        value: string,
-        characters: string | Array<string> = " ",
-    ): string {
+    public static deduplicate(value: string, characters: string | Array<string> = " "): string {
         let result = value;
 
         for (const character of Util.arrayWrap(characters)) {
@@ -746,11 +652,7 @@ export class Str {
         let result = value;
 
         while (Str.endsWith(result, cap)) {
-            result = Str.substr(
-                result,
-                0,
-                Str.length(result) - Str.length(cap),
-            );
+            result = Str.substr(result, 0, Str.length(result) - Str.length(cap));
         }
 
         return `${result}${cap}`;
@@ -762,11 +664,7 @@ export class Str {
     }
 
     /** Unwrap the string with the given strings. */
-    public static unwrap(
-        value: string,
-        before: string,
-        after?: string,
-    ): string {
+    public static unwrap(value: string, before: string, after?: string): string {
         let result = value;
         const suffix = after ?? before;
 
@@ -775,21 +673,14 @@ export class Str {
         }
 
         if (Str.endsWith(result, suffix)) {
-            result = Str.substr(
-                result,
-                0,
-                Str.length(result) - Str.length(suffix),
-            );
+            result = Str.substr(result, 0, Str.length(result) - Str.length(suffix));
         }
 
         return result;
     }
 
     /** Remove the given string(s) from the start of the subject. */
-    public static chopStart(
-        subject: string,
-        needle: string | Array<string>,
-    ): string {
+    public static chopStart(subject: string, needle: string | Array<string>): string {
         for (const candidate of Util.arrayWrap(needle)) {
             if (candidate !== "" && Str.startsWith(subject, candidate)) {
                 return Str.substr(subject, Str.length(candidate));
@@ -800,17 +691,10 @@ export class Str {
     }
 
     /** Remove the given string(s) from the end of the subject. */
-    public static chopEnd(
-        subject: string,
-        needle: string | Array<string>,
-    ): string {
+    public static chopEnd(subject: string, needle: string | Array<string>): string {
         for (const candidate of Util.arrayWrap(needle)) {
             if (candidate !== "" && Str.endsWith(subject, candidate)) {
-                return Str.substr(
-                    subject,
-                    0,
-                    Str.length(subject) - Str.length(candidate),
-                );
+                return Str.substr(subject, 0, Str.length(subject) - Str.length(candidate));
             }
         }
 
@@ -841,19 +725,13 @@ export class Str {
     }
 
     /** Masks a portion of a string with a repeated character. */
-    public static mask(
-        value: string,
-        character: string,
-        index: number,
-        length?: number,
-    ): string {
+    public static mask(value: string, character: string, index: number, length?: number): string {
         if (character === "") {
             return value;
         }
 
         const total = Str.length(value);
-        const startIndex =
-            index < 0 ? (index < -total ? 0 : total + index) : index;
+        const startIndex = index < 0 ? (index < -total ? 0 : total + index) : index;
         const segment = Str.substr(value, startIndex, length);
 
         if (segment === "") {
@@ -866,12 +744,7 @@ export class Str {
     }
 
     /** Replace text within a portion of a string. */
-    public static substrReplace(
-        value: string,
-        replace: string,
-        offset = 0,
-        length?: number,
-    ): string {
+    public static substrReplace(value: string, replace: string, offset = 0, length?: number): string {
         const total = Str.length(value);
         const take = length ?? total;
 
@@ -899,10 +772,7 @@ export class Str {
             return value;
         }
 
-        const [result] = value.gsub(
-            `^[${Str.characterClass(characters)}]+`,
-            "",
-        );
+        const [result] = value.gsub(`^[${Str.characterClass(characters)}]+`, "");
 
         return result;
     }
@@ -917,10 +787,7 @@ export class Str {
             return value;
         }
 
-        const [result] = value.gsub(
-            `[${Str.characterClass(characters)}]+$`,
-            "",
-        );
+        const [result] = value.gsub(`[${Str.characterClass(characters)}]+$`, "");
 
         return result;
     }
@@ -932,11 +799,7 @@ export class Str {
      * `trim()`/`ltrim()`/`rtrim()` take when no character list is given, where
      * `...` is `Str::INVISIBLE_CHARACTERS` plus `" \n\r\t\v\0"`.
      */
-    private static trimInvisible(
-        value: string,
-        fromStart: boolean,
-        fromEnd: boolean,
-    ): string {
+    private static trimInvisible(value: string, fromStart: boolean, fromEnd: boolean): string {
         const offsets = new Array<number>();
         const codepoints = new Array<number>();
 
@@ -949,19 +812,13 @@ export class Str {
         let last = codepoints.size() - 1;
 
         if (fromStart) {
-            while (
-                first <= last &&
-                INVISIBLE_CODEPOINTS.has(codepoints[first])
-            ) {
+            while (first <= last && INVISIBLE_CODEPOINTS.has(codepoints[first])) {
                 first++;
             }
         }
 
         if (fromEnd) {
-            while (
-                last >= first &&
-                INVISIBLE_CODEPOINTS.has(codepoints[last])
-            ) {
+            while (last >= first && INVISIBLE_CODEPOINTS.has(codepoints[last])) {
                 last--;
             }
         }
@@ -971,8 +828,7 @@ export class Str {
         }
 
         const from = offsets[first];
-        const to =
-            last + 1 < offsets.size() ? offsets[last + 1] - 1 : value.size();
+        const to = last + 1 < offsets.size() ? offsets[last + 1] - 1 : value.size();
 
         return value.sub(from, to);
     }
@@ -1016,10 +872,7 @@ export class Str {
     }
 
     /** Convert the given string to the given case. */
-    public static convertCase(
-        value: string,
-        mode: "lower" | "upper" | "title" = "lower",
-    ): string {
+    public static convertCase(value: string, mode: "lower" | "upper" | "title" = "lower"): string {
         if (mode === "upper") {
             return Str.upper(value);
         }
@@ -1042,9 +895,7 @@ export class Str {
         let seenLetter = false;
 
         for (const [, code] of utf8.codes(value)) {
-            const isCased =
-                Unicode.isUpperCodepoint(code) ||
-                Unicode.isLowerCodepoint(code);
+            const isCased = Unicode.isUpperCodepoint(code) || Unicode.isLowerCodepoint(code);
 
             if (!isCased) {
                 // A separator ends the word; any other uncased character
@@ -1058,13 +909,7 @@ export class Str {
                 continue;
             }
 
-            parts.push(
-                utf8.char(
-                    seenLetter
-                        ? Unicode.toLowerCodepoint(code)
-                        : Unicode.toUpperCodepoint(code),
-                ),
-            );
+            parts.push(utf8.char(seenLetter ? Unicode.toLowerCodepoint(code) : Unicode.toUpperCodepoint(code)));
             seenLetter = true;
         }
 
@@ -1090,11 +935,7 @@ export class Str {
         for (const [, code] of utf8.codes(value)) {
             const character = utf8.char(code);
 
-            characters.push(
-                atBoundary
-                    ? utf8.char(Unicode.toUpperCodepoint(code))
-                    : character,
-            );
+            characters.push(atBoundary ? utf8.char(Unicode.toUpperCodepoint(code)) : character);
             atBoundary = character.match(`[${set}]`)[0] !== undefined;
         }
 
@@ -1149,9 +990,7 @@ export class Str {
 
         const words = new Array<string>();
 
-        for (const [word] of Str.replace(["-", "_"], " ", value).gmatch(
-            "%S+",
-        )) {
+        for (const [word] of Str.replace(["-", "_"], " ", value).gmatch("%S+")) {
             words.push(Str.ucfirst(word as string));
         }
 
@@ -1185,20 +1024,14 @@ export class Str {
      *   walk does not go through `Unicode.isUpperCodepoint()` the way
      *   `ucsplit()` does.
      */
-    private static delimitBeforeUpperAscii(
-        value: string,
-        delimiter: string,
-    ): string {
+    private static delimitBeforeUpperAscii(value: string, delimiter: string): string {
         const parts = new Array<string>();
         let previous: string | undefined;
 
         for (const [, code] of utf8.codes(value)) {
             const character = utf8.char(code);
 
-            if (
-                previous !== undefined &&
-                character.match("^[A-Z]$")[0] !== undefined
-            ) {
+            if (previous !== undefined && character.match("^[A-Z]$")[0] !== undefined) {
                 parts.push(delimiter);
             }
 
@@ -1248,9 +1081,7 @@ export class Str {
         if (value.match("^[a-z]+$")[0] === undefined) {
             const [collapsed] = Str.asciiUcwords(value).gsub("%s+", "");
 
-            result = Str.lower(
-                Str.delimitBeforeUpperAscii(collapsed, delimiter),
-            );
+            result = Str.lower(Str.delimitBeforeUpperAscii(collapsed, delimiter));
         }
 
         Str.snakeCache.set(key, result);
@@ -1275,9 +1106,7 @@ export class Str {
         const titled = new Array<string>();
 
         for (const part of parts) {
-            for (const [piece] of Str.replace(["-", "_"], " ", part).gmatch(
-                "%S+",
-            )) {
+            for (const [piece] of Str.replace(["-", "_"], " ", part).gmatch("%S+")) {
                 titled.push(Str.title(piece as string));
             }
         }
@@ -1342,11 +1171,7 @@ export class Str {
                 const pieces = new Array<string>();
 
                 for (const piece of lowered.split("-")) {
-                    pieces.push(
-                        minorWords.includes(piece) && Str.length(piece) <= 3
-                            ? piece
-                            : Str.ucfirst(piece),
-                    );
+                    pieces.push(minorWords.includes(piece) && Str.length(piece) <= 3 ? piece : Str.ucfirst(piece));
                 }
 
                 words[index] = pieces.join("-");
@@ -1383,12 +1208,7 @@ export class Str {
      * ported -- there is no HTML on this runtime -- but the newline collapsing
      * and the outer trim beside it are.
      */
-    public static limit(
-        value: string,
-        limit = 100,
-        last = "...",
-        preserveWords = false,
-    ): string {
+    public static limit(value: string, limit = 100, last = "...", preserveWords = false): string {
         if (Str.width(value) <= limit) {
             return value;
         }
@@ -1542,12 +1362,7 @@ export class Str {
     }
 
     /** Wrap a string to a given number of characters. */
-    public static wordWrap(
-        value: string,
-        characters = 75,
-        brk = "\n",
-        cutLongWords = false,
-    ): string {
+    public static wordWrap(value: string, characters = 75, brk = "\n", cutLongWords = false): string {
         const lines = new Array<string>();
         let current = "";
 
@@ -1568,10 +1383,7 @@ export class Str {
 
             if (current === "") {
                 current = word;
-            } else if (
-                Str.length(current) + 1 + Str.length(word) <=
-                characters
-            ) {
+            } else if (Str.length(current) + 1 + Str.length(word) <= characters) {
                 current = `${current} ${word}`;
             } else {
                 lines.push(current);
@@ -1598,11 +1410,7 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Determine if a given string matches a given pattern, with `*` wildcards. */
-    public static is(
-        patterns: string | Array<string>,
-        value: string,
-        ignoreCase = false,
-    ): boolean {
+    public static is(patterns: string | Array<string>, value: string, ignoreCase = false): boolean {
         const subject = ignoreCase ? value.lower() : value;
 
         // Not `Util.arrayWrap()`: it leans on `Util.isArray()`, which treats an
@@ -1642,10 +1450,7 @@ export class Str {
     }
 
     /** Determine if a given string matches a given Luau pattern. */
-    public static isMatch(
-        patterns: string | Array<string>,
-        value: string,
-    ): boolean {
+    public static isMatch(patterns: string | Array<string>, value: string): boolean {
         for (const pattern of Util.arrayWrap(patterns)) {
             const [matched] = value.match(pattern);
 
@@ -1658,10 +1463,7 @@ export class Str {
     }
 
     /** Get all strings matching the given Luau pattern. */
-    public static matchAll(
-        pattern: string,
-        subject: string,
-    ): Collection<number, string> {
+    public static matchAll(pattern: string, subject: string): Collection<number, string> {
         const matches = new Array<string>();
 
         for (const [matched] of subject.gmatch(pattern)) {
@@ -1678,9 +1480,7 @@ export class Str {
 
     /** Determine if the given string is valid JSON. */
     public static isJson(value: string): boolean {
-        const [ok] = pcall(() =>
-            game.GetService("HttpService").JSONDecode(value),
-        );
+        const [ok] = pcall(() => game.GetService("HttpService").JSONDecode(value));
 
         return ok;
     }
@@ -1693,25 +1493,17 @@ export class Str {
             return false;
         }
 
-        if (
-            !protocols.isEmpty() &&
-            !protocols.includes(tostring(scheme).lower())
-        ) {
+        if (!protocols.isEmpty() && !protocols.includes(tostring(scheme).lower())) {
             return false;
         }
 
-        return (
-            tostring(rest).size() > 0 &&
-            Str.contains(tostring(rest), " ") === false
-        );
+        return tostring(rest).size() > 0 && Str.contains(tostring(rest), " ") === false;
     }
 
     /** Determine if the given string is a valid UUID. */
     public static isUuid(value: string): boolean {
         return (
-            value.match(
-                "^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$",
-            )[0] !== undefined
+            value.match("^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$")[0] !== undefined
         );
     }
 
@@ -1743,13 +1535,7 @@ export class Str {
     }
 
     /** Generate a random, secure password. */
-    public static password(
-        length = 32,
-        letters = true,
-        numbers = true,
-        symbols = true,
-        spaces = false,
-    ): string {
+    public static password(length = 32, letters = true, numbers = true, symbols = true, spaces = false): string {
         const pools = new Array<string>();
 
         if (letters) {
@@ -1853,39 +1639,19 @@ export class Str {
             const second = value.byte(index + 2)[0];
             const third = value.byte(index + 3)[0];
 
-            const bits = bit32.bor(
-                bit32.lshift(first, 16),
-                bit32.lshift(second ?? 0, 8),
-                third ?? 0,
-            );
+            const bits = bit32.bor(bit32.lshift(first, 16), bit32.lshift(second ?? 0, 8), third ?? 0);
 
-            output.push(
-                BASE64_ALPHABET.sub(
-                    bit32.extract(bits, 18, 6) + 1,
-                    bit32.extract(bits, 18, 6) + 1,
-                ),
-            );
-            output.push(
-                BASE64_ALPHABET.sub(
-                    bit32.extract(bits, 12, 6) + 1,
-                    bit32.extract(bits, 12, 6) + 1,
-                ),
-            );
+            output.push(BASE64_ALPHABET.sub(bit32.extract(bits, 18, 6) + 1, bit32.extract(bits, 18, 6) + 1));
+            output.push(BASE64_ALPHABET.sub(bit32.extract(bits, 12, 6) + 1, bit32.extract(bits, 12, 6) + 1));
             output.push(
                 second === undefined
                     ? "="
-                    : BASE64_ALPHABET.sub(
-                          bit32.extract(bits, 6, 6) + 1,
-                          bit32.extract(bits, 6, 6) + 1,
-                      ),
+                    : BASE64_ALPHABET.sub(bit32.extract(bits, 6, 6) + 1, bit32.extract(bits, 6, 6) + 1),
             );
             output.push(
                 third === undefined
                     ? "="
-                    : BASE64_ALPHABET.sub(
-                          bit32.extract(bits, 0, 6) + 1,
-                          bit32.extract(bits, 0, 6) + 1,
-                      ),
+                    : BASE64_ALPHABET.sub(bit32.extract(bits, 0, 6) + 1, bit32.extract(bits, 0, 6) + 1),
             );
         }
 
@@ -1914,17 +1680,10 @@ export class Str {
 
                 const [position] = BASE64_ALPHABET.find(character, 1, true);
 
-                bits = bit32.bor(
-                    bit32.lshift(bits, 6),
-                    (position as number) - 1,
-                );
+                bits = bit32.bor(bit32.lshift(bits, 6), (position as number) - 1);
             }
 
-            const bytes = [
-                bit32.extract(bits, 16, 8),
-                bit32.extract(bits, 8, 8),
-                bit32.extract(bits, 0, 8),
-            ];
+            const bytes = [bit32.extract(bits, 16, 8), bit32.extract(bits, 8, 8), bit32.extract(bits, 0, 8)];
 
             for (let offset = 0; offset < 3 - padding; offset++) {
                 output.push(string.char(bytes[offset]));
@@ -1952,11 +1711,7 @@ export class Str {
     }
 
     /** Generate a URL friendly "slug" from a given string. */
-    public static slug(
-        title: string,
-        separator = "-",
-        dictionary: Array<[string, string]> = [["@", "at"]],
-    ): string {
+    public static slug(title: string, separator = "-", dictionary: Array<[string, string]> = [["@", "at"]]): string {
         let result = Str.ascii(title);
 
         // Convert all dashes/underscores into the separator.
@@ -1967,18 +1722,11 @@ export class Str {
         result = flipped;
 
         for (const [from, to] of dictionary) {
-            result = Str.replaceAllPlain(
-                result,
-                from,
-                `${separator}${to}${separator}`,
-            );
+            result = Str.replaceAllPlain(result, from, `${separator}${to}${separator}`);
         }
 
         const [quotedSeparator] = separator.gsub(MAGIC, "%%%1");
-        const [cleaned] = Str.lower(result).gsub(
-            `[^${quotedSeparator}%w%s]+`,
-            "",
-        );
+        const [cleaned] = Str.lower(result).gsub(`[^${quotedSeparator}%w%s]+`, "");
         const [collapsed] = cleaned.gsub(`[${quotedSeparator}%s]+`, separator);
 
         return Str.trim(collapsed, separator);
@@ -2021,10 +1769,7 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Parse a Class@method style callback into class and method. */
-    public static parseCallback(
-        callback: string,
-        defaultMethod?: string,
-    ): [string, string | undefined] {
+    public static parseCallback(callback: string, defaultMethod?: string): [string, string | undefined] {
         if (!Str.contains(callback, "@")) {
             return [callback, defaultMethod];
         }
@@ -2046,10 +1791,7 @@ export class Str {
     // -----------------------------------------------------------------
 
     /** Find the byte position of the last occurrence, 1-based. */
-    private static lastIndexOf(
-        haystack: string,
-        needle: string,
-    ): number | undefined {
+    private static lastIndexOf(haystack: string, needle: string): number | undefined {
         let position: number | undefined;
         let from = 1;
 
@@ -2072,11 +1814,7 @@ export class Str {
     }
 
     /** Replace every plain (non-pattern) occurrence of a substring. */
-    private static replaceAllPlain(
-        subject: string,
-        search: string,
-        replace: string,
-    ): string {
+    private static replaceAllPlain(subject: string, search: string, replace: string): string {
         if (search === "") {
             return subject;
         }
@@ -2092,11 +1830,7 @@ export class Str {
             return "";
         }
 
-        return Str.substr(
-            pad.rep(math.ceil(length / Str.length(pad))),
-            0,
-            length,
-        );
+        return Str.substr(pad.rep(math.ceil(length / Str.length(pad))), 0, length);
     }
 
     /** Escape the given characters for use inside a Luau character class. */
@@ -2113,10 +1847,7 @@ export class Str {
  * `Conditionable` hands a callback the target and the condition that was
  * tested, and takes a callback returning nothing to mean "keep the instance".
  */
-export type WhenCallback<TReturn extends defined> = (
-    target: Stringable,
-    value: boolean,
-) => TReturn | undefined;
+export type WhenCallback<TReturn extends defined> = (target: Stringable, value: boolean) => TReturn | undefined;
 
 /**
  * PHP: `Illuminate\Support\Stringable`.
@@ -2139,10 +1870,7 @@ export type WhenCallback<TReturn extends defined> = (
  * and `class_basename` lives in `Helpers`, which imports this module), the
  * `ArrayAccess` methods and `__get` (no operator overloading), `Macroable`.
  */
-export class Stringable
-    extends Tappable(Conditionable())
-    implements JsonSerializable
-{
+export class Stringable extends Tappable(Conditionable()) implements JsonSerializable {
     /**
      * The underlying string value.
      *
@@ -2232,10 +1960,7 @@ export class Stringable
     // -----------------------------------------------------------------
 
     /** Determine if the string contains a given substring. */
-    public contains(
-        needles: string | Array<string>,
-        ignoreCase = false,
-    ): boolean {
+    public contains(needles: string | Array<string>, ignoreCase = false): boolean {
         return Str.contains(this.stringValue, needles, ignoreCase);
     }
 
@@ -2245,10 +1970,7 @@ export class Stringable
     }
 
     /** Determine if the string doesn't contain a given substring. */
-    public doesntContain(
-        needles: string | Array<string>,
-        ignoreCase = false,
-    ): boolean {
+    public doesntContain(needles: string | Array<string>, ignoreCase = false): boolean {
         return Str.doesntContain(this.stringValue, needles, ignoreCase);
     }
 
@@ -2278,11 +2000,7 @@ export class Stringable
     }
 
     /** Extract an excerpt matching the first instance of a phrase. */
-    public excerpt(
-        phrase = "",
-        radius = 100,
-        omission = "...",
-    ): string | undefined {
+    public excerpt(phrase = "", radius = 100, omission = "..."): string | undefined {
         return Str.excerpt(this.stringValue, phrase, radius, omission);
     }
 
@@ -2336,57 +2054,38 @@ export class Stringable
     // -----------------------------------------------------------------
 
     /** Replace all occurrences of the search string with the replacement. */
-    public replace(
-        search: string | Array<string>,
-        replace: string | Array<string>,
-    ): Stringable {
+    public replace(search: string | Array<string>, replace: string | Array<string>): Stringable {
         return new Stringable(Str.replace(search, replace, this.stringValue));
     }
 
     /** Replace a given value in the string sequentially with an array. */
     public replaceArray(search: string, replace: Array<string>): Stringable {
-        return new Stringable(
-            Str.replaceArray(search, replace, this.stringValue),
-        );
+        return new Stringable(Str.replaceArray(search, replace, this.stringValue));
     }
 
     /** Replace the first occurrence of a given value in the string. */
     public replaceFirst(search: string, replace: string): Stringable {
-        return new Stringable(
-            Str.replaceFirst(search, replace, this.stringValue),
-        );
+        return new Stringable(Str.replaceFirst(search, replace, this.stringValue));
     }
 
     /** Replace the first occurrence of the given value if it starts the string. */
     public replaceStart(search: string, replace: string): Stringable {
-        return new Stringable(
-            Str.replaceStart(search, replace, this.stringValue),
-        );
+        return new Stringable(Str.replaceStart(search, replace, this.stringValue));
     }
 
     /** Replace the last occurrence of a given value in the string. */
     public replaceLast(search: string, replace: string): Stringable {
-        return new Stringable(
-            Str.replaceLast(search, replace, this.stringValue),
-        );
+        return new Stringable(Str.replaceLast(search, replace, this.stringValue));
     }
 
     /** Replace the last occurrence of the given value if it ends the string. */
     public replaceEnd(search: string, replace: string): Stringable {
-        return new Stringable(
-            Str.replaceEnd(search, replace, this.stringValue),
-        );
+        return new Stringable(Str.replaceEnd(search, replace, this.stringValue));
     }
 
     /** Replace the patterns matching the given Luau pattern. */
-    public replaceMatches(
-        pattern: string,
-        replace: string | ((match: string) => string),
-        limit?: number,
-    ): Stringable {
-        return new Stringable(
-            Str.replaceMatches(pattern, replace, this.stringValue, limit),
-        );
+    public replaceMatches(pattern: string, replace: string | ((match: string) => string), limit?: number): Stringable {
+        return new Stringable(Str.replaceMatches(pattern, replace, this.stringValue, limit));
     }
 
     /** Remove any occurrence of the given string. */
@@ -2460,20 +2159,12 @@ export class Stringable
 
     /** Mask a portion of the string with a repeated character. */
     public mask(character: string, index: number, length?: number): Stringable {
-        return new Stringable(
-            Str.mask(this.stringValue, character, index, length),
-        );
+        return new Stringable(Str.mask(this.stringValue, character, index, length));
     }
 
     /** Replace text within a portion of the string. */
-    public substrReplace(
-        replace: string,
-        offset = 0,
-        length?: number,
-    ): Stringable {
-        return new Stringable(
-            Str.substrReplace(this.stringValue, replace, offset, length),
-        );
+    public substrReplace(replace: string, offset = 0, length?: number): Stringable {
+        return new Stringable(Str.substrReplace(this.stringValue, replace, offset, length));
     }
 
     /** Append the given values to the string. */
@@ -2535,9 +2226,7 @@ export class Stringable
     }
 
     /** Convert the case of the string. */
-    public convertCase(
-        mode: "lower" | "upper" | "title" = "lower",
-    ): Stringable {
+    public convertCase(mode: "lower" | "upper" | "title" = "lower"): Stringable {
         return new Stringable(Str.convertCase(this.stringValue, mode));
     }
 
@@ -2612,9 +2301,7 @@ export class Stringable
 
     /** Limit the number of characters in the string. */
     public limit(limit = 100, last = "...", preserveWords = false): Stringable {
-        return new Stringable(
-            Str.limit(this.stringValue, limit, last, preserveWords),
-        );
+        return new Stringable(Str.limit(this.stringValue, limit, last, preserveWords));
     }
 
     /** Limit the number of words in the string. */
@@ -2628,14 +2315,8 @@ export class Stringable
     }
 
     /** Wrap the string to a given number of characters. */
-    public wordWrap(
-        characters = 75,
-        brk = "\n",
-        cutLongWords = false,
-    ): Stringable {
-        return new Stringable(
-            Str.wordWrap(this.stringValue, characters, brk, cutLongWords),
-        );
+    public wordWrap(characters = 75, brk = "\n", cutLongWords = false): Stringable {
+        return new Stringable(Str.wordWrap(this.stringValue, characters, brk, cutLongWords));
     }
 
     /** Remove all non-numeric characters from the string. */
@@ -2679,10 +2360,7 @@ export class Stringable
      * a negative limit drops that many pieces off the end, and zero counts as
      * one. `PHP_INT_MAX` becomes `math.huge`.
      */
-    public explode(
-        delimiter: string,
-        limit = math.huge,
-    ): Collection<number, string> {
+    public explode(delimiter: string, limit = math.huge): Collection<number, string> {
         const segments = this.stringValue.split(delimiter);
 
         if (limit === math.huge) {
@@ -2730,10 +2408,7 @@ export class Stringable
      * the expression. The flags of `preg_split` have no counterpart -- an
      * empty piece is always kept.
      */
-    public split(
-        pattern: string | number,
-        limit = -1,
-    ): Collection<number, string> {
+    public split(pattern: string | number, limit = -1): Collection<number, string> {
         if (typeIs(pattern, "number")) {
             const chunks = new Array<string>();
             const size = math.max(pattern, 1);
@@ -2824,13 +2499,8 @@ export class Stringable
     }
 
     /** Generate a URL friendly "slug" from the string. */
-    public slug(
-        separator = "-",
-        dictionary: Array<[string, string]> = [["@", "at"]],
-    ): Stringable {
-        return new Stringable(
-            Str.slug(this.stringValue, separator, dictionary),
-        );
+    public slug(separator = "-", dictionary: Array<[string, string]> = [["@", "at"]]): Stringable {
+        return new Stringable(Str.slug(this.stringValue, separator, dictionary));
     }
 
     // -----------------------------------------------------------------
@@ -2886,11 +2556,7 @@ export class Stringable
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
     ): this | TReturn {
-        return this.when(
-            this.doesntEndWith(needles),
-            callback,
-            defaultCallback,
-        );
+        return this.when(this.doesntEndWith(needles), callback, defaultCallback);
     }
 
     /** Execute the given callback if the string is an exact match with the given value. */
@@ -2959,11 +2625,7 @@ export class Stringable
         callback: WhenCallback<TReturn>,
         defaultCallback?: WhenCallback<TReturn>,
     ): this | TReturn {
-        return this.when(
-            this.doesntStartWith(needles),
-            callback,
-            defaultCallback,
-        );
+        return this.when(this.doesntStartWith(needles), callback, defaultCallback);
     }
 
     /** Execute the given callback if the string matches the given Luau pattern. */
@@ -2980,9 +2642,7 @@ export class Stringable
     // -----------------------------------------------------------------
 
     /** Pass the string to the given callback and get a new instance back. */
-    public pipe(
-        callback: (target: Stringable) => string | number | Stringable,
-    ): Stringable {
+    public pipe(callback: (target: Stringable) => string | number | Stringable): Stringable {
         return new Stringable(callback(this));
     }
 
@@ -3009,10 +2669,7 @@ export class Stringable
      * PHP says `12`.
      */
     public toInteger(base = 10): number {
-        const parsed = parseFinite(
-            this.stringValue,
-            base === 10 ? undefined : base,
-        );
+        const parsed = parseFinite(this.stringValue, base === 10 ? undefined : base);
 
         if (parsed === undefined) {
             return 0;
@@ -3035,12 +2692,7 @@ export class Stringable
     public toBoolean(): boolean {
         const normalized = Str.lower(Str.trim(this.stringValue));
 
-        return (
-            normalized === "1" ||
-            normalized === "true" ||
-            normalized === "on" ||
-            normalized === "yes"
-        );
+        return normalized === "1" || normalized === "true" || normalized === "on" || normalized === "yes";
     }
 
     /** Specify data which should be serialized to JSON. */

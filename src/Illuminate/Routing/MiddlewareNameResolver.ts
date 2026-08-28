@@ -27,11 +27,7 @@ export class MiddlewareNameResolver {
         }
 
         if (middlewareGroups.has(name)) {
-            return MiddlewareNameResolver.parseMiddlewareGroup(
-                name,
-                map,
-                middlewareGroups,
-            );
+            return MiddlewareNameResolver.parseMiddlewareGroup(name, map, middlewareGroups);
         }
 
         const [alias, parameters] = MiddlewareNameResolver.split(name);
@@ -61,15 +57,8 @@ export class MiddlewareNameResolver {
         const results = new Array<Pipe>();
 
         for (const middleware of middlewareGroups.get(name) ?? []) {
-            if (
-                typeIs(middleware, "string") &&
-                middlewareGroups.has(middleware)
-            ) {
-                for (const nested of MiddlewareNameResolver.parseMiddlewareGroup(
-                    middleware,
-                    map,
-                    middlewareGroups,
-                )) {
+            if (typeIs(middleware, "string") && middlewareGroups.has(middleware)) {
+                for (const nested of MiddlewareNameResolver.parseMiddlewareGroup(middleware, map, middlewareGroups)) {
                     results.push(nested);
                 }
 
@@ -78,13 +67,7 @@ export class MiddlewareNameResolver {
 
             // The group branch is taken above, so what comes back here is one
             // middleware and never a list.
-            results.push(
-                MiddlewareNameResolver.resolve(
-                    middleware,
-                    map,
-                    middlewareGroups,
-                ) as Pipe,
-            );
+            results.push(MiddlewareNameResolver.resolve(middleware, map, middlewareGroups) as Pipe);
         }
 
         return results;

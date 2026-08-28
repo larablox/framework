@@ -28,11 +28,7 @@ export type CreatePayloadCallback = (
 ) => Partial<JobPayload>;
 
 /** The callback `enqueueUsing()` hands the built payload to. */
-export type EnqueueCallback = (
-    payload: JobPayload,
-    queue: string | undefined,
-    delay: Delay | undefined,
-) => unknown;
+export type EnqueueCallback = (payload: JobPayload, queue: string | undefined, delay: Delay | undefined) => unknown;
 
 /**
  * PHP: `Illuminate\Queue\Queue`.
@@ -65,23 +61,13 @@ export abstract class Queue {
     protected dispatchAfterCommit?: boolean;
 
     /** The create payload callbacks. */
-    protected static createPayloadCallbacks =
-        new Array<CreatePayloadCallback>();
+    protected static createPayloadCallbacks = new Array<CreatePayloadCallback>();
 
     /** Push a new job onto the queue. */
-    public abstract push(
-        job: JobTarget,
-        data?: unknown,
-        queue?: string,
-    ): unknown;
+    public abstract push(job: JobTarget, data?: unknown, queue?: string): unknown;
 
     /** Push a new job onto the queue after (n) seconds. */
-    public abstract later(
-        delay: Delay,
-        job: JobTarget,
-        data?: unknown,
-        queue?: string,
-    ): unknown;
+    public abstract later(delay: Delay, job: JobTarget, data?: unknown, queue?: string): unknown;
 
     /** Pop the next job off of the queue. */
     public abstract pop(queue?: string): Job | undefined;
@@ -92,90 +78,51 @@ export abstract class Queue {
     }
 
     /** Push a new job onto a specific queue after (n) seconds. */
-    public laterOn(
-        queue: string,
-        delay: Delay,
-        job: JobTarget,
-        data: unknown = "",
-    ): unknown {
+    public laterOn(queue: string, delay: Delay, job: JobTarget, data: unknown = ""): unknown {
         return this.later(delay, job, data, queue);
     }
 
     /** Push an array of jobs onto the queue. */
-    public bulk(
-        jobs: JobTarget | Array<JobTarget>,
-        data: unknown = "",
-        queue?: string,
-    ): void {
-        for (const job of Util.isArray(jobs)
-            ? (jobs as Array<JobTarget>)
-            : [jobs as JobTarget]) {
+    public bulk(jobs: JobTarget | Array<JobTarget>, data: unknown = "", queue?: string): void {
+        for (const job of Util.isArray(jobs) ? (jobs as Array<JobTarget>) : [jobs as JobTarget]) {
             this.push(job, data, queue);
         }
     }
 
     /** Create a payload from the given job and data. */
-    protected createPayload(
-        job: JobTarget,
-        queue: string | undefined,
-        data: unknown = "",
-        delay?: Delay,
-    ): JobPayload {
+    protected createPayload(job: JobTarget, queue: string | undefined, data: unknown = "", delay?: Delay): JobPayload {
         const value = this.createPayloadArray(job, queue, data);
 
-        value.delay =
-            delay !== undefined
-                ? InteractsWithTime.secondsUntil(delay)
-                : undefined;
+        value.delay = delay !== undefined ? InteractsWithTime.secondsUntil(delay) : undefined;
 
         return value;
     }
 
     /** Create a payload array from the given job and data. */
-    protected createPayloadArray(
-        job: JobTarget,
-        queue: string | undefined,
-        data: unknown = "",
-    ): JobPayload {
+    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ""): JobPayload {
         return Reflector.isInstance(job)
             ? this.createObjectPayload(job as object, queue)
             : this.createStringPayload(job, queue, data);
     }
 
     /** Create a payload for an object-based queue handler. */
-    protected createObjectPayload(
-        job: object,
-        queue: string | undefined,
-    ): JobPayload {
+    protected createObjectPayload(job: object, queue: string | undefined): JobPayload {
         const payload = this.withCreatePayloadHooks(queue, {
             uuid: Str.uuid(),
             displayName: this.getDisplayName(job),
             job: [CallQueuedHandler, "call"],
             maxTries: this.getJobTries(job) as number | undefined,
-            maxExceptions: ReadsClassAttributes.getAttributeValue(
-                job,
-                MaxExceptions,
-                "maxExceptions",
-            ) as number | undefined,
+            maxExceptions: ReadsClassAttributes.getAttributeValue(job, MaxExceptions, "maxExceptions") as
+                number | undefined,
             failOnTimeout:
-                (ReadsClassAttributes.getAttributeValue(
-                    job,
-                    FailOnTimeout,
-                    "failOnTimeout",
-                ) as boolean | undefined) ?? false,
+                (ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, "failOnTimeout") as boolean | undefined) ??
+                false,
             backoff: this.getJobBackoff(job),
-            timeout: ReadsClassAttributes.getAttributeValue(
-                job,
-                Timeout,
-                "timeout",
-            ) as number | undefined,
+            timeout: ReadsClassAttributes.getAttributeValue(job, Timeout, "timeout") as number | undefined,
             retryUntil: this.getJobExpiration(job),
             deleteWhenMissingModels:
-                (ReadsClassAttributes.getAttributeValue(
-                    job,
-                    DeleteWhenMissingModels,
-                    "deleteWhenMissingModels",
-                ) as boolean | undefined) ?? false,
+                (ReadsClassAttributes.getAttributeValue(job, DeleteWhenMissingModels, "deleteWhenMissingModels") as
+                    boolean | undefined) ?? false,
             data: {
                 commandName: Reflector.classOf(job) ?? Reflector.className(job),
                 command: job,
@@ -191,9 +138,7 @@ export abstract class Queue {
         const data: Record<string, unknown> = {};
 
         if (typeIs(payload.data, "table")) {
-            for (const [key, value] of pairs(
-                payload.data as Record<string, defined>,
-            )) {
+            for (const [key, value] of pairs(payload.data as Record<string, defined>)) {
                 data[key as string] = value;
             }
         }
@@ -230,11 +175,7 @@ export abstract class Queue {
 
     /** Get the backoff for an object-based queue handler. */
     public getJobBackoff(job: object): string | undefined {
-        let backoff = ReadsClassAttributes.getAttributeValue(
-            job,
-            Backoff,
-            "backoff",
-        );
+        let backoff = ReadsClassAttributes.getAttributeValue(job, Backoff, "backoff");
 
         const method = (job as { backoff?: unknown }).backoff;
 
@@ -247,11 +188,7 @@ export abstract class Queue {
         }
 
         return Collection.wrap(backoff as defined)
-            .map((entry) =>
-                typeIs(entry, "number")
-                    ? entry
-                    : InteractsWithTime.secondsUntil(entry as Delay),
-            )
+            .map((entry) => (typeIs(entry, "number") ? entry : InteractsWithTime.secondsUntil(entry as Delay)))
             .implode(",");
     }
 
@@ -263,26 +200,16 @@ export abstract class Queue {
             return undefined;
         }
 
-        const expiration = typeIs(retryUntil, "function")
-            ? (retryUntil as (self: object) => unknown)(job)
-            : retryUntil;
+        const expiration = typeIs(retryUntil, "function") ? (retryUntil as (self: object) => unknown)(job) : retryUntil;
 
-        return typeIs(expiration, "number")
-            ? expiration
-            : (expiration as DateTime).UnixTimestamp;
+        return typeIs(expiration, "number") ? expiration : (expiration as DateTime).UnixTimestamp;
     }
 
     /** Create a typical, string based queue payload array. */
-    protected createStringPayload(
-        job: JobTarget,
-        queue: string | undefined,
-        data: unknown,
-    ): JobPayload {
+    protected createStringPayload(job: JobTarget, queue: string | undefined, data: unknown): JobPayload {
         return this.withCreatePayloadHooks(queue, {
             uuid: Str.uuid(),
-            displayName: typeIs(job, "string")
-                ? Str.parseCallback(job)[0]
-                : undefined,
+            displayName: typeIs(job, "string") ? Str.parseCallback(job)[0] : undefined,
             job: job as JobPayload["job"],
             maxTries: undefined,
             maxExceptions: undefined,
@@ -304,18 +231,12 @@ export abstract class Queue {
     }
 
     /** Create the given payload using any registered payload hooks. */
-    protected withCreatePayloadHooks(
-        queue: string | undefined,
-        payload: JobPayload,
-    ): JobPayload {
+    protected withCreatePayloadHooks(queue: string | undefined, payload: JobPayload): JobPayload {
         for (const callback of Queue.createPayloadCallbacks) {
             const extra = callback(this.getConnectionName(), queue, payload);
 
-            for (const [key, value] of pairs(
-                extra as unknown as Record<string, defined>,
-            )) {
-                (payload as unknown as Record<string, unknown>)[key as string] =
-                    value;
+            for (const [key, value] of pairs(extra as unknown as Record<string, defined>)) {
+                (payload as unknown as Record<string, unknown>)[key as string] = value;
             }
         }
 
@@ -373,9 +294,7 @@ export abstract class Queue {
                         queue,
                         job,
                         payload,
-                        delay !== undefined
-                            ? InteractsWithTime.secondsUntil(delay)
-                            : undefined,
+                        delay !== undefined ? InteractsWithTime.secondsUntil(delay) : undefined,
                     ),
                 );
         }
@@ -399,9 +318,7 @@ export abstract class Queue {
                         jobId,
                         job,
                         payload,
-                        delay !== undefined
-                            ? InteractsWithTime.secondsUntil(delay)
-                            : undefined,
+                        delay !== undefined ? InteractsWithTime.secondsUntil(delay) : undefined,
                     ),
                 );
         }

@@ -1,8 +1,5 @@
 ﻿/// <reference types="@rbxts/testez/globals" />
-import {
-    MAX_EXPIRATION,
-    MemoryStoreStore,
-} from "Illuminate/Cache/MemoryStoreStore";
+import { MAX_EXPIRATION, MemoryStoreStore } from "Illuminate/Cache/MemoryStoreStore";
 import { MemoryStoreLock } from "Illuminate/Cache/MemoryStoreLock";
 
 /**
@@ -81,11 +78,7 @@ const MAP = "larablox-tests";
 
 /** A fresh store, isolated from every other test by a random key prefix. */
 function freshStore(prefix = ""): MemoryStoreStore {
-    return new MemoryStoreStore(
-        MAP,
-        `${HttpService.GenerateGUID(false)}:${prefix}`,
-        EXPIRATION,
-    );
+    return new MemoryStoreStore(MAP, `${HttpService.GenerateGUID(false)}:${prefix}`, EXPIRATION);
 }
 
 /**
@@ -254,10 +247,7 @@ export = (): void => {
         it("another owner cannot release a lock it does not own", () => {
             const store = freshStore();
             const owner = store.lock("shared-lock", 60) as MemoryStoreLock;
-            const wannabeOwner = store.lock(
-                "shared-lock",
-                60,
-            ) as MemoryStoreLock;
+            const wannabeOwner = store.lock("shared-lock", 60) as MemoryStoreLock;
             owner.acquire();
 
             expect(wannabeOwner.release()).to.equal(false);

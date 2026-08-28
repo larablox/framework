@@ -110,8 +110,7 @@ export class Queueable extends InteractsWithQueue {
      */
     public through(middleware: unknown | Array<unknown>): this {
         this.middleware =
-            typeIs(middleware, "table") &&
-            getmetatable(middleware as object) === undefined
+            typeIs(middleware, "table") && getmetatable(middleware as object) === undefined
                 ? (middleware as Array<unknown>)
                 : [middleware];
 
@@ -164,8 +163,6 @@ export class Queueable extends InteractsWithQueue {
         following.chainConnection = this.chainConnection;
         following.chainQueue = this.chainQueue;
 
-        Container.getInstance()
-            .make<BusDispatcher>(BusDispatcher)
-            .dispatch(following);
+        Container.getInstance().make<BusDispatcher>(BusDispatcher).dispatch(following);
     }
 }

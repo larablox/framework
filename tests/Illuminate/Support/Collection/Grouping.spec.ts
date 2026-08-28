@@ -34,24 +34,13 @@ export = (): void => {
         it("countBy() counts items by their value, a key, or a callback", () => {
             // PHP: SupportCollectionTest::testCountByStandalone,
             // ::testCountByWithKey, ::testCountableByWithCallback
-            const c = new Collection([
-                "foo",
-                "foo",
-                "foo",
-                "bar",
-                "bar",
-                "foobar",
-            ]);
+            const c = new Collection(["foo", "foo", "foo", "bar", "bar", "foobar"]);
             const counted = c.countBy();
             expect(counted.get("foo")).to.equal(3);
             expect(counted.get("bar")).to.equal(2);
             expect(counted.get("foobar")).to.equal(1);
 
-            const keyed = new Collection([
-                { key: "a" },
-                { key: "a" },
-                { key: "b" },
-            ]);
+            const keyed = new Collection([{ key: "a" }, { key: "a" }, { key: "b" }]);
             const byKey = keyed.countBy((item) => item.key);
             expect(byKey.get("a")).to.equal(2);
             expect(byKey.get("b")).to.equal(1);
@@ -78,16 +67,10 @@ export = (): void => {
                 { free: false, title: "Premium" },
             ]);
             const [free, premium] = courses.partition((course) => course.free);
-            expectDeepEqual(free.values().toArray(), [
-                { free: true, title: "Basic" },
-            ]);
-            expectDeepEqual(premium.values().toArray(), [
-                { free: false, title: "Premium" },
-            ]);
+            expectDeepEqual(free.values().toArray(), [{ free: true, title: "Basic" }]);
+            expectDeepEqual(premium.values().toArray(), [{ free: false, title: "Premium" }]);
 
-            const [a, b] = new Collection<number, number>().partition(
-                () => true,
-            );
+            const [a, b] = new Collection<number, number>().partition(() => true);
             expect(a.isEmpty()).to.equal(true);
             expect(b.isEmpty()).to.equal(true);
         });

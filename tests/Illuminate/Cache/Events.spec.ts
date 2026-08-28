@@ -89,26 +89,16 @@ export = (): void => {
 
             expect(repository.has("foo")).to.equal(false);
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(
-                true,
-            );
-            expect((dispatcher.dispatched[0] as RetrievingKey).key).to.equal(
-                "foo",
-            );
-            expect(dispatcher.dispatched[1] instanceof CacheMissed).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(true);
+            expect((dispatcher.dispatched[0] as RetrievingKey).key).to.equal("foo");
+            expect(dispatcher.dispatched[1] instanceof CacheMissed).to.equal(true);
 
             dispatcher.dispatched.clear();
             expect(repository.has("baz")).to.equal(true);
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(true);
             expect(dispatcher.dispatched[1] instanceof CacheHit).to.equal(true);
-            expect((dispatcher.dispatched[1] as CacheHit).value).to.equal(
-                "qux",
-            );
+            expect((dispatcher.dispatched[1] as CacheHit).value).to.equal("qux");
         });
 
         // PHP: CacheEventsTest::testGetTriggersEvents (untagged, non-array-keys half; see class comment)
@@ -118,19 +108,13 @@ export = (): void => {
 
             expect(repository.get("foo")).to.equal(undefined);
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[1] instanceof CacheMissed).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(true);
+            expect(dispatcher.dispatched[1] instanceof CacheMissed).to.equal(true);
 
             dispatcher.dispatched.clear();
             expect(repository.get("baz")).to.equal("qux");
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(true);
             expect(dispatcher.dispatched[1] instanceof CacheHit).to.equal(true);
         });
 
@@ -141,16 +125,10 @@ export = (): void => {
 
             expect(repository.pull("baz")).to.equal("qux");
             expect(dispatcher.dispatched.size()).to.equal(4);
-            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(true);
             expect(dispatcher.dispatched[1] instanceof CacheHit).to.equal(true);
-            expect(dispatcher.dispatched[2] instanceof ForgettingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[3] instanceof KeyForgotten).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[2] instanceof ForgettingKey).to.equal(true);
+            expect(dispatcher.dispatched[3] instanceof KeyForgotten).to.equal(true);
         });
 
         // PHP: CacheEventsTest::testPutTriggersEvents (untagged, non-putMany half; see class comment.
@@ -164,18 +142,10 @@ export = (): void => {
             repository.put("foo", "bar", 99);
 
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect(dispatcher.dispatched[0] instanceof WritingKey).to.equal(
-                true,
-            );
-            expect((dispatcher.dispatched[0] as WritingKey).value).to.equal(
-                "bar",
-            );
-            expect((dispatcher.dispatched[0] as WritingKey).seconds).to.equal(
-                99,
-            );
-            expect(dispatcher.dispatched[1] instanceof KeyWritten).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof WritingKey).to.equal(true);
+            expect((dispatcher.dispatched[0] as WritingKey).value).to.equal("bar");
+            expect((dispatcher.dispatched[0] as WritingKey).seconds).to.equal(99);
+            expect(dispatcher.dispatched[1] instanceof KeyWritten).to.equal(true);
         });
 
         // PHP: CacheEventsTest::testAddTriggersEvents (untagged half; see class comment)
@@ -185,18 +155,10 @@ export = (): void => {
 
             expect(repository.add("foo", "bar", 99)).to.equal(true);
             expect(dispatcher.dispatched.size()).to.equal(4);
-            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[1] instanceof CacheMissed).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[2] instanceof WritingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[3] instanceof KeyWritten).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(true);
+            expect(dispatcher.dispatched[1] instanceof CacheMissed).to.equal(true);
+            expect(dispatcher.dispatched[2] instanceof WritingKey).to.equal(true);
+            expect(dispatcher.dispatched[3] instanceof KeyWritten).to.equal(true);
         });
 
         // PHP: CacheEventsTest::testForeverTriggersEvents (untagged half; see class comment)
@@ -207,12 +169,8 @@ export = (): void => {
             repository.forever("foo", "bar");
 
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect((dispatcher.dispatched[0] as WritingKey).seconds).to.equal(
-                undefined,
-            );
-            expect(dispatcher.dispatched[1] instanceof KeyWritten).to.equal(
-                true,
-            );
+            expect((dispatcher.dispatched[0] as WritingKey).seconds).to.equal(undefined);
+            expect(dispatcher.dispatched[1] instanceof KeyWritten).to.equal(true);
         });
 
         // PHP: CacheEventsTest::testRememberTriggersEvents (untagged half; see class comment)
@@ -222,18 +180,10 @@ export = (): void => {
 
             expect(repository.remember("foo", 99, () => "bar")).to.equal("bar");
             expect(dispatcher.dispatched.size()).to.equal(4);
-            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[1] instanceof CacheMissed).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[2] instanceof WritingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[3] instanceof KeyWritten).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof RetrievingKey).to.equal(true);
+            expect(dispatcher.dispatched[1] instanceof CacheMissed).to.equal(true);
+            expect(dispatcher.dispatched[2] instanceof WritingKey).to.equal(true);
+            expect(dispatcher.dispatched[3] instanceof KeyWritten).to.equal(true);
         });
 
         // PHP: CacheEventsTest::testRememberForeverTriggersEvents (untagged half; see class comment)
@@ -241,16 +191,10 @@ export = (): void => {
             const dispatcher = new FakeDispatcher();
             const repository = getRepository(dispatcher);
 
-            expect(repository.rememberForever("foo", () => "bar")).to.equal(
-                "bar",
-            );
+            expect(repository.rememberForever("foo", () => "bar")).to.equal("bar");
             expect(dispatcher.dispatched.size()).to.equal(4);
-            expect(dispatcher.dispatched[2] instanceof WritingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[3] instanceof KeyWritten).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[2] instanceof WritingKey).to.equal(true);
+            expect(dispatcher.dispatched[3] instanceof KeyWritten).to.equal(true);
         });
 
         // PHP: CacheEventsTest::testForgetTriggersEvents (untagged half; see class comment)
@@ -260,12 +204,8 @@ export = (): void => {
 
             expect(repository.forget("baz")).to.equal(true);
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect(dispatcher.dispatched[0] instanceof ForgettingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[1] instanceof KeyForgotten).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof ForgettingKey).to.equal(true);
+            expect(dispatcher.dispatched[1] instanceof KeyForgotten).to.equal(true);
         });
 
         // PHP: CacheEventsTest::testForgetDoesTriggerFailedEventOnFailure
@@ -276,12 +216,8 @@ export = (): void => {
 
             expect(repository.forget("baz")).to.equal(false);
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect(dispatcher.dispatched[0] instanceof ForgettingKey).to.equal(
-                true,
-            );
-            expect(
-                dispatcher.dispatched[1] instanceof KeyForgetFailed,
-            ).to.equal(true);
+            expect(dispatcher.dispatched[0] instanceof ForgettingKey).to.equal(true);
+            expect(dispatcher.dispatched[1] instanceof KeyForgetFailed).to.equal(true);
         });
 
         // PHP: no direct upstream equivalent -- `put()` fires KeyWriteFailed
@@ -302,12 +238,8 @@ export = (): void => {
 
             expect(repository.put("foo", "bar", 99)).to.equal(false);
             expect(dispatcher.dispatched.size()).to.equal(2);
-            expect(dispatcher.dispatched[0] instanceof WritingKey).to.equal(
-                true,
-            );
-            expect(dispatcher.dispatched[1] instanceof KeyWriteFailed).to.equal(
-                true,
-            );
+            expect(dispatcher.dispatched[0] instanceof WritingKey).to.equal(true);
+            expect(dispatcher.dispatched[1] instanceof KeyWriteFailed).to.equal(true);
         });
     });
 };

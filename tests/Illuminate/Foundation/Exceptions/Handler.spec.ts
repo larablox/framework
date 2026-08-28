@@ -1,11 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
 import { expectDeepEqual } from "../../TestHelpers";
-import {
-    Exception,
-    InvalidArgumentException,
-    LogicException,
-    RuntimeException,
-} from "Illuminate/Exception";
+import { Exception, InvalidArgumentException, LogicException, RuntimeException } from "Illuminate/Exception";
 import { Container } from "Illuminate/Container/Container";
 import { Handler } from "Illuminate/Foundation/Exceptions/Handler";
 import { HttpException } from "Illuminate/Http/Exceptions/HttpException";
@@ -94,11 +89,7 @@ export = (): void => {
         class FakeLogger {
             public records = new Array<LogRecord>();
 
-            public log(
-                level: LogLevel,
-                message: unknown,
-                context?: LogContext,
-            ): void {
+            public log(level: LogLevel, message: unknown, context?: LogContext): void {
                 this.records.push({
                     level: level,
                     message: message as string,
@@ -130,9 +121,7 @@ export = (): void => {
         }
 
         class ReportableException extends Exception {
-            public report(
-                @Inject(ReportingService) service: ReportingService,
-            ): void {
+            public report(@Inject(ReportingService) service: ReportingService): void {
                 service.send(this.getMessage());
             }
         }
@@ -305,10 +294,7 @@ export = (): void => {
             const [handler] = handlerWithFakeLogger();
             const request = new Request({} as Player, "GET", "/");
 
-            const response = handler.render(
-                request,
-                new ResponsableException(),
-            );
+            const response = handler.render(request, new ResponsableException());
 
             expectDeepEqual(response.getContent(), {
                 response: "My responsable exception response",
@@ -318,22 +304,13 @@ export = (): void => {
         it("render() masks a generic exception's message when debug is off (adapted -- see class comment)", () => {
             // PHP: FoundationExceptionsHandlerTest::testReturnsJsonWithoutStackTraceWhenAjaxRequestAndDebugFalseAndExceptionMessageIsMasked
             const container = new Container();
-            container.instance(
-                "config",
-                new ConfigRepository({ app: { debug: false } }),
-            );
-            container.instance(
-                "log",
-                new FakeLogger() as unknown as LogManager,
-            );
+            container.instance("config", new ConfigRepository({ app: { debug: false } }));
+            container.instance("log", new FakeLogger() as unknown as LogManager);
 
             const handler = new Handler(container);
             const request = new Request({} as Player, "GET", "/");
 
-            const response = handler.render(
-                request,
-                new Exception("This error message should not be visible"),
-            );
+            const response = handler.render(request, new Exception("This error message should not be visible"));
 
             expectDeepEqual(response.getContent(), { message: "Server Error" });
         });
@@ -341,22 +318,13 @@ export = (): void => {
         it("render() still shows an HttpException's own message when debug is off (adapted -- see class comment)", () => {
             // PHP: FoundationExceptionsHandlerTest::testReturnsJsonWithoutStackTraceWhenAjaxRequestAndDebugFalseAndHttpExceptionErrorIsShown
             const container = new Container();
-            container.instance(
-                "config",
-                new ConfigRepository({ app: { debug: false } }),
-            );
-            container.instance(
-                "log",
-                new FakeLogger() as unknown as LogManager,
-            );
+            container.instance("config", new ConfigRepository({ app: { debug: false } }));
+            container.instance("log", new FakeLogger() as unknown as LogManager);
 
             const handler = new Handler(container);
             const request = new Request({} as Player, "GET", "/");
 
-            const response = handler.render(
-                request,
-                new HttpException(403, "My custom error message"),
-            );
+            const response = handler.render(request, new HttpException(403, "My custom error message"));
 
             expectDeepEqual(response.getContent(), {
                 message: "My custom error message",
@@ -417,10 +385,7 @@ export = (): void => {
                 return false;
             });
 
-            handler.dontReportWhen(
-                (e: unknown) =>
-                    e instanceof RuntimeException && e.getMessage() === "foo",
-            );
+            handler.dontReportWhen((e: unknown) => e instanceof RuntimeException && e.getMessage() === "foo");
 
             handler.report(e1);
             handler.report(e2);

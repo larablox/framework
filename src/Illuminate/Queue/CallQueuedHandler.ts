@@ -1,10 +1,7 @@
 import { Dispatcher } from "Illuminate/Bus/Dispatcher";
 import { Inject } from "Illuminate/Container/Attributes/Inject";
 import { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import {
-    InstanceNotFoundException,
-    Serializer,
-} from "Illuminate/Support/Serializer";
+import { InstanceNotFoundException, Serializer } from "Illuminate/Support/Serializer";
 import { Pipeline } from "Illuminate/Pipeline/Pipeline";
 import { UniqueLock } from "Illuminate/Bus/UniqueLock";
 import type { Batchable } from "Illuminate/Bus/Batchable";
@@ -49,10 +46,7 @@ export class CallQueuedHandler {
         let command: object;
 
         try {
-            command = this.setJobInstanceIfNecessary(
-                job,
-                this.getCommand(data),
-            );
+            command = this.setJobInstanceIfNecessary(job, this.getCommand(data));
         } catch (e) {
             if (e instanceof InstanceNotFoundException) {
                 return this.handleInstanceNotFound(job, e);
@@ -100,15 +94,10 @@ export class CallQueuedHandler {
 
     /** Dispatch the given job / command through its specified middleware. */
     protected dispatchThroughMiddleware(job: Job, command: object): unknown {
-        const pipeline = new Pipeline(this.container)
-            .send(command)
-            .through(this.middlewareFor(command));
+        const pipeline = new Pipeline(this.container).send(command).through(this.middlewareFor(command));
 
         return pipeline.then((passable) =>
-            this.dispatcher.dispatchNow(
-                passable as object,
-                this.resolveHandler(job, passable as object),
-            ),
+            this.dispatcher.dispatchNow(passable as object, this.resolveHandler(job, passable as object)),
         );
     }
 
@@ -141,16 +130,11 @@ export class CallQueuedHandler {
 
     /** Release the unique lock a job marked `ShouldBeUnique` was holding. */
     protected ensureUniqueJobLockIsReleased(command: object): void {
-        if (
-            !isShouldBeUnique(command) ||
-            !this.container.bound("cache.store")
-        ) {
+        if (!isShouldBeUnique(command) || !this.container.bound("cache.store")) {
             return;
         }
 
-        new UniqueLock(this.container.make<Cache>("cache.store")).release(
-            command,
-        );
+        new UniqueLock(this.container.make<Cache>("cache.store")).release(command);
     }
 
     /** Tell the batch this job belongs to that it finished. */
@@ -165,10 +149,7 @@ export class CallQueuedHandler {
     }
 
     /** Tell the batch this job belongs to that it failed. */
-    protected ensureFailedBatchJobIsRecorded(
-        command: object,
-        e: unknown,
-    ): void {
+    protected ensureFailedBatchJobIsRecorded(command: object, e: unknown): void {
         const batchable = command as Batchable;
 
         if (!typeIs(batchable.batch, "function")) {
@@ -180,8 +161,7 @@ export class CallQueuedHandler {
 
     /** Ensure the next job in the chain is dispatched if applicable. */
     protected ensureNextJobInChainIsDispatched(command: object): void {
-        const dispatchNext = (command as { dispatchNextJobInChain?: unknown })
-            .dispatchNextJobInChain;
+        const dispatchNext = (command as { dispatchNextJobInChain?: unknown }).dispatchNextJobInChain;
 
         if (typeIs(dispatchNext, "function")) {
             (dispatchNext as (self: object) => void)(command);
@@ -203,10 +183,7 @@ export class CallQueuedHandler {
      * PHP: `handleModelNotFound()`. The batch bookkeeping it does first waits
      * on batches.
      */
-    protected handleInstanceNotFound(
-        job: Job,
-        e: InstanceNotFoundException,
-    ): void {
+    protected handleInstanceNotFound(job: Job, e: InstanceNotFoundException): void {
         if (job.payload().deleteWhenMissingModels === true) {
             job.delete();
 
@@ -221,12 +198,7 @@ export class CallQueuedHandler {
      *
      * `uuid` identifies the batch and the chain PHP notifies from here.
      */
-    public failed(
-        data: JobPayloadData,
-        e: unknown,
-        uuid: string,
-        job?: Job,
-    ): void {
+    public failed(data: JobPayloadData, e: unknown, uuid: string, job?: Job): void {
         // The command may be exactly what could not be read back -- that is
         // often why the job failed. PHP gets a `__PHP_Incomplete_Class` and
         // returns early; there is nothing to notify here either.

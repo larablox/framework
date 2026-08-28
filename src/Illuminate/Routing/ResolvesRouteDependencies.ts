@@ -3,11 +3,7 @@ import { Reflector } from "Illuminate/Support/Reflector";
 import { Trait } from "Illuminate/Support/Traits/Trait";
 import { Util } from "Illuminate/Container/Util";
 import { getInjectedDependencies } from "Illuminate/Container/Attributes/Inject";
-import type {
-    AssertNoExtraMembers,
-    AssertTrue,
-    Constructor,
-} from "Illuminate/Support/Traits/Trait";
+import type { AssertNoExtraMembers, AssertTrue, Constructor } from "Illuminate/Support/Traits/Trait";
 import type { Container } from "Illuminate/Container/Container";
 import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
 import type { OrderedMap } from "Illuminate/Support/OrderedMap";
@@ -90,11 +86,7 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
             instance: object,
             method: string,
         ): Array<defined> {
-            return this.resolveMethodDependencies(
-                parameters,
-                Reflector.classOf(instance),
-                method,
-            );
+            return this.resolveMethodDependencies(parameters, Reflector.classOf(instance), method);
         }
 
         /** Resolve the given method's dependencies. */
@@ -103,26 +95,19 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
             target: object | undefined,
             method: string,
         ): Array<defined> {
-            const declared =
-                target !== undefined
-                    ? getInjectedDependencies(target, method)
-                    : [];
+            const declared = target !== undefined ? getInjectedDependencies(target, method) : [];
 
             const values = new Array<defined>();
 
             for (let index = 0; index < declared.size(); index++) {
                 const dependency = declared[index];
 
-                const attribute =
-                    Util.getContextualAttributeFromDependency(dependency);
+                const attribute = Util.getContextualAttributeFromDependency(dependency);
 
                 let resolved: unknown;
 
                 if (attribute !== undefined) {
-                    resolved =
-                        this.concreteContainer().resolveFromAttribute(
-                            attribute,
-                        );
+                    resolved = this.concreteContainer().resolveFromAttribute(attribute);
                 } else if (dependency.abstract !== undefined) {
                     resolved = this.container.make(dependency.abstract);
                 } else {
@@ -131,10 +116,7 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
                     );
                 }
 
-                this.concreteContainer().fireAfterResolvingAttributeCallbacks(
-                    dependency.attributes,
-                    resolved,
-                );
+                this.concreteContainer().fireAfterResolvingAttributeCallbacks(dependency.attributes, resolved);
 
                 values.push(resolved as defined);
             }
@@ -155,16 +137,12 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
  * `ConditionableExtra` in `Illuminate/Support/Traits/Conditionable`.
  */
 type ResolvesRouteDependenciesExtra = Exclude<
-    keyof InstanceType<
-        ReturnType<typeof resolvesRouteDependencies<typeof Trait>>
-    >,
+    keyof InstanceType<ReturnType<typeof resolvesRouteDependencies<typeof Trait>>>,
     keyof ResolvesRouteDependenciesPublicShape
 >;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the assertion is the point: it fails to compile when the trait has a public member the shape does not list.
-type ResolvesRouteDependenciesIsExact = AssertTrue<
-    AssertNoExtraMembers<ResolvesRouteDependenciesExtra>
->;
+type ResolvesRouteDependenciesIsExact = AssertTrue<AssertNoExtraMembers<ResolvesRouteDependenciesExtra>>;
 
 /**
  * PHP: `trait Illuminate\Routing\ResolvesRouteDependencies`.

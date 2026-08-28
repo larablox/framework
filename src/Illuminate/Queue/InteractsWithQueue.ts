@@ -31,9 +31,7 @@ export class InteractsWithQueue {
 
     /** Fail the job from the queue. */
     public fail(exception?: unknown): void {
-        const failure = typeIs(exception, "string")
-            ? new ManuallyFailedException(exception)
-            : exception;
+        const failure = typeIs(exception, "string") ? new ManuallyFailedException(exception) : exception;
 
         if (this.job !== undefined) {
             this.job.fail(failure);

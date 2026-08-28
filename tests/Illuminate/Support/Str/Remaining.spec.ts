@@ -55,21 +55,11 @@ export = (): void => {
             expect(Str.slug("", "")).to.equal("");
             expect(Str.slug("")).to.equal("");
 
-            expect(Str.slug("500$ bill", "-", [["$", "dollar"]])).to.equal(
-                "500-dollar-bill",
-            );
-            expect(Str.slug("500--$----bill", "-", [["$", "dollar"]])).to.equal(
-                "500-dollar-bill",
-            );
-            expect(Str.slug("500-$-bill", "-", [["$", "dollar"]])).to.equal(
-                "500-dollar-bill",
-            );
-            expect(Str.slug("500$--bill", "-", [["$", "dollar"]])).to.equal(
-                "500-dollar-bill",
-            );
-            expect(Str.slug("500-$--bill", "-", [["$", "dollar"]])).to.equal(
-                "500-dollar-bill",
-            );
+            expect(Str.slug("500$ bill", "-", [["$", "dollar"]])).to.equal("500-dollar-bill");
+            expect(Str.slug("500--$----bill", "-", [["$", "dollar"]])).to.equal("500-dollar-bill");
+            expect(Str.slug("500-$-bill", "-", [["$", "dollar"]])).to.equal("500-dollar-bill");
+            expect(Str.slug("500$--bill", "-", [["$", "dollar"]])).to.equal("500-dollar-bill");
+            expect(Str.slug("500-$--bill", "-", [["$", "dollar"]])).to.equal("500-dollar-bill");
         });
 
         it("plural() pluralizes English words by count", () => {
@@ -83,9 +73,7 @@ export = (): void => {
             // PHP: SupportStrTest::testPluralPascal (array/Countable-count
             // cases dropped, see class comment)
             expect(Str.pluralPascal("UserGroup")).to.equal("UserGroups");
-            expect(Str.pluralPascal("ProductCategory")).to.equal(
-                "ProductCategories",
-            );
+            expect(Str.pluralPascal("ProductCategory")).to.equal("ProductCategories");
 
             expect(Str.pluralPascal("UserGroup", 0)).to.equal("UserGroups");
             expect(Str.pluralPascal("UserGroup", 1)).to.equal("UserGroup");
@@ -94,19 +82,9 @@ export = (): void => {
 
         it("parseCallback() splits a Class@method style callback", () => {
             // PHP: SupportStrTest::testParseCallback
-            expect(
-                pairEqual(Str.parseCallback("Class@method"), "Class", "method"),
-            ).to.equal(true);
-            expect(
-                pairEqual(
-                    Str.parseCallback("Class@method", "foo"),
-                    "Class",
-                    "method",
-                ),
-            ).to.equal(true);
-            expect(
-                pairEqual(Str.parseCallback("Class", "foo"), "Class", "foo"),
-            ).to.equal(true);
+            expect(pairEqual(Str.parseCallback("Class@method"), "Class", "method")).to.equal(true);
+            expect(pairEqual(Str.parseCallback("Class@method", "foo"), "Class", "method")).to.equal(true);
+            expect(pairEqual(Str.parseCallback("Class", "foo"), "Class", "foo")).to.equal(true);
 
             const [klass, method] = Str.parseCallback("Class");
 
@@ -121,24 +99,16 @@ export = (): void => {
             // stale cached delimiter)
             Str.flushCache();
 
-            expect(Str.snake("LaravelPhpFramework")).to.equal(
-                "laravel_php_framework",
-            );
+            expect(Str.snake("LaravelPhpFramework")).to.equal("laravel_php_framework");
 
             Str.flushCache();
 
-            expect(Str.snake("LaravelPhpFramework", "-")).to.equal(
-                "laravel-php-framework",
-            );
+            expect(Str.snake("LaravelPhpFramework", "-")).to.equal("laravel-php-framework");
         });
     });
 };
 
 /** Shallow tuple-equality helper for `Str.parseCallback()`'s return pair. */
-function pairEqual(
-    value: [string, string | undefined],
-    klass: string,
-    method: string | undefined,
-): boolean {
+function pairEqual(value: [string, string | undefined], klass: string, method: string | undefined): boolean {
     return value[0] === klass && value[1] === method;
 }

@@ -26,20 +26,12 @@ export class Log extends Facade {
     declare public static extend: Forwarded<LogManager["extend"]>;
     declare public static forgetChannel: Forwarded<LogManager["forgetChannel"]>;
     declare public static getChannels: Forwarded<LogManager["getChannels"]>;
-    declare public static getDefaultDriver: Forwarded<
-        LogManager["getDefaultDriver"]
-    >;
-    declare public static setDefaultDriver: Forwarded<
-        LogManager["setDefaultDriver"]
-    >;
+    declare public static getDefaultDriver: Forwarded<LogManager["getDefaultDriver"]>;
+    declare public static setDefaultDriver: Forwarded<LogManager["setDefaultDriver"]>;
     declare public static shareContext: Forwarded<LogManager["shareContext"]>;
     declare public static sharedContext: Forwarded<LogManager["sharedContext"]>;
-    declare public static withoutContext: Forwarded<
-        LogManager["withoutContext"]
-    >;
-    declare public static flushSharedContext: Forwarded<
-        LogManager["flushSharedContext"]
-    >;
+    declare public static withoutContext: Forwarded<LogManager["withoutContext"]>;
+    declare public static flushSharedContext: Forwarded<LogManager["flushSharedContext"]>;
     declare public static listen: Forwarded<Logger["listen"]>;
 
     /** Get the registered name of the component. */

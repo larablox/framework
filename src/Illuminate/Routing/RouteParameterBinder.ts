@@ -23,12 +23,8 @@ export class RouteParameterBinder {
     }
 
     /** Get the parameter matches for the path portion of the URI. */
-    protected bindPathParameters(
-        request: Request,
-    ): OrderedMap<string, defined> {
-        const matched = this.route
-            .getCompiled()
-            .match(request.decodedPath(), this.route.wheres);
+    protected bindPathParameters(request: Request): OrderedMap<string, defined> {
+        const matched = this.route.getCompiled().match(request.decodedPath(), this.route.wheres);
 
         const parameters = new OrderedMap<string, defined>();
 
@@ -50,9 +46,7 @@ export class RouteParameterBinder {
      * a Luau table holds no nulls, so an optional parameter the path left out
      * is simply absent and only the second loop has anything to do.
      */
-    protected replaceDefaults(
-        parameters: OrderedMap<string, defined>,
-    ): OrderedMap<string, defined> {
+    protected replaceDefaults(parameters: OrderedMap<string, defined>): OrderedMap<string, defined> {
         for (const [key, value] of pairs(this.route.defaultValues)) {
             if (!parameters.has(key as string)) {
                 parameters.set(key as string, value as defined);

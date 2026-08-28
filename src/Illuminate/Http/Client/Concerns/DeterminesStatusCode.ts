@@ -12,22 +12,16 @@ import type { Constructor } from "Illuminate/Support/Traits/Trait";
  * `notModified()` and the redirect codes are kept for completeness; nothing in
  * the port answers with them.
  */
-export function DeterminesStatusCode<TBase extends Constructor>(
-    Base: TBase = Trait as never,
-) {
+export function DeterminesStatusCode<TBase extends Constructor>(Base: TBase = Trait as never) {
     return class extends Base {
         /** PHP: provided by the class using the trait. */
         public status(): number {
-            throw new RuntimeException(
-                "A class using DeterminesStatusCode must implement status().",
-            );
+            throw new RuntimeException("A class using DeterminesStatusCode must implement status().");
         }
 
         /** PHP: provided by the class using the trait. */
         public body(): unknown {
-            throw new RuntimeException(
-                "A class using DeterminesStatusCode must implement body().",
-            );
+            throw new RuntimeException("A class using DeterminesStatusCode must implement body().");
         }
 
         /** Determine if the response code was 200 "OK" response. */

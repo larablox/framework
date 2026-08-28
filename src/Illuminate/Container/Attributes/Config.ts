@@ -15,22 +15,10 @@ export function Config(key: string, defaultValue?: unknown) {
         key,
         default: defaultValue,
         resolve: (attribute: never, container: Container) =>
-            container
-                .make<Repository>("config")
-                .get((attribute as Config).key, (attribute as Config).default),
+            container.make<Repository>("config").get((attribute as Config).key, (attribute as Config).default),
     };
 
-    return (
-        owner: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
-        addParameterAttribute(
-            owner,
-            propertyKey,
-            parameterIndex,
-            Config,
-            instance,
-        );
+    return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+        addParameterAttribute(owner, propertyKey, parameterIndex, Config, instance);
     };
 }

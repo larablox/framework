@@ -8,14 +8,10 @@ import type { Contract } from "Illuminate/Container/Contract";
  * its constructor signature; the container rebuilds the argument list from the
  * `Inject` metadata rather than from the type.
  */
-export type Constructor<T extends object = object> = new (
-    ...args: never[]
-) => T;
+export type Constructor<T extends object = object> = new (...args: never[]) => T;
 
 /** A class that may be abstract -- usable as a key, but never instantiated. */
-export type AbstractClass<T extends object = object> = abstract new (
-    ...args: never[]
-) => T;
+export type AbstractClass<T extends object = object> = abstract new (...args: never[]) => T;
 
 /**
  * PHP: `string`, in practice either a plain key such as `"config"`, a
@@ -26,10 +22,7 @@ export type AbstractClass<T extends object = object> = abstract new (
 export type Abstract = string | AbstractClass | Contract;
 
 /** PHP: the `\Closure` a binding resolves through. */
-export type ContainerClosure = (
-    container: Container,
-    parameters: ParameterOverrides,
-) => unknown;
+export type ContainerClosure = (container: Container, parameters: ParameterOverrides) => unknown;
 
 /** PHP: `\Closure|string $concrete`. */
 export type Concrete = Abstract | ContainerClosure;
@@ -38,10 +31,7 @@ export type Concrete = Abstract | ContainerClosure;
 export type ExtenderClosure = (service: never, container: Container) => unknown;
 
 /** PHP: the `\Closure` passed to `Container::bindMethod()`. */
-export type MethodBindingClosure = (
-    instance: never,
-    container: Container,
-) => unknown;
+export type MethodBindingClosure = (instance: never, container: Container) => unknown;
 
 /** PHP: the `\Closure` passed to `beforeResolving()`. */
 export type BeforeResolvingCallback = (
@@ -84,9 +74,7 @@ export interface Binding {
 export type ParameterList = ParameterOverrides | Array<unknown>;
 
 /** PHP: `(callable(array<int, string>|string): bool|string)|null`. */
-export type EnvironmentResolver = (
-    environments: Array<string> | string,
-) => boolean | string;
+export type EnvironmentResolver = (environments: Array<string> | string) => boolean | string;
 
 /**
  * PHP: `\Closure|string|array $implementation` handed to a contextual binding.

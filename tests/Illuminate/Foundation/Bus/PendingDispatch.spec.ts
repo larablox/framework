@@ -62,8 +62,7 @@ class FakeJob extends Queueable {
     }
 
     public allOnConnection(connection?: string): this {
-        this.allOnConnectionCalls[this.allOnConnectionCalls.size()] =
-            connection;
+        this.allOnConnectionCalls[this.allOnConnectionCalls.size()] = connection;
 
         return super.allOnConnection(connection);
     }

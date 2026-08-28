@@ -52,9 +52,7 @@ export abstract class Lock implements LockContract {
 
         while (!this.acquire()) {
             if (os.clock() - starting >= seconds) {
-                throw new LockTimeoutException(
-                    `Timed out waiting for the [${this.name}] lock.`,
-                );
+                throw new LockTimeoutException(`Timed out waiting for the [${this.name}] lock.`);
             }
 
             task.wait(this.sleepMilliseconds / 1000);

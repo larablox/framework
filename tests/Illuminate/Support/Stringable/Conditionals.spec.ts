@@ -36,9 +36,7 @@ export = (): void => {
 
             expect(
                 Str.of("unless ")
-                    .unless(0, (target, value) =>
-                        target.append(tostring(value)),
-                    )
+                    .unless(0, (target, value) => target.append(tostring(value)))
                     .toString(),
             ).to.equal("unless 0");
         });
@@ -47,9 +45,7 @@ export = (): void => {
             // PHP: SupportStringableTest::testWhenFalse / testWhenTrue
             expect(
                 Str.of("when")
-                    .when(false, (target, value) =>
-                        target.append(tostring(value)).append("false"),
-                    )
+                    .when(false, (target, value) => target.append(tostring(value)).append("false"))
                     .toString(),
             ).to.equal("when");
 
@@ -64,17 +60,13 @@ export = (): void => {
             // PHP: SupportStringableTest::testWhenContains / testWhenContainsAll
             expect(
                 Str.of("stark")
-                    .whenContains("tar", (target) =>
-                        target.prepend("Tony ").title(),
-                    )
+                    .whenContains("tar", (target) => target.prepend("Tony ").title())
                     .toString(),
             ).to.equal("Tony Stark");
 
             expect(
                 Str.of("stark")
-                    .whenContains("xxx", (target) =>
-                        target.prepend("Tony ").title(),
-                    )
+                    .whenContains("xxx", (target) => target.prepend("Tony ").title())
                     .toString(),
             ).to.equal("stark");
 
@@ -90,9 +82,7 @@ export = (): void => {
 
             expect(
                 Str.of("tony stark")
-                    .whenContainsAll(["tony", "stark"], (target) =>
-                        target.title(),
-                    )
+                    .whenContainsAll(["tony", "stark"], (target) => target.title())
                     .toString(),
             ).to.equal("Tony Stark");
 
@@ -171,17 +161,10 @@ export = (): void => {
             ).to.equal("Swing and a miss...!");
 
             expect(
-                (
-                    Str.of("Tony Stark").whenExactly(
-                        "Iron Man",
-                        () => "Nailed it...!",
-                    ) as Stringable
-                ).toString(),
+                (Str.of("Tony Stark").whenExactly("Iron Man", () => "Nailed it...!") as Stringable).toString(),
             ).to.equal("Tony Stark");
 
-            expect(
-                Str.of("Tony").whenNotExactly("Tony Stark", () => "Iron Man"),
-            ).to.equal("Iron Man");
+            expect(Str.of("Tony").whenNotExactly("Tony Stark", () => "Iron Man")).to.equal("Iron Man");
 
             expect(
                 Str.of("Tony Stark").whenNotExactly(
@@ -360,22 +343,14 @@ export = (): void => {
             // PHP: SupportStringableTest::testWhenEmpty / testWhenNotEmpty
             const untouched = Str.of("");
 
-            expect(untouched.whenEmpty<Stringable>(() => undefined)).to.equal(
-                untouched,
-            );
+            expect(untouched.whenEmpty<Stringable>(() => undefined)).to.equal(untouched);
 
             expect(Str.of("").whenEmpty(() => "empty")).to.equal("empty");
-            expect(
-                (
-                    Str.of("not-empty").whenEmpty(() => "empty") as Stringable
-                ).toString(),
-            ).to.equal("not-empty");
+            expect((Str.of("not-empty").whenEmpty(() => "empty") as Stringable).toString()).to.equal("not-empty");
 
             const untouchedNotEmpty = Str.of("");
 
-            expect(
-                untouchedNotEmpty.whenNotEmpty<Stringable>(() => undefined),
-            ).to.equal(untouchedNotEmpty);
+            expect(untouchedNotEmpty.whenNotEmpty<Stringable>(() => undefined)).to.equal(untouchedNotEmpty);
 
             expect(
                 Str.of("Not empty")

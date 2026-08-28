@@ -9,11 +9,7 @@ import { Middleware as MiddlewareConfiguration } from "Illuminate/Foundation/Con
 import { RegisterProviders } from "Illuminate/Foundation/Bootstrap/RegisterProviders";
 import { Util } from "Illuminate/Container/Util";
 import { Worker } from "Illuminate/Foundation/Runtime/Worker";
-import type {
-    Abstract,
-    Concrete,
-    Constructor,
-} from "Illuminate/Container/Types";
+import type { Abstract, Concrete, Constructor } from "Illuminate/Container/Types";
 import type { Application } from "Illuminate/Foundation/Application";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Router } from "Illuminate/Routing/Router";
@@ -110,9 +106,7 @@ export class ApplicationBuilder {
      * kernel the first time it is resolved -- which is how PHP does it, and why
      * the callback may name middleware the container cannot build yet.
      */
-    public withMiddleware(
-        callback?: (middleware: MiddlewareConfiguration) => void,
-    ): this {
+    public withMiddleware(callback?: (middleware: MiddlewareConfiguration) => void): this {
         this.app.afterResolving(Kernel, (resolved: never) => {
             const kernel = resolved as Kernel;
             const middleware = new MiddlewareConfiguration();
@@ -131,17 +125,11 @@ export class ApplicationBuilder {
                 kernel.setMiddlewarePriority(priority);
             }
 
-            for (const [
-                entry,
-                after,
-            ] of middleware.getMiddlewarePriorityAppends()) {
+            for (const [entry, after] of middleware.getMiddlewarePriorityAppends()) {
                 kernel.addToMiddlewarePriorityAfter(after, entry);
             }
 
-            for (const [
-                entry,
-                before,
-            ] of middleware.getMiddlewarePriorityPrepends()) {
+            for (const [entry, before] of middleware.getMiddlewarePriorityPrepends()) {
                 kernel.addToMiddlewarePriorityBefore(before, entry);
             }
         });
@@ -150,9 +138,7 @@ export class ApplicationBuilder {
     }
 
     /** Register and configure the application's exception handler. */
-    public withExceptions(
-        using?: (exceptions: ExceptionsConfiguration) => void,
-    ): this {
+    public withExceptions(using?: (exceptions: ExceptionsConfiguration) => void): this {
         this.app.singleton(Handler);
 
         if (using !== undefined) {
@@ -165,9 +151,7 @@ export class ApplicationBuilder {
     }
 
     /** Register additional service providers. */
-    public withProviders(
-        providers: Array<Constructor<ServiceProvider>> = [],
-    ): this {
+    public withProviders(providers: Array<Constructor<ServiceProvider>> = []): this {
         RegisterProviders.merge(providers);
 
         return this;
@@ -183,9 +167,7 @@ export class ApplicationBuilder {
     }
 
     /** Register an array of singleton container bindings to be bound when the application is booting. */
-    public withSingletons(
-        singletons: Array<[Abstract, Concrete] | Abstract>,
-    ): this {
+    public withSingletons(singletons: Array<[Abstract, Concrete] | Abstract>): this {
         return this.registered((app: Application) => {
             for (const entry of singletons) {
                 if (Util.isArray(entry)) {
@@ -200,9 +182,7 @@ export class ApplicationBuilder {
     }
 
     /** Register an array of scoped singleton container bindings to be bound when the application is booting. */
-    public withScopedSingletons(
-        scopedSingletons: Array<[Abstract, Concrete] | Abstract>,
-    ): this {
+    public withScopedSingletons(scopedSingletons: Array<[Abstract, Concrete] | Abstract>): this {
         return this.registered((app: Application) => {
             for (const entry of scopedSingletons) {
                 if (Util.isArray(entry)) {

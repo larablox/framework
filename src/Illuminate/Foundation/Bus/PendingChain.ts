@@ -12,10 +12,7 @@ import type { Queueable } from "Illuminate/Bus/Queueable";
  * `catch()` is not ported -- a catch callback is a closure, and a closure does
  * not survive serialization.
  */
-export class PendingChain<
-    T extends Queueable = Queueable,
-    A extends Array<unknown> = Array<unknown>,
-> {
+export class PendingChain<T extends Queueable = Queueable, A extends Array<unknown> = Array<unknown>> {
     /** The connection the chain should run on. */
     protected connection?: string;
 
@@ -72,8 +69,6 @@ export class PendingChain<
 
         first.chain(this.chain);
 
-        return Container.getInstance()
-            .make<Dispatcher>(Dispatcher)
-            .dispatch(first);
+        return Container.getInstance().make<Dispatcher>(Dispatcher).dispatch(first);
     }
 }

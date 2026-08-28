@@ -1,9 +1,6 @@
 import { Arr } from "Illuminate/Support/Arr";
 import { Collection } from "Illuminate/Support/Collection";
-import {
-    InvalidArgumentException,
-    RuntimeException,
-} from "Illuminate/Exception";
+import { InvalidArgumentException, RuntimeException } from "Illuminate/Exception";
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import { Reflector } from "Illuminate/Support/Reflector";
 import { Str } from "Illuminate/Support/Str";
@@ -83,10 +80,7 @@ export function _with<TValue extends defined, TReturn>(
  * method call to the target and hands the target back through `__call`. There
  * is no `__call`, so the callback is required.
  */
-export function tap<TValue extends defined>(
-    value: TValue,
-    callback: (value: TValue) => unknown,
-): TValue {
+export function tap<TValue extends defined>(value: TValue, callback: (value: TValue) => unknown): TValue {
     callback(value);
 
     return value;
@@ -130,9 +124,7 @@ export function when<TValue extends defined, TDefault extends defined>(
     value: TValue | ((condition: unknown) => TValue),
     defaultValue?: TDefault | ((condition: unknown) => TDefault),
 ): TValue | TDefault | undefined {
-    const resolved = typeIs(condition, "function")
-        ? (condition as Callback)()
-        : condition;
+    const resolved = typeIs(condition, "function") ? (condition as Callback)() : condition;
 
     if (Util.truthy(resolved)) {
         return Util.unwrapIfClosure(value, resolved) as TValue;
@@ -227,9 +219,7 @@ export function throw_if<TValue>(
         return condition;
     }
 
-    const thrown = typeIs(exception, "function")
-        ? (exception as Callback)(...parameters)
-        : exception;
+    const thrown = typeIs(exception, "function") ? (exception as Callback)(...parameters) : exception;
 
     if (typeIs(thrown, "string")) {
         throw new RuntimeException(thrown);
@@ -241,9 +231,7 @@ export function throw_if<TValue>(
         throw thrown;
     }
 
-    throw new (thrown as Constructor<Exception>)(
-        ...(parameters as Array<never>),
-    );
+    throw new (thrown as Constructor<Exception>)(...(parameters as Array<never>));
 }
 
 /** PHP: `throw_unless($condition, $exception, ...$parameters)`. */
@@ -270,8 +258,7 @@ export function throw_unless<TValue>(
 export function retry<TReturn>(
     times: number | Array<number>,
     callback: (attempts: number) => TReturn,
-    sleepMilliseconds:
-        number | ((attempts: number, exception: unknown) => number) = 0,
+    sleepMilliseconds: number | ((attempts: number, exception: unknown) => number) = 0,
     when?: (exception: unknown) => boolean,
 ): TReturn {
     const backoff = typeIs(times, "table") ? times : new Array<number>();
@@ -297,10 +284,7 @@ export function retry<TReturn>(
             // `typeIs` narrows to Luau's `Callback`, whose return is `any`;
             // the cast keeps the delay a number.
             const milliseconds: number = typeIs(configured, "function")
-                ? (configured as (attempts: number, e: unknown) => number)(
-                      attempts,
-                      exception,
-                  )
+                ? (configured as (attempts: number, e: unknown) => number)(attempts, exception)
                 : configured;
 
             if (milliseconds > 0) {
@@ -321,11 +305,7 @@ export function retry<TReturn>(
  * so the name it reports is already the basename.
  */
 export function class_basename(target: unknown): string {
-    return Reflector.className(
-        Reflector.isInstance(target)
-            ? Reflector.classOf(target as object)
-            : target,
-    );
+    return Reflector.className(Reflector.isInstance(target) ? Reflector.classOf(target as object) : target);
 }
 
 // ---------------------------------------------------------------------
@@ -380,11 +360,7 @@ export function last<T extends defined>(list: Array<T>): T | undefined {
  * list. And `*` drops the misses instead of collecting nulls: a Luau array
  * cannot hold a hole, and a hole would cut the array short.
  */
-export function data_get(
-    target: unknown,
-    key: string | Array<string> | undefined,
-    defaultValue?: unknown,
-): unknown {
+export function data_get(target: unknown, key: string | Array<string> | undefined, defaultValue?: unknown): unknown {
     if (key === undefined) {
         return target;
     }
@@ -434,10 +410,7 @@ export function data_get(
  * Plain segments only -- PHP's `data_has` understands neither `*` nor
  * `{first}` either.
  */
-export function data_has(
-    target: unknown,
-    key: string | Array<string> | undefined,
-): boolean {
+export function data_has(target: unknown, key: string | Array<string> | undefined): boolean {
     if (key === undefined) {
         return false;
     }
@@ -485,9 +458,7 @@ export function data_set(
         const items = itemsOf(target);
 
         if (items === undefined) {
-            throw new InvalidArgumentException(
-                "A wildcard segment needs a target that holds items.",
-            );
+            throw new InvalidArgumentException("A wildcard segment needs a target that holds items.");
         }
 
         if (rest.size() > 0) {
@@ -525,11 +496,7 @@ export function data_set(
 }
 
 /** PHP: `data_fill(&$target, $key, $value)`. */
-export function data_fill(
-    target: DataTarget,
-    key: string | Array<string>,
-    value: unknown,
-): DataTarget {
+export function data_fill(target: DataTarget, key: string | Array<string>, value: unknown): DataTarget {
     return data_set(target, key, value, false);
 }
 
@@ -539,10 +506,7 @@ export function data_fill(
  * Dropping a key from a list re-indexes it: `unset($list[1])` leaves a hole in
  * PHP, and a Luau array has no holes to leave.
  */
-export function data_forget(
-    target: DataTarget,
-    key: string | Array<string>,
-): DataTarget {
+export function data_forget(target: DataTarget, key: string | Array<string>): DataTarget {
     const rest = typeIs(key, "string") ? key.split(".") : [...key];
     const segment = rest.remove(0) as string;
 
@@ -600,9 +564,7 @@ function readRawKey(target: unknown, key: string | number): unknown {
         return undefined;
     }
 
-    return typeIs(key, "number")
-        ? (target as Array<defined>)[key]
-        : (target as Record<string, unknown>)[key];
+    return typeIs(key, "number") ? (target as Array<defined>)[key] : (target as Record<string, unknown>)[key];
 }
 
 /** A target that keeps its own keys, and can therefore hold numeric ones. */
@@ -726,9 +688,7 @@ function keyFor(target: unknown, segment: string): string | number {
     // A Collection or an OrderedMap keeps whatever key it was given, so an
     // existing numeric one wins; a plain table is string-keyed, and PHP's
     // habit of folding `'0'` into `0` would only invent keys nothing reads.
-    return isKeyed(target) && readRawKey(target, numeric) !== undefined
-        ? numeric
-        : segment;
+    return isKeyed(target) && readRawKey(target, numeric) !== undefined ? numeric : segment;
 }
 
 /** PHP: `is_iterable($target)`, answering the items to walk. */
@@ -761,25 +721,17 @@ function itemsOf(target: unknown): Array<defined> | undefined {
 /** Every key of the target, in whatever order it can offer. */
 function keysOf(target: unknown): Array<string | number> {
     if (target instanceof Collection) {
-        return (target as Collection<defined, defined>).keys().all() as Array<
-            string | number
-        >;
+        return (target as Collection<defined, defined>).keys().all() as Array<string | number>;
     }
 
     if (target instanceof OrderedMap) {
-        return (target as OrderedMap<defined, defined>).keys() as Array<
-            string | number
-        >;
+        return (target as OrderedMap<defined, defined>).keys() as Array<string | number>;
     }
 
     if (Util.isArray(target)) {
         const indices = new Array<string | number>();
 
-        for (
-            let index = 0;
-            index < (target as Array<defined>).size();
-            index++
-        ) {
+        for (let index = 0; index < (target as Array<defined>).size(); index++) {
             indices.push(index);
         }
 
@@ -803,10 +755,7 @@ function keysOf(target: unknown): Array<string | number> {
  * A plain table has no first key -- `pairs` picks its own order -- which is
  * the whole reason `OrderedMap` exists. `{first}` over one is arbitrary.
  */
-function keyAt(
-    target: unknown,
-    wantLast: boolean,
-): string | number | undefined {
+function keyAt(target: unknown, wantLast: boolean): string | number | undefined {
     const keys = keysOf(target);
 
     if (keys.size() === 0) {

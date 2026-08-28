@@ -15,16 +15,10 @@ export class Queue extends Facade {
     declare public static addConnector: Forwarded<QueueManager["addConnector"]>;
     declare public static before: Forwarded<QueueManager["before"]>;
     declare public static after: Forwarded<QueueManager["after"]>;
-    declare public static exceptionOccurred: Forwarded<
-        QueueManager["exceptionOccurred"]
-    >;
+    declare public static exceptionOccurred: Forwarded<QueueManager["exceptionOccurred"]>;
     declare public static failing: Forwarded<QueueManager["failing"]>;
-    declare public static getDefaultDriver: Forwarded<
-        QueueManager["getDefaultDriver"]
-    >;
-    declare public static setDefaultDriver: Forwarded<
-        QueueManager["setDefaultDriver"]
-    >;
+    declare public static getDefaultDriver: Forwarded<QueueManager["getDefaultDriver"]>;
+    declare public static setDefaultDriver: Forwarded<QueueManager["setDefaultDriver"]>;
     declare public static getName: Forwarded<QueueManager["getName"]>;
     declare public static size: Forwarded<QueueManager["size"]>;
     declare public static push: Forwarded<QueueManager["push"]>;

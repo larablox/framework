@@ -25,18 +25,11 @@ export = (): void => {
             expect(stringable.match("foo (.*)").toString()).to.equal("bar");
             expect(stringable.match("nothing").isEmpty()).to.equal(true);
 
-            expect(
-                arraysEqual(Str.of("bar foo bar").matchAll("bar").all(), [
-                    "bar",
-                    "bar",
-                ]),
-            ).to.equal(true);
+            expect(arraysEqual(Str.of("bar foo bar").matchAll("bar").all(), ["bar", "bar"])).to.equal(true);
 
             const multi = Str.of("bar fun bar fly");
 
-            expect(
-                arraysEqual(multi.matchAll("f(%w*)").all(), ["un", "ly"]),
-            ).to.equal(true);
+            expect(arraysEqual(multi.matchAll("f(%w*)").all(), ["un", "ly"])).to.equal(true);
             expect(multi.matchAll("nothing").isEmpty()).to.equal(true);
         });
 

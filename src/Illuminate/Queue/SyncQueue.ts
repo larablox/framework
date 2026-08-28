@@ -9,10 +9,7 @@ import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Delay } from "Illuminate/Support/InteractsWithTime";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
 import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type {
-    JobTarget,
-    Queue as QueueContract,
-} from "Illuminate/Contracts/Queue/Queue";
+import type { JobTarget, Queue as QueueContract } from "Illuminate/Contracts/Queue/Queue";
 
 /**
  * PHP: `Illuminate\Queue\SyncQueue`.
@@ -95,15 +92,8 @@ export class SyncQueue extends Queue implements QueueContract {
     }
 
     /** Execute a given job synchronously. */
-    protected executeJob(
-        job: JobTarget,
-        data: unknown = "",
-        queue?: string,
-    ): number {
-        const queueJob = this.resolveJob(
-            this.createPayload(job, queue, data),
-            queue,
-        );
+    protected executeJob(job: JobTarget, data: unknown = "", queue?: string): number {
+        const queueJob = this.resolveJob(this.createPayload(job, queue, data), queue);
 
         let exceptionOccurred: unknown;
 
@@ -126,58 +116,36 @@ export class SyncQueue extends Queue implements QueueContract {
 
     /** Resolve a Sync job instance. */
     protected resolveJob(payload: JobPayload, queue?: string): Job {
-        return new SyncJob(
-            this.container,
-            payload,
-            this.connectionName,
-            queue ?? "",
-        );
+        return new SyncJob(this.container, payload, this.connectionName, queue ?? "");
     }
 
     /** Raise the before queue job event. */
     protected raiseBeforeJobEvent(job: Job): void {
         if (this.container.bound("events")) {
-            this.container
-                .make<Dispatcher>("events")
-                .dispatch(new JobProcessing(this.connectionName, job));
+            this.container.make<Dispatcher>("events").dispatch(new JobProcessing(this.connectionName, job));
         }
     }
 
     /** Raise the after queue job event. */
     protected raiseAfterJobEvent(job: Job): void {
         if (this.container.bound("events")) {
-            this.container
-                .make<Dispatcher>("events")
-                .dispatch(new JobProcessed(this.connectionName, job));
+            this.container.make<Dispatcher>("events").dispatch(new JobProcessed(this.connectionName, job));
         }
     }
 
     /** Raise the job attempted event. */
-    protected raiseJobAttemptedEvent(
-        job: Job,
-        exceptionOccurred?: unknown,
-    ): void {
+    protected raiseJobAttemptedEvent(job: Job, exceptionOccurred?: unknown): void {
         if (this.container.bound("events")) {
             this.container
                 .make<Dispatcher>("events")
-                .dispatch(
-                    new JobAttempted(
-                        this.connectionName,
-                        job,
-                        exceptionOccurred,
-                    ),
-                );
+                .dispatch(new JobAttempted(this.connectionName, job, exceptionOccurred));
         }
     }
 
     /** Raise the exception occurred queue job event. */
     protected raiseExceptionOccurredJobEvent(job: Job, e: unknown): void {
         if (this.container.bound("events")) {
-            this.container
-                .make<Dispatcher>("events")
-                .dispatch(
-                    new JobExceptionOccurred(this.connectionName, job, e),
-                );
+            this.container.make<Dispatcher>("events").dispatch(new JobExceptionOccurred(this.connectionName, job, e));
         }
     }
 
@@ -194,21 +162,12 @@ export class SyncQueue extends Queue implements QueueContract {
        so there is nothing to write raw and nothing to pop. */
 
     /** Push a raw payload onto the queue. */
-    public pushRaw(
-        payload: JobPayload,
-        queue?: string,
-        options?: ArrayAccessible,
-    ): unknown {
+    public pushRaw(payload: JobPayload, queue?: string, options?: ArrayAccessible): unknown {
         return undefined;
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(
-        delay: Delay,
-        job: JobTarget,
-        data: unknown = "",
-        queue?: string,
-    ): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = "", queue?: string): unknown {
         return this.push(job, data, queue);
     }
 

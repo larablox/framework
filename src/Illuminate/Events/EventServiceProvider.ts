@@ -16,9 +16,7 @@ export class EventServiceProvider extends ServiceProvider {
         const app: Application = this.app;
 
         this.app.singleton("events", (container: Container) =>
-            new Dispatcher(container).setQueueResolver(() =>
-                app.make<Factory>("queue"),
-            ),
+            new Dispatcher(container).setQueueResolver(() => app.make<Factory>("queue")),
         );
     }
 }

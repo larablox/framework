@@ -42,20 +42,14 @@ export = (): void => {
             });
 
             old = { where: { var1: "foo", var2: "bar" } };
-            expectDeepEqual(
-                RouteGroup.merge({ where: { var2: "baz", var3: "qux" } }, old),
-                {
-                    where: { var1: "foo", var2: "baz", var3: "qux" },
-                },
-            );
+            expectDeepEqual(RouteGroup.merge({ where: { var2: "baz", var3: "qux" } }, old), {
+                where: { var1: "foo", var2: "baz", var3: "qux" },
+            });
 
             old = {};
-            expectDeepEqual(
-                RouteGroup.merge({ where: { var1: "foo", var2: "bar" } }, old),
-                {
-                    where: { var1: "foo", var2: "bar" },
-                },
-            );
+            expectDeepEqual(RouteGroup.merge({ where: { var1: "foo", var2: "bar" } }, old), {
+                where: { var1: "foo", var2: "bar" },
+            });
         });
 
         // PHP: RoutingRouteTest::testRouteGrouping, the getPrefix() case

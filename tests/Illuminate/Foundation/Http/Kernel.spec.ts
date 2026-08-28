@@ -55,10 +55,7 @@ export = (): void => {
             // PHP: KernelTest::testGetMiddlewarePriority
             const kernel = new Kernel(application(), router());
 
-            expectDeepEqual(kernel.getMiddlewarePriority(), [
-                ThrottleRequests,
-                SubstituteBindings,
-            ] as Array<Pipe>);
+            expectDeepEqual(kernel.getMiddlewarePriority(), [ThrottleRequests, SubstituteBindings] as Array<Pipe>);
         });
 
         it("addToMiddlewarePriorityAfter() splices the entry in after the named middleware (adapted -- see class comment)", () => {
@@ -70,10 +67,7 @@ export = (): void => {
             // instead would land on PHP's own corner, where `$index` never
             // moves off its initial `0` and `array_splice()` puts the new
             // entry in front of the anchor rather than after it.
-            kernel.addToMiddlewarePriorityAfter(
-                [SubstituteBindings],
-                ValidateSignatureStub,
-            );
+            kernel.addToMiddlewarePriorityAfter([SubstituteBindings], ValidateSignatureStub);
 
             expectDeepEqual(kernel.getMiddlewarePriority(), [
                 ThrottleRequests,
@@ -86,10 +80,7 @@ export = (): void => {
             // PHP: KernelTest::testAddToMiddlewarePriorityBefore
             const kernel = new Kernel(application(), router());
 
-            kernel.addToMiddlewarePriorityBefore(
-                [SubstituteBindings],
-                ValidateSignatureStub,
-            );
+            kernel.addToMiddlewarePriorityBefore([SubstituteBindings], ValidateSignatureStub);
 
             expectDeepEqual(kernel.getMiddlewarePriority(), [
                 ThrottleRequests,
@@ -108,10 +99,7 @@ export = (): void => {
             const kernel = new Kernel(app, router());
 
             class TerminatingMiddlewareStub {
-                public handle(
-                    request: Request,
-                    _next: (request: Request) => Response,
-                ): Response {
+                public handle(request: Request, _next: (request: Request) => Response): Response {
                     return _next(request);
                 }
 
@@ -120,10 +108,7 @@ export = (): void => {
                 }
             }
 
-            app.instance(
-                "terminating-middleware",
-                new TerminatingMiddlewareStub(),
-            );
+            app.instance("terminating-middleware", new TerminatingMiddlewareStub());
             kernel.setGlobalMiddleware(["terminating-middleware"]);
 
             events.listen(Terminating, () => {
@@ -133,16 +118,9 @@ export = (): void => {
                 called.push("terminating callback");
             });
 
-            kernel.terminate(
-                new Request({} as Player, "GET", "/"),
-                new Response(),
-            );
+            kernel.terminate(new Request({} as Player, "GET", "/"), new Response());
 
-            expectDeepEqual(called, [
-                "terminating event",
-                "terminating middleware",
-                "terminating callback",
-            ]);
+            expectDeepEqual(called, ["terminating event", "terminating middleware", "terminating callback"]);
         });
     });
 };

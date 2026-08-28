@@ -23,9 +23,7 @@ export class App extends Facade {
     declare public static booting: Forwarded<Application["booting"]>;
     declare public static terminating: Forwarded<Application["terminating"]>;
     declare public static terminate: Forwarded<Application["terminate"]>;
-    declare public static hasBeenBootstrapped: Forwarded<
-        Application["hasBeenBootstrapped"]
-    >;
+    declare public static hasBeenBootstrapped: Forwarded<Application["hasBeenBootstrapped"]>;
 
     /** Get the registered name of the component. */
     protected static getFacadeAccessor(): Abstract {

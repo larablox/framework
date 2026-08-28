@@ -38,15 +38,11 @@ export = (): void => {
             const handler = new ExposedHandler(container);
             let exceptions = new Exceptions(handler);
 
-            expect(handler.getDontReport().includes(HttpException)).to.equal(
-                true,
-            );
+            expect(handler.getDontReport().includes(HttpException)).to.equal(true);
 
             exceptions = exceptions.stopIgnoring(HttpException);
             expect(exceptions instanceof Exceptions).to.equal(true);
-            expect(handler.getDontReport().includes(HttpException)).to.equal(
-                false,
-            );
+            expect(handler.getDontReport().includes(HttpException)).to.equal(false);
         });
     });
 };

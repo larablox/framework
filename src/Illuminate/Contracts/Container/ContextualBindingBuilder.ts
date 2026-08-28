@@ -1,7 +1,4 @@
-import type {
-    Abstract,
-    ContextualImplementation,
-} from "Illuminate/Container/Types";
+import type { Abstract, ContextualImplementation } from "Illuminate/Container/Types";
 
 export interface ContextualBindingBuilder {
     /** Define the abstract target that depends on the context. */

@@ -31,9 +31,7 @@ export class Repository {
     protected hidden: Record<string, unknown> = {};
 
     /** Create a new Context instance. */
-    public constructor(
-        @Inject("events") protected readonly events: Dispatcher,
-    ) {}
+    public constructor(@Inject("events") protected readonly events: Dispatcher) {}
 
     /** Determine if the given key exists. */
     public has(key: string): boolean {
@@ -129,10 +127,7 @@ export class Repository {
     }
 
     /** Add a hidden context value. */
-    public addHidden(
-        key: string | Record<string, unknown>,
-        value?: unknown,
-    ): this {
+    public addHidden(key: string | Record<string, unknown>, value?: unknown): this {
         if (typeIs(key, "string")) {
             this.hidden[key] = value;
 
@@ -211,9 +206,7 @@ export class Repository {
     /** Push the given values onto the key's stack. */
     public push(key: string, ...values: Array<defined>): this {
         if (!this.isStackable(key)) {
-            throw new RuntimeException(
-                `Unable to push value onto context stack for key [${key}].`,
-            );
+            throw new RuntimeException(`Unable to push value onto context stack for key [${key}].`);
         }
 
         const stack = (this.data[key] ?? []) as Array<defined>;
@@ -232,9 +225,7 @@ export class Repository {
         const stack = this.data[key] as Array<defined> | undefined;
 
         if (!this.isStackable(key) || stack === undefined || stack.isEmpty()) {
-            throw new RuntimeException(
-                `Unable to pop value from context stack for key [${key}].`,
-            );
+            throw new RuntimeException(`Unable to pop value from context stack for key [${key}].`);
         }
 
         return stack.pop();
@@ -243,9 +234,7 @@ export class Repository {
     /** Push the given hidden values onto the key's stack. */
     public pushHidden(key: string, ...values: Array<defined>): this {
         if (!this.isHiddenStackable(key)) {
-            throw new RuntimeException(
-                `Unable to push value onto hidden context stack for key [${key}].`,
-            );
+            throw new RuntimeException(`Unable to push value onto hidden context stack for key [${key}].`);
         }
 
         const stack = (this.hidden[key] ?? []) as Array<defined>;
@@ -263,14 +252,8 @@ export class Repository {
     public popHidden(key: string): unknown {
         const stack = this.hidden[key] as Array<defined> | undefined;
 
-        if (
-            !this.isHiddenStackable(key) ||
-            stack === undefined ||
-            stack.isEmpty()
-        ) {
-            throw new RuntimeException(
-                `Unable to pop value from hidden context stack for key [${key}].`,
-            );
+        if (!this.isHiddenStackable(key) || stack === undefined || stack.isEmpty()) {
+            throw new RuntimeException(`Unable to pop value from hidden context stack for key [${key}].`);
         }
 
         return stack.pop();
@@ -278,10 +261,7 @@ export class Repository {
 
     /** Increment a context counter. */
     public increment(key: string, amount = 1): this {
-        return this.add(
-            key,
-            ((tonumber(this.get(key, 0)) ?? 0) as number) + amount,
-        );
+        return this.add(key, ((tonumber(this.get(key, 0)) ?? 0) as number) + amount);
     }
 
     /** Decrement a context counter. */
@@ -295,10 +275,7 @@ export class Repository {
             throw new RuntimeException(`Given key [${key}] is not a stack.`);
         }
 
-        return Repository.stackHas(
-            this.data[key] as Array<defined> | undefined,
-            value,
-        );
+        return Repository.stackHas(this.data[key] as Array<defined> | undefined, value);
     }
 
     /** Determine if the given key's hidden stack contains the given value. */
@@ -307,10 +284,7 @@ export class Repository {
             throw new RuntimeException(`Given key [${key}] is not a stack.`);
         }
 
-        return Repository.stackHas(
-            this.hidden[key] as Array<defined> | undefined,
-            value,
-        );
+        return Repository.stackHas(this.hidden[key] as Array<defined> | undefined, value);
     }
 
     /** Determine if a key can be used as a stack. */
@@ -324,11 +298,7 @@ export class Repository {
     }
 
     /** Run the callback with the given context, restoring it afterwards. */
-    public scope<T>(
-        callback: () => T,
-        data: Record<string, unknown> = {},
-        hidden: Record<string, unknown> = {},
-    ): T {
+    public scope<T>(callback: () => T, data: Record<string, unknown> = {}, hidden: Record<string, unknown> = {}): T {
         const dataBefore = Repository.copy(this.data);
         const hiddenBefore = Repository.copy(this.hidden);
 
@@ -345,28 +315,21 @@ export class Repository {
 
     /** Determine if the repository holds nothing. */
     public isEmpty(): boolean {
-        return (
-            next(this.data)[0] === undefined &&
-            next(this.hidden)[0] === undefined
-        );
+        return next(this.data)[0] === undefined && next(this.hidden)[0] === undefined;
     }
 
     /** Register a callback to run when the context is dehydrating. */
     public dehydrating(callback: (context: Repository) => void): this {
         // PHP unwraps the event and hands the callback the repository itself,
         // not the event carrying it.
-        this.events.listen(ContextDehydrating, (event: ContextDehydrating) =>
-            callback(event.context),
-        );
+        this.events.listen(ContextDehydrating, (event: ContextDehydrating) => callback(event.context));
 
         return this;
     }
 
     /** Register a callback to run when the context has been hydrated. */
     public hydrated(callback: (context: Repository) => void): this {
-        this.events.listen(ContextHydrated, (event: ContextHydrated) =>
-            callback(event.context),
-        );
+        this.events.listen(ContextHydrated, (event: ContextHydrated) => callback(event.context));
 
         return this;
     }
@@ -391,9 +354,7 @@ export class Repository {
         // and leaves the live repository alone.
         const instance = new Repository(this.events);
 
-        instance
-            .add(Repository.copy(this.data))
-            .addHidden(Repository.copy(this.hidden));
+        instance.add(Repository.copy(this.data)).addHidden(Repository.copy(this.hidden));
 
         this.events.dispatch(new ContextDehydrating(instance));
 
@@ -422,9 +383,7 @@ export class Repository {
     }
 
     /** A shallow copy of the given bag. */
-    protected static copy(
-        bag: Record<string, unknown>,
-    ): Record<string, unknown> {
+    protected static copy(bag: Record<string, unknown>): Record<string, unknown> {
         const copied: Record<string, unknown> = {};
 
         for (const [key, value] of pairs(bag)) {
@@ -435,11 +394,7 @@ export class Repository {
     }
 
     /** Keep, or drop, the given keys. */
-    protected static subset(
-        bag: Record<string, unknown>,
-        keys: Array<string>,
-        keep: boolean,
-    ): Record<string, unknown> {
+    protected static subset(bag: Record<string, unknown>, keys: Array<string>, keep: boolean): Record<string, unknown> {
         const result: Record<string, unknown> = {};
 
         for (const [key, value] of pairs(bag)) {
@@ -457,10 +412,7 @@ export class Repository {
     }
 
     /** Determine if the stack holds the value, or matches the predicate. */
-    protected static stackHas(
-        stack: Array<defined> | undefined,
-        value: unknown,
-    ): boolean {
+    protected static stackHas(stack: Array<defined> | undefined, value: unknown): boolean {
         if (stack === undefined) {
             return false;
         }

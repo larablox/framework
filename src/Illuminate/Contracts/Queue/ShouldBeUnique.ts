@@ -32,9 +32,7 @@ export function isShouldBeUnique(job: unknown): job is ShouldBeUnique {
         return false;
     }
 
-    let current: object | undefined = Reflector.isInstance(job)
-        ? Reflector.classOf(job as object)
-        : (job as object);
+    let current: object | undefined = Reflector.isInstance(job) ? Reflector.classOf(job as object) : (job as object);
 
     while (current !== undefined) {
         if (Attributes.has(current, ShouldBeUnique)) {

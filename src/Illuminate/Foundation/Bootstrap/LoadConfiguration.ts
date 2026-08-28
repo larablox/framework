@@ -1,9 +1,6 @@
 import { Repository } from "Illuminate/Config/Repository";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type {
-    Application,
-    Bootstrapper,
-} from "Illuminate/Contracts/Foundation/Application";
+import type { Application, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
 
 /**
  * PHP: `Illuminate\Foundation\Bootstrap\LoadConfiguration`.
@@ -30,12 +27,8 @@ export class LoadConfiguration implements Bootstrapper {
         // Finally, we will set the application's environment based on the configuration
         // values that were loaded, and hand the container a resolver so that bindings
         // declared per environment can be resolved.
-        app.detectEnvironment(
-            () => config.get("app.env", "production") as string,
-        );
+        app.detectEnvironment(() => config.get("app.env", "production") as string);
 
-        app.resolveEnvironmentUsing((environments) =>
-            app.environment(environments),
-        );
+        app.resolveEnvironmentUsing((environments) => app.environment(environments));
     }
 }

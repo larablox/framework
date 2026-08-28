@@ -69,12 +69,8 @@ export = (): void => {
             expect(app.providerIsLoaded(DeferredProviderStub)).to.equal(false);
 
             const deferred = app.getDeferredServices();
-            expect(deferred.get("foo.provides1")).to.equal(
-                DeferredProviderStub,
-            );
-            expect(deferred.get("foo.provides2")).to.equal(
-                DeferredProviderStub,
-            );
+            expect(deferred.get("foo.provides1")).to.equal(DeferredProviderStub);
+            expect(deferred.get("foo.provides2")).to.equal(DeferredProviderStub);
         });
     });
 };

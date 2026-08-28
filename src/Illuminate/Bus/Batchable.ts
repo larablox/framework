@@ -29,9 +29,7 @@ export class Batchable extends Queueable {
             return undefined;
         }
 
-        return container
-            .make<BatchRepository>("bus.batches")
-            .find(this.batchId);
+        return container.make<BatchRepository>("bus.batches").find(this.batchId);
     }
 
     /** Determine if the batch is still active and processing. */

@@ -19,22 +19,10 @@ export function Log(channel?: string) {
     const instance: Log = {
         channel,
         resolve: (attribute: never, container: Container) =>
-            container
-                .make<LogManager>("log")
-                .channel((attribute as Log).channel),
+            container.make<LogManager>("log").channel((attribute as Log).channel),
     };
 
-    return (
-        owner: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
-        addParameterAttribute(
-            owner,
-            propertyKey,
-            parameterIndex,
-            Log,
-            instance,
-        );
+    return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+        addParameterAttribute(owner, propertyKey, parameterIndex, Log, instance);
     };
 }

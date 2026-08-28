@@ -8,9 +8,7 @@ export class MaxAttemptsExceededException extends RuntimeException {
 
     /** Create a new instance for the given job. */
     public static forJob(job: Job): MaxAttemptsExceededException {
-        const e = new MaxAttemptsExceededException(
-            `${job.resolveName()} has been attempted too many times.`,
-        );
+        const e = new MaxAttemptsExceededException(`${job.resolveName()} has been attempted too many times.`);
 
         e.job = job;
 

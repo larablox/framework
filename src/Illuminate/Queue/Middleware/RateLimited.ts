@@ -52,11 +52,7 @@ export class RateLimited {
             return _next(job);
         }
 
-        const limits = (
-            Util.isArray(response)
-                ? (response as Array<Limit>)
-                : [response as Limit]
-        ).map((limit) => ({
+        const limits = (Util.isArray(response) ? (response as Array<Limit>) : [response as Limit]).map((limit) => ({
             key: `${this.limiterName}${limit.key}`,
             maxAttempts: limit.maxAttempts,
             decaySeconds: limit.decaySeconds,
@@ -66,21 +62,14 @@ export class RateLimited {
     }
 
     /** Process the job, given the resolved limits. */
-    protected handleJob(
-        job: InteractsWithQueue,
-        _next: Next,
-        limits: Array<ResolvedLimit>,
-    ): unknown {
+    protected handleJob(job: InteractsWithQueue, _next: Next, limits: Array<ResolvedLimit>): unknown {
         for (const limit of limits) {
             if (this.limiter.tooManyAttempts(limit.key, limit.maxAttempts)) {
                 if (!this.shouldRelease) {
                     return false;
                 }
 
-                job.release(
-                    this.releaseAfterSeconds ??
-                        this.getTimeUntilNextRetry(limit.key),
-                );
+                job.release(this.releaseAfterSeconds ?? this.getTimeUntilNextRetry(limit.key));
 
                 return undefined;
             }

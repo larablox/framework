@@ -19,22 +19,10 @@ export function RouteParameter(parameter: string) {
     const instance: RouteParameter = {
         parameter,
         resolve: (attribute: never, container: Container) =>
-            container
-                .make<Request>("request")
-                .route((attribute as RouteParameter).parameter),
+            container.make<Request>("request").route((attribute as RouteParameter).parameter),
     };
 
-    return (
-        owner: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
-        addParameterAttribute(
-            owner,
-            propertyKey,
-            parameterIndex,
-            RouteParameter,
-            instance,
-        );
+    return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+        addParameterAttribute(owner, propertyKey, parameterIndex, RouteParameter, instance);
     };
 }

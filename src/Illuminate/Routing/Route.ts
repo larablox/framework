@@ -14,10 +14,7 @@ import { Str } from "Illuminate/Support/Str";
 import { TransportValidator } from "Illuminate/Routing/Matching/TransportValidator";
 import { UriValidator } from "Illuminate/Routing/Matching/UriValidator";
 import { Util } from "Illuminate/Container/Util";
-import type {
-    ActionAttributes,
-    ControllerAction,
-} from "Illuminate/Routing/RouteAction";
+import type { ActionAttributes, ControllerAction } from "Illuminate/Routing/RouteAction";
 import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
 import type { CallableDispatcher as CallableDispatcherContract } from "Illuminate/Routing/Contracts/CallableDispatcher";
 import type { ControllerDispatcher as ControllerDispatcherContract } from "Illuminate/Routing/Contracts/ControllerDispatcher";
@@ -97,21 +94,14 @@ export class Route {
     protected static validators?: Array<ValidatorInterface>;
 
     /** Create a new Route instance. */
-    public constructor(
-        methods: string | Array<string>,
-        uri: string,
-        action?: ActionAttributes,
-    ) {
+    public constructor(methods: string | Array<string>, uri: string, action?: ActionAttributes) {
         this.httpMethods = Util.arrayWrap(methods);
         this.action = action ?? {};
 
         // PHP: a route that answers GET answers HEAD too, whether or not the
         // caller listed it -- `Router::get()` passes both, but
         // `Router::match(['GET'], ...)` passes only GET.
-        if (
-            this.httpMethods.includes("GET") &&
-            !this.httpMethods.includes("HEAD")
-        ) {
+        if (this.httpMethods.includes("GET") && !this.httpMethods.includes("HEAD")) {
             this.httpMethods.push("HEAD");
         }
 
@@ -159,10 +149,7 @@ export class Route {
 
     /** Run the route action and return the response. */
     protected runCallable(): unknown {
-        return this.callableDispatcher().dispatch(
-            this,
-            this.action.uses as Callback,
-        );
+        return this.callableDispatcher().dispatch(this, this.action.uses as Callback);
     }
 
     /**
@@ -177,10 +164,7 @@ export class Route {
      * constructed by hand when it is not bound.
      */
     public callableDispatcher(): CallableDispatcherContract {
-        if (
-            this.container !== undefined &&
-            this.container.bound(CallableDispatcher)
-        ) {
+        if (this.container !== undefined && this.container.bound(CallableDispatcher)) {
             return this.container.make<CallableDispatcher>(CallableDispatcher);
         }
 
@@ -189,11 +173,7 @@ export class Route {
 
     /** Run the route action and return the response. */
     protected runController(): unknown {
-        return this.controllerDispatcher().dispatch(
-            this,
-            this.getController() as object,
-            this.getControllerMethod(),
-        );
+        return this.controllerDispatcher().dispatch(this, this.getController() as object, this.getControllerMethod());
     }
 
     /** Get the controller instance for the route. */
@@ -203,9 +183,7 @@ export class Route {
         }
 
         if (this.controller === undefined) {
-            this.controller = this.container!.make(
-                this.getControllerClass(),
-            ) as object;
+            this.controller = this.container!.make(this.getControllerClass()) as object;
         }
 
         return this.controller;
@@ -228,13 +206,8 @@ export class Route {
 
     /** Get the dispatcher for the route's controller. */
     public controllerDispatcher(): ControllerDispatcherContract {
-        if (
-            this.container !== undefined &&
-            this.container.bound(ControllerDispatcher)
-        ) {
-            return this.container.make<ControllerDispatcher>(
-                ControllerDispatcher,
-            );
+        if (this.container !== undefined && this.container.bound(ControllerDispatcher)) {
+            return this.container.make<ControllerDispatcher>(ControllerDispatcher);
         }
 
         return new ControllerDispatcher(this.container ?? new Container());
@@ -278,11 +251,7 @@ export class Route {
     /** Get the route validators for the instance. */
     public static getValidators(): Array<ValidatorInterface> {
         if (Route.validators === undefined) {
-            Route.validators = [
-                new UriValidator(),
-                new MethodValidator(),
-                new TransportValidator(),
-            ];
+            Route.validators = [new UriValidator(), new MethodValidator(), new TransportValidator()];
         }
 
         return Route.validators;
@@ -332,9 +301,7 @@ export class Route {
     public bind(request: Request): this {
         this.compileRoute();
 
-        this.parameterValues = new RouteParameterBinder(this).parameters(
-            request,
-        );
+        this.parameterValues = new RouteParameterBinder(this).parameters(request);
 
         // PHP assigns a *copy* -- an array is a value there -- which is the
         // whole point of keeping the originals: `SubstituteBindings` writes
@@ -472,10 +439,7 @@ export class Route {
      * spellings that happen to be valid Luau -- `[0-9]+`, `%a+` -- work as
      * they are; alternation and lookaround have no equivalent.
      */
-    public where(
-        name: string | Record<string, string>,
-        expression?: string,
-    ): this {
+    public where(name: string | Record<string, string>, expression?: string): this {
         for (const [key, pattern] of pairs(this.parseWhere(name, expression))) {
             this.wheres[key as string] = pattern as string;
         }
@@ -484,10 +448,7 @@ export class Route {
     }
 
     /** Parse arguments to the where method into an array. */
-    protected parseWhere(
-        name: string | Record<string, string>,
-        expression?: string,
-    ): Record<string, string> {
+    protected parseWhere(name: string | Record<string, string>, expression?: string): Record<string, string> {
         if (typeIs(name, "table")) {
             return name;
         }
@@ -531,17 +492,11 @@ export class Route {
      * are Crockford base32 in either case.
      */
     public whereUlid(parameters: string | Array<string>): this {
-        return this.assignExpressionToParameters(
-            parameters,
-            `[0-7]${"[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]".rep(25)}`,
-        );
+        return this.assignExpressionToParameters(parameters, `[0-7]${"[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]".rep(25)}`);
     }
 
     /** Apply the given expression to the given parameters. */
-    protected assignExpressionToParameters(
-        parameters: string | Array<string>,
-        expression: string,
-    ): this {
+    protected assignExpressionToParameters(parameters: string | Array<string>, expression: string): this {
         for (const parameter of Util.arrayWrap(parameters)) {
             this.where(parameter, expression);
         }
@@ -621,10 +576,7 @@ export class Route {
 
     /** Update the "prefix" attribute on the action array. */
     protected updatePrefixOnAction(prefix: string): void {
-        const merged = Str.trim(
-            `${Str.rtrim(prefix, "/")}/${Str.ltrim(this.action.prefix ?? "", "/")}`,
-            "/",
-        );
+        const merged = Str.trim(`${Str.rtrim(prefix, "/")}/${Str.ltrim(this.action.prefix ?? "", "/")}`, "/");
 
         if (merged !== "") {
             this.action.prefix = merged;
@@ -643,8 +595,7 @@ export class Route {
 
     /** Add or change the route name. */
     public name(name: string): this {
-        this.action.as =
-            this.action.as !== undefined ? `${this.action.as}${name}` : name;
+        this.action.as = this.action.as !== undefined ? `${this.action.as}${name}` : name;
 
         return this;
     }
@@ -687,9 +638,7 @@ export class Route {
 
     /** Get the method name of the route action. */
     public getActionMethod(): string {
-        return this.isControllerAction()
-            ? this.getControllerMethod()
-            : "Closure";
+        return this.isControllerAction() ? this.getControllerMethod() : "Closure";
     }
 
     /** Get the action array or one of its properties for the route. */
@@ -768,8 +717,7 @@ export class Route {
             return [];
         }
 
-        const controller = this.getController() as
-            { getMiddleware?: (receiver: object) => Array<Pipe> } | undefined;
+        const controller = this.getController() as { getMiddleware?: (receiver: object) => Array<Pipe> } | undefined;
 
         if (controller?.getMiddleware === undefined) {
             return [];
@@ -780,9 +728,7 @@ export class Route {
 
     /** Specify middleware that should be removed from the given route. */
     public withoutMiddleware(middleware: Pipe | Array<Pipe>): this {
-        const merged = table.clone(
-            this.action.excluded_middleware ?? new Array<Pipe>(),
-        );
+        const merged = table.clone(this.action.excluded_middleware ?? new Array<Pipe>());
 
         for (const entry of Util.arrayWrap(middleware) as Array<Pipe>) {
             merged.push(entry);

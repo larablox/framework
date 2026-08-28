@@ -165,27 +165,15 @@ export = (): void => {
 
             expect(data_get(array, "0.users.0.name")).to.equal("Taylor");
             expect(data_get(array, "0.users.3")).to.equal(undefined);
-            expect(data_get(array, "0.users.3", "Not found")).to.equal(
-                "Not found",
-            );
-            expect(data_get(array, "0.users.3", () => "Not found")).to.equal(
-                "Not found",
-            );
+            expect(data_get(array, "0.users.3", "Not found")).to.equal("Not found");
+            expect(data_get(array, "0.users.3", () => "Not found")).to.equal("Not found");
         });
 
         it("data_get() fans `*` out over nested arrays", () => {
             // PHP: SupportHelpersTest::testDataGetWithNestedArrays
-            const array = [
-                { name: "taylor", email: "taylorotwell@gmail.com" },
-                { name: "abigail" },
-                { name: "dayle" },
-            ];
+            const array = [{ name: "taylor", email: "taylorotwell@gmail.com" }, { name: "abigail" }, { name: "dayle" }];
 
-            expectDeepEqual(data_get(array, "*.name"), [
-                "taylor",
-                "abigail",
-                "dayle",
-            ]);
+            expectDeepEqual(data_get(array, "*.name"), ["taylor", "abigail", "dayle"]);
         });
 
         it("data_get() collapses a double `*`", () => {
@@ -199,20 +187,12 @@ export = (): void => {
                         ],
                     },
                     {
-                        comments: [
-                            { author: "abigail", likes: 2 },
-                            { author: "dayle" },
-                        ],
+                        comments: [{ author: "abigail", likes: 2 }, { author: "dayle" }],
                     },
                 ],
             };
 
-            expectDeepEqual(data_get(array, "posts.*.comments.*.author"), [
-                "taylor",
-                "abigail",
-                "abigail",
-                "dayle",
-            ]);
+            expectDeepEqual(data_get(array, "posts.*.comments.*.author"), ["taylor", "abigail", "abigail", "dayle"]);
         });
 
         it("data_get() understands {first} and {last}", () => {
@@ -235,24 +215,12 @@ export = (): void => {
                 empty: new Array<never>(),
             };
 
-            expect(data_get(array, "flights.0.segments.{first}.from")).to.equal(
-                "LHR",
-            );
-            expect(data_get(array, "flights.0.segments.{last}.to")).to.equal(
-                "PKX",
-            );
-            expect(
-                data_get(array, "flights.{first}.segments.{first}.from"),
-            ).to.equal("LHR");
-            expect(
-                data_get(array, "flights.{last}.segments.{last}.to"),
-            ).to.equal("PEK");
-            expect(data_get(array, "empty.{first}", "Not found")).to.equal(
-                "Not found",
-            );
-            expect(data_get(array, "empty.{last}", "Not found")).to.equal(
-                "Not found",
-            );
+            expect(data_get(array, "flights.0.segments.{first}.from")).to.equal("LHR");
+            expect(data_get(array, "flights.0.segments.{last}.to")).to.equal("PKX");
+            expect(data_get(array, "flights.{first}.segments.{first}.from")).to.equal("LHR");
+            expect(data_get(array, "flights.{last}.segments.{last}.to")).to.equal("PEK");
+            expect(data_get(array, "empty.{first}", "Not found")).to.equal("Not found");
+            expect(data_get(array, "empty.{last}", "Not found")).to.equal("Not found");
         });
 
         it("data_get() escapes `*`, {first} and {last} with a leading backslash", () => {
@@ -265,15 +233,9 @@ export = (): void => {
                 },
             };
 
-            expect(data_get(array, "symbols.\\{first}.description")).to.equal(
-                "caret",
-            );
-            expect(data_get(array, "symbols.{first}.description")).to.equal(
-                "dollar",
-            );
-            expect(data_get(array, "symbols.\\*.description")).to.equal(
-                "asterisk",
-            );
+            expect(data_get(array, "symbols.\\{first}.description")).to.equal("caret");
+            expect(data_get(array, "symbols.{first}.description")).to.equal("dollar");
+            expect(data_get(array, "symbols.\\*.description")).to.equal("asterisk");
         });
 
         it("data_get() with a bare `*` reads every value", () => {
@@ -294,9 +256,7 @@ export = (): void => {
             expect(data.baz).to.equal("boom");
 
             data_fill(data, "foo.bar", "kaboom");
-            expect((data.foo as Record<string, unknown>).bar).to.equal(
-                "kaboom",
-            );
+            expect((data.foo as Record<string, unknown>).bar).to.equal("kaboom");
         });
 
         it("data_fill() with `*` fills every matching leaf", () => {
@@ -447,9 +407,7 @@ export = (): void => {
 
             expectThrows(() => throw_if(true, LogicException, "test"));
 
-            expectThrows(() =>
-                throw_if(true, () => new RuntimeException("test")),
-            );
+            expectThrows(() => throw_if(true, () => new RuntimeException("test")));
         });
 
         it("throw_unless() throws unless the condition is truthy", () => {

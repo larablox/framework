@@ -6,11 +6,7 @@ import { Trait } from "Illuminate/Support/Traits/Trait";
 import { Util } from "Illuminate/Container/Util";
 import { data_get } from "Illuminate/Support/Helpers";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type {
-    AssertNoExtraMembers,
-    AssertTrue,
-    Constructor,
-} from "Illuminate/Support/Traits/Trait";
+import type { AssertNoExtraMembers, AssertTrue, Constructor } from "Illuminate/Support/Traits/Trait";
 import type { Stringable } from "Illuminate/Support/Str";
 
 /** PHP: the `stdClass` sentinel `only()` compares against. */
@@ -93,9 +89,7 @@ export declare class InteractsWithDataPublicShape {
     public integer(key: string, defaultValue?: number): number;
 
     /** Retrieve data from the instance as an array. */
-    public array(
-        key?: string | Array<string>,
-    ): ArrayAccessible | Array<defined>;
+    public array(key?: string | Array<string>): ArrayAccessible | Array<defined>;
 
     /** Retrieve data from the instance as a collection. */
     public collect(key?: string | Array<string>): Collection<defined, defined>;
@@ -137,9 +131,7 @@ function interactsWithData<TBase extends Constructor>(Base: TBase) {
          */
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- abstract in PHP; the consumer implements it.
         public all(keys?: string | Array<string>): ArrayAccessible {
-            throw new RuntimeException(
-                "A class using InteractsWithData must implement all().",
-            );
+            throw new RuntimeException("A class using InteractsWithData must implement all().");
         }
 
         /**
@@ -149,9 +141,7 @@ function interactsWithData<TBase extends Constructor>(Base: TBase) {
          */
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- abstract in PHP; the consumer implements it.
         protected data(key?: string, defaultValue?: unknown): unknown {
-            throw new RuntimeException(
-                "A class using InteractsWithData must implement data().",
-            );
+            throw new RuntimeException("A class using InteractsWithData must implement data().");
         }
 
         /** Determine if the data contains a given key. */
@@ -333,12 +323,7 @@ function interactsWithData<TBase extends Constructor>(Base: TBase) {
             if (typeIs(value, "string")) {
                 const normalized = Str.lower(Str.trim(value));
 
-                return (
-                    normalized === "1" ||
-                    normalized === "true" ||
-                    normalized === "on" ||
-                    normalized === "yes"
-                );
+                return normalized === "1" || normalized === "true" || normalized === "on" || normalized === "yes";
             }
 
             return false;
@@ -357,21 +342,12 @@ function interactsWithData<TBase extends Constructor>(Base: TBase) {
                 return value ? 1 : 0;
             }
 
-            const asNumber = typeIs(value, "number")
-                ? value
-                : typeIs(value, "string")
-                  ? tonumber(value)
-                  : undefined;
+            const asNumber = typeIs(value, "number") ? value : typeIs(value, "string") ? tonumber(value) : undefined;
 
             // Luau reads `"nan"` and `"inf"` as numeric literals where PHP
             // does not, so both have to fall back to `0` like any other
             // unreadable value -- see `parseFinite()` in `Support/Str.ts`.
-            if (
-                asNumber === undefined ||
-                asNumber !== asNumber ||
-                asNumber === math.huge ||
-                asNumber === -math.huge
-            ) {
+            if (asNumber === undefined || asNumber !== asNumber || asNumber === math.huge || asNumber === -math.huge) {
                 return 0;
             }
 
@@ -385,12 +361,8 @@ function interactsWithData<TBase extends Constructor>(Base: TBase) {
          * never both, so the cast keeps a table as it is and wraps anything
          * else in a one-element list -- which is what PHP does to a scalar.
          */
-        public array(
-            key?: string | Array<string>,
-        ): ArrayAccessible | Array<defined> {
-            const value = typeIs(key, "table")
-                ? this.only(key)
-                : this.data(key as string | undefined);
+        public array(key?: string | Array<string>): ArrayAccessible | Array<defined> {
+            const value = typeIs(key, "table") ? this.only(key) : this.data(key as string | undefined);
 
             if (Arr.accessible(value)) {
                 return value;
@@ -400,20 +372,14 @@ function interactsWithData<TBase extends Constructor>(Base: TBase) {
         }
 
         /** Retrieve data from the instance as a collection. */
-        public collect(
-            key?: string | Array<string>,
-        ): Collection<defined, defined> {
-            const value = typeIs(key, "table")
-                ? this.only(key)
-                : this.data(key as string | undefined);
+        public collect(key?: string | Array<string>): Collection<defined, defined> {
+            const value = typeIs(key, "table") ? this.only(key) : this.data(key as string | undefined);
 
             if (Arr.accessible(value)) {
                 return new Collection(value as Record<string, defined>);
             }
 
-            return new Collection(
-                value === undefined ? new Array<defined>() : [value as defined],
-            );
+            return new Collection(value === undefined ? new Array<defined>() : [value as defined]);
         }
 
         /**
@@ -458,9 +424,7 @@ type InteractsWithDataExtra = Exclude<
 >;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the assertion is the point: it fails to compile when the trait has a public member the shape does not list.
-type InteractsWithDataIsExact = AssertTrue<
-    AssertNoExtraMembers<InteractsWithDataExtra>
->;
+type InteractsWithDataIsExact = AssertTrue<AssertNoExtraMembers<InteractsWithDataExtra>>;
 
 /**
  * PHP: `trait Illuminate\Support\Traits\InteractsWithData`.

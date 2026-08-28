@@ -12,9 +12,7 @@ export class RateLimiter extends Facade {
     declare public static for: Forwarded<Limiter["for"]>;
     declare public static limiter: Forwarded<Limiter["limiter"]>;
     declare public static attempt: Forwarded<Limiter["attempt"]>;
-    declare public static tooManyAttempts: Forwarded<
-        Limiter["tooManyAttempts"]
-    >;
+    declare public static tooManyAttempts: Forwarded<Limiter["tooManyAttempts"]>;
     declare public static hit: Forwarded<Limiter["hit"]>;
     declare public static increment: Forwarded<Limiter["increment"]>;
     declare public static decrement: Forwarded<Limiter["decrement"]>;

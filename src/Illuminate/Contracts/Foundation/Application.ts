@@ -1,8 +1,4 @@
-import type {
-    Abstract,
-    Constructor,
-    EnvironmentResolver,
-} from "Illuminate/Container/Types";
+import type { Abstract, Constructor, EnvironmentResolver } from "Illuminate/Container/Types";
 import type { Container } from "Illuminate/Contracts/Container/Container";
 import type { OrderedMap } from "Illuminate/Support/OrderedMap";
 import type { ServiceProvider } from "Illuminate/Support/ServiceProvider";
@@ -23,9 +19,7 @@ export interface Application extends Container {
     version(): string;
 
     /** Get or check the current application environment. */
-    environment(
-        ...environments: Array<string | Array<string>>
-    ): string | boolean;
+    environment(...environments: Array<string | Array<string>>): string | boolean;
 
     /** Detect the application's current environment. */
     detectEnvironment(callback: () => string): string;
@@ -37,16 +31,10 @@ export interface Application extends Container {
     registerConfiguredProviders(): void;
 
     /** Register a service provider with the application. */
-    register(
-        provider: ServiceProvider | Constructor<ServiceProvider>,
-        force?: boolean,
-    ): ServiceProvider;
+    register(provider: ServiceProvider | Constructor<ServiceProvider>, force?: boolean): ServiceProvider;
 
     /** Register a deferred provider and service. */
-    registerDeferredProvider(
-        provider: Constructor<ServiceProvider>,
-        service?: Abstract,
-    ): void;
+    registerDeferredProvider(provider: Constructor<ServiceProvider>, service?: Abstract): void;
 
     /** Resolve a service provider instance from the class name. */
     resolveProvider(provider: Constructor<ServiceProvider>): ServiceProvider;
@@ -64,9 +52,7 @@ export interface Application extends Container {
     bootstrapWith(bootstrappers: Array<Constructor<Bootstrapper>>): void;
 
     /** Get the registered service provider instances if any exist. */
-    getProviders(
-        provider: ServiceProvider | Constructor<ServiceProvider>,
-    ): Array<ServiceProvider>;
+    getProviders(provider: ServiceProvider | Constructor<ServiceProvider>): Array<ServiceProvider>;
 
     /** Determine if the application has been bootstrapped before. */
     hasBeenBootstrapped(): boolean;
@@ -90,17 +76,13 @@ export interface Application extends Container {
     getDeferredServices(): OrderedMap<Abstract, Constructor<ServiceProvider>>;
 
     /** Set the application's deferred services. */
-    setDeferredServices(
-        services: OrderedMap<Abstract, Constructor<ServiceProvider>>,
-    ): void;
+    setDeferredServices(services: OrderedMap<Abstract, Constructor<ServiceProvider>>): void;
 
     /** Determine if the given service is a deferred service. */
     isDeferredService(service: Abstract): boolean;
 
     /** Add an array of services to the application's deferred services. */
-    addDeferredServices(
-        services: OrderedMap<Abstract, Constructor<ServiceProvider>>,
-    ): void;
+    addDeferredServices(services: OrderedMap<Abstract, Constructor<ServiceProvider>>): void;
 
     /** Remove an array of services from the application's deferred services. */
     removeDeferredServices(services: Array<Abstract>): void;

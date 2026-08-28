@@ -28,9 +28,7 @@ import type { Queue } from "Illuminate/Contracts/Queue/Queue";
  */
 class FakeQueue implements Queue {
     public pushCalls = new Array<[unknown, unknown, string | undefined]>();
-    public laterCalls = new Array<
-        [DelayValue, unknown, unknown, string | undefined]
-    >();
+    public laterCalls = new Array<[DelayValue, unknown, unknown, string | undefined]>();
 
     public size(): number {
         return 0;
@@ -66,23 +64,13 @@ class FakeQueue implements Queue {
         throw "not expected";
     }
 
-    public later(
-        delay: DelayValue,
-        job: unknown,
-        data?: unknown,
-        queue?: string,
-    ): unknown {
+    public later(delay: DelayValue, job: unknown, data?: unknown, queue?: string): unknown {
         this.laterCalls.push([delay, job, data, queue]);
 
         return undefined;
     }
 
-    public laterOn(
-        queue: string,
-        delay: DelayValue,
-        job: unknown,
-        data?: unknown,
-    ): unknown {
+    public laterOn(queue: string, delay: DelayValue, job: unknown, data?: unknown): unknown {
         return this.later(delay, job, data, queue);
     }
 

@@ -70,10 +70,7 @@ export = (): void => {
         it("a job's own delay() carries through to the queue", () => {
             const container = new Container();
             const queue = new FakeQueue();
-            const dispatcher = new Dispatcher(
-                container,
-                () => queue as unknown as Queue,
-            );
+            const dispatcher = new Dispatcher(container, () => queue as unknown as Queue);
 
             const job = new TestJob();
             dispatcher.dispatch(job);
@@ -87,10 +84,7 @@ export = (): void => {
         it("withoutDelay() zeroes out a previously declared delay", () => {
             const container = new Container();
             const queue = new FakeQueue();
-            const dispatcher = new Dispatcher(
-                container,
-                () => queue as unknown as Queue,
-            );
+            const dispatcher = new Dispatcher(container, () => queue as unknown as Queue);
 
             const job = new TestJob().withoutDelay();
             dispatcher.dispatch(job);
@@ -107,10 +101,7 @@ export = (): void => {
         it("withoutDelay() applies regardless of when it is called relative to dispatch", () => {
             const container = new Container();
             const queue = new FakeQueue();
-            const dispatcher = new Dispatcher(
-                container,
-                () => queue as unknown as Queue,
-            );
+            const dispatcher = new Dispatcher(container, () => queue as unknown as Queue);
 
             const job = new TestJob();
             job.withoutDelay();

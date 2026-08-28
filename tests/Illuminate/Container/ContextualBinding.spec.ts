@@ -86,9 +86,7 @@ export = (): void => {
         }
 
         class ContainerTestContextWithOptionalInnerDependency {
-            public constructor(
-                public readonly inner?: ContainerTestContextInjectOne,
-            ) {}
+            public constructor(public readonly inner?: ContainerTestContextInjectOne) {}
         }
 
         class ContainerTestContextInjectTwoInstances {
@@ -101,9 +99,7 @@ export = (): void => {
         }
 
         class ContainerTestContextInjectArray {
-            public constructor(
-                @Inject("$stubs") public readonly stubs: Array<unknown>,
-            ) {}
+            public constructor(@Inject("$stubs") public readonly stubs: Array<unknown>) {}
         }
 
         class ContainerTestContextInjectVariadic {
@@ -158,10 +154,7 @@ export = (): void => {
             // PHP: ContextualBindingTest::testContainerCanInjectDifferentImplementationsDependingOnContext
             let container = new Container();
 
-            container.bind(
-                IContainerContextContractStub,
-                ContainerContextImplementationStub,
-            );
+            container.bind(IContainerContextContractStub, ContainerContextImplementationStub);
 
             container
                 .when(ContainerTestContextInjectOne)
@@ -175,20 +168,13 @@ export = (): void => {
             let one = container.make(ContainerTestContextInjectOne);
             let two = container.make(ContainerTestContextInjectTwo);
 
-            expect(
-                one.impl instanceof ContainerContextImplementationStub,
-            ).to.equal(true);
-            expect(
-                two.impl instanceof ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(one.impl instanceof ContainerContextImplementationStub).to.equal(true);
+            expect(two.impl instanceof ContainerContextImplementationStubTwo).to.equal(true);
 
             // Test with closures
             container = new Container();
 
-            container.bind(
-                IContainerContextContractStub,
-                ContainerContextImplementationStub,
-            );
+            container.bind(IContainerContextContractStub, ContainerContextImplementationStub);
 
             container
                 .when(ContainerTestContextInjectOne)
@@ -202,20 +188,13 @@ export = (): void => {
             one = container.make(ContainerTestContextInjectOne);
             two = container.make(ContainerTestContextInjectTwo);
 
-            expect(
-                one.impl instanceof ContainerContextImplementationStub,
-            ).to.equal(true);
-            expect(
-                two.impl instanceof ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(one.impl instanceof ContainerContextImplementationStub).to.equal(true);
+            expect(two.impl instanceof ContainerContextImplementationStubTwo).to.equal(true);
 
             // Test nesting to make the same 'abstract' in different context
             container = new Container();
 
-            container.bind(
-                IContainerContextContractStub,
-                ContainerContextImplementationStub,
-            );
+            container.bind(IContainerContextContractStub, ContainerContextImplementationStub);
 
             container
                 .when(ContainerTestContextInjectOne)
@@ -224,19 +203,14 @@ export = (): void => {
 
             one = container.make(ContainerTestContextInjectOne);
 
-            expect(
-                one.impl instanceof ContainerContextImplementationStub,
-            ).to.equal(true);
+            expect(one.impl instanceof ContainerContextImplementationStub).to.equal(true);
         });
 
         it("applies to an existing instance binding", () => {
             // PHP: ContextualBindingTest::testContextualBindingWorksForExistingInstancedBindings
             const container = new Container();
 
-            container.instance(
-                IContainerContextContractStub,
-                new ContainerImplementationStub(),
-            );
+            container.instance(IContainerContextContractStub, new ContainerImplementationStub());
 
             container
                 .when(ContainerTestContextInjectOne)
@@ -244,8 +218,7 @@ export = (): void => {
                 .give(ContainerContextImplementationStubTwo);
 
             expect(
-                container.make(ContainerTestContextInjectOne).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectOne).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
         });
 
@@ -258,14 +231,10 @@ export = (): void => {
                 .needs(IContainerContextContractStub)
                 .give(ContainerContextImplementationStubTwo);
 
-            container.instance(
-                IContainerContextContractStub,
-                new ContainerImplementationStub(),
-            );
+            container.instance(IContainerContextContractStub, new ContainerImplementationStub());
 
             expect(
-                container.make(ContainerTestContextInjectOne).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectOne).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
         });
 
@@ -282,8 +251,7 @@ export = (): void => {
                 .give(ContainerContextImplementationStubTwo);
 
             expect(
-                container.make(ContainerTestContextInjectOne).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectOne).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
         });
 
@@ -300,8 +268,7 @@ export = (): void => {
             container.alias("stub", IContainerContextContractStub);
 
             expect(
-                container.make(ContainerTestContextInjectOne).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectOne).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
         });
 
@@ -318,8 +285,7 @@ export = (): void => {
             container.alias("stub", IContainerContextContractStub);
 
             expect(
-                container.make(ContainerTestContextInjectOne).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectOne).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
         });
 
@@ -327,22 +293,15 @@ export = (): void => {
             // PHP: ContextualBindingTest::testContextualBindingDoesNotFollowStaleAliases
             const container = new Container();
 
-            container
-                .when(ContainerTestContextInjectOne)
-                .needs("stale")
-                .give(ContainerContextImplementationStub);
-            container
-                .when(ContainerTestContextInjectOne)
-                .needs("live")
-                .give(ContainerContextImplementationStubTwo);
+            container.when(ContainerTestContextInjectOne).needs("stale").give(ContainerContextImplementationStub);
+            container.when(ContainerTestContextInjectOne).needs("live").give(ContainerContextImplementationStubTwo);
 
             container.alias(IContainerContextContractStub, "stale");
             container.alias("unrelated", "stale");
             container.alias(IContainerContextContractStub, "live");
 
             expect(
-                container.make(ContainerTestContextInjectOne).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectOne).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
         });
 
@@ -350,32 +309,23 @@ export = (): void => {
             // PHP: ContextualBindingTest::testContextualBindingWorksForMultipleClasses
             const container = new Container();
 
-            container.bind(
-                IContainerContextContractStub,
-                ContainerContextImplementationStub,
-            );
+            container.bind(IContainerContextContractStub, ContainerContextImplementationStub);
 
             container
-                .when([
-                    ContainerTestContextInjectTwo,
-                    ContainerTestContextInjectThree,
-                ])
+                .when([ContainerTestContextInjectTwo, ContainerTestContextInjectThree])
                 .needs(IContainerContextContractStub)
                 .give(ContainerContextImplementationStubTwo);
 
             expect(
-                container.make(ContainerTestContextInjectOne).impl instanceof
-                    ContainerContextImplementationStub,
+                container.make(ContainerTestContextInjectOne).impl instanceof ContainerContextImplementationStub,
             ).to.equal(true);
 
             expect(
-                container.make(ContainerTestContextInjectTwo).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectTwo).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
 
             expect(
-                container.make(ContainerTestContextInjectThree).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectThree).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
         });
 
@@ -383,10 +333,7 @@ export = (): void => {
             // PHP: ContextualBindingTest::testContextualBindingDoesntOverrideNonContextualResolution
             const container = new Container();
 
-            container.instance(
-                "stub",
-                new ContainerContextImplementationStub(),
-            );
+            container.instance("stub", new ContainerContextImplementationStub());
             container.alias("stub", IContainerContextContractStub);
 
             container
@@ -395,13 +342,11 @@ export = (): void => {
                 .give(ContainerContextImplementationStubTwo);
 
             expect(
-                container.make(ContainerTestContextInjectTwo).impl instanceof
-                    ContainerContextImplementationStubTwo,
+                container.make(ContainerTestContextInjectTwo).impl instanceof ContainerContextImplementationStubTwo,
             ).to.equal(true);
 
             expect(
-                container.make(ContainerTestContextInjectOne).impl instanceof
-                    ContainerContextImplementationStub,
+                container.make(ContainerTestContextInjectOne).impl instanceof ContainerContextImplementationStub,
             ).to.equal(true);
         });
 
@@ -411,18 +356,13 @@ export = (): void => {
 
             const container = new Container();
 
-            container.instance(
-                IContainerContextContractStub,
-                new ContainerImplementationStub(),
-            );
+            container.instance(IContainerContextContractStub, new ContainerImplementationStub());
             container.instance(
                 ContainerTestContextInjectInstantiations,
                 new ContainerTestContextInjectInstantiations(),
             );
 
-            expect(
-                ContainerTestContextInjectInstantiations.instantiations,
-            ).to.equal(1);
+            expect(ContainerTestContextInjectInstantiations.instantiations).to.equal(1);
 
             container
                 .when(ContainerTestContextInjectOne)
@@ -434,15 +374,11 @@ export = (): void => {
             container.make(ContainerTestContextInjectOne);
             container.make(ContainerTestContextInjectOne);
 
-            expect(
-                ContainerTestContextInjectInstantiations.instantiations,
-            ).to.equal(1);
+            expect(ContainerTestContextInjectInstantiations.instantiations).to.equal(1);
         });
 
         class ContainerInjectVariableStub {
-            public constructor(
-                @Inject("$something") public readonly something: unknown,
-            ) {}
+            public constructor(@Inject("$something") public readonly something: unknown) {}
         }
 
         it("injects a simple contextual primitive", () => {
@@ -461,27 +397,19 @@ export = (): void => {
                 .needs("$something")
                 .give((c) => c.make(ContainerConcreteStub));
             instance = container.make(ContainerInjectVariableStub);
-            expect(
-                instance.something instanceof ContainerConcreteStub,
-            ).to.equal(true);
+            expect(instance.something instanceof ContainerConcreteStub).to.equal(true);
         });
 
         it("resolves aliased contextual targets", () => {
             // PHP: ContextualBindingTest::testContextualBindingWorksWithAliasedTargets
             const container = new Container();
 
-            container.bind(
-                IContainerContextContractStub,
-                ContainerContextImplementationStub,
-            );
+            container.bind(IContainerContextContractStub, ContainerContextImplementationStub);
             container.alias(IContainerContextContractStub, "interface-stub");
 
             container.alias(ContainerContextImplementationStub, "stub-1");
 
-            container
-                .when(ContainerTestContextInjectOne)
-                .needs("interface-stub")
-                .give("stub-1");
+            container.when(ContainerTestContextInjectOne).needs("interface-stub").give("stub-1");
             container
                 .when(ContainerTestContextInjectTwo)
                 .needs("interface-stub")
@@ -490,12 +418,8 @@ export = (): void => {
             const one = container.make(ContainerTestContextInjectOne);
             const two = container.make(ContainerTestContextInjectTwo);
 
-            expect(
-                one.impl instanceof ContainerContextImplementationStub,
-            ).to.equal(true);
-            expect(
-                two.impl instanceof ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(one.impl instanceof ContainerContextImplementationStub).to.equal(true);
+            expect(two.impl instanceof ContainerContextImplementationStubTwo).to.equal(true);
         });
 
         it("applies a contextual binding through a nested optional dependency", () => {
@@ -505,31 +429,15 @@ export = (): void => {
             container
                 .when(ContainerTestContextInjectTwoInstances)
                 .needs(ContainerTestContextInjectTwo)
-                .give(
-                    () =>
-                        new ContainerTestContextInjectTwo(
-                            new ContainerContextImplementationStubTwo(),
-                        ),
-                );
+                .give(() => new ContainerTestContextInjectTwo(new ContainerContextImplementationStubTwo()));
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectTwoInstances,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectTwoInstances);
 
-            expect(
-                resolvedInstance.implOne instanceof
-                    ContainerTestContextWithOptionalInnerDependency,
-            ).to.equal(true);
+            expect(resolvedInstance.implOne instanceof ContainerTestContextWithOptionalInnerDependency).to.equal(true);
             expect(resolvedInstance.implOne.inner).to.equal(undefined);
 
-            expect(
-                resolvedInstance.implTwo instanceof
-                    ContainerTestContextInjectTwo,
-            ).to.equal(true);
-            expect(
-                resolvedInstance.implTwo.impl instanceof
-                    ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(resolvedInstance.implTwo instanceof ContainerTestContextInjectTwo).to.equal(true);
+            expect(resolvedInstance.implTwo.impl instanceof ContainerContextImplementationStubTwo).to.equal(true);
         });
 
         it("resolves a variadic dependency through a contextual closure", () => {
@@ -544,28 +452,18 @@ export = (): void => {
                     c.make(ContainerContextImplementationStubTwo),
                 ]);
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectVariadic,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectVariadic);
 
             expect(resolvedInstance.stubs.size()).to.equal(2);
-            expect(
-                resolvedInstance.stubs[0] instanceof
-                    ContainerContextImplementationStub,
-            ).to.equal(true);
-            expect(
-                resolvedInstance.stubs[1] instanceof
-                    ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(resolvedInstance.stubs[0] instanceof ContainerContextImplementationStub).to.equal(true);
+            expect(resolvedInstance.stubs[1] instanceof ContainerContextImplementationStubTwo).to.equal(true);
         });
 
         it("resolves an empty list for a variadic dependency with nothing bound", () => {
             // PHP: ContextualBindingTest::testContextualBindingWorksForVariadicDependenciesWithNothingBound
             const container = new Container();
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectVariadic,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectVariadic);
 
             expect(resolvedInstance.stubs.size()).to.equal(0);
         });
@@ -582,28 +480,18 @@ export = (): void => {
                     c.make(ContainerContextImplementationStubTwo),
                 ]);
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectVariadicAfterNonVariadic,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectVariadicAfterNonVariadic);
 
             expect(resolvedInstance.stubs.size()).to.equal(2);
-            expect(
-                resolvedInstance.stubs[0] instanceof
-                    ContainerContextImplementationStub,
-            ).to.equal(true);
-            expect(
-                resolvedInstance.stubs[1] instanceof
-                    ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(resolvedInstance.stubs[0] instanceof ContainerContextImplementationStub).to.equal(true);
+            expect(resolvedInstance.stubs[1] instanceof ContainerContextImplementationStubTwo).to.equal(true);
         });
 
         it("resolves an empty list for a trailing variadic with nothing bound", () => {
             // PHP: ContextualBindingTest::testContextualBindingWorksForVariadicAfterNonVariadicDependenciesWithNothingBound
             const container = new Container();
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectVariadicAfterNonVariadic,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectVariadicAfterNonVariadic);
 
             expect(resolvedInstance.stubs.size()).to.equal(0);
         });
@@ -615,38 +503,22 @@ export = (): void => {
             container
                 .when(ContainerTestContextInjectVariadic)
                 .needs(IContainerContextContractStub)
-                .give([
-                    ContainerContextImplementationStub,
-                    ContainerContextImplementationStubTwo,
-                ]);
+                .give([ContainerContextImplementationStub, ContainerContextImplementationStubTwo]);
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectVariadic,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectVariadic);
 
             expect(resolvedInstance.stubs.size()).to.equal(2);
-            expect(
-                resolvedInstance.stubs[0] instanceof
-                    ContainerContextImplementationStub,
-            ).to.equal(true);
-            expect(
-                resolvedInstance.stubs[1] instanceof
-                    ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(resolvedInstance.stubs[0] instanceof ContainerContextImplementationStub).to.equal(true);
+            expect(resolvedInstance.stubs[1] instanceof ContainerContextImplementationStubTwo).to.equal(true);
         });
 
         it("giveTagged() resolves an empty array primitive when no tags are defined", () => {
             // PHP: ContextualBindingTest::testContextualBindingGivesTagsForArrayWithNoTagsDefined
             const container = new Container();
 
-            container
-                .when(ContainerTestContextInjectArray)
-                .needs("$stubs")
-                .giveTagged("stub");
+            container.when(ContainerTestContextInjectArray).needs("$stubs").giveTagged("stub");
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectArray,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectArray);
 
             expect(resolvedInstance.stubs.size()).to.equal(0);
         });
@@ -655,14 +527,9 @@ export = (): void => {
             // PHP: ContextualBindingTest::testContextualBindingGivesTagsForVariadicWithNoTagsDefined
             const container = new Container();
 
-            container
-                .when(ContainerTestContextInjectVariadic)
-                .needs(IContainerContextContractStub)
-                .giveTagged("stub");
+            container.when(ContainerTestContextInjectVariadic).needs(IContainerContextContractStub).giveTagged("stub");
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectVariadic,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectVariadic);
 
             expect(resolvedInstance.stubs.size()).to.equal(0);
         });
@@ -671,71 +538,35 @@ export = (): void => {
             // PHP: ContextualBindingTest::testContextualBindingGivesTagsForArray
             const container = new Container();
 
-            container.tag(
-                [
-                    ContainerContextImplementationStub,
-                    ContainerContextImplementationStubTwo,
-                ],
-                ["stub"],
-            );
+            container.tag([ContainerContextImplementationStub, ContainerContextImplementationStubTwo], ["stub"]);
 
-            container
-                .when(ContainerTestContextInjectArray)
-                .needs("$stubs")
-                .giveTagged("stub");
+            container.when(ContainerTestContextInjectArray).needs("$stubs").giveTagged("stub");
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectArray,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectArray);
 
             expect(resolvedInstance.stubs.size()).to.equal(2);
-            expect(
-                resolvedInstance.stubs[0] instanceof
-                    ContainerContextImplementationStub,
-            ).to.equal(true);
-            expect(
-                resolvedInstance.stubs[1] instanceof
-                    ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(resolvedInstance.stubs[0] instanceof ContainerContextImplementationStub).to.equal(true);
+            expect(resolvedInstance.stubs[1] instanceof ContainerContextImplementationStubTwo).to.equal(true);
         });
 
         it("giveTagged() resolves every tagged entry into a variadic dependency", () => {
             // PHP: ContextualBindingTest::testContextualBindingGivesTagsForVariadic
             const container = new Container();
 
-            container.tag(
-                [
-                    ContainerContextImplementationStub,
-                    ContainerContextImplementationStubTwo,
-                ],
-                ["stub"],
-            );
+            container.tag([ContainerContextImplementationStub, ContainerContextImplementationStubTwo], ["stub"]);
 
-            container
-                .when(ContainerTestContextInjectVariadic)
-                .needs(IContainerContextContractStub)
-                .giveTagged("stub");
+            container.when(ContainerTestContextInjectVariadic).needs(IContainerContextContractStub).giveTagged("stub");
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectVariadic,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectVariadic);
 
             expect(resolvedInstance.stubs.size()).to.equal(2);
-            expect(
-                resolvedInstance.stubs[0] instanceof
-                    ContainerContextImplementationStub,
-            ).to.equal(true);
-            expect(
-                resolvedInstance.stubs[1] instanceof
-                    ContainerContextImplementationStubTwo,
-            ).to.equal(true);
+            expect(resolvedInstance.stubs[0] instanceof ContainerContextImplementationStub).to.equal(true);
+            expect(resolvedInstance.stubs[1] instanceof ContainerContextImplementationStubTwo).to.equal(true);
         });
 
         /** A tiny stand-in for `Illuminate\Config\Repository`, get(key, default) only. */
         class FakeConfigRepository {
-            public constructor(
-                private readonly items: Map<string, Map<string, unknown>>,
-            ) {}
+            public constructor(private readonly items: Map<string, Map<string, unknown>>) {}
 
             public get(key: string, defaultValue?: unknown): unknown {
                 const [section, item] = key.split(".") as [string, string];
@@ -780,9 +611,7 @@ export = (): void => {
                 .needs("$alias")
                 .give(() => undefined);
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectFromConfigIndividualValues,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectFromConfigIndividualValues);
 
             expect(resolvedInstance.username).to.equal("laravel");
             expect(resolvedInstance.password).to.equal("hunter42");
@@ -825,9 +654,7 @@ export = (): void => {
                 .needs("$alias")
                 .giveConfig("test.alias");
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectFromConfigIndividualValues,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectFromConfigIndividualValues);
 
             expect(resolvedInstance.username).to.equal("laravel");
             expect(resolvedInstance.password).to.equal("hunter42");
@@ -841,16 +668,7 @@ export = (): void => {
             container.singleton(
                 "config",
                 () =>
-                    new FakeConfigRepository(
-                        new Map([
-                            [
-                                "test",
-                                new Map<string, unknown>([
-                                    ["password", "hunter42"],
-                                ]),
-                            ],
-                        ]),
-                    ),
+                    new FakeConfigRepository(new Map([["test", new Map<string, unknown>([["password", "hunter42"]])]])),
             );
 
             container
@@ -868,9 +686,7 @@ export = (): void => {
                 .needs("$alias")
                 .give(() => undefined);
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectFromConfigIndividualValues,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectFromConfigIndividualValues);
 
             expect(resolvedInstance.username).to.equal("DEFAULT_USERNAME");
             expect(resolvedInstance.password).to.equal("hunter42");
@@ -893,35 +709,21 @@ export = (): void => {
             // literal's function-valued property would be handed the table
             // itself as its first argument.
             class FakeConfigSection {
-                public constructor(
-                    private readonly section: Map<string, unknown>,
-                ) {}
+                public constructor(private readonly section: Map<string, unknown>) {}
 
                 public get(key: string): unknown {
                     return key === "test" ? this.section : undefined;
                 }
             }
 
-            container.singleton(
-                "config",
-                () => new FakeConfigSection(settings) as never,
-            );
+            container.singleton("config", () => new FakeConfigSection(settings) as never);
 
-            container
-                .when(ContainerTestContextInjectFromConfigArray)
-                .needs("$settings")
-                .giveConfig("test");
+            container.when(ContainerTestContextInjectFromConfigArray).needs("$settings").giveConfig("test");
 
-            const resolvedInstance = container.make(
-                ContainerTestContextInjectFromConfigArray,
-            );
+            const resolvedInstance = container.make(ContainerTestContextInjectFromConfigArray);
 
-            expect(resolvedInstance.settings.get("username")).to.equal(
-                "laravel",
-            );
-            expect(resolvedInstance.settings.get("password")).to.equal(
-                "hunter42",
-            );
+            expect(resolvedInstance.settings.get("username")).to.equal("laravel");
+            expect(resolvedInstance.settings.get("password")).to.equal("hunter42");
             expect(resolvedInstance.settings.get("alias")).to.equal("lumen");
         });
 
@@ -937,9 +739,7 @@ export = (): void => {
             const object = new ContainerTestContextInjectMethodArgument();
 
             const value = container.call([object, "method"]);
-            expect(
-                value instanceof ContainerContextImplementationStub,
-            ).to.equal(true);
+            expect(value instanceof ContainerContextImplementationStub).to.equal(true);
         });
     });
 };

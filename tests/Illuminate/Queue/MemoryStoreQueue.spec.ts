@@ -67,13 +67,7 @@ class MyTestJob {
 const EXPIRATION = 30;
 
 function freshQueue(): MemoryStoreQueue {
-    const queue = new MemoryStoreQueue(
-        HttpService.GenerateGUID(false),
-        60,
-        0,
-        EXPIRATION,
-        "queue-test:",
-    );
+    const queue = new MemoryStoreQueue(HttpService.GenerateGUID(false), 60, 0, EXPIRATION, "queue-test:");
     queue.setContainer(new Container());
     made.push(queue);
 
@@ -123,9 +117,7 @@ export = (): void => {
 
             expect(job).to.be.ok();
             expect(job.getRawBody().displayName).to.equal("foo");
-            expect((job.getRawBody().data as Array<unknown>)[0]).to.equal(
-                "data",
-            );
+            expect((job.getRawBody().data as Array<unknown>)[0]).to.equal("data");
         });
 
         // PHP: QueueRedisQueueTest::testPushProperlyPushesJobOntoRedisWithCustomPayloadHook /
@@ -133,12 +125,8 @@ export = (): void => {
         it("push() runs every registered createPayloadUsing() hook, in order", () => {
             const queue = freshQueue();
 
-            MemoryStoreQueue.createPayloadUsing(
-                () => ({ maxTries: 3 }) as never,
-            );
-            MemoryStoreQueue.createPayloadUsing(
-                () => ({ maxExceptions: 2 }) as never,
-            );
+            MemoryStoreQueue.createPayloadUsing(() => ({ maxTries: 3 }) as never);
+            MemoryStoreQueue.createPayloadUsing(() => ({ maxExceptions: 2 }) as never);
 
             queue.push("foo", ["data"]);
 
@@ -222,9 +210,7 @@ export = (): void => {
         it("a payload larger than the 32 KB item limit is refused", () => {
             const queue = freshQueue();
 
-            const [ok, err] = pcall(() =>
-                queue.push("foo", string.rep("x", 33 * 1024)),
-            );
+            const [ok, err] = pcall(() => queue.push("foo", string.rep("x", 33 * 1024)));
 
             expect(ok).to.equal(false);
             expect(err instanceof InvalidPayloadException).to.equal(true);

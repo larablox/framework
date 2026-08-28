@@ -45,23 +45,10 @@ export = (): void => {
             // PHP: SupportStrTest::testPasswordCreation
             expect(Str.password().size()).to.equal(32);
             expect(Str.contains(Str.password(), " ")).to.equal(false);
-            expect(
-                Str.contains(Str.password(32, true, true, true, true), " "),
-            ).to.equal(true);
+            expect(Str.contains(Str.password(32, true, true, true, true), " ")).to.equal(true);
 
             expect(
-                Str.contains(Str.of(Str.password()).value(), [
-                    "0",
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                    "6",
-                    "7",
-                    "8",
-                    "9",
-                ]),
+                Str.contains(Str.of(Str.password()).value(), ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]),
             ).to.equal(true);
         });
 
@@ -130,22 +117,14 @@ export = (): void => {
             expect(Str.isJson("1")).to.equal(true);
             expect(Str.isJson("[1,2,3]")).to.equal(true);
             expect(Str.isJson("[1,   2,   3]")).to.equal(true);
-            expect(Str.isJson('{"first": "John", "last": "Doe"}')).to.equal(
-                true,
-            );
-            expect(
-                Str.isJson(
-                    '[{"first": "John", "last": "Doe"}, {"first": "Jane", "last": "Doe"}]',
-                ),
-            ).to.equal(true);
+            expect(Str.isJson('{"first": "John", "last": "Doe"}')).to.equal(true);
+            expect(Str.isJson('[{"first": "John", "last": "Doe"}, {"first": "Jane", "last": "Doe"}]')).to.equal(true);
 
             expect(Str.isJson("1,")).to.equal(false);
             expect(Str.isJson("[1,2,3")).to.equal(false);
             expect(Str.isJson("[1,   2   3]")).to.equal(false);
             expect(Str.isJson('{first: "John"}')).to.equal(false);
-            expect(Str.isJson('[{first: "John"}, {first: "Jane"}]')).to.equal(
-                false,
-            );
+            expect(Str.isJson('[{first: "John"}, {first: "Jane"}]')).to.equal(false);
             expect(Str.isJson("")).to.equal(false);
         });
 

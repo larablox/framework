@@ -117,9 +117,10 @@ subclasses that override before calling shapes equivalent.
 facades replace `__callStatic` with metatables. Only claim impossibility for a specific
 magic use after checking what the port already does elsewhere.
 
-**Trait mixins.** The comparator flags `[missing mixin: X]` in the file's note when a
-`uses:` trait is absent from the port class's extends/mixin chain (suppressed only by a
-reasoned waiver in `exclusions.json`'s `traits` section, e.g. Macroable). Treat the flag
+**Trait mixins.** Every `uses:` trait is a `kind: trait` row in members.csv — `both` when
+mixed in, `missing_mixin` when absent (also flagged `[missing mixin: X]` in the file's
+note), `excluded/deferred` when waived with a reason in `exclusions.json`'s `traits`
+section (e.g. Macroable). Treat the flag
 as a finding: a trait the port has already built elsewhere (`Conditionable` is mixed into
 Stringable, Request and others) is work, not a waiver.
 

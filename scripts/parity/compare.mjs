@@ -153,18 +153,48 @@ export function compare({ php, ts, aliases, exclusions, approvals, component })
             for (const decl of phpData.declarations) {
                 if (decl.uses.length > 0) notes.push(`uses:${decl.uses.join(',')}`);
                 for (const note of decl.notes) notes.push(note);
-                // A trait upstream mixes in that the port class does not: no
-                // member status catches it, so the file note flags it, unless
-                // the trait is waived in exclusions.traits.
+                // Every `uses:` trait gets its own members.csv row, so a
+                // missing mixin is visible where members are read -- not only
+                // as a file note. A waived trait (exclusions.traits) reads as
+                // excluded/deferred with its reason.
                 if (tsData) {
+                    const traitRow = (short, status, implStatus, note) => ({
+                        component: row.component,
+                        laravel_path: pair.phpPath,
+                        declaration: decl.name,
+                        member: short,
+                        kind: 'trait',
+                        status,
+                        origin: 'self',
+                        php_visibility: '',
+                        php_static: '',
+                        ts_visibility: '',
+                        ts_static: '',
+                        impl_status: implStatus,
+                        vendor_deps: '',
+                        php_line: '',
+                        ts_line: '',
+                        php_hash: '',
+                        ts_hash: '',
+                        note,
+                    });
                     for (const trait of decl.uses) {
-                        if (ownProp(traitExclusions, trait)) continue;
                         const short = trait.split('\\').pop();
+                        const waiver = ownProp(traitExclusions, trait);
+                        if (waiver) {
+                            memberRows.push(traitRow(short, 'excluded', 'deferred', waiver));
+                            continue;
+                        }
                         const mixedIn = tsData.declarations.some((d) =>
                             (d.extends ?? []).some((heritage) => heritage.includes(short))
                             || (d.notes ?? []).some((note) => note.includes(short))
                         );
-                        if (!mixedIn) notes.push(`[missing mixin: ${short}]`);
+                        if (!mixedIn) {
+                            notes.push(`[missing mixin: ${short}]`);
+                            memberRows.push(traitRow(short, 'missing_mixin', '', `uses:${trait}`));
+                        } else {
+                            memberRows.push(traitRow(short, 'both', '', `uses:${trait}`));
+                        }
                     }
                 }
             }

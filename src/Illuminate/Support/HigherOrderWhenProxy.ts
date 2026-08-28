@@ -7,8 +7,8 @@ import { Util } from 'Illuminate/Container/Util';
  * apart by the target's member -- a function-valued one is a method, reached
  * through the returned wrapper, anything else a property. `$condition` and
  * `$negateConditionOnCapture` live beside their methods, so the properties
- * take the leading underscore. `condition()` normalizes what it stores to the
- * docblock's `bool` -- a Luau field cannot hold the raw `nil` anyway.
+ * take the leading underscore. `condition()` takes the docblock's `bool`, so
+ * the captures normalize through `Util.truthy` before calling it.
  */
 export class HigherOrderWhenProxy<TTarget>
 {
@@ -40,10 +40,10 @@ export class HigherOrderWhenProxy<TTarget>
     }
 
     /** Set the condition on the proxy. */
-    public condition(condition: unknown): this
+    public condition(condition: boolean): this
     {
         [this._condition, this.hasCondition] = [
-            Util.truthy(condition),
+            condition,
             true,
         ];
 
@@ -68,9 +68,9 @@ export class HigherOrderWhenProxy<TTarget>
             // fields, so no self arrives -- the target is passed by hand.
             return (...parameters: Array<unknown>) => {
                 if (!this.hasCondition) {
-                    const condition = (value as Callback)(this.target, ...(parameters as Array<never>));
+                    const condition = Util.truthy((value as Callback)(this.target, ...(parameters as Array<never>)));
 
-                    return this.condition(this._negateConditionOnCapture ? !Util.truthy(condition) : condition);
+                    return this.condition(this._negateConditionOnCapture ? !condition : condition);
                 }
 
                 return this._condition
@@ -80,7 +80,9 @@ export class HigherOrderWhenProxy<TTarget>
         }
 
         if (!this.hasCondition) {
-            return this.condition(this._negateConditionOnCapture ? !Util.truthy(value) : value);
+            const condition = Util.truthy(value);
+
+            return this.condition(this._negateConditionOnCapture ? !condition : condition);
         }
 
         return this._condition ? value : this.target;

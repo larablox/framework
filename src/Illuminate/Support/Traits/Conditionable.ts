@@ -127,7 +127,7 @@ function conditionable<TBase extends Constructor>(Base: TBase)
             }
 
             if (args.size() === 1) {
-                return new HigherOrderWhenProxy(this).condition(value) as WhenProxyConditioned<this>;
+                return new HigherOrderWhenProxy(this).condition(Util.truthy(value)) as WhenProxyConditioned<this>;
             }
 
             if (Util.truthy(value)) {

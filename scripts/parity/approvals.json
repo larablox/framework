@@ -8,10 +8,10 @@
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition": {
         "php_hash": "6ea6a00729734ae21255b1f79b4e144feaceac41",
-        "ts_hash": "fb3971a7d64f66f4f90fb289d00b71f8ae83e182",
+        "ts_hash": "b9303dfb841f854bc42bfb399541c0e7186607c9",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Mirrored. The list assignment is upstream: [this._condition, this.hasCondition] = [Util.truthy(condition), true] -- the stored value normalizes to the docblock bool (the user chose the documented contract over the raw capture; observably identical, the condition is only ever consumed through truthiness)."
+        "note": "Verbatim: the docblock bool parameter and the list assignment, exactly upstream -- normalization lives at the capture sites."
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition@property": {
         "php_hash": "393215010b27d69d375f88a0f1b4f8509ef743b3",
@@ -43,7 +43,7 @@
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#pass": {
         "php_hash": null,
-        "ts_hash": "98058444793dae0cd27cf74c8547d50f638f8bc2",
+        "ts_hash": "677f3f7ef25ebbf0e78889ce25d3e4786eee524b",
         "status": "pending",
         "proposed_at": "2026-08-28",
         "note": "Port-only: __get and __call fused, since Luau dispatches both through one __index -- a function-valued target member takes __call's path via the returned dot-called wrapper, anything else __get's. Known corner: a property holding a function reads as a method here."
@@ -64,10 +64,10 @@
     },
     "Conditionable/Traits/Conditionable.php#Conditionable#when": {
         "php_hash": "a858339b620db8c30391917756d5db1000369d32",
-        "ts_hash": "3c3c03cf13382648e11aa856ec52e9ffdbf106b6",
+        "ts_hash": "f27486dc103e0fe56199794bc2ba01b54715c3b8",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Mirrored. The full upstream body, proxy branches included: func_num_args() is the rest parameter's size() (a trailing explicit undefined is uncountable -- when(undefined) reads as when(), where PHP counts one; the file docblock records it), the named parameters destructure from the rest tuple, and the remaining residues are the standing conventions -- truthiness, instanceof-closure, nullable-default, _default under the underscore convention."
+        "note": "Mirrored. The full upstream body, proxy branches included: func_num_args() is the rest parameter's size() (a trailing explicit undefined is uncountable -- when(undefined) reads as when(), where PHP counts one; the file docblock records it), the named parameters destructure from the rest tuple, and the remaining residues are the standing conventions -- truthiness, instanceof-closure, nullable-default, _default under the underscore convention. The one-argument form passes Util.truthy(value) -- condition() takes the docblock bool, where PHP hands over the raw value."
     },
     "Pipeline/Hub.php#Hub#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",

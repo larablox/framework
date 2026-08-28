@@ -1,15 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectThrows } from '../TestHelpers';
-import {
-    call,
-    callMethod,
-    isCallable,
-    isPipeArray,
-    isPipeWithParameters,
-    methodExists,
-    splitPipe,
-    wrapPipes,
-} from 'Illuminate/Pipeline/helpers';
+import { isPipeArray, isPipeWithParameters, splitPipe, wrapPipes } from 'Illuminate/Pipeline/helpers';
 import type { Next } from 'Illuminate/Pipeline/Pipeline';
 import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
@@ -30,46 +20,6 @@ class HelpersSpecPipe
 }
 
 export = (): void => {
-    describe('call', () => {
-        it('calls a function or a __call table, and raises on anything else', () => {
-            expect(call((a: number, b: number) => a + b, 1, 2)).to.equal(3);
-
-            const invokable = setmetatable({}, {
-                __call: (_self: object, value: unknown) => value,
-            } as LuaMetatable<object>);
-            expect(call(invokable, 'x')).to.equal('x');
-
-            expectThrows(() => call('not callable'));
-        });
-    });
-
-    describe('methodExists / callMethod', () => {
-        it('finds a method through __index and calls it with the target as self', () => {
-            const pipe = new HelpersSpecPipe();
-
-            expect(methodExists(pipe, 'handle')).to.equal(true);
-            expect(methodExists(pipe, 'missing')).to.equal(false);
-            expect(methodExists('not a table', 'handle')).to.equal(false);
-
-            const passed = callMethod(pipe, 'handle', 'foo', (piped: unknown) => piped);
-            expect(passed).to.equal('foo');
-        });
-    });
-
-    describe('isCallable', () => {
-        it('accepts a function or a table with a __call metamethod', () => {
-            expect(isCallable(() => undefined)).to.equal(true);
-            expect(isCallable(setmetatable({}, { __call: () => undefined } as LuaMetatable<object>))).to.equal(true);
-        });
-
-        it('rejects everything else', () => {
-            expect(isCallable('handle')).to.equal(false);
-            expect(isCallable(HelpersSpecPipe)).to.equal(false);
-            expect(isCallable(new HelpersSpecPipe())).to.equal(false);
-            expect(isCallable([])).to.equal(false);
-        });
-    });
-
     describe('isPipeWithParameters', () => {
         it('recognizes a class head followed by string arguments as one pipe', () => {
             expect(isPipeWithParameters([

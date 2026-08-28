@@ -1,6 +1,7 @@
 import { Arr } from 'Illuminate/Support/Arr';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
-import { call, callMethod, isCallable, isPipeArray, methodExists, splitPipe } from 'Illuminate/Pipeline/helpers';
+import { call, callMethod, isCallable, methodExists } from 'Illuminate/Container/helpers';
+import { isPipeArray, splitPipe } from 'Illuminate/Pipeline/helpers';
 import { RuntimeException } from 'Illuminate/Exception';
 import { Str } from 'Illuminate/Support/Str';
 import { ContainerContract } from 'Illuminate/Contracts/Container/Container';

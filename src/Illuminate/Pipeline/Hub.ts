@@ -1,4 +1,4 @@
-import { call } from 'Illuminate/Pipeline/helpers';
+import { call } from 'Illuminate/Container/helpers';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
 import { InvalidArgumentException } from 'Illuminate/Exception';
 import { Util } from 'Illuminate/Container/Util';

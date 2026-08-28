@@ -1,10 +1,24 @@
 {
-    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__construct": {
-        "php_hash": "531f2651176a5cfd99c5c49de69e665cf0911c92",
-        "ts_hash": "30500bd89f0f57fbe5267d312de4de4fc5edeaef",
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__call": {
+        "php_hash": "8b460550917b209207ab4b1adff9f256b397db65",
+        "ts_hash": "33fbc781d0f6a8c933ea9821793d4e4a7cad492c",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: the promoted  parameter, plus the __index metatable installed here -- the runtime half of __get/__call (their member waivers carry the proof)."
+        "note": "Mirrored. Named ___call: roblox-ts reserves Lua metamethod names in class definitions, so the underscore convention goes one step further and the comparator matches it back. Body is upstream through callMethod (->{}(...)); reached via the dot-called wrapper the __index dispatcher returns."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__construct": {
+        "php_hash": "531f2651176a5cfd99c5c49de69e665cf0911c92",
+        "ts_hash": "df5e674b9ff80de31aeefb27448877539453e101",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim assignment, upstream classic (not promoted), plus the one platform line: installing the shared __index dispatcher."
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__get": {
+        "php_hash": "80037fe8b6e4cf7b8114bda6e6a76808c88e4287",
+        "ts_hash": "6dc7c60ecf0abdcaf1459b3b7114c038e94617d8",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. The named member the fused pass() used to hide: capture folds the raw member through Util.truthy into the docblock-bool condition (hoisted const, negation as upstream), apply indexes the target or skips to it. Dispatched from the shared __index metatable."
     },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition": {
         "php_hash": "6ea6a00729734ae21255b1f79b4e144feaceac41",
@@ -27,6 +41,13 @@
         "proposed_at": "2026-08-28",
         "note": "Verbatim: protected, false default."
     },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#metatable@property": {
+        "php_hash": null,
+        "ts_hash": "c5ab6b705294446b8aa06616f67a89b556158b4a",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Port-only: the shared __get/__call dispatcher every instance takes in its constructor -- a static, built once, no closure (the proxy arrives as __index first argument). A function-valued target member is a method; the known corner (a property holding a function reads as a method) lives here."
+    },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#negateConditionOnCapture": {
         "php_hash": "cde9d3a8bf1370a5a4a8b35b3244589a3dad071b",
         "ts_hash": "739fe5b0597bebfc711818b5103a3beff781d575",
@@ -41,19 +62,12 @@
         "proposed_at": "2026-08-28",
         "note": "Mirrored. _negateConditionOnCapture under the underscore convention; initialized false where PHP leaves the bool unset (an uninitialized flag reads falsy either way, and a Luau field cannot hold nil)."
     },
-    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#pass": {
-        "php_hash": null,
-        "ts_hash": "677f3f7ef25ebbf0e78889ce25d3e4786eee524b",
-        "status": "pending",
-        "proposed_at": "2026-08-28",
-        "note": "Port-only: __get and __call fused, since Luau dispatches both through one __index -- a function-valued target member takes __call's path via the returned dot-called wrapper, anything else __get's. Known corner: a property holding a function reads as a method here."
-    },
     "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#target@property": {
         "php_hash": "37820d2850ce9bf5f531f0b39e0115f8caa35e38",
-        "ts_hash": "fe89c28031e701040d28918b60808e90c3452d1d",
+        "ts_hash": "976a29de20db5dba2854ca93fef69c5f47d64f59",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: the promoted constructor parameter."
+        "note": "Verbatim: protected, declared classically as upstream declares it, first in the property order."
     },
     "Conditionable/Traits/Conditionable.php#Conditionable#unless": {
         "php_hash": "b50290d39aac9deb74efbe5b8443d2592b9a5a39",

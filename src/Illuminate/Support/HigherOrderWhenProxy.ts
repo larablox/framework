@@ -1,17 +1,21 @@
 import { Util } from 'Illuminate/Container/Util';
+import { callMethod, methodExists } from 'Illuminate/Container/helpers';
 
 /**
  * PHP: `Illuminate\Support\HigherOrderWhenProxy`.
  *
- * `__get` and `__call` fuse into one `__index` metamethod: the two are told
- * apart by the target's member -- a function-valued one is a method, reached
- * through the returned wrapper, anything else a property. `$condition` and
- * `$negateConditionOnCapture` live beside their methods, so the properties
- * take the leading underscore. `condition()` takes the docblock's `bool`, so
- * the captures normalize through `Util.truthy` before calling it.
+ * `__get` and `__call` are dispatched off one `__index` metamethod, installed
+ * by the constructor: a function-valued target member is a method and takes
+ * `__call`'s path through the returned wrapper (dot-called -- the mapped
+ * proxy types declare fields, so no self arrives), anything else `__get`'s.
+ * `$condition` and `$negateConditionOnCapture` live beside their methods, so
+ * the properties take the leading underscore.
  */
 export class HigherOrderWhenProxy<TTarget>
 {
+    /** The target being conditionally operated on. */
+    protected target: TTarget;
+
     /** The condition for proxying. */
     protected _condition = false;
 
@@ -21,22 +25,31 @@ export class HigherOrderWhenProxy<TTarget>
     /** Determine whether the condition should be negated. */
     protected _negateConditionOnCapture = false;
 
+    /** The `__get`/`__call` dispatcher every instance shares. */
+    private static readonly metatable = {
+        __index: (proxy: object, key: unknown) => {
+            const own = (HigherOrderWhenProxy as unknown as Record<string, unknown>)[key as string];
+
+            if (own !== undefined) {
+                return own;
+            }
+
+            const instance = proxy as HigherOrderWhenProxy<unknown>;
+
+            if (methodExists(instance.target, key as string)) {
+                return (...parameters: Array<unknown>) => instance.___call(key as string, parameters);
+            }
+
+            return instance.__get(key as string);
+        },
+    } as LuaMetatable<object>;
+
     /** Create a new proxy instance. */
-    public constructor(protected target: TTarget)
+    public constructor(target: TTarget)
     {
-        const classTable = HigherOrderWhenProxy as unknown as Record<string, unknown>;
+        this.target = target;
 
-        setmetatable(this as unknown as object, {
-            __index: (proxy: object, key: unknown) => {
-                const own = classTable[key as string];
-
-                if (own !== undefined) {
-                    return own;
-                }
-
-                return (proxy as HigherOrderWhenProxy<TTarget>).pass(key as string);
-            },
-        } as LuaMetatable<object>);
+        setmetatable(this as unknown as object, HigherOrderWhenProxy.metatable);
     }
 
     /** Set the condition on the proxy. */
@@ -58,34 +71,37 @@ export class HigherOrderWhenProxy<TTarget>
         return this;
     }
 
-    /** Proxy an access onto the target -- `__get`, or `__call` through the wrapper. */
-    protected pass(key: string): unknown
+    /** Proxy accessing an attribute onto the target. */
+    protected __get(key: string): unknown
     {
-        const value = (this.target as Record<string, unknown>)[key];
-
-        if (typeIs(value, 'function')) {
-            // Dot-called: the mapped proxy types declare function-valued
-            // fields, so no self arrives -- the target is passed by hand.
-            return (...parameters: Array<unknown>) => {
-                if (!this.hasCondition) {
-                    const condition = Util.truthy((value as Callback)(this.target, ...(parameters as Array<never>)));
-
-                    return this.condition(this._negateConditionOnCapture ? !condition : condition);
-                }
-
-                return this._condition
-                    ? (value as Callback)(this.target, ...(parameters as Array<never>))
-                    : this.target;
-            };
-        }
-
         if (!this.hasCondition) {
-            const condition = Util.truthy(value);
+            const condition = Util.truthy((this.target as Record<string, unknown>)[key]);
 
             return this.condition(this._negateConditionOnCapture ? !condition : condition);
         }
 
-        return this._condition ? value : this.target;
+        return this._condition
+            ? (this.target as Record<string, unknown>)[key]
+            : this.target;
+    }
+
+    /**
+     * Proxy a method call on the target.
+     *
+     * roblox-ts reserves Lua metamethod names in class definitions, so PHP's
+     * `__call` takes the underscore convention one step further.
+     */
+    protected ___call(method: string, parameters: Array<unknown>): unknown
+    {
+        if (!this.hasCondition) {
+            const condition = Util.truthy(callMethod(this.target, method, ...parameters));
+
+            return this.condition(this._negateConditionOnCapture ? !condition : condition);
+        }
+
+        return this._condition
+            ? callMethod(this.target, method, ...parameters)
+            : this.target;
     }
 }
 

@@ -9,19 +9,14 @@
             "php_hash": "9c3a4134dd863567df88e26526a4ba34383358b2",
             "kind": "deferred",
             "reason": "Wraps the run in a 'db' connection transaction; the port has no database component and no 'db' binding to reach for. Revisit when a database layer (e.g. over DataStore) lands and 'db' becomes bindable."
-        },
-        "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__get": {
-            "php_hash": "80037fe8b6e4cf7b8114bda6e6a76808c88e4287",
-            "kind": "deferred",
-            "reason": "A named __get cannot exist: property dispatch is the __index metamethod. Its behavior is pass() plus the constructor's __index, fused with __call (a method here is a function-valued field). Candidate for impossible -- nothing is owed, the functionality is complete."
-        },
-        "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__call": {
-            "php_hash": "8b460550917b209207ab4b1adff9f256b397db65",
-            "kind": "deferred",
-            "reason": "A named __call cannot exist: method dispatch is the __index metamethod returning a wrapper. Fused with __get into pass(). Candidate for impossible -- nothing is owed, the functionality is complete."
         }
     },
     "paths": [
+        {
+            "glob": "Container/helpers.ts",
+            "kind": "port-only",
+            "reason": "The language compensations for PHP dynamic calls and capability checks -- call ((...)), callMethod (->{}(...)), methodExists, isCallable -- which PHP gets from the language itself. Lives at the bottom of the import graph so Support (HigherOrderWhenProxy) and Pipeline can both reach it without cycles."
+        },
         {
             "glob": "Pipeline/helpers.ts",
             "kind": "port-only",

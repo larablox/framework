@@ -110,6 +110,7 @@ export function compare({ php, ts, aliases, exclusions, approvals, component })
             members_extra_in_port: 0,
             parity_pct: '',
             impl_approved: 0,
+            impl_pending: 0,
             impl_stale: 0,
             impl_unreviewed: 0,
             note: exclusionReason,
@@ -266,8 +267,16 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
                         implStatus = 'unreviewed';
                         fileRow.impl_unreviewed++;
                     } else if (approval.php_hash === phpMember.hash && approval.ts_hash === tsMember.hash) {
-                        implStatus = 'approved';
-                        fileRow.impl_approved++;
+                        // Claude's review ends at `pending`; only a person
+                        // promotes to `approved` (--approve, run by the user or
+                        // on the user's explicit instruction).
+                        if (approval.status === 'pending') {
+                            implStatus = 'pending';
+                            fileRow.impl_pending++;
+                        } else {
+                            implStatus = 'approved';
+                            fileRow.impl_approved++;
+                        }
                     } else {
                         implStatus = 'stale';
                         fileRow.impl_stale++;
@@ -361,6 +370,7 @@ function summarize(fileRows)
                 members_deferred: 0,
                 members_unported: 0,
                 approved: 0,
+                pending: 0,
                 stale: 0,
                 unreviewed: 0,
             };
@@ -387,6 +397,7 @@ function summarize(fileRows)
         entry.members_missing += row.members_missing_in_port;
         entry.members_deferred += row._deferredMembers ?? 0;
         entry.approved += row.impl_approved;
+        entry.pending += row.impl_pending;
         entry.stale += row.impl_stale;
         entry.unreviewed += row.impl_unreviewed;
     }
@@ -431,9 +442,9 @@ export function summaryText(summary, upstreamVersion)
     lines.push(`Reference: laravel/framework ${upstreamVersion}`);
     lines.push('');
     lines.push(
-        '| Component | Files | Matched | Deferred | Impossible | Port-only | Missing | Extra | Coverage | Fidelity | Approved | Stale | Unreviewed |',
+        '| Component | Files | Matched | Deferred | Impossible | Port-only | Missing | Extra | Coverage | Fidelity | Approved | Pending | Stale | Unreviewed |',
     );
-    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|');
+    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
     const totals = {
         component: '**Total**',
         files: 0,
@@ -448,13 +459,14 @@ export function summaryText(summary, upstreamVersion)
         members_deferred: 0,
         members_unported: 0,
         approved: 0,
+        pending: 0,
         stale: 0,
         unreviewed: 0,
     };
     const line = (entry) =>
         `| ${entry.component} | ${entry.files} | ${entry.matched} | ${entry.deferred} | ${entry.impossible} | ${entry.port_only} | ${entry.missing} | ${entry.extra} | ${
             coverageOf(entry)
-        } | ${fidelityOf(entry)} | ${entry.approved} | ${entry.stale} | ${entry.unreviewed} |`;
+        } | ${fidelityOf(entry)} | ${entry.approved} | ${entry.pending} | ${entry.stale} | ${entry.unreviewed} |`;
     for (const entry of summary) {
         lines.push(line(entry));
         for (const key of Object.keys(totals)) {
@@ -479,6 +491,7 @@ export const FILE_COLUMNS = [
     'members_extra_in_port',
     'parity_pct',
     'impl_approved',
+    'impl_pending',
     'impl_stale',
     'impl_unreviewed',
     'note',

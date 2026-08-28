@@ -130,10 +130,13 @@ names TS cannot use as-is), `exclusions.json` (typed waivers with reasons),
 `approvals.json` (per-method "implementation reviewed" marks keyed to
 body hashes of **both** sides, so editing the port or bumping Laravel flips
 the mark to stale automatically). Review loop:
-`--list stale|unreviewed`, `--show "<key>"` (both bodies side by side),
-`--approve "<key>"` / `--approve-file`, `--check` (non-zero exit on anything
-stale). An approval asserts behavioural equivalence — set it only after
-actually reading both bodies.
+`--list stale|unreviewed|pending`, `--show "<key>"` (both bodies side by
+side), `--propose "<key>"` / `--propose-file` (a review lands at
+**pending**), `--approve "<key>"` / `--approve-file` (promotion to
+**approved** is a person's call — the user runs it, or Claude runs it only
+on the user's explicit instruction), `--check` (non-zero exit on anything
+stale). A proposal asserts behavioural equivalence — record it only after
+actually reading both bodies; approval asserts a human looked too.
 
 ## The workbench
 

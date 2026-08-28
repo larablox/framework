@@ -29,10 +29,11 @@ Work one component at a time:
 2. For each pair of files, read **both files whole** (upstream lives under
    `.upstream/vendor/laravel/framework/src/Illuminate/`), not just the flagged members —
    member-level `--show "<path>#<Decl>#<member>"` is for spot checks and re-reviews.
-3. Interrogate every difference (checklist below). Fix, waive, or approve with a note.
+3. Interrogate every difference (checklist below). Fix, waive, or propose with a note.
 4. After any `src/` edit: `npm run analyze`, `npm test`, `npm run lint`, `npm run format`.
 5. `node scripts/parity/run.mjs --component <X> --check` must end green: everything
-   approved or excluded, nothing stale.
+   proposed (pending), approved, or excluded — nothing stale, nothing unreviewed left
+   unexplained.
 6. Commit per meaningful change (English message telling the story, not a list), push to
    the open PR branch.
 
@@ -94,13 +95,19 @@ subclasses that override before calling shapes equivalent.
 facades replace `__callStatic` with metatables. Only claim impossibility for a specific
 magic use after checking what the port already does elsewhere.
 
-## Approval rules
+## Proposal and approval rules
 
-- Approve only after reading both bodies. `--approve "<key>"` records current hashes.
-- **A dismissed difference must be written into the approval's note** — an unrecorded
+Review verdicts are two-stage. **Claude's review ends at `pending`**: `--propose "<key>"`
+(or `--propose-file`) records the hashes and the judgment. **Promotion to `approved` is a
+person's call** — the user runs `--approve` themselves after looking, or explicitly
+instructs Claude to run it for named keys/files. Never promote on your own initiative, and
+never treat a general "закончи ревью" as that instruction.
+
+- Propose only after reading both bodies.
+- **A dismissed difference must be written into the proposal's note** — an unrecorded
   judgment cannot be challenged, and unchallengeable judgments is how the closure-capture
-  bug got approved. Add notes by editing `scripts/parity/approvals.json` after the approve
-  (the field is `note`); re-approving overwrites the entry, so restore notes after.
+  bug got through. Add notes by editing `scripts/parity/approvals.json` (the field is
+  `note`); re-proposing keeps the existing entry's note and `proposed_at`.
 - `n/a` members (properties, consts, bodiless methods) carry no approval; their parity is
   presence + visibility, already in the CSV.
 - After a mechanical reformat that flips approvals stale: verify `php_hash` unchanged, then
@@ -124,12 +131,16 @@ Report the finding with the failure scenario before fixing (the user decides sco
 the session's instruction was to fix as you go. A fix follows the repo rules: regression
 spec where the suite's conventions allow one (several spec files pin "don't invent cases
 absent from the PHP reference" — respect the file's own header), `npm run analyze` and a
-read of the emitted Luau, full suite, then re-approve the stales the fix caused.
+read of the emitted Luau, full suite, then re-propose the stales the fix caused (a
+promoted `approved` that went stale returns to the human for promotion again).
 
 ## What to ask the user vs decide
 
-Decide yourself: mechanical re-approvals after verified-cosmetic changes, notes, waiver
-reasons, fixing clear bugs found in review when asked to review-and-fix.
+Decide yourself: proposing, mechanical hash refreshes after verified-cosmetic changes,
+notes, waiver reasons, fixing clear bugs found in review when asked to review-and-fix.
+
+Approving is never yours to decide: `--approve`/`--approve-file` run only on the user's
+explicit, named instruction.
 
 Ask first: introducing a new convention (a new token, decorator, or naming pattern —
 these ripple), reclassifying a waiver to `impossible`, renaming anything on the public

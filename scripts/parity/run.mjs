@@ -3,11 +3,13 @@
 //
 //   npm run parity                          full run, writes reports/parity/
 //   npm run parity -- --component Queue     limit the report to one component
-//   npm run parity -- --approve "<key>"     mark one member as reviewed
-//   npm run parity -- --approve-file "<laravel_path>"
+//   npm run parity -- --propose "<key>"     record a review as pending human approval
+//   npm run parity -- --propose-file "<laravel_path>"
+//   npm run parity -- --approve "<key>"     promote to approved -- a person's call:
+//   npm run parity -- --approve-file "..."  run by the user, or on their explicit ask
 //   npm run parity -- --revoke "<key>"
 //   npm run parity -- --exclude "<key>" --reason "..."
-//   npm run parity -- --list stale|unreviewed [--component X]
+//   npm run parity -- --list stale|unreviewed|pending [--component X]
 //   npm run parity -- --show "<key>"        print both bodies side by side
 //   npm run parity -- --check               exit 1 when anything went stale
 //
@@ -183,29 +185,51 @@ function main()
             row.status === 'both' && row.php_hash !== '' && row.ts_hash !== '' && row.impl_status !== 'n/a'
         );
 
+    // A review lands at `pending` (--propose); only a person promotes to
+    // `approved` (--approve) -- run by the user, or by Claude only on the
+    // user's explicit instruction. Both record the current hashes, so either
+    // state goes stale when a body changes.
+    const today = () => new Date().toISOString().slice(0, 10);
+    const record = (key, row, status) => {
+        const existing = approvals[key] ?? {};
+        approvals[key] = {
+            ...existing,
+            php_hash: row.php_hash,
+            ts_hash: row.ts_hash,
+            status,
+            ...(status === 'pending' ? { proposed_at: existing.proposed_at ?? today() } : { approved_at: today() }),
+        };
+        console.log(`${status === 'pending' ? 'proposed' : 'approved'}: ${key}`);
+    };
+
+    if (typeof args.propose === 'string') {
+        const row = approvableRows().find((r) => memberKey(r.laravel_path, r.declaration, r.member) === args.propose);
+        if (!row) fail(`No reviewable member found for key: ${args.propose}`);
+        record(args.propose, row, 'pending');
+        registriesChanged = true;
+    }
+
+    if (typeof args['propose-file'] === 'string') {
+        const rows = approvableRows().filter((r) => r.laravel_path === args['propose-file']);
+        if (rows.length === 0) fail(`No reviewable members found in pair: ${args['propose-file']}`);
+        for (const row of rows) {
+            record(memberKey(row.laravel_path, row.declaration, row.member), row, 'pending');
+        }
+        registriesChanged = true;
+    }
+
     if (typeof args.approve === 'string') {
         const row = approvableRows().find((r) => memberKey(r.laravel_path, r.declaration, r.member) === args.approve);
         if (!row) fail(`No reviewable member found for key: ${args.approve}`);
-        approvals[args.approve] = {
-            php_hash: row.php_hash,
-            ts_hash: row.ts_hash,
-            approved_at: new Date().toISOString().slice(0, 10),
-        };
+        record(args.approve, row, 'approved');
         registriesChanged = true;
-        console.log(`approved: ${args.approve}`);
     }
 
     if (typeof args['approve-file'] === 'string') {
         const rows = approvableRows().filter((r) => r.laravel_path === args['approve-file']);
         if (rows.length === 0) fail(`No reviewable members found in pair: ${args['approve-file']}`);
         for (const row of rows) {
-            const key = memberKey(row.laravel_path, row.declaration, row.member);
-            approvals[key] = {
-                php_hash: row.php_hash,
-                ts_hash: row.ts_hash,
-                approved_at: new Date().toISOString().slice(0, 10),
-            };
-            console.log(`approved: ${key}`);
+            record(memberKey(row.laravel_path, row.declaration, row.member), row, 'approved');
         }
         registriesChanged = true;
     }
@@ -244,7 +268,9 @@ function main()
     // ---- query commands ---------------------------------------------------
     if (typeof args.list === 'string') {
         const wanted = args.list;
-        if (wanted !== 'stale' && wanted !== 'unreviewed') fail("--list takes 'stale' or 'unreviewed'");
+        if (wanted !== 'stale' && wanted !== 'unreviewed' && wanted !== 'pending') {
+            fail("--list takes 'stale', 'unreviewed' or 'pending'");
+        }
         const rows = result.memberRows.filter((row) =>
             row.impl_status === wanted || (wanted === 'stale' && row.note.includes('STALE exclusion'))
         );

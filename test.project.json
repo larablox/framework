@@ -36,7 +36,7 @@
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
 			"RunTests": {
-				"$path": "scripts/RunTests.server.luau"
+				"$path": "scripts/studio/RunTests.server.luau"
 			},
 			"TestFilter": {
 				"$className": "StringValue",

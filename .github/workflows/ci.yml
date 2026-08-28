@@ -1,33 +1,51 @@
 name: CI
 
 on:
-    push:
-        branches: [main]
-    pull_request:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
 
 permissions:
-    contents: read
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-    check:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v5
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
 
-            - uses: actions/setup-node@v5
-              with:
-                  node-version: 22
-                  cache: npm
+      - uses: ./.github/actions/setup
 
-            - run: npm ci
+      - run: npm run lint
 
-            - run: npm run lint
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
 
-            # `npm run analyze` compiles to Luau, refreshes the sourcemap and runs
-            # luau-lsp over `out/`, so it needs the Rokit toolchain and the Roblox
-            # global type definitions the analyze script expects on disk.
-            - uses: CompeyDev/setup-rokit@v0.1.2
+      - uses: ./.github/actions/setup
+        with:
+          rokit: "true"
 
-            - run: npm run types:roblox
+      - run: npm run types:roblox
 
-            - run: npm run analyze
+      - run: npm run analyze
+
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup
+        with:
+          rokit: "true"
+
+      - run: npm test

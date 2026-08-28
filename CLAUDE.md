@@ -63,6 +63,10 @@ this wired up, both load-bearing:
 | Lint                                    | `npm run lint`             |
 | Lint + autofix                          | `npm run lint:fix`         |
 | Analyze generated Luau                  | `npm run analyze`          |
+| Run the suite (no Studio)               | `npm test`                 |
+| Run one spec (no Studio)                | `npm run test:lune -- <filter>` |
+| Build the test place                    | `npm run test:build`       |
+| Serve the test place to Studio          | `npm run test:serve`       |
 | Remove build artifacts                  | `npm run clean`            |
 | Install the workbench                   | `npm run workbench:install`|
 | Build the workbench                     | `npm run workbench`        |
@@ -73,8 +77,28 @@ this wired up, both load-bearing:
 own. Run `npm run types:roblox` once after cloning — the Roblox API
 definitions are 650 KB and are not kept in the repository.
 
+`.nvmrc` holds the Node line this is developed and tested on, and both
+workflows read it through `node-version-file`, so the version is written down
+once rather than in four places. It is on 24 rather than 22 because npm
+trusted publishing needs npm >= 11.5.1 and the 22 line ships npm 10 for the
+rest of its life. `nvm use $(cat .nvmrc)` — nvm for Windows does not read the
+file on its own.
+
+There is deliberately no `engines` field. It would describe what a *consumer*
+needs, and a consumer's Node only runs `rbxtsc`: the runtime this package
+ships to is Luau. Claiming `>=24` there would hand everyone still on 20 or 22
+an `EBADENGINE` warning for a requirement that is ours, not theirs.
+
 `default.project.json` here is a throwaway Studio place used only to run
 this repo's own test suite once it exists — it is not a game.
+
+`npm test` runs the suite under **Lune**, with no Studio and no DataModel —
+1096 of the suite's 1141 tests in about 13 seconds. The other 45 live in five
+spec files that are about `DataStoreService` and `MemoryStoreService` and
+nothing else; those are skipped, named at the end of every run, and still need
+Studio or Open Cloud. A green `npm test` is therefore not a green suite, which
+is why the run says so out loud. `agent_docs/testing.md` has how the harness
+works and why the two services are not faked.
 
 ## The workbench
 
@@ -112,9 +136,16 @@ Its lint does depend on `out/` existing. Run it straight after `npm run clean`
 and every framework type degrades to `any`, which `roblox-ts/lua-truthiness`
 then reports as errors that are not there. Build first.
 
-CI (`.github/workflows/ci.yml`) checks the package only — `npm ci`, `lint`,
-`analyze`. It does not install or build the workbench, so nothing in there can
-break the package's checks.
+CI (`.github/workflows/ci.yml`) checks the package only, in three independent
+jobs — `lint`, `analyze` and `tests`. It does not install or build the
+workbench, so nothing in there can break the package's checks. All three set
+themselves up through `.github/actions/setup`.
+
+Two things Dependabot cannot reach, and so are bumped by hand: Rokit's tools
+in `rokit.toml` (there is no ecosystem for them), and the action versions
+inside `.github/actions/setup` — for GitHub Actions it reads
+`.github/workflows` and a root-level `action.yml`, nothing deeper, so only
+`actions/checkout` is watched.
 
 ## Rules
 
@@ -164,10 +195,11 @@ break the package's checks.
 
 ## Publishing
 
-Pushing a `v*` tag runs `.github/workflows/release.yml`, which checks the
-tag against `package.json`'s version, builds, and publishes through npm
-trusted publishing (OIDC — no token in the repository, and npm attaches a
-provenance attestation on its own). Nothing about it needs an agent, and an
+Pushing a `v*` tag runs `.github/workflows/release.yml`, which runs `ci.yml`
+in full (it is called, not restated, so the release gate cannot drift from
+the pull-request one), checks the tag against `package.json`'s version,
+builds, and publishes through npm trusted publishing (OIDC — no token in the
+repository, and npm attaches a provenance attestation on its own). Nothing about it needs an agent, and an
 agent has no npm login to do it by hand with.
 
 Two things the package needs that are easy to break:

@@ -1,65 +1,42 @@
 name: Release
 
 on:
-    # A tag pushed from a terminal and a tag made by publishing a release
-    # through GitHub's own interface both arrive as a push, so this is the one
-    # trigger a release needs. Adding `release: types: [published]` alongside
-    # it -- which this briefly did -- means a release made in the interface
-    # fires twice, and the second run stops at `npm publish` with "version
-    # already exists".
-    push:
-        tags: ["v*"]
-    # For re-running a release that failed on something since fixed, without
-    # having to invent a version number to carry a new tag.
-    workflow_dispatch:
+  push:
+    tags: ["v*"]
 
 permissions:
-    contents: read
-    # Required for npm trusted publishing (OIDC); it also makes npm attach a
-    # provenance attestation to the published version automatically.
-    id-token: write
+  contents: read
+  id-token: write
 
 jobs:
-    publish:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v5
+  checks:
+    uses: ./.github/workflows/ci.yml
 
-            - uses: actions/setup-node@v5
-              with:
-                  node-version: 22
-                  cache: npm
-                  registry-url: https://registry.npmjs.org
+  publish:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
 
-            # A release is named after its tag, but `npm publish` sends whatever
-            # `package.json` says; stop here if the two disagree.
-            #
-            # The ref is checked first because `workflow_dispatch` will happily
-            # run against a branch, where the version this is meant to publish
-            # is not written down anywhere.
-            - name: Verify the tag matches package.json
-              run: |
-                  if [ "$GITHUB_REF_TYPE" != "tag" ]; then
-                      echo "Run this against a v* tag, not $GITHUB_REF_NAME: a branch does not say which version to publish" >&2
-                      exit 1
-                  fi
+      - uses: ./.github/actions/setup
+        with:
+          registry-url: https://registry.npmjs.org
 
-                  tag="${GITHUB_REF_NAME#v}"
-                  version="$(node -p "require('./package.json').version")"
-                  if [ "$tag" != "$version" ]; then
-                      echo "Tag $GITHUB_REF_NAME does not match package.json version $version" >&2
-                      exit 1
-                  fi
+      - name: Verify the tag matches package.json
+        run: |
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+              echo "Run this against a v* tag, not $GITHUB_REF_NAME: a branch does not say which version to publish" >&2
+              exit 1
+          fi
 
-            # Trusted publishing requires npm >= 11.5.1; Node 22 still bundles npm 10.
-            - run: npm install -g npm@latest
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$version" ]; then
+              echo "Tag $GITHUB_REF_NAME does not match package.json version $version" >&2
+              exit 1
+          fi
 
-            - run: npm ci
+      - run: npm run build
 
-            - run: npm run lint
-
-            # `out/` is gitignored, so the package contents listed under `files`
-            # only exist after this build.
-            - run: npm run build
-
-            - run: npm publish
+      - run: npm publish

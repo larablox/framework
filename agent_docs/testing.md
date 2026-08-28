@@ -66,7 +66,7 @@ too.
 
 ## Running them
 
-The runner is `scripts/RunTests.server.luau`, mounted by
+The Studio runner is `scripts/studio/RunTests.server.luau`, mounted by
 `test.project.json` as `ServerScriptService.RunTests`. It warms up every
 module in both `Illuminate` and `IlluminateTests` through `TS.import` — see
 monolog's `agent_docs/testing.md` for why that step is required and not
@@ -117,6 +117,81 @@ goes to the console. Re-run after any source change with `npm run
 test:build` (or `npm run test:watch`) then press Play again — a `ModuleScript`
 that already failed once caches that failure for the rest of the session, so
 mid-session edits to a broken module need a fresh Play, not just a re-sync.
+
+## Running them without Studio
+
+`npm test` runs the same specs under [Lune](https://lune-rs.com), a standalone
+Luau runtime: `npm run test:build` then `lune run scripts/lune/RunTests`. No
+Studio, no DataModel, no Rojo connection, a non-zero exit code on failure — so
+it runs in CI (`.github/workflows/ci.yml`'s `tests` job, on the same
+`ubuntu-latest` as everything else) and it is the fast way to run the suite
+locally: **1096 tests in 13.1s**, against 46.3s in Studio.
+
+`npm run test:lune -- <filter>` takes the same filter the Studio runner takes
+from `TestFilter`, in the same forms, resolved by the same code.
+
+### What it does not run, and why there is no mock
+
+Five spec files are skipped: `Cache/DataStoreStore`, `Cache/MemoryStoreStore`,
+`Queue/MemoryStoreQueue`, `Queue/Size`, `Queue/Failed/DataStoreFailedJobProvider`
+— the same five `RunTests.server.luau` overlaps, for the same reason they are
+the five. They are about `DataStoreService` and `MemoryStoreService` and nothing
+else. Every run names them at the end, so a green Lune run is never mistaken
+for a green suite; those 45 tests need Studio or Open Cloud.
+
+Faking the two services was considered and rejected. A fake would have to
+reproduce `UpdateAsync`'s compare-and-set, per-key write throttling, the 50-
+character key limit, `ListKeysAsync` paging, `GetSizeAsync`'s `excludeInvisible`,
+queue invisibility timeouts — that is, it would encode what we *believe* about
+the platform, and the tests would then check that belief against itself. This
+repository has already paid for that mistake once: `MemoryStoreQueue.size()`
+answered `0` on the written grounds that MemoryStore reports no length, and a
+test asserted the zero (see "a platform limit asserted instead of checked"
+above). `Globals.luau` raises on both services rather than answering, so a spec
+that reaches one says so.
+
+The five files are what cannot run *today*; they are not the whole boundary.
+`Support/Serializer` also branches on `CFrame`, `Color3`, `Enum`, `UDim`,
+`UDim2`, `Vector2` and `Vector3`, none of which exist under Lune and none of
+which are faked, for the same reason — reproducing `CFrame` to test `CFrame`
+handling proves nothing. No spec covers those branches yet; one written for
+them belongs in Studio, and `Globals.luau` raises by name rather than leaving
+a nil global, so it will say that rather than failing on an index.
+
+The shims that do exist are deliberately narrow, and their surface was
+established by grep rather than guessed: `HttpService` (`JSONEncode`,
+`JSONDecode`, `GenerateGUID`), `RunService`, `Players`, `Stats`, `TestService`,
+`DateTime`'s four members, and `task`. `Stats.GetTotalMemoryUsageMb()` answers
+the Luau heap instead of a constant — `Worker.memoryExceeded()` compares against
+it, and a hard zero would turn that comparison into one that can only go one way.
+
+### How the harness works
+
+`scripts/lune/` is four files:
+
+- `Tree.luau` — a virtual instance tree over the filesystem, following Rojo's
+  two rules (a `.lua`/`.luau` file is a `ModuleScript`; a directory is a
+  `Folder`, or a `ModuleScript` if it holds an `init` file). Built eagerly, and
+  that is not a preference: `script.Parent.Foo` resolves through `__index`, and
+  Lune's `fs.readDir` yields, which a metamethod may not do.
+- `Loader.luau` — rebuilds the mounts `test.project.json` declares, then loads
+  each module with `luau.load`'s `environment`, which is what lets a compiled
+  module have a `script` of its own and a shared `_G`. **`RuntimeLib` is not
+  reimplemented**: roblox-ts's own copy is loaded through this same mechanism
+  with `game` and `require` shimmed underneath it, so import resolution,
+  circular-dependency detection and `TS.try`/`TS.generator`/`TS.async` stay the
+  compiler's code rather than our reading of it. The only thing the harness
+  knows about roblox-ts is where that file lives.
+- `Globals.luau` — the Roblox globals, as above.
+- `RunTests.luau` — the same warm-up, planning, progress and PHPUnit-shaped
+  report as `RunTests.server.luau`, minus the overlapping: what that buys is
+  removed latency on service calls, and there are no service calls left.
+
+Two consequences worth knowing. `test.project.json`'s mounts are spelled out a
+second time in `Loader.luau`, so a mount added there has to be added here too —
+the two drifting apart is a run that passes on a tree Studio never sees. And
+`TestEZ` needs `getfenv`/`setfenv`, which Lune has; that was the one thing
+capable of sinking this approach outright, and it does not.
 
 ## Running one spec
 

@@ -34,9 +34,10 @@
     "Pipeline/Hub.php#Hub#Hub@implements": {
         "php_hash": "rel:Illuminate\\Contracts\\Pipeline\\Hub",
         "ts_hash": "rel:HubContract",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim. implements HubContract -- the Contract<T> token interface, imported as the type for implements and re-exported beside it."
+        "note": "Verbatim. implements HubContract -- the Contract<T> token interface, imported as the type for implements and re-exported beside it.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Hub.php#Hub#pipe": {
         "php_hash": "6db20cba62ad99d077d1d407f9650024c17847db",
@@ -177,9 +178,10 @@
     "Pipeline/Pipeline.php#Pipeline#Pipeline@implements": {
         "php_hash": "rel:Illuminate\\Contracts\\Pipeline\\Pipeline",
         "ts_hash": "rel:PipelineContract",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim. implements PipelineContract (Pipeline as PipelineContract import alias, mirroring the upstream use)."
+        "note": "Verbatim. implements PipelineContract (Pipeline as PipelineContract import alias, mirroring the upstream use).",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#pipes": {
         "php_hash": "a2d9b19186db34bb7a72e95c9c63272a16eeb5fc",
@@ -256,9 +258,10 @@
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#DeferrableProvider@implements": {
         "php_hash": "rel:Illuminate\\Contracts\\Support\\DeferrableProvider",
         "ts_hash": "rel:DeferrableProvider",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim, both halves: implements DeferrableProvider is the type, @DeferrableProvider() the validating decorator -- the runtime instanceof PHP got from the marker interface."
+        "note": "Verbatim, both halves: implements DeferrableProvider is the type, @DeferrableProvider() the validating decorator -- the runtime instanceof PHP got from the marker interface.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
@@ -279,8 +282,9 @@
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#ServiceProvider@extends": {
         "php_hash": "rel:Illuminate\\Support\\ServiceProvider",
         "ts_hash": "rel:ServiceProvider",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim. extends ServiceProvider."
+        "note": "Verbatim. extends ServiceProvider.",
+        "approved_at": "2026-08-28"
     }
 }

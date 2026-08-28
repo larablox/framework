@@ -2,7 +2,6 @@ import { call } from 'Illuminate/Pipeline/helpers';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
 import { InvalidArgumentException } from 'Illuminate/Exception';
 import { Util } from 'Illuminate/Container/Util';
-import { OrderedMap } from 'Illuminate/Support/OrderedMap';
 import { Pipeline } from 'Illuminate/Pipeline/Pipeline';
 import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
 import type { Container } from 'Illuminate/Contracts/Container/Container';
@@ -15,7 +14,7 @@ export type PipelineBuilder = (pipeline: Pipeline, passable: unknown) => unknown
 export class Hub implements HubContract
 {
     /** The user defined pipelines. */
-    protected pipelines = new OrderedMap<string, PipelineBuilder>();
+    protected pipelines: Record<string, PipelineBuilder> = {};
 
     /** Create a new Hub instance. */
     public constructor(@Inject(ContainerContract) protected container?: Container)
@@ -30,7 +29,7 @@ export class Hub implements HubContract
     /** Define a new named pipeline. */
     public pipeline(name: string, callback: PipelineBuilder): void
     {
-        this.pipelines.set(name, callback);
+        this.pipelines[name] = callback;
     }
 
     /** Send an object through one of the available pipelines. */
@@ -38,12 +37,12 @@ export class Hub implements HubContract
     {
         pipeline = Util.elvis(pipeline, 'default');
 
-        if (!this.pipelines.has(pipeline)) {
+        if (this.pipelines[pipeline] === undefined) {
             throw new InvalidArgumentException(`Pipeline [${pipeline}] is not defined.`);
         }
 
         return call(
-            this.pipelines.get(pipeline),
+            this.pipelines[pipeline],
             new Pipeline(this.container),
             object,
         );

@@ -1,5 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
 import { Application } from "Illuminate/Foundation/Application";
+import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
 import { ProviderRepository } from "Illuminate/Foundation/ProviderRepository";
 import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
 import type { Abstract } from "Illuminate/Container/Types";
@@ -44,6 +45,7 @@ export = (): void => {
             }
         }
 
+        @DeferrableProvider()
         class DeferredProviderStub extends ServiceProvider {
             public provides(): Array<Abstract> {
                 return ["foo.provides1", "foo.provides2"];

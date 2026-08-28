@@ -1,3 +1,4 @@
+import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
 import { Hub } from "Illuminate/Pipeline/Hub";
 import { HubContract as PipelineHubContract } from "Illuminate/Contracts/Pipeline/Hub";
 import { Pipeline } from "Illuminate/Pipeline/Pipeline";
@@ -5,7 +6,11 @@ import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
 import type { Abstract } from "Illuminate/Container/Types";
 
 /** PHP: `Illuminate\Pipeline\PipelineServiceProvider`. */
-export class PipelineServiceProvider extends ServiceProvider {
+@DeferrableProvider()
+export class PipelineServiceProvider
+    extends ServiceProvider
+    implements DeferrableProvider
+{
     /** Register the service provider. */
     public register(): void {
         this.app.singleton(PipelineHubContract, (app) => new Hub(app));

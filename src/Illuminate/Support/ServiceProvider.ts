@@ -1,3 +1,5 @@
+import { Attributes } from "Illuminate/Container/Attributes/Attributes";
+import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
 import { Reflector } from "Illuminate/Support/Reflector";
 import type {
     Abstract,
@@ -91,18 +93,15 @@ export abstract class ServiceProvider {
     /**
      * Determine if the provider is deferred.
      *
-     * PHP: `$this instanceof DeferrableProvider`. The interface is erased, so a
-     * provider counts as deferred once it declares its own `provides()`, which is
-     * the whole of what the interface asked for.
+     * PHP: `$this instanceof DeferrableProvider`. The interface is erased, so
+     * the mark is the `DeferrableProvider` class decorator, found up the class
+     * chain the way `instanceof` honours inheritance.
      */
     public isDeferred(): boolean {
         let current = Reflector.classOf(this);
 
-        while (
-            current !== undefined &&
-            current !== (ServiceProvider as unknown as object)
-        ) {
-            if (rawget(current, "provides") !== undefined) {
+        while (current !== undefined) {
+            if (Attributes.has(current, DeferrableProvider)) {
                 return true;
             }
 

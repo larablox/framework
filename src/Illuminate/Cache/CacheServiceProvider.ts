@@ -3,7 +3,7 @@ import { RateLimiter } from "Illuminate/Cache/RateLimiter";
 import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
 import type { Abstract } from "Illuminate/Container/Types";
 import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
+import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
 import type { Factory } from "Illuminate/Contracts/Cache/Factory";
 import type { Repository } from "Illuminate/Cache/Repository";
 import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config/Repository";
@@ -13,6 +13,7 @@ import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config
  *
  * `cache.psr6` and `memcached.connector` have nothing to bind here.
  */
+@DeferrableProvider()
 export class CacheServiceProvider
     extends ServiceProvider
     implements DeferrableProvider

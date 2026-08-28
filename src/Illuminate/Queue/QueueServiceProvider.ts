@@ -16,7 +16,7 @@ import type { Abstract } from "Illuminate/Container/Types";
 import type { ArrayAccessible } from "Illuminate/Support/Arr";
 import type { Application } from "Illuminate/Contracts/Foundation/Application";
 import type { Container } from "Illuminate/Container/Container";
-import type { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
+import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
 import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
 import type { Factory } from "Illuminate/Contracts/Queue/Factory";
 import type { FailedJobProviderInterface } from "Illuminate/Queue/Failed/FailedJobProviderInterface";
@@ -35,6 +35,7 @@ import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config
  * `queue.failer` is the null provider unless the config asks for `datastore`,
  * which is the one storage here that outlives the server.
  */
+@DeferrableProvider()
 export class QueueServiceProvider
     extends ServiceProvider
     implements DeferrableProvider

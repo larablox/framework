@@ -3,7 +3,7 @@ import { Dispatcher } from "Illuminate/Bus/Dispatcher";
 import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
 import type { Abstract } from "Illuminate/Container/Types";
 import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
+import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
 import type { Factory } from "Illuminate/Contracts/Queue/Factory";
 
 /**
@@ -13,6 +13,7 @@ import type { Factory } from "Illuminate/Contracts/Queue/Factory";
  * here there is one, held in memory. The contract aliases PHP adds are gone
  * with the interfaces: `Dispatcher` is the key, and it is a class.
  */
+@DeferrableProvider()
 export class BusServiceProvider
     extends ServiceProvider
     implements DeferrableProvider

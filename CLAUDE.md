@@ -107,11 +107,22 @@ works and why the two services are not faked.
 checkout file to file and member to member, and writes `reports/parity/`
 (`files.csv`, `members.csv`, `summary.md`; gitignored). The reference lives in
 `.upstream/` — committed `composer.json`/`composer.lock`, installed by the
-runner via the developer's own `composer` (PHP CLI is also required). The
-registries next to the scripts are committed and are the point of the tool:
-`aliases.json` (deliberate renames: `RedisQueue` → `MemoryStoreQueue`, ...),
-`exclusions.json` (waivers with reasons — unported components, port-only
-files), `approvals.json` (per-method "implementation reviewed" marks keyed to
+runner via the developer's own `composer` (PHP CLI is also required).
+
+The summary carries two ratios. **Fidelity**: of what was ported, how much
+matches. **Coverage**: of what is portable at all, how much has been ported.
+Waivers are typed for exactly that split — `impossible` (the platform
+boundary; never counts as lag), `deferred` (real backlog; drags Coverage
+down), `port-only` (this port's own additions). Do not stub missing upstream
+API to raise the numbers: an absent member fails the consumer at compile
+time, a throwing stub at run time, and the report would count the stub as
+ported.
+
+The registries next to the scripts are committed and are the point of the tool:
+`aliases.json` (deliberate renames: `RedisQueue` → `MemoryStoreQueue`, ...;
+a leading underscore needs no alias — `_x` matches `x` by convention for
+names TS cannot use as-is), `exclusions.json` (typed waivers with reasons),
+`approvals.json` (per-method "implementation reviewed" marks keyed to
 body hashes of **both** sides, so editing the port or bumping Laravel flips
 the mark to stale automatically). Review loop:
 `--list stale|unreviewed`, `--show "<key>"` (both bodies side by side),

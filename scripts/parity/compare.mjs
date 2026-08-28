@@ -77,11 +77,13 @@ export function compare({ php, ts, aliases, exclusions, approvals, component }) 
 		if (!inComponent(anchorPath)) continue;
 
 		let status = pair.status;
+		let waiver = "";
 		let exclusionReason = "";
 		if (status === "missing_in_port" || status === "extra_in_port") {
 			const exclusion = pathExclusions.find((entry) => entry.regex.test(anchorPath));
 			if (exclusion) {
 				status = "excluded";
+				waiver = exclusion.kind ?? "deferred";
 				exclusionReason = exclusion.reason ?? "";
 			}
 		}
@@ -89,6 +91,7 @@ export function compare({ php, ts, aliases, exclusions, approvals, component }) 
 		const row = {
 			component: componentOf(anchorPath),
 			status,
+			waiver,
 			laravel_path: pair.phpPath ?? "",
 			port_path: pair.tsPath ?? "",
 			laravel_kinds: "",
@@ -111,6 +114,12 @@ export function compare({ php, ts, aliases, exclusions, approvals, component }) 
 		if (phpData) {
 			row.laravel_kinds = phpData.declarations.map((d) => d.kind).join("+");
 			row.laravel_members = phpData.declarations.reduce((n, d) => n + d.members.length, 0);
+			// The same member universe fidelity is measured over, needed for
+			// coverage when this file is waived as deferred.
+			row._ppSelfMembers = phpData.declarations.reduce(
+				(n, d) => n + d.members.filter((m) => m.visibility !== "private" && m.origin === "self").length,
+				0,
+			);
 			for (const decl of phpData.declarations) {
 				if (decl.uses.length > 0) notes.push(`uses:${decl.uses.join(",")}`);
 				for (const note of decl.notes) notes.push(note);
@@ -219,7 +228,11 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx) {
 			const exclusion = ownProp(ctx.memberExclusions, `${key}@${phpMember.kind}`) ?? ownProp(ctx.memberExclusions, key);
 			if (!tsMember && exclusion) {
 				status = "excluded";
-				noteParts.push(exclusion.reason ?? "");
+				const waiverKind = exclusion.kind ?? "deferred";
+				noteParts.push(`[${waiverKind}]`, exclusion.reason ?? "");
+				if (waiverKind === "deferred" && phpMember.visibility !== "private" && phpMember.origin === "self") {
+					fileRow._deferredMembers = (fileRow._deferredMembers ?? 0) + 1;
+				}
 				if (exclusion.php_hash && phpMember.hash && exclusion.php_hash !== phpMember.hash) {
 					noteParts.push("[STALE exclusion: upstream body changed]");
 					ctx.staleKeys.push(key);
@@ -321,11 +334,15 @@ function summarize(fileRows) {
 				component: row.component,
 				files: 0,
 				matched: 0,
-				excluded: 0,
+				deferred: 0,
+				impossible: 0,
+				port_only: 0,
 				missing: 0,
 				extra: 0,
 				members_both: 0,
 				members_missing: 0,
+				members_deferred: 0,
+				members_unported: 0,
 				approved: 0,
 				stale: 0,
 				unreviewed: 0,
@@ -334,11 +351,24 @@ function summarize(fileRows) {
 		}
 		entry.files++;
 		if (row.status === "matched" || row.status === "renamed") entry.matched++;
-		if (row.status === "excluded") entry.excluded++;
-		if (row.status === "missing_in_port") entry.missing++;
+		if (row.status === "excluded") {
+			if (row.waiver === "deferred") {
+				entry.deferred++;
+				entry.members_deferred += row._ppSelfMembers ?? 0;
+			} else if (row.waiver === "port-only") {
+				entry.port_only++;
+			} else {
+				entry.impossible++;
+			}
+		}
+		if (row.status === "missing_in_port") {
+			entry.missing++;
+			entry.members_unported += row._ppSelfMembers ?? 0;
+		}
 		if (row.status === "extra_in_port") entry.extra++;
 		entry.members_both += row.members_both;
 		entry.members_missing += row.members_missing_in_port;
+		entry.members_deferred += row._deferredMembers ?? 0;
 		entry.approved += row.impl_approved;
 		entry.stale += row.impl_stale;
 		entry.unreviewed += row.impl_unreviewed;
@@ -361,42 +391,60 @@ export function toCsv(rows, columns) {
 }
 
 export function summaryText(summary, upstreamVersion) {
+	// Two ratios, two questions. Fidelity: of what was ported, how much
+	// matches. Coverage: of what is portable at all (deferred waivers
+	// included, impossible ones not), how much has been ported.
+	const fidelityOf = (entry) => {
+		const denominator = entry.members_both + entry.members_missing;
+		return denominator > 0 ? `${Math.round((entry.members_both / denominator) * 100)}%` : "-";
+	};
+	const coverageOf = (entry) => {
+		// Missing members inside ported files, whole unported files, and
+		// deferred waivers all count as lag; impossible and port-only do not.
+		const denominator = entry.members_both + entry.members_missing + entry.members_unported + entry.members_deferred;
+		return denominator > 0 ? `${Math.round((entry.members_both / denominator) * 100)}%` : "-";
+	};
+
 	const lines = [];
 	lines.push(`# Parity summary`);
 	lines.push("");
 	lines.push(`Reference: laravel/framework ${upstreamVersion}`);
 	lines.push("");
-	lines.push("| Component | Files | Matched | Excluded | Missing | Extra | Member parity | Approved | Stale | Unreviewed |");
-	lines.push("|---|---|---|---|---|---|---|---|---|---|");
-	let totals = { files: 0, matched: 0, excluded: 0, missing: 0, extra: 0, both: 0, missingMembers: 0, approved: 0, stale: 0, unreviewed: 0 };
+	lines.push("| Component | Files | Matched | Deferred | Impossible | Port-only | Missing | Extra | Coverage | Fidelity | Approved | Stale | Unreviewed |");
+	lines.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+	const totals = {
+		component: "**Total**",
+		files: 0,
+		matched: 0,
+		deferred: 0,
+		impossible: 0,
+		port_only: 0,
+		missing: 0,
+		extra: 0,
+		members_both: 0,
+		members_missing: 0,
+		members_deferred: 0,
+		members_unported: 0,
+		approved: 0,
+		stale: 0,
+		unreviewed: 0,
+	};
+	const line = (entry) =>
+		`| ${entry.component} | ${entry.files} | ${entry.matched} | ${entry.deferred} | ${entry.impossible} | ${entry.port_only} | ${entry.missing} | ${entry.extra} | ${coverageOf(entry)} | ${fidelityOf(entry)} | ${entry.approved} | ${entry.stale} | ${entry.unreviewed} |`;
 	for (const entry of summary) {
-		const denominator = entry.members_both + entry.members_missing;
-		const parity = denominator > 0 ? `${Math.round((entry.members_both / denominator) * 100)}%` : "-";
-		lines.push(
-			`| ${entry.component} | ${entry.files} | ${entry.matched} | ${entry.excluded} | ${entry.missing} | ${entry.extra} | ${parity} | ${entry.approved} | ${entry.stale} | ${entry.unreviewed} |`,
-		);
-		totals.files += entry.files;
-		totals.matched += entry.matched;
-		totals.excluded += entry.excluded;
-		totals.missing += entry.missing;
-		totals.extra += entry.extra;
-		totals.both += entry.members_both;
-		totals.missingMembers += entry.members_missing;
-		totals.approved += entry.approved;
-		totals.stale += entry.stale;
-		totals.unreviewed += entry.unreviewed;
+		lines.push(line(entry));
+		for (const key of Object.keys(totals)) {
+			if (key !== "component") totals[key] += entry[key];
+		}
 	}
-	const totalDenominator = totals.both + totals.missingMembers;
-	const totalParity = totalDenominator > 0 ? `${Math.round((totals.both / totalDenominator) * 100)}%` : "-";
-	lines.push(
-		`| **Total** | ${totals.files} | ${totals.matched} | ${totals.excluded} | ${totals.missing} | ${totals.extra} | ${totalParity} | ${totals.approved} | ${totals.stale} | ${totals.unreviewed} |`,
-	);
+	lines.push(line(totals));
 	return lines.join("\n") + "\n";
 }
 
 export const FILE_COLUMNS = [
 	"component",
 	"status",
+	"waiver",
 	"laravel_path",
 	"port_path",
 	"laravel_kinds",

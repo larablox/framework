@@ -192,10 +192,12 @@ function main() {
 
 	if (typeof args.exclude === "string") {
 		if (typeof args.reason !== "string") fail("--exclude needs --reason \"...\"");
-		const found = findPhpMember(php, args.exclude);
+		const kind = typeof args.kind === "string" ? args.kind : "deferred";
+		if (kind !== "deferred" && kind !== "impossible") fail("--kind takes 'deferred' (default) or 'impossible'");
+		const found = findPhpMember(php, args.exclude.split("@")[0]);
 		if (!found) fail(`No upstream member found for key: ${args.exclude}`);
 		exclusions.members ??= {};
-		exclusions.members[args.exclude] = { php_hash: found.member.hash ?? null, reason: args.reason };
+		exclusions.members[args.exclude] = { php_hash: found.member.hash ?? null, kind, reason: args.reason };
 		writeJsonSorted(exclusionsPath, { paths: exclusions.paths ?? [], members: exclusions.members });
 		registriesChanged = true;
 		console.log(`excluded: ${args.exclude}`);

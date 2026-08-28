@@ -34,7 +34,7 @@
     "Pipeline/Hub.php#Hub#pipe": {
         "php_hash": "6db20cba62ad99d077d1d407f9650024c17847db",
         "ts_hash": "be3a356f042dc517c21941dec7477e472ecd2f5c",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
         "note": "The upstream body statement for statement:  =  ?: 'default' is Util.elvis (the ?: compensation over Util.truthy, so '' and '0' fall back exactly as PHP's falsy rules say -- closing the finding this member carried since the field-test review); ! isset(->pipelines[]) is the === undefined test on the plain index, and call_user_func is call() from the helpers, the map indexed directly as upstream writes it. Dismissed: the parameter is pipeline?: string rather than = null -- absence is undefined here and Util.truthy(undefined) is false, so every elvis branch agrees; dprint expands the call arguments one per line (enforced mechanics). Pinned by the '' / '0' fallback spec.",
         "approved_at": "2026-08-28"
@@ -42,7 +42,7 @@
     "Pipeline/Hub.php#Hub#pipeline": {
         "php_hash": "57ccd3594deb68148456bef9a602f70cf6269ff7",
         "ts_hash": "88f35735505b270da216a3eea6b8368b6ccf69ad",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
         "note": "Verbatim now: ->pipelines[] =  is the plain index assignment -- the OrderedMap detour is gone (only keyed get/set touch this map, order is unobservable, and the user chose the literal mirror).",
         "approved_at": "2026-08-28"
@@ -50,9 +50,10 @@
     "Pipeline/Hub.php#Hub#pipelines@property": {
         "php_hash": "22f27b6c45bcbf71ffe21ddf352c1fdc58acd413",
         "ts_hash": "04a30c09601dcf5cd3b9b96c0b708e0a56699747",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "protected, empty default on both sides -- [] as a plain Record literal, the direct mirror. Dismissed: not OrderedMap (the standing representation elsewhere) -- only keyed get/set touch this map, so PHP array order is unobservable here; revisit if upstream ever iterates the pipelines."
+        "note": "protected, empty default on both sides -- [] as a plain Record literal, the direct mirror. Dismissed: not OrderedMap (the standing representation elsewhere) -- only keyed get/set touch this map, so PHP array order is unobservable here; revisit if upstream ever iterates the pipelines.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Hub.php#Hub#setContainer": {
         "php_hash": "f11f08e4b9219fada03497ede6ebd503ddd97a04",

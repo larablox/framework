@@ -1,10 +1,13 @@
 import { Arr } from 'Illuminate/Support/Arr';
+import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
 import { call, callMethod, isCallable, methodExists } from 'Illuminate/Container/helpers';
 import { isPipeArray, splitPipe } from 'Illuminate/Pipeline/helpers';
 import { RuntimeException } from 'Illuminate/Exception';
 import { Str } from 'Illuminate/Support/Str';
 import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
+import type { ConditionableShape } from 'Illuminate/Support/Traits/Conditionable';
 import type { Container } from 'Illuminate/Contracts/Container/Container';
 import type { Passable, Pipe, Pipeline as PipelineContract } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
@@ -21,7 +24,7 @@ export type Next = (passable: Passable) => unknown;
  * `withinTransaction()` is not ported -- it wraps the run in a database
  * transaction, and there is no database. `Macroable` needs `__call`.
  */
-export class Pipeline implements PipelineContract
+export class Pipeline extends Conditionable() implements PipelineContract
 {
     /** The object being passed through the pipeline. */
     protected passable: Passable;
@@ -37,7 +40,9 @@ export class Pipeline implements PipelineContract
 
     /** Create a new class instance. */
     public constructor(@Inject(ContainerContract) protected container?: Container)
-    {}
+    {
+        super();
+    }
 
     /** Set the object being sent through the pipeline. */
     public send(passable: Passable): this

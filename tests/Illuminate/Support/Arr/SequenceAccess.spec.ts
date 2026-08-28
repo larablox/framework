@@ -931,14 +931,14 @@ export = (): void => {
             // No upstream twin: PHP gets array_merge from the language, so
             // SupportArrTest never tests it.
             expectDeepEqual(
-                Arr.merge([
-                    'a',
-                    'b',
-                ], [
-                    'c',
-                ], [
-                    'd',
-                ]),
+                Arr.merge(
+                    [
+                        'a',
+                        'b',
+                    ],
+                    ['c'],
+                    ['d'],
+                ),
                 [
                     'a',
                     'b',

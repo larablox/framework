@@ -56,10 +56,6 @@ class PipelineTestParameterPipe
  * - `testPipelineThrowsExceptionWhenUsingTransactionsWithoutContainer` --
  *   `withinTransaction()` is not ported (`Pipeline.ts`'s class comment: it
  *   wraps the run in a database transaction, and there is no database).
- * - `testPipelineConditionable` -- upstream's `Pipeline` mixes in
- *   `Conditionable` for `when()`/`unless()`; this port's `Pipeline` does not
- *   (`Pipeline.ts` has no `Conditionable` mixin), so there is no `when()` to
- *   call.
  * - `testPipelineUsageWithInvokableClass` is adapted like the parameter test
  *   below: PHP spells the invokable as a class (`__invoke`), a roblox-ts class
  *   cannot declare a `__call` metamethod, so the invokable is built with
@@ -229,6 +225,35 @@ export = (): void => {
 
             expect(result).to.equal('foo');
             expect(received).to.equal('foo');
+        });
+
+        it('when() applies a callback to the pipeline conditionally', () => {
+            // PHP: PipelineTest::testPipelineConditionable (the callback
+            // returns the pipeline rather than nothing -- an expression arrow
+            // keeps the chain typed)
+            const container = new Container();
+            const pipeOne = new PipelineTestPipeOne();
+            container.instance(PipelineTestPipeOne, pipeOne);
+
+            const result = new Pipeline(container)
+                .send('foo')
+                .when(true, (pipeline) => pipeline.pipe([PipelineTestPipeOne]))
+                .then((piped) => piped);
+
+            expect(result).to.equal('foo');
+            expect(pipeOne.received).to.equal('foo');
+
+            const container2 = new Container();
+            const pipeTwo = new PipelineTestPipeOne();
+            container2.instance(PipelineTestPipeOne, pipeTwo);
+
+            const result2 = new Pipeline(container2)
+                .send('foo')
+                .when(false, (pipeline) => pipeline.pipe([PipelineTestPipeOne]))
+                .then((piped) => piped);
+
+            expect(result2).to.equal('foo');
+            expect(pipeTwo.received).to.equal(undefined);
         });
 
         it('pipe() appends pipes onto the ones set by through()', () => {

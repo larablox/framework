@@ -118,8 +118,8 @@
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {
         "php_hash": "e577fa7f0c27b7a7950f092c98b0e615cd62cc92",
-        "ts_hash": "fd628f47719aa44bb92c796281c095a8a2461b0e",
+        "ts_hash": "07a80ab073db54dfc63bb041bbc139f0deffd24b",
         "approved_at": "2026-08-28",
-        "note": "binding key is the Hub class, not the contract (documented platform divergence)"
+        "note": "binding key is the Hub class, not the contract (documented platform divergence); closures take the resolving container"
     }
 }

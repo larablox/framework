@@ -113,7 +113,10 @@ The summary carries two ratios. **Fidelity**: of what was ported, how much
 matches. **Coverage**: of what is portable at all, how much has been ported.
 Waivers are typed for exactly that split — `impossible` (the platform
 boundary; never counts as lag), `deferred` (real backlog; drags Coverage
-down), `port-only` (this port's own additions). Do not stub missing upstream
+down), `port-only` (this port's own additions). Every waiver **starts as
+`deferred`**: `impossible` is written per case, by hand, with the proof in
+its reason — never presumed up front. Do not reclassify to `impossible`
+without that examination. Do not stub missing upstream
 API to raise the numbers: an absent member fails the consumer at compile
 time, a throwing stub at run time, and the report would count the stub as
 ported.

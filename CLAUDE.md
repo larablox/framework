@@ -140,7 +140,15 @@ user's call, note tagged `DECISION:`), `--reject "<key>"` (the review found
 the port wrong, note tagged `REJECTED:`), `--approve "<key>"` /
 `--approve-file` (promotion to **approved** is a person's call — the user
 runs it, or Claude runs it only on the user's explicit instruction),
-`--check` (non-zero exit on anything stale). A proposal asserts a mirror —
+`--verify "<key>"` (diffs the normalized token streams against
+`conventions.json` — the machine-readable register of renames and
+structural conventions — before a `Verbatim.`/`Mirrored.` tag is earned),
+`--approve-pending` (the user's batch promotion of the whole pending
+queue), `--refresh-cosmetic` (re-pins `ts_hash` on stales whose
+`php_hash` is unchanged), `--check` (non-zero exit on anything stale).
+The comparator also flags `[missing mixin: X]` in files.csv when an
+upstream `uses:` trait is absent from the port class (waivable in
+`exclusions.json`'s `traits` section). A proposal asserts a mirror —
 record any verdict only after actually reading both bodies; approval
 asserts a human looked too.
 

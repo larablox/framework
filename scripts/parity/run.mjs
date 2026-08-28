@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 
 import { FILE_COLUMNS, MEMBER_COLUMNS, approvalKey, compare, memberKey, summaryText, toCsv } from './compare.mjs';
 import { extractTs } from './extract-ts.mjs';
+import { verifyMember } from './verify.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..', '..');
@@ -260,6 +261,39 @@ function main()
         registriesChanged = true;
     }
 
+    // The user's batch promotion: everything the agent proposed as a perfect
+    // mirror, approved in one pass. Human-run (or on explicit instruction),
+    // like --approve.
+    if (args['approve-pending']) {
+        const rows = approvableRows().filter((row) => row.impl_status === 'pending');
+        if (rows.length === 0) fail('No pending members' + (component ? ` in component: ${component}` : ''));
+        for (const row of rows) {
+            record(rowKey(row), row, 'approved');
+        }
+        registriesChanged = true;
+    }
+
+    // Refreshes ts_hash on stale entries whose php_hash still matches -- the
+    // reformat case. The judgment that the edit was cosmetic stays with the
+    // runner; upstream-side changes are never refreshed.
+    if (args['refresh-cosmetic']) {
+        let refreshed = 0;
+        for (const row of approvableRows()) {
+            if (row.impl_status !== 'stale') continue;
+            const key = rowKey(row);
+            const entry = approvals[key];
+            if (!entry) continue;
+            const phpUnchanged = (entry.php_hash ?? null) === (row.php_hash === '' ? null : row.php_hash);
+            if (phpUnchanged && entry.ts_hash !== row.ts_hash) {
+                entry.ts_hash = row.ts_hash;
+                refreshed++;
+                console.log(`refreshed: ${key}`);
+            }
+        }
+        if (refreshed === 0) fail('No cosmetic stales to refresh (an upstream-side stale needs a real re-review)');
+        registriesChanged = true;
+    }
+
     if (typeof args.revoke === 'string') {
         if (!approvals[args.revoke]) fail(`No approval recorded for key: ${args.revoke}`);
         delete approvals[args.revoke];
@@ -275,7 +309,11 @@ function main()
         if (!found) fail(`No upstream member found for key: ${args.exclude}`);
         exclusions.members ??= {};
         exclusions.members[args.exclude] = { php_hash: found.member.hash ?? null, kind, reason: args.reason };
-        writeJsonSorted(exclusionsPath, { paths: exclusions.paths ?? [], members: exclusions.members });
+        writeJsonSorted(exclusionsPath, {
+            paths: exclusions.paths ?? [],
+            members: exclusions.members,
+            traits: exclusions.traits ?? {},
+        });
         registriesChanged = true;
         console.log(`excluded: ${args.exclude}`);
     }
@@ -304,6 +342,38 @@ function main()
             console.log(rowKey(row));
         }
         console.log(`${rows.length} ${wanted} member(s)`);
+        return;
+    }
+
+    // The verbatim verifier: prints the normalized-token residue between the
+    // two bodies. Empty residue backs a `Verbatim.` tag; each printed run must
+    // be justified by a conventions.json structural rule, or escalate.
+    if (typeof args.verify === 'string') {
+        const phpFound = findPhpMember(php, args.verify);
+        const tsFound = findTsMember(php, ts, aliases, args.verify);
+        if (!phpFound || !phpFound.member.lines) fail(`No upstream member with source found for key: ${args.verify}`);
+        if (!tsFound || !tsFound.member.lines) fail(`No port member with source found for key: ${args.verify}`);
+        const conventions = readJson(join(scriptDir, 'conventions.json'), {});
+        const phpFile = phpFound.member.file
+            ? join(vendorRoot, phpFound.member.file)
+            : join(upstreamSrc, phpFound.path);
+        const { residue, disagreeing, total } = verifyMember({
+            scriptDir,
+            phpFile,
+            phpLines: phpFound.member.lines,
+            tsFile: join(portSrc, tsFound.path),
+            tsLines: tsFound.member.lines,
+            conventions,
+        });
+        if (residue.length === 0) {
+            console.log(`VERBATIM: token streams align (${total} tokens)`);
+        } else {
+            console.log(`RESIDUE: ${residue.length} run(s), ${disagreeing}/${total} tokens disagree`);
+            for (const run of residue) {
+                console.log(`  php: ${run.php.join(' ') || '(nothing)'}`);
+                console.log(`  ts : ${run.ts.join(' ') || '(nothing)'}`);
+            }
+        }
         return;
     }
 

@@ -11,6 +11,9 @@
             "reason": "Wraps the run in a 'db' connection transaction; the port has no database component and no 'db' binding to reach for. Revisit when a database layer (e.g. over DataStore) lands and 'db' becomes bindable."
         }
     },
+    "traits": {
+        "Illuminate\\Support\\Traits\\Macroable": "Needs __call on the class itself; deferred platform-wide, facades carry the static half."
+    },
     "paths": [
         {
             "glob": "Pipeline/helpers.ts",

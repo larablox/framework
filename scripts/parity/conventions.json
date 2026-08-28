@@ -1,0 +1,51 @@
+{
+    "renames": {
+        "array_reverse": "Arr.reverse",
+        "array_pad": "Arr.pad",
+        "array_merge": "Arr.merge",
+        "explode": "Str.explode",
+        "call_user_func": "call",
+        "method_exists": "methodExists",
+        "is_callable": "isCallable",
+        "is_object": "isPipeInstance",
+        "null": "undefined"
+    },
+    "structural": [
+        {
+            "name": "underscore",
+            "rule": "A TS identifier `_x` spells PHP `x` when the name is reserved or collides (property beside method); the verifier strips the underscore before comparing."
+        },
+        {
+            "name": "elvis",
+            "rule": "`$value ?: $fallback` spells as `Util.elvis(value, fallback)` -- an operator became a call, so tokens realign around it."
+        },
+        {
+            "name": "truthiness",
+            "rule": "A bare `if ($value)` / `!empty()` spells as `Util.truthy(value)`."
+        },
+        {
+            "name": "isset",
+            "rule": "`isset($x[$k])` spells as an `=== undefined` test on the index (absence is `undefined` here)."
+        },
+        {
+            "name": "inject",
+            "rule": "A constructor type hint PHP reads by reflection spells as `@Inject(...)` on the parameter."
+        },
+        {
+            "name": "contract-token",
+            "rule": "An interface used as a container key spells as its `Contract<T>` token (`HubContract`, `ContainerContract`)."
+        },
+        {
+            "name": "self-parameter",
+            "rule": "A dynamic method call passes the target explicitly (`callMethod(target, name, ...)` / `handler(target, ...)`) -- the self PHP passes implicitly."
+        },
+        {
+            "name": "assoc-array",
+            "rule": "A PHP associative array whose iteration order is observable is an `OrderedMap`; one touched only by keyed get/set may be a plain `Record` literal."
+        },
+        {
+            "name": "casts",
+            "rule": "Type assertions (`as T`) carry types PHP never wrote; the verifier ignores them, and repeated identical casts at one site mean a compensation is missing."
+        }
+    ]
+}

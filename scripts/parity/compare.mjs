@@ -65,6 +65,7 @@ export function compare({ php, ts, aliases, exclusions, approvals, component })
     const memberAliases = aliases.members ?? {};
     const pathExclusions = (exclusions.paths ?? []).map((entry) => ({ ...entry, regex: globToRegExp(entry.glob) }));
     const memberExclusions = exclusions.members ?? {};
+    const traitExclusions = exclusions.traits ?? {};
 
     const inComponent = (path) => component === undefined || componentOf(path) === component;
 
@@ -152,6 +153,20 @@ export function compare({ php, ts, aliases, exclusions, approvals, component })
             for (const decl of phpData.declarations) {
                 if (decl.uses.length > 0) notes.push(`uses:${decl.uses.join(',')}`);
                 for (const note of decl.notes) notes.push(note);
+                // A trait upstream mixes in that the port class does not: no
+                // member status catches it, so the file note flags it, unless
+                // the trait is waived in exclusions.traits.
+                if (tsData) {
+                    for (const trait of decl.uses) {
+                        if (ownProp(traitExclusions, trait)) continue;
+                        const short = trait.split('\\').pop();
+                        const mixedIn = tsData.declarations.some((d) =>
+                            (d.extends ?? []).some((heritage) => heritage.includes(short))
+                            || (d.notes ?? []).some((note) => note.includes(short))
+                        );
+                        if (!mixedIn) notes.push(`[missing mixin: ${short}]`);
+                    }
+                }
             }
         }
         if (tsData) {

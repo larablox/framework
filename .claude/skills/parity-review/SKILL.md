@@ -117,11 +117,11 @@ subclasses that override before calling shapes equivalent.
 facades replace `__callStatic` with metatables. Only claim impossibility for a specific
 magic use after checking what the port already does elsewhere.
 
-**Trait mixins.** No status catches a missing mixin — the `uses:` list appears only as a
-note in files.csv, and a component can read green while the port class lacks a trait
-upstream mixes in. Explicitly compare each file's `uses:` traits against the port class's
-extends/mixin chain; a trait the port has already built elsewhere (`Conditionable` is
-mixed into Stringable, Request and others) is a finding, not a waiver.
+**Trait mixins.** The comparator flags `[missing mixin: X]` in the file's note when a
+`uses:` trait is absent from the port class's extends/mixin chain (suppressed only by a
+reasoned waiver in `exclusions.json`'s `traits` section, e.g. Macroable). Treat the flag
+as a finding: a trait the port has already built elsewhere (`Conditionable` is mixed into
+Stringable, Request and others) is work, not a waiver.
 
 **Extra port-only members** inside a matched pair (`isPipeInstance`, the port's
 `is_object`) have no waiver mechanism — record the judgment about them in the notes of the
@@ -150,11 +150,15 @@ pass fast — `pending` is trusted, the other two are flagged:
 - **`pending` (`--propose`) is the agent's approval of a *perfect* mirror.** The user
   intends to promote pendings with a glance, eventually automatically — so propose ONLY
   what needs no human judgment: the diff shows nothing beyond enforced mechanics
-  (dprint/eslint) and the standing conventions (underscore names, the compensation kit,
-  `@Inject`, `Contract<T>` tokens, `_x` locals). The note opens with a one-or-two-word
-  verdict tag — `Verbatim.` for letter-for-letter, `Mirrored.` for
-  statement-for-statement through the conventions — with at most one short sentence
-  naming which conventions, so the tag is scannable in `--list`/`members.csv`.
+  (dprint/eslint) and the standing conventions, which live machine-readably in
+  `scripts/parity/conventions.json` (renames the verifier folds away, structural rules
+  it cannot). The note opens with a one-or-two-word verdict tag — `Verbatim.` for
+  letter-for-letter, `Mirrored.` for statement-for-statement through the conventions —
+  with at most one short sentence naming which conventions, so the tag is scannable in
+  `--list`/`members.csv`. **Run `--verify "<key>"` before tagging**: it diffs the
+  normalized token streams — an empty residue is `Verbatim.`; a residue where every run
+  matches a `structural` rule from conventions.json is `Mirrored.` (name the rules); any
+  other residue means the member is not pending material.
 - **`decision` (`--decision`) is a divergence awaiting the user's call.** Anything the
   conventions do not already cover — a surviving dismissal, an encoding with several
   defensible spellings, a scope-jump fix — goes here, never into `pending`. The note
@@ -182,9 +186,13 @@ the three states. Never promote on your own initiative, and never treat a genera
   kindless keys. Extra port-only members are reviewable too — the entry records
   `php_hash: null` and stales on port edits. `n/a` remains only for what has no content
   to hash (bodiless signatures, enum cases).
-- After a mechanical reformat that flips approvals stale: verify `php_hash` unchanged, then
-  refresh `ts_hash` in place (keep notes) — no content re-review is owed for whitespace.
-  A stale with a *changed* `php_hash` is an upstream change and gets a real re-review.
+- After a mechanical reformat that flips approvals stale: `--refresh-cosmetic` refreshes
+  `ts_hash` in place for every stale whose `php_hash` still matches (notes and status
+  kept) — no content re-review is owed for whitespace, but the judgment that the edit
+  *was* cosmetic stays with whoever runs it. A stale with a *changed* `php_hash` is an
+  upstream change and gets a real re-review.
+- `--approve-pending [--component X]` promotes the whole pending queue in one pass — the
+  user's command (or Claude's on their explicit instruction), same rule as `--approve`.
 
 ## Waivers and aliases
 

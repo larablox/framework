@@ -17,7 +17,6 @@
         "Queue/Jobs/DatabaseJob.php": "Queue/Jobs/MemoryJob.ts",
         "Queue/Jobs/RedisJob.php": "Queue/Jobs/MemoryStoreJob.ts",
         "Queue/RedisQueue.php": "Queue/MemoryStoreQueue.ts",
-        "Reflection/Reflector.php": "Support/Reflector.ts",
         "Routing/Matching/SchemeValidator.php": "Routing/Matching/TransportValidator.ts",
         "Support/Stringable.php": "Support/Str.ts",
         "Support/helpers.php": "Support/Helpers.ts"

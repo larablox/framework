@@ -22,7 +22,7 @@
         { "glob": "Translation/**", "reason": "component not ported: out of scope for now" },
         { "glob": "Validation/**", "reason": "component not ported: out of scope for now" },
         { "glob": "View/**", "reason": "component not ported: no Blade/HTML rendering on Roblox" },
-        { "glob": "Reflection/**", "reason": "component not ported: PHP reflection has no Luau counterpart (Reflector.php itself is aliased to Support/Reflector.ts)" },
+        { "glob": "Reflection/**", "reason": "component not ported: PHP reflection (ReflectionParameter, attributes, backed enums) has no Luau counterpart; DI declares dependencies with @Inject instead" },
         { "glob": "Conditionable/HigherOrderWhenProxy.php", "reason": "__call proxy; not expressible in compiled roblox-ts" },
         { "glob": "Routing/Matching/HostValidator.php", "reason": "there are no hosts on Roblox (parity doc)" },
         { "glob": "Exception.ts", "reason": "port-only: SPL exceptions (LogicException etc.) have no upstream file, PHP ships them built in" },
@@ -50,6 +50,7 @@
         { "glob": "Support/DataStoreRequest.ts", "reason": "port-only: DataStoreService request budgeting helper, platform-specific" },
         { "glob": "Support/Facades/Forwards.ts", "reason": "port-only: facade forwarding plumbing (metatable replacement for __callStatic)" },
         { "glob": "Support/OrderedMap.ts", "reason": "port-only: sorted-map utility PHP gets from arrays natively" },
+        { "glob": "Support/Reflector.ts", "reason": "port-only: reflection primitives over the roblox-ts object model (metatables); NOT a port of Illuminate\\Reflection\\Reflector, which is all ReflectionParameter API" },
         { "glob": "Support/Serializer.ts", "reason": "port-only: replaces PHP serialize()/unserialize() + SerializesModels (parity doc)" },
         { "glob": "Support/Unicode.ts", "reason": "port-only: utf8 helpers PHP gets from mbstring" },
         { "glob": "Support/VarDumper.ts", "reason": "port-only: var_dump/symfony-var-dumper stand-in for logging" }

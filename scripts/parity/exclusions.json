@@ -15,7 +15,7 @@
         {
             "glob": "Pipeline/Pipes.ts",
             "kind": "port-only",
-            "reason": "Port-only helper with no upstream twin: isPipeList/wrapPipes/isPipeWithParameters tell one parameterized pipe `[Class, 'args']` from a list of pipes -- a distinction PHP spells inside a single string ('Class:args') and never has to make, because a class is not a string on this platform. isPipeList is Pipeline.through()/pipe()'s is_array; wrapPipes serves Routing/Route and Routing/Controller."
+            "reason": "Port-only helper with no upstream twin: isPipeArray/wrapPipes/isPipeWithParameters tell one parameterized pipe `[Class, 'args']` from a list of pipes -- a distinction PHP spells inside a single string ('Class:args') and never has to make, because a class is not a string on this platform. isPipeArray is Pipeline.through()/pipe()'s is_array; wrapPipes serves Routing/Route and Routing/Controller."
         }
     ]
 }

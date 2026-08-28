@@ -1,4 +1,4 @@
-import { isPipeList } from 'Illuminate/Pipeline/Pipes';
+import { isPipeArray } from 'Illuminate/Pipeline/Pipes';
 import { RuntimeException } from 'Illuminate/Exception';
 import { Util } from 'Illuminate/Container/Util';
 import type { Abstract } from 'Illuminate/Container/Types';
@@ -47,7 +47,7 @@ export class Pipeline implements PipelineContract
     /** Set the array of pipes. */
     public through(...pipes: Array<Pipe | Array<Pipe>>): this
     {
-        this._pipes = isPipeList(pipes[0]) ? pipes[0] : (pipes as Array<Pipe>);
+        this._pipes = isPipeArray(pipes[0]) ? pipes[0] : (pipes as Array<Pipe>);
 
         return this;
     }
@@ -55,7 +55,7 @@ export class Pipeline implements PipelineContract
     /** Push additional pipes onto the pipeline. */
     public pipe(...pipes: Array<Pipe | Array<Pipe>>): this
     {
-        for (const pipe of isPipeList(pipes[0]) ? pipes[0] : (pipes as Array<Pipe>)) {
+        for (const pipe of isPipeArray(pipes[0]) ? pipes[0] : (pipes as Array<Pipe>)) {
             this._pipes.push(pipe);
         }
 

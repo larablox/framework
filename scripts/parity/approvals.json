@@ -78,10 +78,10 @@
     },
     "Pipeline/Pipeline.php#Pipeline#pipe": {
         "php_hash": "23530aa6c0f7eb0c58b04b95a07be81643ed94db",
-        "ts_hash": "6c0659b02dc80e7383ec995cc25cf8dcdfeebb18",
+        "ts_hash": "b25f366d1a2b72b1ee3dc25e91fe2bcbae531681",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Same expression as through(): is_array($pipes) ? $pipes : func_get_args() is a rest parameter plus the same ternary over isPipeList. Dismissed: array_push's spread becomes an append loop -- roblox-ts's push macro rejects spread arguments (roblox-ts#1149), verified by the compile error."
+        "note": "Same expression as through(): is_array($pipes) ? $pipes : func_get_args() is a rest parameter plus the same ternary over isPipeArray. Dismissed: array_push's spread becomes an append loop -- roblox-ts's push macro rejects spread arguments (roblox-ts#1149), verified by the compile error."
     },
     "Pipeline/Pipeline.php#Pipeline#pipes": {
         "php_hash": "a2d9b19186db34bb7a72e95c9c63272a16eeb5fc",
@@ -127,10 +127,10 @@
     },
     "Pipeline/Pipeline.php#Pipeline#through": {
         "php_hash": "9b68c30f5c5375c00a286305e598f50b2ce3a458",
-        "ts_hash": "0be8860afafcf36a10603805c3fed8a6a222aa04",
+        "ts_hash": "49c4ee950b2dea3ad76614c9bf52e6ea204ce76e",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim shape: is_array($pipes) ? $pipes : func_get_args() maps to a rest parameter and the same ternary, with isPipeList as the platform's is_array for pipes -- it additionally tells one parameterized pipe [Class, 'args'] from a list (a class is not a string here) and recognizes the empty list Util.isArray cannot see (Pipes.ts documents both). Even the pathological through([a], b) drops the extras like PHP does. Known heuristic edge remains for the single-array form ([ClassPipe, 'bindingName'] reads as one parameterized pipe); the restored variadic form is the unambiguous spelling of that case."
+        "note": "Verbatim shape: is_array($pipes) ? $pipes : func_get_args() maps to a rest parameter and the same ternary, with isPipeArray as the platform's is_array for pipes -- it additionally tells one parameterized pipe [Class, 'args'] from a list (a class is not a string here) and recognizes the empty list Util.isArray cannot see (Pipes.ts documents both). Even the pathological through([a], b) drops the extras like PHP does. Known heuristic edge remains for the single-array form ([ClassPipe, 'bindingName'] reads as one parameterized pipe); the restored variadic form is the unambiguous spelling of that case."
     },
     "Pipeline/Pipeline.php#Pipeline#via": {
         "php_hash": "bf622dfb0e778b05f7e079ffc6efb27fa22af604",

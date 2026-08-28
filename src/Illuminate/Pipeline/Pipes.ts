@@ -33,7 +33,7 @@ export function isPipeWithParameters(value: unknown): value is PipeWithParameter
  * tells a list from a single value by length, so the empty list has to be
  * recognized on its own.
  */
-export function isPipeList(value: unknown): value is Array<Pipe>
+export function isPipeArray(value: unknown): value is Array<Pipe>
 {
     return (Util.isArray(value) || Util.isEmptyArray(value)) && !isPipeWithParameters(value);
 }

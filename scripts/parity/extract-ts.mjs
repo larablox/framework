@@ -207,15 +207,23 @@ function extractFile(sourceFile)
     /** @type {Map<string, ReturnType<typeof freshGroup>>} */
     const groups = new Map();
 
+    // Groups merge case-insensitively: a mixin file names its private factory
+    // in lowercase (`conditionable`) beside the Shape mirrors and the exported
+    // wrapper (`Conditionable`), and all of them describe one declaration.
     const groupFor = (rawName, kind, abstract) => {
         const name = baseName(rawName);
-        let group = groups.get(name);
+        const key = name.toLowerCase();
+        let group = groups.get(key);
         if (!group) {
             group = freshGroup(name, kind, abstract);
-            groups.set(name, group);
+            groups.set(key, group);
         } else if (group.kind === 'shape' && kind !== 'shape') {
             group.kind = kind;
             group.abstract = abstract;
+        }
+        // The exported spelling wins the group's name over a private factory's.
+        if (/^[a-z]/.test(group.name) && /^[A-Z]/.test(name)) {
+            group.name = name;
         }
         group.mergedFrom.push(rawName);
         return group;
@@ -276,6 +284,9 @@ function extractFile(sourceFile)
                     for (const cls of classes) {
                         collectClassMembers(cls, sourceFile, group);
                     }
+                } else if (groups.has(baseName(statement.name.text).toLowerCase())) {
+                    // The exported wrapper of a mixin factory: plumbing around
+                    // the class expression the group already carries.
                 } else {
                     functionMembers.push({
                         name: statement.name.text,

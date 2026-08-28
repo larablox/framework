@@ -24,6 +24,16 @@ jobs:
 
       - run: npm run lint
 
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - run: npm run format
+
   analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 10

@@ -62,6 +62,8 @@ this wired up, both load-bearing:
 | Watch artifacts in `out/` (Studio)      | `rojo serve`               |
 | Lint                                    | `npm run lint`             |
 | Lint + autofix                          | `npm run lint:fix`         |
+| Check formatting                        | `npm run format`           |
+| Format                                  | `npm run format:fix`       |
 | Analyze generated Luau                  | `npm run analyze`          |
 | Run the suite (no Studio)               | `npm test`                 |
 | Run one spec (no Studio)                | `npm run test:lune -- <filter>` |
@@ -169,8 +171,8 @@ Its lint does depend on `out/` existing. Run it straight after `npm run clean`
 and every framework type degrades to `any`, which `roblox-ts/lua-truthiness`
 then reports as errors that are not there. Build first.
 
-CI (`.github/workflows/ci.yml`) checks the package only, in three independent
-jobs — `lint`, `analyze` and `tests`. It does not install or build the
+CI (`.github/workflows/ci.yml`) checks the package only, in four independent
+jobs — `lint`, `format`, `analyze` and `tests`. It does not install or build the
 workbench, so nothing in there can break the package's checks. All three set
 themselves up through `.github/actions/setup`.
 
@@ -198,7 +200,8 @@ inside `.github/actions/setup` — for GitHub Actions it reads
 - The build is incremental: `rbxtsc` will not regenerate a file whose source
   did not change, so edits made directly in `out/` survive `npm run build`.
   Run `npm run clean` first when you need to trust what is in `out/`.
-- Formatting and style are `npm run lint:fix`'s job, not yours. The
+- Formatting and style are `npm run format:fix`'s job (and `lint:fix`'s for
+  eslint autofixables), not yours. The
   formatter is **dprint** (`dprint.json`), configured to read like Laravel:
   PSR-12 brace placement (declarations open on the next line, control flow
   on the same one), single quotes, and — the reason prettier is gone — it

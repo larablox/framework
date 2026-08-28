@@ -68,6 +68,7 @@ this wired up, both load-bearing:
 | Build the test place                    | `npm run test:build`       |
 | Serve the test place to Studio          | `npm run test:serve`       |
 | Remove build artifacts                  | `npm run clean`            |
+| Parity report against Laravel           | `npm run parity`           |
 | Install the workbench                   | `npm run workbench:install`|
 | Build the workbench                     | `npm run workbench`        |
 | Build the workbench place file          | `npm run workbench:place`  |
@@ -99,6 +100,24 @@ nothing else; those are skipped, named at the end of every run, and still need
 Studio or Open Cloud. A green `npm test` is therefore not a green suite, which
 is why the run says so out loud. `agent_docs/testing.md` has how the harness
 works and why the two services are not faked.
+
+## Parity tooling
+
+`npm run parity` compares `src/Illuminate` against a pinned `laravel/framework`
+checkout file to file and member to member, and writes `reports/parity/`
+(`files.csv`, `members.csv`, `summary.md`; gitignored). The reference lives in
+`.upstream/` — committed `composer.json`/`composer.lock`, installed by the
+runner via the developer's own `composer` (PHP CLI is also required). The
+registries next to the scripts are committed and are the point of the tool:
+`aliases.json` (deliberate renames: `RedisQueue` → `MemoryStoreQueue`, ...),
+`exclusions.json` (waivers with reasons — unported components, port-only
+files), `approvals.json` (per-method "implementation reviewed" marks keyed to
+body hashes of **both** sides, so editing the port or bumping Laravel flips
+the mark to stale automatically). Review loop:
+`--list stale|unreviewed`, `--show "<key>"` (both bodies side by side),
+`--approve "<key>"` / `--approve-file`, `--check` (non-zero exit on anything
+stale). An approval asserts behavioural equivalence — set it only after
+actually reading both bodies.
 
 ## The workbench
 

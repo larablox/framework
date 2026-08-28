@@ -17,6 +17,10 @@ export default [
 			"out-tests/**",
 			"index.d.ts",
 			".workbench/**",
+			// The parity reference checkout and its generated reports are not
+			// this project's code (`npm run parity`).
+			".upstream/**",
+			"reports/**",
 		],
 	},
 	{

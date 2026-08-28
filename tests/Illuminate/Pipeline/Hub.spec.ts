@@ -40,6 +40,16 @@ export = (): void => {
             expect(hub.pipe('foo', 'named')).to.equal('foo');
         });
 
+        it("an empty pipeline name falls back to the default, PHP's ?: semantics", () => {
+            // No upstream twin: pins $pipeline = $pipeline ?: 'default' --
+            // '' and '0' are falsy in PHP, so both reach the default pipeline
+            // instead of throwing.
+            hub.defaults((pipeline: Pipeline, object: Passable) => pipeline.send(object).through([]).thenReturn());
+
+            expect(hub.pipe('foo', '')).to.equal('foo');
+            expect(hub.pipe('foo', '0')).to.equal('foo');
+        });
+
         it('throws for an undefined pipeline', () => {
             // PHP: HubTest::testPipeThrowsExceptionForUndefinedPipeline
             const [ok, err] = pcall(() => hub.pipe('foo', 'missing'));

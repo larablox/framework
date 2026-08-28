@@ -119,4 +119,10 @@ export class Util
 
         return value !== undefined;
     }
+
+    /** PHP's `$value ?: $fallback`. */
+    public static elvis<T extends defined>(value: unknown, fallback: T): T
+    {
+        return Util.truthy(value) ? (value as T) : fallback;
+    }
 }

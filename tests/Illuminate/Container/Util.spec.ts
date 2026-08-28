@@ -68,5 +68,16 @@ export = (): void => {
             expect(wrappedZero.size()).to.equal(1);
             expect(wrappedZero[0]).to.equal(0);
         });
+
+        it("elvis() keeps a truthy value and falls back on PHP's falsy ones", () => {
+            // No upstream twin: PHP gets `?:` from the language -- see the
+            // method's docblock and Util.truthy for the truthiness rules.
+            expect(Util.elvis('named', 'default')).to.equal('named');
+            expect(Util.elvis(undefined, 'default')).to.equal('default');
+            expect(Util.elvis('', 'default')).to.equal('default');
+            expect(Util.elvis('0', 'default')).to.equal('default');
+            expect(Util.elvis(0, 1)).to.equal(1);
+            expect(Util.elvis(false, true)).to.equal(true);
+        });
     });
 };

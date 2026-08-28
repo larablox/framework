@@ -31,6 +31,13 @@
         "note": "Verbatim property return. Dismissed: typed Container | undefined -- upstream's docblock claims Container but the method returns null when none was passed; the port's type states the same behavior honestly.",
         "approved_at": "2026-08-28"
     },
+    "Pipeline/Hub.php#Hub#pipe": {
+        "php_hash": "6db20cba62ad99d077d1d407f9650024c17847db",
+        "ts_hash": "9ef77ed668c97e39b532d7f9c21ce9dd196f8fd6",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "The upstream body statement for statement:  =  ?: 'default' is Util.elvis (the ?: compensation over Util.truthy, so '' and '0' fall back exactly as PHP's falsy rules say -- closing the finding this member carried since the field-test review); ! isset(->pipelines[]) is OrderedMap.has, retiring the builder local upstream never had; call_user_func is call() from the helpers. Dismissed: the parameter is pipeline?: string rather than = null -- absence is undefined here and Util.truthy(undefined) is false, so every elvis branch agrees; dprint expands the call arguments one per line (enforced mechanics). Pinned by the '' / '0' fallback spec."
+    },
     "Pipeline/Hub.php#Hub#pipeline": {
         "php_hash": "57ccd3594deb68148456bef9a602f70cf6269ff7",
         "ts_hash": "094a087416b05af996bae6e727dce72eec59faf7",

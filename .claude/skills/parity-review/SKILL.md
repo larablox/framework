@@ -135,8 +135,9 @@ Dissolve the split back into the upstream body first; judge only what refuses to
 standing in for what PHP gets from the language, user-approved, never inventing Laravel
 API a PHP developer would expect upstream. The kit so far: `Arr.reverse`/`Arr.pad`/
 `Arr.merge` for the array builtins, `Str.explode` for `explode` (with PHP's limit
-semantics), and `Pipeline/helpers`' `call`/`callMethod`/`methodExists`/`isCallable` for
-PHP's dynamic calls and capability checks. Check this kit before spelling a builtin as a
+semantics), `Pipeline/helpers`' `call`/`callMethod`/`methodExists`/`isCallable` for
+PHP's dynamic calls and capability checks, and `Container/Util`'s `truthy`/`elvis` for
+PHP truthiness and the `?:` operator. Check this kit before spelling a builtin as a
 loop, and extend it (with the user's approval) rather than casting at the site — a call
 site needing the same type assertion more than once is the smell of a missing
 compensation.

@@ -1,5 +1,7 @@
+import { call } from 'Illuminate/Pipeline/helpers';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
 import { InvalidArgumentException } from 'Illuminate/Exception';
+import { Util } from 'Illuminate/Container/Util';
 import { OrderedMap } from 'Illuminate/Support/OrderedMap';
 import { Pipeline } from 'Illuminate/Pipeline/Pipeline';
 import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
@@ -32,15 +34,19 @@ export class Hub implements HubContract
     }
 
     /** Send an object through one of the available pipelines. */
-    public pipe(object: unknown, pipeline = 'default'): unknown
+    public pipe(object: unknown, pipeline?: string): unknown
     {
-        const builder = this.pipelines.get(pipeline);
+        pipeline = Util.elvis(pipeline, 'default');
 
-        if (builder === undefined) {
+        if (!this.pipelines.has(pipeline)) {
             throw new InvalidArgumentException(`Pipeline [${pipeline}] is not defined.`);
         }
 
-        return builder(new Pipeline(this.container), object);
+        return call(
+            this.pipelines.get(pipeline),
+            new Pipeline(this.container),
+            object,
+        );
     }
 
     /** Get the container instance used by the hub. */

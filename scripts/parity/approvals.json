@@ -1,8 +1,9 @@
 {
     "Pipeline/Hub.php#Hub#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
-        "ts_hash": "e8ab8d498fbb832e9c451b8f0b88b886ee17f5b2",
-        "approved_at": "2026-08-28"
+        "ts_hash": "affe650831a9b2f8358ebfe9f3e5738abf277d2a",
+        "approved_at": "2026-08-28",
+        "note": "@Inject(app) is the port spelling of the ?Container type hint (reflection replacement)"
     },
     "Pipeline/Hub.php#Hub#defaults": {
         "php_hash": "5c5482f0aa53f8190af7505be42baff2ad7f39ae",
@@ -118,8 +119,8 @@
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {
         "php_hash": "e577fa7f0c27b7a7950f092c98b0e615cd62cc92",
-        "ts_hash": "a13458c4a1714af07adcbc9d64076921aca32ba9",
+        "ts_hash": "d4e9c527023b6b8aa8721883fa9fb8660ab58424",
         "approved_at": "2026-08-28",
-        "note": "hub keyed by its Contract token under upstream local alias PipelineHubContract; concrete is a closure because auto-construction needs reflection PHP has"
+        "note": "mirrors upstream line for line: contract token as key, Hub class as concrete; the container builds Hub through its @Inject metadata"
     }
 }

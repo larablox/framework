@@ -7,13 +7,10 @@ import type { Abstract } from "Illuminate/Container/Types";
 
 /** PHP: `Illuminate\Pipeline\PipelineServiceProvider`. */
 @DeferrableProvider()
-export class PipelineServiceProvider
-    extends ServiceProvider
-    implements DeferrableProvider
-{
+export class PipelineServiceProvider extends ServiceProvider implements DeferrableProvider {
     /** Register the service provider. */
     public register(): void {
-        this.app.singleton(PipelineHubContract, (app) => new Hub(app));
+        this.app.singleton(PipelineHubContract, Hub);
 
         this.app.bind("pipeline", (app) => new Pipeline(app));
     }

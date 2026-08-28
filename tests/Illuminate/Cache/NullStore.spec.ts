@@ -23,7 +23,10 @@ export = (): void => {
         it('many() answers every key with undefined', () => {
             const store = new NullStore();
 
-            const values = store.many(['foo', 'bar']);
+            const values = store.many([
+                'foo',
+                'bar',
+            ]);
 
             expect(values.get('foo')).to.equal(undefined);
             expect(values.get('bar')).to.equal(undefined);

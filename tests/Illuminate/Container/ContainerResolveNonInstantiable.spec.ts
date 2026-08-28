@@ -60,7 +60,15 @@ export = (): void => {
         it('resolving a variadic non-instantiable dependency still resets the parameter stack', () => {
             // PHP: ContainerResolveNonInstantiableTest::testResolvingNonInstantiableWithVariadicRemovesWiths
             const container = new Container();
-            const parent = container.make(VariadicParentClass, new Map([['$i', 42]]));
+            const parent = container.make(
+                VariadicParentClass,
+                new Map([
+                    [
+                        '$i',
+                        42,
+                    ],
+                ]),
+            );
 
             expect(parent.child.objects.size()).to.equal(0);
             expect(parent.i).to.equal(42);

@@ -65,42 +65,61 @@ class FakeStore implements Store
 
     public put(key: string, value: unknown, seconds: number): boolean
     {
-        this.putCalls.push([key, value, seconds]);
+        this.putCalls.push([
+            key,
+            value,
+            seconds,
+        ]);
 
         return this.putReturn;
     }
 
     public putMany(values: Map<string, unknown>, seconds: number): boolean
     {
-        this.putManyCalls.push([values, seconds]);
+        this.putManyCalls.push([
+            values,
+            seconds,
+        ]);
 
         return true;
     }
 
     public increment(key: string, value = 1): number | false
     {
-        this.incrementCalls.push([key, value]);
+        this.incrementCalls.push([
+            key,
+            value,
+        ]);
 
         return this.incrementReturn;
     }
 
     public decrement(key: string, value = 1): number | false
     {
-        this.decrementCalls.push([key, value]);
+        this.decrementCalls.push([
+            key,
+            value,
+        ]);
 
         return this.decrementReturn;
     }
 
     public forever(key: string, value: unknown): boolean
     {
-        this.foreverCalls.push([key, value]);
+        this.foreverCalls.push([
+            key,
+            value,
+        ]);
 
         return this.foreverReturn;
     }
 
     public touch(key: string, seconds: number): boolean
     {
-        this.touchCalls.push([key, seconds]);
+        this.touchCalls.push([
+            key,
+            seconds,
+        ]);
 
         return this.touchReturn;
     }
@@ -139,7 +158,11 @@ class FakeStoreWithAdd extends FakeStore
 
     public add(key: string, value: unknown, seconds: number): boolean
     {
-        this.addCalls.push([key, value, seconds]);
+        this.addCalls.push([
+            key,
+            value,
+            seconds,
+        ]);
 
         return this.addReturn;
     }
@@ -261,7 +284,11 @@ export = (): void => {
 
             expect(result).to.equal('bar');
             expect(store.putCalls.size()).to.equal(1);
-            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 10]);
+            expectDeepEqual(store.putCalls[0], [
+                'foo',
+                'bar',
+                10,
+            ]);
 
             store = new FakeStore();
             repo = new Repository(store);
@@ -275,8 +302,16 @@ export = (): void => {
             expect(secondResult).to.equal('qux');
 
             expect(store.putCalls.size()).to.equal(2);
-            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 602]);
-            expectDeepEqual(store.putCalls[1], ['baz', 'qux', 598]);
+            expectDeepEqual(store.putCalls[0], [
+                'foo',
+                'bar',
+                602,
+            ]);
+            expectDeepEqual(store.putCalls[1], [
+                'baz',
+                'qux',
+                598,
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testRememberForeverMethodCallsForeverAndReturnsDefault
@@ -288,7 +323,10 @@ export = (): void => {
 
             expect(result).to.equal('bar');
             expect(store.foreverCalls.size()).to.equal(1);
-            expectDeepEqual(store.foreverCalls[0], ['foo', 'bar']);
+            expectDeepEqual(store.foreverCalls[0], [
+                'foo',
+                'bar',
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testPutWithNullTTLRemembersItemForever
@@ -298,7 +336,10 @@ export = (): void => {
 
             expect(repo.put('foo', 'bar')).to.equal(true);
             expect(store.foreverCalls.size()).to.equal(1);
-            expectDeepEqual(store.foreverCalls[0], ['foo', 'bar']);
+            expectDeepEqual(store.foreverCalls[0], [
+                'foo',
+                'bar',
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testPutWithDatetimeInPastOrZeroSecondsRemovesOldItem
@@ -313,7 +354,10 @@ export = (): void => {
             expect(repo.put('foo', 'bar', now)).to.equal(true);
 
             expect(store.putCalls.size()).to.equal(0);
-            expectDeepEqual(store.forgetCalls, ['foo', 'foo']);
+            expectDeepEqual(store.forgetCalls, [
+                'foo',
+                'foo',
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testAddWithStoreFailureReturnsFalse
@@ -332,7 +376,11 @@ export = (): void => {
 
             expect(repo.add('k', 'v', 60)).to.equal(true);
             expect(store.addCalls.size()).to.equal(1);
-            expectDeepEqual(store.addCalls[0], ['k', 'v', 60]);
+            expectDeepEqual(store.addCalls[0], [
+                'k',
+                'v',
+                60,
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testAddMethodCanAcceptDateIntervals
@@ -346,7 +394,11 @@ export = (): void => {
 
             expect(repoWithAdd.add('k', 'v', DateTime.fromUnixTimestamp(os.time() + 61))).to.equal(true);
             expect(storeWithAdd.addCalls.size()).to.equal(1);
-            expectDeepEqual(storeWithAdd.addCalls[0], ['k', 'v', 61]);
+            expectDeepEqual(storeWithAdd.addCalls[0], [
+                'k',
+                'v',
+                61,
+            ]);
 
             const storeWithoutAdd = new FakeStore();
             const repoWithoutAdd = new Repository(storeWithoutAdd);
@@ -354,7 +406,11 @@ export = (): void => {
             expect(repoWithoutAdd.add('k', 'v', DateTime.fromUnixTimestamp(os.time() + 62))).to.equal(true);
             expectDeepEqual(storeWithoutAdd.getCalls, ['k']);
             expect(storeWithoutAdd.putCalls.size()).to.equal(1);
-            expectDeepEqual(storeWithoutAdd.putCalls[0], ['k', 'v', 62]);
+            expectDeepEqual(storeWithoutAdd.putCalls[0], [
+                'k',
+                'v',
+                62,
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testAddWithNullTTLRemembersItemForever
@@ -365,7 +421,10 @@ export = (): void => {
             expect(repo.add('foo', 'bar')).to.equal(true);
             expectDeepEqual(store.getCalls, ['foo']);
             expect(store.foreverCalls.size()).to.equal(1);
-            expectDeepEqual(store.foreverCalls[0], ['foo', 'bar']);
+            expectDeepEqual(store.foreverCalls[0], [
+                'foo',
+                'bar',
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testAddWithDatetimeInPastOrZeroSecondsReturnsImmediately
@@ -393,13 +452,21 @@ export = (): void => {
             let repo = new Repository(store);
             repo.put('foo', 'bar', 300);
             expect(store.putCalls.size()).to.equal(1);
-            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 300]);
+            expectDeepEqual(store.putCalls[0], [
+                'foo',
+                'bar',
+                300,
+            ]);
 
             store = new FakeStore();
             repo = new Repository(store);
             repo.put('foo', 'bar', DateTime.fromUnixTimestamp(os.time() + 300));
             expect(store.putCalls.size()).to.equal(1);
-            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 300]);
+            expectDeepEqual(store.putCalls[0], [
+                'foo',
+                'bar',
+                300,
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testForgettingCacheKey
@@ -431,7 +498,11 @@ export = (): void => {
 
             expect(result).to.equal(true);
             expect(store.putCalls.size()).to.equal(1);
-            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 1]);
+            expectDeepEqual(store.putCalls[0], [
+                'foo',
+                'bar',
+                1,
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testClearingWholeCache
@@ -451,7 +522,10 @@ export = (): void => {
 
             expect(repo.touch('key', 60)).to.equal(true);
             expect(store.touchCalls.size()).to.equal(1);
-            expectDeepEqual(store.touchCalls[0], ['key', 60]);
+            expectDeepEqual(store.touchCalls[0], [
+                'key',
+                60,
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testTouchWithDatetimeTtlCorrectlyProxiesToStore
@@ -463,7 +537,10 @@ export = (): void => {
 
             expect(repo.touch('key', DateTime.fromUnixTimestamp(now.UnixTimestamp + 60))).to.equal(true);
             expect(store.touchCalls.size()).to.equal(1);
-            expectDeepEqual(store.touchCalls[0], ['key', 60]);
+            expectDeepEqual(store.touchCalls[0], [
+                'key',
+                60,
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testTouchWithDateIntervalTtlCorrectlyProxiesToStore
@@ -485,8 +562,14 @@ export = (): void => {
             expect(repo.touch('key', 0)).to.equal(true);
 
             expect(store.touchCalls.size()).to.equal(2);
-            expectDeepEqual(store.touchCalls[0], ['key', 0]);
-            expectDeepEqual(store.touchCalls[1], ['key', 0]);
+            expectDeepEqual(store.touchCalls[0], [
+                'key',
+                0,
+            ]);
+            expectDeepEqual(store.touchCalls[1], [
+                'key',
+                0,
+            ]);
             expect(store.forgetCalls.size()).to.equal(0);
         });
 
@@ -599,10 +682,16 @@ export = (): void => {
         // PHP: CacheRepositoryTest::testItGetsAsArray
         it('array() reads back an array value', () => {
             const store = new FakeStore();
-            store.getReturns.set('foo', ['bar', 'baz']);
+            store.getReturns.set('foo', [
+                'bar',
+                'baz',
+            ]);
             const repo = new Repository(store);
 
-            expectDeepEqual(repo.array('foo'), ['bar', 'baz']);
+            expectDeepEqual(repo.array('foo'), [
+                'bar',
+                'baz',
+            ]);
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsArrayWithDefault

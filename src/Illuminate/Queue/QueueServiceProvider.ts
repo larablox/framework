@@ -203,6 +203,11 @@ export class QueueServiceProvider extends ServiceProvider implements DeferrableP
     /** Get the services provided by the provider. */
     public provides(): Array<Abstract>
     {
-        return ['queue', 'queue.connection', 'queue.failer', 'queue.worker'];
+        return [
+            'queue',
+            'queue.connection',
+            'queue.failer',
+            'queue.worker',
+        ];
     }
 }

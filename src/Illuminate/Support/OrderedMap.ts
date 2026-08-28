@@ -104,7 +104,10 @@ export class OrderedMap<K extends defined, V extends defined>
         const entries = new Array<[K, V]>();
 
         for (const key of this.insertionOrder) {
-            entries.push([key, this.entriesByKey.get(key) as V]);
+            entries.push([
+                key,
+                this.entriesByKey.get(key) as V,
+            ]);
         }
 
         return entries;

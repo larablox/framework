@@ -220,7 +220,11 @@ function getWorker(jobs: Record<string, Array<Job>>): [Worker, Dispatcher, Array
 
     const worker = new Worker(manager, events, (e) => (reported[reported.size()] = e));
 
-    return [worker, events, reported];
+    return [
+        worker,
+        events,
+        reported,
+    ];
 }
 
 export = (): void => {
@@ -277,7 +281,12 @@ export = (): void => {
         it('daemon() with stopWhenEmpty runs until the queue is empty, then stops cleanly', () => {
             const first = new FakeJob();
             const second = new FakeJob();
-            const [worker] = getWorker({ queue: [first, second] });
+            const [worker] = getWorker({
+                queue: [
+                    first,
+                    second,
+                ],
+            });
 
             const options = new WorkerOptions();
             options.stopWhenEmpty = true;
@@ -294,7 +303,10 @@ export = (): void => {
             const secondHighJob = new FakeJob();
             const lowJob = new FakeJob();
             const [worker] = getWorker({
-                high: [highJob, secondHighJob],
+                high: [
+                    highJob,
+                    secondHighJob,
+                ],
                 low: [lowJob],
             });
 

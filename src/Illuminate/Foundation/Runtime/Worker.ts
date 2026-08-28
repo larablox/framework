@@ -82,7 +82,13 @@ export class Worker
      */
     public static defaultServicesToWarm(): Array<Abstract>
     {
-        return ['events', 'config', 'log', 'router', 'queue'];
+        return [
+            'events',
+            'config',
+            'log',
+            'router',
+            'queue',
+        ];
     }
 
     /** Boot the worker: bootstrap the application once, then warm it. */

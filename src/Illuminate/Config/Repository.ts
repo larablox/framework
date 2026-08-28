@@ -38,7 +38,12 @@ export class Repository implements ConfigContract
         const config: ArrayAccessible = {};
 
         for (const entry of keys) {
-            const [key, defaultValue] = typeIs(entry, 'string') ? [entry, undefined] : entry;
+            const [key, defaultValue] = typeIs(entry, 'string')
+                ? [
+                    entry,
+                    undefined,
+                ]
+                : entry;
 
             config[key] = Arr.get(this.items, key, defaultValue);
         }

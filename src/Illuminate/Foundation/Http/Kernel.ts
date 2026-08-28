@@ -98,7 +98,10 @@ export class Kernel implements KernelContract
      * is longer only because it has more middleware to order; what is here is
      * PHP's list with everything unported struck out, in PHP's order.
      */
-    protected middlewarePriority: Array<Pipe> = [ThrottleRequests, SubstituteBindings];
+    protected middlewarePriority: Array<Pipe> = [
+        ThrottleRequests,
+        SubstituteBindings,
+    ];
 
     /** Create a new HTTP kernel instance. */
     public constructor(
@@ -221,7 +224,10 @@ export class Kernel implements KernelContract
             return;
         }
 
-        const middlewares = [...this.gatherRouteMiddleware(request), ...this.middleware];
+        const middlewares = [
+            ...this.gatherRouteMiddleware(request),
+            ...this.middleware,
+        ];
 
         for (const middleware of middlewares) {
             // PHP skips anything that is not a string, which is its way of
@@ -289,20 +295,32 @@ export class Kernel implements KernelContract
                 parameters.push(list[index] as string);
             }
 
-            return [list[0] as Abstract, parameters];
+            return [
+                list[0] as Abstract,
+                parameters,
+            ];
         }
 
         if (!typeIs(middleware, 'string')) {
-            return [middleware as Abstract, []];
+            return [
+                middleware as Abstract,
+                [],
+            ];
         }
 
         const separator = middleware.find(':')[0];
 
         if (separator === undefined) {
-            return [middleware, []];
+            return [
+                middleware,
+                [],
+            ];
         }
 
-        return [middleware.sub(1, separator - 1), middleware.sub(separator + 1).split(',')];
+        return [
+            middleware.sub(1, separator - 1),
+            middleware.sub(separator + 1).split(','),
+        ];
     }
 
     /** Determine whether the container can resolve the given middleware by name. */

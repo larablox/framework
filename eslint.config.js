@@ -1,6 +1,7 @@
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
+import stylistic from '@stylistic/eslint-plugin';
 import robloxTs from 'eslint-plugin-roblox-ts';
 
 export default [
@@ -35,6 +36,7 @@ export default [
         plugins: {
             '@typescript-eslint': tseslint,
             'roblox-ts': robloxTs,
+            '@stylistic': stylistic,
         },
         rules: {
             ...tseslint.configs.recommended.rules,
@@ -43,6 +45,13 @@ export default [
             // eslint-config-prettier keeps the stylistic core rules out of
             // the way so the two do not fight.
             ...prettierConfig.rules,
+
+            // dprint preserves authored line breaks but never invents them;
+            // the array shape upstream writes is enforced here instead: two
+            // or more elements go one per line (patterns are left alone --
+            // pcall destructuring stays inline, as upstream tuples do not).
+            '@stylistic/array-element-newline': ['warn', { ArrayExpression: 'always' }],
+            '@stylistic/array-bracket-newline': ['warn', { multiline: true }],
 
             // Imports go through `baseUrl`, never relatively. In the framework
             // that is simply the convention; in a game it is load-bearing.

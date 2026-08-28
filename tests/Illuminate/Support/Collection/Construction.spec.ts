@@ -63,7 +63,10 @@ export = (): void => {
             // ::testEmptyCollectionIsNotEmpty
             expect(new Collection().isEmpty()).to.equal(true);
 
-            const c = new Collection(['foo', 'bar']);
+            const c = new Collection([
+                'foo',
+                'bar',
+            ]);
             expect(c.isEmpty()).to.equal(false);
             expect(c.isNotEmpty()).to.equal(true);
         });
@@ -73,11 +76,17 @@ export = (): void => {
             // ::testContainsOneItem (the callback-argument overload of
             // containsOneItem() is not ported -- Collection.ts's method
             // takes no arguments)
-            expect(new Collection(['foo', 'bar']).count()).to.equal(2);
+            expect(new Collection([
+                'foo',
+                'bar',
+            ]).count()).to.equal(2);
 
             expect(new Collection<number, number>([]).containsOneItem()).to.equal(false);
             expect(new Collection([1]).containsOneItem()).to.equal(true);
-            expect(new Collection([1, 2]).containsOneItem()).to.equal(false);
+            expect(new Collection([
+                1,
+                2,
+            ]).containsOneItem()).to.equal(false);
         });
 
         it('all() / entries() read the items back in order', () => {
@@ -92,8 +101,16 @@ export = (): void => {
             items.set(3, 'c');
             const data = new Collection(items);
 
-            expectDeepEqual(data.all(), ['a', 'b', 'c']);
-            expectDeepEqual(data.values().all(), ['a', 'b', 'c']);
+            expectDeepEqual(data.all(), [
+                'a',
+                'b',
+                'c',
+            ]);
+            expectDeepEqual(data.values().all(), [
+                'a',
+                'b',
+                'c',
+            ]);
         });
 
         it('toArray() reads the items back, resolving nested collections', () => {
@@ -101,11 +118,26 @@ export = (): void => {
             // (adapted: the port has no `Arrayable` interface to call
             // `toArray()` through, so a nested `Collection` is used as the
             // item that needs resolving instead of a mocked `Arrayable`)
-            const c = new Collection([new Collection(['foo', 'array']), new Collection(['bar', 'array'])]);
+            const c = new Collection([
+                new Collection([
+                    'foo',
+                    'array',
+                ]),
+                new Collection([
+                    'bar',
+                    'array',
+                ]),
+            ]);
 
             expectDeepEqual(c.toArray(), [
-                ['foo', 'array'],
-                ['bar', 'array'],
+                [
+                    'foo',
+                    'array',
+                ],
+                [
+                    'bar',
+                    'array',
+                ],
             ]);
         });
 
@@ -116,8 +148,14 @@ export = (): void => {
             expectDeepEqual(Collection.make().all(), []);
             expectDeepEqual(Collection.make(['foo']).all(), ['foo']);
 
-            const collection = Collection.make(['foo', 'bar']);
-            expectDeepEqual(Collection.make(collection).all(), ['foo', 'bar']);
+            const collection = Collection.make([
+                'foo',
+                'bar',
+            ]);
+            expectDeepEqual(Collection.make(collection).all(), [
+                'foo',
+                'bar',
+            ]);
         });
 
         it('wrap() / unwrap() normalize a value to and from a collection', () => {
@@ -143,24 +181,41 @@ export = (): void => {
         it('times() invokes a callback a given number of times', () => {
             // PHP: SupportCollectionTest::testTimesMethod
             const two = Collection.times(2, (index) => `slug-${index}`);
-            expectDeepEqual(two.all(), ['slug-1', 'slug-2']);
+            expectDeepEqual(two.all(), [
+                'slug-1',
+                'slug-2',
+            ]);
 
             expect(Collection.times(0, (index) => index).isEmpty()).to.equal(true);
         });
 
         it('range() builds a collection of a numeric range', () => {
             // PHP: SupportCollectionTest::testRangeMethod
-            expectDeepEqual(Collection.range(1, 5).all(), [1, 2, 3, 4, 5]);
+            expectDeepEqual(Collection.range(1, 5).all(), [
+                1,
+                2,
+                3,
+                4,
+                5,
+            ]);
             expectDeepEqual(Collection.range(1, 1).all(), [1]);
             expectDeepEqual(Collection.range(5, 1).all(), []);
         });
 
         it('collect() re-wraps the items in a new base Collection', () => {
             // PHP: SupportCollectionTest::testCollect
-            const data = Collection.make(['a', 'b', 'c']).collect();
+            const data = Collection.make([
+                'a',
+                'b',
+                'c',
+            ]).collect();
 
             expect(data instanceof Collection).to.equal(true);
-            expectDeepEqual(data.all(), ['a', 'b', 'c']);
+            expectDeepEqual(data.all(), [
+                'a',
+                'b',
+                'c',
+            ]);
         });
     });
 };

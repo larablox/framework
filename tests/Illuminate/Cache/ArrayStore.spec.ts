@@ -79,8 +79,14 @@ export = (): void => {
             const result = store.put('foo', 'bar', 10);
             const resultMany = store.putMany(
                 new Map<string, unknown>([
-                    ['fizz', 'buz'],
-                    ['quz', 'baz'],
+                    [
+                        'fizz',
+                        'buz',
+                    ],
+                    [
+                        'quz',
+                        'baz',
+                    ],
                 ]),
                 10,
             );
@@ -88,7 +94,12 @@ export = (): void => {
             expect(result).to.equal(true);
             expect(resultMany).to.equal(true);
 
-            const values = store.many(['foo', 'fizz', 'quz', 'norf']);
+            const values = store.many([
+                'foo',
+                'fizz',
+                'quz',
+                'norf',
+            ]);
 
             expect(values.get('foo')).to.equal('bar');
             expect(values.get('fizz')).to.equal('buz');
@@ -131,7 +142,11 @@ export = (): void => {
 
                 public put(key: string, value: unknown, seconds: number): boolean
                 {
-                    this.putCalls.push([key, value, seconds]);
+                    this.putCalls.push([
+                        key,
+                        value,
+                        seconds,
+                    ]);
 
                     return super.put(key, value, seconds);
                 }

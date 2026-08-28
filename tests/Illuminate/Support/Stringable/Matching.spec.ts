@@ -25,11 +25,17 @@ export = (): void => {
             expect(stringable.match('foo (.*)').toString()).to.equal('bar');
             expect(stringable.match('nothing').isEmpty()).to.equal(true);
 
-            expect(arraysEqual(Str.of('bar foo bar').matchAll('bar').all(), ['bar', 'bar'])).to.equal(true);
+            expect(arraysEqual(Str.of('bar foo bar').matchAll('bar').all(), [
+                'bar',
+                'bar',
+            ])).to.equal(true);
 
             const multi = Str.of('bar fun bar fly');
 
-            expect(arraysEqual(multi.matchAll('f(%w*)').all(), ['un', 'ly'])).to.equal(true);
+            expect(arraysEqual(multi.matchAll('f(%w*)').all(), [
+                'un',
+                'ly',
+            ])).to.equal(true);
             expect(multi.matchAll('nothing').isEmpty()).to.equal(true);
         });
 
@@ -64,15 +70,40 @@ export = (): void => {
             // is not case sensitive
             expect(Str.of('a').is('A', true)).to.equal(true);
             expect(Str.of('foo/bar/baz').is('*BAZ*', true)).to.equal(true);
-            expect(Str.of('a/').is(['A*', 'B*'], true)).to.equal(true);
-            expect(Str.of('f/').is(['A*', 'B*'], true)).to.equal(false);
+            expect(
+                Str.of('a/').is([
+                    'A*',
+                    'B*',
+                ], true),
+            ).to.equal(true);
+            expect(
+                Str.of('f/').is([
+                    'A*',
+                    'B*',
+                ], true),
+            ).to.equal(false);
             expect(Str.of('foo').is('FOO', true)).to.equal(true);
             expect(Str.of('FOO/bar').is('foo/*', true)).to.equal(true);
 
             // Accepts array of patterns
-            expect(Str.of('a/').is(['a*', 'b*'])).to.equal(true);
-            expect(Str.of('b/').is(['a*', 'b*'])).to.equal(true);
-            expect(Str.of('f/').is(['a*', 'b*'])).to.equal(false);
+            expect(
+                Str.of('a/').is([
+                    'a*',
+                    'b*',
+                ]),
+            ).to.equal(true);
+            expect(
+                Str.of('b/').is([
+                    'a*',
+                    'b*',
+                ]),
+            ).to.equal(true);
+            expect(
+                Str.of('f/').is([
+                    'a*',
+                    'b*',
+                ]),
+            ).to.equal(false);
 
             expect(Str.of('blah/baz/foo').is('*/foo')).to.equal(true);
 

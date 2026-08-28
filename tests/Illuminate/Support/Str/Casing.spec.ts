@@ -279,15 +279,38 @@ export = (): void => {
         it('ucsplit() splits a string on its upper case characters', () => {
             // PHP: SupportStrTest::testUcsplit
             expect(arraysEqual(Str.ucsplit('Laravel_p_h_p_framework'), ['Laravel_p_h_p_framework'])).to.equal(true);
-            expect(arraysEqual(Str.ucsplit('Laravel_P_h_p_framework'), ['Laravel_', 'P_h_p_framework'])).to.equal(true);
-            expect(arraysEqual(Str.ucsplit('laravelPHPFramework'), ['laravel', 'P', 'H', 'P', 'Framework'])).to.equal(
+            expect(arraysEqual(Str.ucsplit('Laravel_P_h_p_framework'), [
+                'Laravel_',
+                'P_h_p_framework',
+            ])).to.equal(true);
+            expect(arraysEqual(Str.ucsplit('laravelPHPFramework'), [
+                'laravel',
+                'P',
+                'H',
+                'P',
+                'Framework',
+            ])).to.equal(
                 true,
             );
-            expect(arraysEqual(Str.ucsplit('Laravel-phP-framework'), ['Laravel-ph', 'P-framework'])).to.equal(true);
+            expect(arraysEqual(Str.ucsplit('Laravel-phP-framework'), [
+                'Laravel-ph',
+                'P-framework',
+            ])).to.equal(true);
 
-            expect(arraysEqual(Str.ucsplit('ŻółtaŁódka'), ['Żółta', 'Łódka'])).to.equal(true);
-            expect(arraysEqual(Str.ucsplit('sindÖdeUndSo'), ['sind', 'Öde', 'Und', 'So'])).to.equal(true);
-            expect(arraysEqual(Str.ucsplit('ÖffentlicheÜberraschungen'), ['Öffentliche', 'Überraschungen'])).to.equal(
+            expect(arraysEqual(Str.ucsplit('ŻółtaŁódka'), [
+                'Żółta',
+                'Łódka',
+            ])).to.equal(true);
+            expect(arraysEqual(Str.ucsplit('sindÖdeUndSo'), [
+                'sind',
+                'Öde',
+                'Und',
+                'So',
+            ])).to.equal(true);
+            expect(arraysEqual(Str.ucsplit('ÖffentlicheÜberraschungen'), [
+                'Öffentliche',
+                'Überraschungen',
+            ])).to.equal(
                 true,
             );
         });

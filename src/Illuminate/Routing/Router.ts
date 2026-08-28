@@ -47,7 +47,15 @@ export type BinderCallback = (value: string, route: Route) => unknown;
 export class Router
 {
     /** All of the verbs supported by the router. */
-    public static readonly verbs: Array<string> = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+    public static readonly verbs: Array<string> = [
+        'GET',
+        'HEAD',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'OPTIONS',
+    ];
 
     /** The route collection instance. */
     protected routes = new RouteCollection();
@@ -111,7 +119,14 @@ export class Router
     /** Register a new GET route with the router. */
     public get(uri: string, action?: ActionTarget | ActionAttributes): Route
     {
-        return this.addRoute(['GET', 'HEAD'], uri, action);
+        return this.addRoute(
+            [
+                'GET',
+                'HEAD',
+            ],
+            uri,
+            action,
+        );
     }
 
     /** Register a new POST route with the router. */
@@ -178,7 +193,14 @@ export class Router
     /** Register a new fallback route with the router. */
     public fallback(action: ActionTarget | ActionAttributes): Route
     {
-        return this.addRoute(['GET', 'HEAD'], '{fallbackPlaceholder}', action)
+        return this.addRoute(
+            [
+                'GET',
+                'HEAD',
+            ],
+            '{fallbackPlaceholder}',
+            action,
+        )
             .where('fallbackPlaceholder', '.*')
             .fallback();
     }

@@ -333,10 +333,16 @@ export class Container implements ContainerContract
         const [position] = raw.find('@', 1, true);
 
         if (position === undefined) {
-            return [raw, ''];
+            return [
+                raw,
+                '',
+            ];
         }
 
-        return [raw.sub(1, position - 1), raw.sub(position + 1)];
+        return [
+            raw.sub(1, position - 1),
+            raw.sub(position + 1),
+        ];
     }
 
     /** Get the method binding for the given method. */
@@ -950,7 +956,10 @@ export class Container implements ContainerContract
     {
         this.buildStack.push(concrete as Abstract);
 
-        const instance = this.call([concrete as Abstract, 'newInstance']);
+        const instance = this.call([
+            concrete as Abstract,
+            'newInstance',
+        ]);
 
         this.buildStack.pop();
 

@@ -126,69 +126,258 @@ const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
  * meets; anything else is dropped by `slug()` rather than transliterated.
  */
 const ASCII_TABLE: Array<[string, string]> = [
-    ['à', 'a'],
-    ['á', 'a'],
-    ['â', 'a'],
-    ['ã', 'a'],
-    ['ä', 'a'],
-    ['å', 'a'],
-    ['è', 'e'],
-    ['é', 'e'],
-    ['ê', 'e'],
-    ['ë', 'e'],
-    ['ì', 'i'],
-    ['í', 'i'],
-    ['î', 'i'],
-    ['ï', 'i'],
-    ['ò', 'o'],
-    ['ó', 'o'],
-    ['ô', 'o'],
-    ['õ', 'o'],
-    ['ö', 'o'],
-    ['ø', 'o'],
-    ['ù', 'u'],
-    ['ú', 'u'],
-    ['û', 'u'],
-    ['ü', 'u'],
-    ['ý', 'y'],
-    ['ÿ', 'y'],
-    ['ñ', 'n'],
-    ['ç', 'c'],
-    ['ß', 'ss'],
-    ['æ', 'ae'],
-    ['а', 'a'],
-    ['б', 'b'],
-    ['в', 'v'],
-    ['г', 'g'],
-    ['д', 'd'],
-    ['е', 'e'],
-    ['ё', 'e'],
-    ['ж', 'zh'],
-    ['з', 'z'],
-    ['и', 'i'],
-    ['й', 'i'],
-    ['к', 'k'],
-    ['л', 'l'],
-    ['м', 'm'],
-    ['н', 'n'],
-    ['о', 'o'],
-    ['п', 'p'],
-    ['р', 'r'],
-    ['с', 's'],
-    ['т', 't'],
-    ['у', 'u'],
-    ['ф', 'f'],
-    ['х', 'h'],
-    ['ц', 'ts'],
-    ['ч', 'ch'],
-    ['ш', 'sh'],
-    ['щ', 'sch'],
-    ['ъ', ''],
-    ['ы', 'y'],
-    ['ь', ''],
-    ['э', 'e'],
-    ['ю', 'yu'],
-    ['я', 'ya'],
+    [
+        'à',
+        'a',
+    ],
+    [
+        'á',
+        'a',
+    ],
+    [
+        'â',
+        'a',
+    ],
+    [
+        'ã',
+        'a',
+    ],
+    [
+        'ä',
+        'a',
+    ],
+    [
+        'å',
+        'a',
+    ],
+    [
+        'è',
+        'e',
+    ],
+    [
+        'é',
+        'e',
+    ],
+    [
+        'ê',
+        'e',
+    ],
+    [
+        'ë',
+        'e',
+    ],
+    [
+        'ì',
+        'i',
+    ],
+    [
+        'í',
+        'i',
+    ],
+    [
+        'î',
+        'i',
+    ],
+    [
+        'ï',
+        'i',
+    ],
+    [
+        'ò',
+        'o',
+    ],
+    [
+        'ó',
+        'o',
+    ],
+    [
+        'ô',
+        'o',
+    ],
+    [
+        'õ',
+        'o',
+    ],
+    [
+        'ö',
+        'o',
+    ],
+    [
+        'ø',
+        'o',
+    ],
+    [
+        'ù',
+        'u',
+    ],
+    [
+        'ú',
+        'u',
+    ],
+    [
+        'û',
+        'u',
+    ],
+    [
+        'ü',
+        'u',
+    ],
+    [
+        'ý',
+        'y',
+    ],
+    [
+        'ÿ',
+        'y',
+    ],
+    [
+        'ñ',
+        'n',
+    ],
+    [
+        'ç',
+        'c',
+    ],
+    [
+        'ß',
+        'ss',
+    ],
+    [
+        'æ',
+        'ae',
+    ],
+    [
+        'а',
+        'a',
+    ],
+    [
+        'б',
+        'b',
+    ],
+    [
+        'в',
+        'v',
+    ],
+    [
+        'г',
+        'g',
+    ],
+    [
+        'д',
+        'd',
+    ],
+    [
+        'е',
+        'e',
+    ],
+    [
+        'ё',
+        'e',
+    ],
+    [
+        'ж',
+        'zh',
+    ],
+    [
+        'з',
+        'z',
+    ],
+    [
+        'и',
+        'i',
+    ],
+    [
+        'й',
+        'i',
+    ],
+    [
+        'к',
+        'k',
+    ],
+    [
+        'л',
+        'l',
+    ],
+    [
+        'м',
+        'm',
+    ],
+    [
+        'н',
+        'n',
+    ],
+    [
+        'о',
+        'o',
+    ],
+    [
+        'п',
+        'p',
+    ],
+    [
+        'р',
+        'r',
+    ],
+    [
+        'с',
+        's',
+    ],
+    [
+        'т',
+        't',
+    ],
+    [
+        'у',
+        'u',
+    ],
+    [
+        'ф',
+        'f',
+    ],
+    [
+        'х',
+        'h',
+    ],
+    [
+        'ц',
+        'ts',
+    ],
+    [
+        'ч',
+        'ch',
+    ],
+    [
+        'ш',
+        'sh',
+    ],
+    [
+        'щ',
+        'sch',
+    ],
+    [
+        'ъ',
+        '',
+    ],
+    [
+        'ы',
+        'y',
+    ],
+    [
+        'ь',
+        '',
+    ],
+    [
+        'э',
+        'e',
+    ],
+    [
+        'ю',
+        'yu',
+    ],
+    [
+        'я',
+        'ya',
+    ],
 ];
 
 /**
@@ -1108,7 +1297,16 @@ export class Str
 
         const words = new Array<string>();
 
-        for (const [word] of Str.replace(['-', '_'], ' ', value).gmatch('%S+')) {
+        for (
+            const [word] of Str.replace(
+                [
+                    '-',
+                    '_',
+                ],
+                ' ',
+                value,
+            ).gmatch('%S+')
+        ) {
             words.push(Str.ucfirst(word as string));
         }
 
@@ -1230,7 +1428,16 @@ export class Str
         const titled = new Array<string>();
 
         for (const part of parts) {
-            for (const [piece] of Str.replace(['-', '_'], ' ', part).gmatch('%S+')) {
+            for (
+                const [piece] of Str.replace(
+                    [
+                        '-',
+                        '_',
+                    ],
+                    ' ',
+                    part,
+                ).gmatch('%S+')
+            ) {
                 titled.push(Str.title(piece as string));
             }
         }
@@ -1283,7 +1490,14 @@ export class Str
             'up',
             'via',
         ];
-        const endPunctuation = ['.', '!', '?', ':', '—', ','];
+        const endPunctuation = [
+            '.',
+            '!',
+            '?',
+            ':',
+            '—',
+            ',',
+        ];
         const words = new Array<string>();
 
         for (const [word] of value.gmatch('%S+')) {
@@ -1834,7 +2048,11 @@ export class Str
                 bits = bit32.bor(bit32.lshift(bits, 6), (position as number) - 1);
             }
 
-            const bytes = [bit32.extract(bits, 16, 8), bit32.extract(bits, 8, 8), bit32.extract(bits, 0, 8)];
+            const bytes = [
+                bit32.extract(bits, 16, 8),
+                bit32.extract(bits, 8, 8),
+                bit32.extract(bits, 0, 8),
+            ];
 
             for (let offset = 0; offset < 3 - padding; offset++) {
                 output.push(string.char(bytes[offset]));
@@ -1863,7 +2081,12 @@ export class Str
     }
 
     /** Generate a URL friendly "slug" from a given string. */
-    public static slug(title: string, separator = '-', dictionary: Array<[string, string]> = [['@', 'at']]): string
+    public static slug(title: string, separator = '-', dictionary: Array<[string, string]> = [
+        [
+            '@',
+            'at',
+        ],
+    ]): string
     {
         let result = Str.ascii(title);
 
@@ -1929,12 +2152,18 @@ export class Str
     public static parseCallback(callback: string, defaultMethod?: string): [string, string | undefined]
     {
         if (!Str.contains(callback, '@')) {
-            return [callback, defaultMethod];
+            return [
+                callback,
+                defaultMethod,
+            ];
         }
 
         const segments = callback.split('@');
 
-        return [segments[0], segments[1]];
+        return [
+            segments[0],
+            segments[1],
+        ];
     }
 
     /** Remove all strings from the casing caches. */
@@ -2757,7 +2986,12 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Generate a URL friendly "slug" from the string. */
-    public slug(separator = '-', dictionary: Array<[string, string]> = [['@', 'at']]): Stringable
+    public slug(separator = '-', dictionary: Array<[string, string]> = [
+        [
+            '@',
+            'at',
+        ],
+    ]): Stringable
     {
         return new Stringable(Str.slug(this.stringValue, separator, dictionary));
     }

@@ -45,9 +45,17 @@ export = (): void => {
             // and every compiled class instance is a table too, so it cannot
             // reject a plain object the way PHP rejects a bare stdClass)
             expect(Arr.accessible({})).to.equal(true);
-            expect(Arr.accessible([1, 2])).to.equal(true);
+            expect(Arr.accessible([
+                1,
+                2,
+            ])).to.equal(true);
             expect(Arr.accessible({ a: 1, b: 2 })).to.equal(true);
-            expect(Arr.accessible(new Collection([1, 2]))).to.equal(true);
+            expect(Arr.accessible(
+                new Collection([
+                    1,
+                    2,
+                ]),
+            )).to.equal(true);
 
             expect(Arr.accessible(undefined)).to.equal(false);
             expect(Arr.accessible('abc')).to.equal(false);
@@ -96,7 +104,10 @@ export = (): void => {
             expectDeepEqual(Arr.get({ products: { desk: { price: 100 } } }, 'products.desk'), { price: 100 });
 
             // Null key returns the whole target.
-            const array = ['foo', 'bar'];
+            const array = [
+                'foo',
+                'bar',
+            ];
             expect(Arr.get(array, undefined)).to.equal(array);
 
             // Target is not accessible.
@@ -138,7 +149,10 @@ export = (): void => {
             expect(Arr.has(products, 'products.foo')).to.equal(false);
             expect(Arr.has(products, 'products.desk.foo')).to.equal(false);
 
-            const array = ['foo', 'bar'];
+            const array = [
+                'foo',
+                'bar',
+            ];
             expect(Arr.has(array, undefined as unknown as string)).to.equal(false);
 
             expect(Arr.has(undefined, 'foo')).to.equal(false);
@@ -147,11 +161,20 @@ export = (): void => {
             expect(Arr.has({}, undefined as unknown as string)).to.equal(false);
 
             expect(Arr.has(products, ['products.desk'])).to.equal(true);
-            expect(Arr.has(products, ['products.desk', 'products.desk.price'])).to.equal(true);
-            expect(Arr.has(products, ['products', 'products'])).to.equal(true);
+            expect(Arr.has(products, [
+                'products.desk',
+                'products.desk.price',
+            ])).to.equal(true);
+            expect(Arr.has(products, [
+                'products',
+                'products',
+            ])).to.equal(true);
             expect(Arr.has(products, ['foo'])).to.equal(false);
             expect(Arr.has(products, [])).to.equal(false);
-            expect(Arr.has(products, ['products.desk', 'products.price'])).to.equal(false);
+            expect(Arr.has(products, [
+                'products.desk',
+                'products.price',
+            ])).to.equal(false);
 
             // Numeric path segment, spelled the way the class comment
             // describes -- a quoted key, since a path segment is a string and
@@ -175,18 +198,38 @@ export = (): void => {
             const array = { name: 'Taylor', age: '', city: '' };
             expect(Arr.hasAll(array, 'name')).to.equal(true);
             expect(Arr.hasAll(array, 'age')).to.equal(true);
-            expect(Arr.hasAll(array, ['age', 'car'])).to.equal(false);
+            expect(Arr.hasAll(array, [
+                'age',
+                'car',
+            ])).to.equal(false);
             expect(Arr.hasAll(array, 'city')).to.equal(true);
-            expect(Arr.hasAll(array, ['city', 'some'])).to.equal(false);
-            expect(Arr.hasAll(array, ['name', 'age', 'city'])).to.equal(true);
-            expect(Arr.hasAll(array, ['name', 'age', 'city', 'country'])).to.equal(false);
+            expect(Arr.hasAll(array, [
+                'city',
+                'some',
+            ])).to.equal(false);
+            expect(Arr.hasAll(array, [
+                'name',
+                'age',
+                'city',
+            ])).to.equal(true);
+            expect(Arr.hasAll(array, [
+                'name',
+                'age',
+                'city',
+                'country',
+            ])).to.equal(false);
 
             const user = { user: { name: 'Taylor' } };
             expect(Arr.hasAll(user, 'user.name')).to.equal(true);
             expect(Arr.hasAll(user, 'user.age')).to.equal(false);
 
             expect(Arr.hasAll({ name: 'Taylor' }, 'foo')).to.equal(false);
-            expect(Arr.hasAll({ name: 'Taylor' }, ['foo', 'bar', 'baz', 'bar'])).to.equal(false);
+            expect(Arr.hasAll({ name: 'Taylor' }, [
+                'foo',
+                'bar',
+                'baz',
+                'bar',
+            ])).to.equal(false);
         });
 
         it('hasAny() checks that at least one dotted key is present', () => {
@@ -200,16 +243,28 @@ export = (): void => {
             expect(Arr.hasAny(array, 'name')).to.equal(true);
             expect(Arr.hasAny(array, 'age')).to.equal(true);
             expect(Arr.hasAny(array, 'foo')).to.equal(false);
-            expect(Arr.hasAny(array, ['name', 'email'])).to.equal(true);
+            expect(Arr.hasAny(array, [
+                'name',
+                'email',
+            ])).to.equal(true);
 
             const withEmail = { name: 'Taylor', email: 'foo' };
-            expect(Arr.hasAny(withEmail, ['name', 'email'])).to.equal(true);
-            expect(Arr.hasAny(withEmail, ['surname', 'password'])).to.equal(false);
+            expect(Arr.hasAny(withEmail, [
+                'name',
+                'email',
+            ])).to.equal(true);
+            expect(Arr.hasAny(withEmail, [
+                'surname',
+                'password',
+            ])).to.equal(false);
 
             const nested = { foo: { bar: undefined as unknown, baz: '' } };
             expect(Arr.hasAny(nested, 'foo.baz')).to.equal(true);
             expect(Arr.hasAny(nested, 'foo.bax')).to.equal(false);
-            expect(Arr.hasAny(nested, ['foo.bax', 'foo.baz'])).to.equal(true);
+            expect(Arr.hasAny(nested, [
+                'foo.bax',
+                'foo.baz',
+            ])).to.equal(true);
         });
 
         it('set() writes a value using dot notation, creating intermediate tables', () => {
@@ -268,7 +323,11 @@ export = (): void => {
             expectDeepEqual((array.office as { furniture: Array<string>; }).furniture, ['Desk']);
 
             Arr.push(array, 'office.furniture', 'Chair', 'Lamp');
-            expectDeepEqual((array.office as { furniture: Array<string>; }).furniture, ['Desk', 'Chair', 'Lamp']);
+            expectDeepEqual((array.office as { furniture: Array<string>; }).furniture, [
+                'Desk',
+                'Chair',
+                'Lamp',
+            ]);
         });
 
         it('forget() removes one or many dotted keys', () => {
@@ -298,7 +357,10 @@ export = (): void => {
             });
 
             const many = { products: { desk: { price: 50 }, '': 'something' } };
-            Arr.forget(many, ['products.amount.all', 'products.desk.price']);
+            Arr.forget(many, [
+                'products.amount.all',
+                'products.desk.price',
+            ]);
             expectDeepEqual(many, { products: { desk: {}, '': 'something' } });
 
             // Only works on first-level keys -- a literal dotted key does
@@ -316,7 +378,10 @@ export = (): void => {
                     'jane@localhost': { name: 'Jane' },
                 },
             };
-            Arr.forget(nestedEmails, ['emails.joe@example.com', 'emails.jane@localhost']);
+            Arr.forget(nestedEmails, [
+                'emails.joe@example.com',
+                'emails.jane@localhost',
+            ]);
             expectDeepEqual(nestedEmails, {
                 emails: { 'joe@example.com': { name: 'Joe' } },
             });
@@ -324,7 +389,10 @@ export = (): void => {
             // A top-level key following a dotted key resolves against the
             // top level, not through it.
             const topLevel = { users: { name: 'Joe', id: 1 }, id: 99 };
-            Arr.forget(topLevel, ['users.name', 'id']);
+            Arr.forget(topLevel, [
+                'users.name',
+                'id',
+            ]);
             expectDeepEqual(topLevel, { users: { id: 1 } });
         });
 
@@ -358,10 +426,16 @@ export = (): void => {
             // `only()` addresses `ArrayAccessible`, string keys only, see
             // class comment)
             const array = { name: 'Desk', price: 100, orders: 10 };
-            expectDeepEqual(Arr.only(array, ['name', 'price']), {
-                name: 'Desk',
-                price: 100,
-            });
+            expectDeepEqual(
+                Arr.only(array, [
+                    'name',
+                    'price',
+                ]),
+                {
+                    name: 'Desk',
+                    price: 100,
+                },
+            );
             expectDeepEqual(Arr.only(array, ['nonExistingKey']), {});
             expectDeepEqual(Arr.only(array, undefined as unknown as Array<string>), {});
         });
@@ -384,9 +458,15 @@ export = (): void => {
                 name: 'taylor',
                 framework: { name: 'Laravel' },
             });
-            expectDeepEqual(Arr.except(nested, ['name', 'framework.name']), {
-                framework: { language: 'PHP' },
-            });
+            expectDeepEqual(
+                Arr.except(nested, [
+                    'name',
+                    'framework.name',
+                ]),
+                {
+                    framework: { language: 'PHP' },
+                },
+            );
         });
 
         it('prependKeysWith() prefixes every top-level key', () => {
@@ -394,14 +474,22 @@ export = (): void => {
             const array = {
                 id: '123',
                 data: '456',
-                list: [1, 2, 3],
+                list: [
+                    1,
+                    2,
+                    3,
+                ],
                 meta: { key: 1 },
             };
 
             expectDeepEqual(Arr.prependKeysWith(array, 'test.'), {
                 'test.id': '123',
                 'test.data': '456',
-                'test.list': [1, 2, 3],
+                'test.list': [
+                    1,
+                    2,
+                    3,
+                ],
                 'test.meta': { key: 1 },
             });
         });
@@ -425,7 +513,10 @@ export = (): void => {
                     user: {
                         name: 'Taylor',
                         age: 25,
-                        languages: ['PHP', 'C#'],
+                        languages: [
+                            'PHP',
+                            'C#',
+                        ],
                     },
                 }),
                 {
@@ -511,15 +602,34 @@ export = (): void => {
             // PHP's "numeric keys out of order" fixtures here, see class
             // comment)
             expect(Arr.isList([])).to.equal(true);
-            expect(Arr.isList([1, 2, 3])).to.equal(true);
-            expect(Arr.isList(['foo', 2, 3])).to.equal(true);
-            expect(Arr.isList(['foo', 'bar'])).to.equal(true);
+            expect(Arr.isList([
+                1,
+                2,
+                3,
+            ])).to.equal(true);
+            expect(Arr.isList([
+                'foo',
+                2,
+                3,
+            ])).to.equal(true);
+            expect(Arr.isList([
+                'foo',
+                'bar',
+            ])).to.equal(true);
 
             expect(Arr.isList({ foo: 'bar', baz: 'qux' })).to.equal(false);
 
             expect(Arr.isAssoc([] as unknown as ArrayAccessible)).to.equal(false);
-            expect(Arr.isAssoc([1, 2, 3] as unknown as ArrayAccessible)).to.equal(false);
-            expect(Arr.isAssoc(['foo', 2, 3] as unknown as ArrayAccessible)).to.equal(false);
+            expect(Arr.isAssoc([
+                1,
+                2,
+                3,
+            ] as unknown as ArrayAccessible)).to.equal(false);
+            expect(Arr.isAssoc([
+                'foo',
+                2,
+                3,
+            ] as unknown as ArrayAccessible)).to.equal(false);
 
             expect(Arr.isAssoc({ foo: 'bar', baz: 'qux' })).to.equal(true);
         });

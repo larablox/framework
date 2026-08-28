@@ -45,11 +45,21 @@ export = (): void => {
 
         it('ucsplit() splits a string on its upper case characters', () => {
             // PHP: SupportStringableTest::testUcsplitOnStringable
-            expect(arraysEqual(Str.of('TaylorOtwell').ucsplit().all(), ['Taylor', 'Otwell'])).to.equal(true);
-            expect(arraysEqual(Str.of('HelloFromLaravel').ucsplit().all(), ['Hello', 'From', 'Laravel'])).to.equal(
+            expect(arraysEqual(Str.of('TaylorOtwell').ucsplit().all(), [
+                'Taylor',
+                'Otwell',
+            ])).to.equal(true);
+            expect(arraysEqual(Str.of('HelloFromLaravel').ucsplit().all(), [
+                'Hello',
+                'From',
+                'Laravel',
+            ])).to.equal(
                 true,
             );
-            expect(arraysEqual(Str.of('He_llo_World').ucsplit().all(), ['He_llo_', 'World'])).to.equal(true);
+            expect(arraysEqual(Str.of('He_llo_World').ucsplit().all(), [
+                'He_llo_',
+                'World',
+            ])).to.equal(true);
         });
 
         it('snake() converts to snake case', () => {

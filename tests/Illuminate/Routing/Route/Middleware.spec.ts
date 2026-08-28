@@ -131,7 +131,11 @@ export = (): void => {
 
             r.get('foo/bar', {
                 uses: () => 'hello',
-                middleware: ['foo', 'bar', 'baz'],
+                middleware: [
+                    'foo',
+                    'bar',
+                    'baz',
+                ],
             });
             r.aliasMiddleware('foo', (req: Request, _next: (request: Request) => unknown) => _next(req));
             r.aliasMiddleware('bar', () => new ResponsableResponse());
@@ -173,7 +177,10 @@ export = (): void => {
 
             const r = router();
             r.get('foo/bar', {
-                uses: [RouteTestClosureMiddlewareController, 'index'],
+                uses: [
+                    RouteTestClosureMiddlewareController,
+                    'index',
+                ],
                 middleware: ['foo'],
             });
             r.aliasMiddleware('foo', (request: Request, _next: (request: Request) => unknown) => {
@@ -213,7 +220,10 @@ export = (): void => {
             r.get('foo/bar', { middleware: ['web'], uses: () => 'hello' });
 
             r.aliasMiddleware('two', RoutingTestMiddlewareGroupTwo);
-            r.middlewareGroup('web', [RoutingTestMiddlewareGroupOne, 'two:taylor']);
+            r.middlewareGroup('web', [
+                RoutingTestMiddlewareGroupOne,
+                'two:taylor',
+            ]);
 
             expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('caught taylor');
             expect(sawGroupOne).to.equal(true);
@@ -246,7 +256,10 @@ export = (): void => {
 
             r.aliasMiddleware('two', RoutingTestMiddlewareGroupTwo);
             r.middlewareGroup('first', ['two:abigail']);
-            r.middlewareGroup('web', [RoutingTestMiddlewareGroupOne, 'first']);
+            r.middlewareGroup('web', [
+                RoutingTestMiddlewareGroupOne,
+                'first',
+            ]);
 
             expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('caught abigail');
             expect(sawGroupOne).to.equal(true);
@@ -302,8 +315,15 @@ export = (): void => {
                 {
                     super();
                     this.middleware(RouteTestControllerMiddleware);
-                    this.middleware([RouteTestControllerParameterizedMiddlewareOne, '0']);
-                    this.middleware([RouteTestControllerParameterizedMiddlewareTwo, 'foo', 'bar']);
+                    this.middleware([
+                        RouteTestControllerParameterizedMiddlewareOne,
+                        '0',
+                    ]);
+                    this.middleware([
+                        RouteTestControllerParameterizedMiddlewareTwo,
+                        'foo',
+                        'bar',
+                    ]);
                 }
 
                 public index(): string
@@ -313,15 +333,24 @@ export = (): void => {
             }
 
             const r = router();
-            r.get('foo/bar', [RouteTestControllerStub, 'index']);
+            r.get('foo/bar', [
+                RouteTestControllerStub,
+                'index',
+            ]);
 
             expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('Hello World');
             expect(sawMiddleware).to.equal(true);
             expect(parameterOne).to.equal('0');
-            expectDeepEqual(parameterTwo, ['foo', 'bar']);
+            expectDeepEqual(parameterTwo, [
+                'foo',
+                'bar',
+            ]);
 
             const action = r.getRoutes().getRoutes()[0].getAction().controller;
-            expectDeepEqual(action, [RouteTestControllerStub, 'index']);
+            expectDeepEqual(action, [
+                RouteTestControllerStub,
+                'index',
+            ]);
         });
     });
 };

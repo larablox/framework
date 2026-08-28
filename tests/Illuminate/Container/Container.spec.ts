@@ -239,7 +239,10 @@ export = (): void => {
         class ContainerScopedAttribute
         {}
 
-        @Bind(ContainerSingletonAttribute, ['foo', 'bar'])
+        @Bind(ContainerSingletonAttribute, [
+            'foo',
+            'bar',
+        ])
         abstract class ContainerBindSingletonTestInterface
         {}
 
@@ -566,7 +569,11 @@ export = (): void => {
             container.bind('foo', (_app, config: ParameterOverrides) => config);
             container.alias('foo', 'baz');
 
-            const result = container.make('baz', [1, 2, 3]) as ParameterOverrides;
+            const result = container.make('baz', [
+                1,
+                2,
+                3,
+            ]) as ParameterOverrides;
 
             // Positions are numbered from one, like a Luau list's own indices
             // -- see laravel-parity.md, "Параметры make() / call()".
@@ -886,7 +893,11 @@ export = (): void => {
 
             container.bind('foo', (_app, config: ParameterOverrides) => config);
 
-            const result = container.make('foo', [1, 2, 3]) as ParameterOverrides;
+            const result = container.make('foo', [
+                1,
+                2,
+                3,
+            ]) as ParameterOverrides;
 
             // Positions are numbered from one, like a Luau list's own indices
             // -- see laravel-parity.md, "Параметры make() / call()".
@@ -902,7 +913,12 @@ export = (): void => {
             container.bind(IContainerContractStub, ContainerInjectVariableStubWithInterfaceImplementation);
             const instance = container.make(
                 IContainerContractStub,
-                new Map<string | number, unknown>([['$something', 'laurence']]),
+                new Map<string | number, unknown>([
+                    [
+                        '$something',
+                        'laurence',
+                    ],
+                ]),
             ) as ContainerInjectVariableStubWithInterfaceImplementation;
             expect(instance.something).to.equal('laurence');
         });
@@ -910,7 +926,16 @@ export = (): void => {
         it("a nested make() call's parameter overrides do not leak into the outer call (adapted -- see class comment)", () => {
             // PHP: ContainerTest::testNestedParameterOverride
             const container = new Container();
-            container.bind('foo', (app) => app.make('bar', new Map<string | number, unknown>([['name', 'Taylor']])));
+            container.bind('foo', (app) =>
+                app.make(
+                    'bar',
+                    new Map<string | number, unknown>([
+                        [
+                            'name',
+                            'Taylor',
+                        ],
+                    ]),
+                ));
             container.bind('bar', (_app, config: ParameterOverrides) => config);
 
             const result = container.make('foo', ['something']) as ParameterOverrides;
@@ -938,13 +963,23 @@ export = (): void => {
 
             const first = container.make(
                 'foo',
-                new Map<string | number, unknown>([['name', 'taylor']]),
+                new Map<string | number, unknown>([
+                    [
+                        'name',
+                        'taylor',
+                    ],
+                ]),
             ) as ParameterOverrides;
             expect(first.get('name')).to.equal('taylor');
 
             const second = container.make(
                 'foo',
-                new Map<string | number, unknown>([['name', 'abigail']]),
+                new Map<string | number, unknown>([
+                    [
+                        'name',
+                        'abigail',
+                    ],
+                ]),
             ) as ParameterOverrides;
             expect(second.get('name')).to.equal('abigail');
         });
@@ -1018,7 +1053,10 @@ export = (): void => {
                 .needs(IContainerContractStub)
                 .give(ContainerImplementationStub);
 
-            const result = container.call([new ContainerContextualBindingCallTarget(), 'work']);
+            const result = container.call([
+                new ContainerContextualBindingCallTarget(),
+                'work',
+            ]);
 
             expect(result instanceof ContainerImplementationStub).to.equal(true);
         });

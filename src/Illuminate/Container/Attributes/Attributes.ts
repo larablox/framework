@@ -24,7 +24,10 @@ export class Attributes
             classAttributes.set(target, attributes);
         }
 
-        attributes.push([attribute, instance]);
+        attributes.push([
+            attribute,
+            instance,
+        ]);
     }
 
     /** PHP: `(new ReflectionClass($target))->getAttributes($attribute)`. */

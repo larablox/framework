@@ -17,17 +17,40 @@ export = (): void => {
     describe('Collection slicing', () => {
         it('take() takes items from the front, or the back with a negative count', () => {
             // PHP: SupportCollectionTest::testTake, ::testTakeLast
-            const data = new Collection([1, 2, 3, 4, 5]);
+            const data = new Collection([
+                1,
+                2,
+                3,
+                4,
+                5,
+            ]);
 
-            expectDeepEqual(data.take(3).values().all(), [1, 2, 3]);
-            expectDeepEqual(data.take(-2).values().all(), [4, 5]);
+            expectDeepEqual(data.take(3).values().all(), [
+                1,
+                2,
+                3,
+            ]);
+            expectDeepEqual(data.take(-2).values().all(), [
+                4,
+                5,
+            ]);
         });
 
         it('skip() drops items from the front', () => {
             // PHP: SupportCollectionTest::testSkipMethod
-            const data = new Collection([1, 2, 3, 4, 5, 6]);
+            const data = new Collection([
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+            ]);
 
-            expectDeepEqual(data.skip(4).values().all(), [5, 6]);
+            expectDeepEqual(data.skip(4).values().all(), [
+                5,
+                6,
+            ]);
             expectDeepEqual(data.skip(10).values().all(), []);
         });
 
@@ -35,20 +58,58 @@ export = (): void => {
             // PHP: SupportCollectionTest::testSliceOffset,
             // ::testSliceNegativeOffset, ::testSliceOffsetAndLength,
             // ::testSliceNegativeOffsetAndLength
-            const data = new Collection([1, 2, 3, 4, 5, 6, 7, 8]);
+            const data = new Collection([
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+            ]);
 
-            expectDeepEqual(data.slice(3).values().toArray(), [4, 5, 6, 7, 8]);
-            expectDeepEqual(data.slice(-3).values().toArray(), [6, 7, 8]);
-            expectDeepEqual(data.slice(3, 3).values().toArray(), [4, 5, 6]);
-            expectDeepEqual(data.slice(-5, 3).values().toArray(), [4, 5, 6]);
+            expectDeepEqual(data.slice(3).values().toArray(), [
+                4,
+                5,
+                6,
+                7,
+                8,
+            ]);
+            expectDeepEqual(data.slice(-3).values().toArray(), [
+                6,
+                7,
+                8,
+            ]);
+            expectDeepEqual(data.slice(3, 3).values().toArray(), [
+                4,
+                5,
+                6,
+            ]);
+            expectDeepEqual(data.slice(-5, 3).values().toArray(), [
+                4,
+                5,
+                6,
+            ]);
         });
 
         it('forPage() returns a fixed-size page of items', () => {
             // PHP: SupportCollectionTest::testPaginate
-            const c = new Collection(['one', 'two', 'three', 'four']);
+            const c = new Collection([
+                'one',
+                'two',
+                'three',
+                'four',
+            ]);
 
-            expectDeepEqual(c.forPage(1, 2).all(), ['one', 'two']);
-            expectDeepEqual(c.forPage(2, 2).all(), ['three', 'four']);
+            expectDeepEqual(c.forPage(1, 2).all(), [
+                'one',
+                'two',
+            ]);
+            expectDeepEqual(c.forPage(2, 2).all(), [
+                'three',
+                'four',
+            ]);
             expectDeepEqual(c.forPage(3, 2).all(), []);
         });
 

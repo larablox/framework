@@ -36,7 +36,10 @@ class FakeQueue
 
     public later(delay: DelayValue, job: unknown): unknown
     {
-        this.laterCalls.push([delay, job]);
+        this.laterCalls.push([
+            delay,
+            job,
+        ]);
 
         return undefined;
     }

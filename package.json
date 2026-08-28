@@ -61,6 +61,7 @@
         "@rbxts/compiler-types": "^3.0.0-types.0",
         "@rbxts/testez": "^0.4.2-ts.0",
         "@rbxts/types": "^1.0.943",
+        "@stylistic/eslint-plugin": "^5.10.0",
         "@typescript-eslint/eslint-plugin": "^8.67.0",
         "@typescript-eslint/parser": "^8.67.0",
         "dprint": "^0.56.1",

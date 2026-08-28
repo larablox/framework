@@ -89,7 +89,10 @@ export class CallQueuedListener extends Queueable
         if (typeIs(callable, 'function')) {
             (callable as (self: object, ...args: Array<never>) => void)(
                 handler as unknown as object,
-                ...([...this.data, e] as Array<never>),
+                ...([
+                    ...this.data,
+                    e,
+                ] as Array<never>),
             );
         }
     }

@@ -13,14 +13,46 @@ export = (): void => {
         // PHP: RouteUriTest::testRouteUrisAreProperlyParsed (data provider inlined)
         it('parses URIs, extracting binding fields', () => {
             const cases: Array<[string, string, Record<string, string>]> = [
-                ['/foo', '/foo', {}],
-                ['/foo/{bar}', '/foo/{bar}', {}],
-                ['/foo/{bar}/baz/{qux}', '/foo/{bar}/baz/{qux}', {}],
-                ['/foo/{bar}/baz/{qux?}', '/foo/{bar}/baz/{qux?}', {}],
-                ['/foo/{bar:slug}', '/foo/{bar}', { bar: 'slug' }],
-                ['/foo/{bar}/baz/{qux:slug}', '/foo/{bar}/baz/{qux}', { qux: 'slug' }],
-                ['/foo/{bar}/baz/{qux:slug?}', '/foo/{bar}/baz/{qux?}', { qux: 'slug' }],
-                ['/foo/{bar}/baz/{qux:slug?}/{test:id?}', '/foo/{bar}/baz/{qux?}/{test?}', { qux: 'slug', test: 'id' }],
+                [
+                    '/foo',
+                    '/foo',
+                    {},
+                ],
+                [
+                    '/foo/{bar}',
+                    '/foo/{bar}',
+                    {},
+                ],
+                [
+                    '/foo/{bar}/baz/{qux}',
+                    '/foo/{bar}/baz/{qux}',
+                    {},
+                ],
+                [
+                    '/foo/{bar}/baz/{qux?}',
+                    '/foo/{bar}/baz/{qux?}',
+                    {},
+                ],
+                [
+                    '/foo/{bar:slug}',
+                    '/foo/{bar}',
+                    { bar: 'slug' },
+                ],
+                [
+                    '/foo/{bar}/baz/{qux:slug}',
+                    '/foo/{bar}/baz/{qux}',
+                    { qux: 'slug' },
+                ],
+                [
+                    '/foo/{bar}/baz/{qux:slug?}',
+                    '/foo/{bar}/baz/{qux?}',
+                    { qux: 'slug' },
+                ],
+                [
+                    '/foo/{bar}/baz/{qux:slug?}/{test:id?}',
+                    '/foo/{bar}/baz/{qux?}/{test?}',
+                    { qux: 'slug', test: 'id' },
+                ],
             ];
 
             for (const [uri, expectedUri, expectedBindingFields] of cases) {

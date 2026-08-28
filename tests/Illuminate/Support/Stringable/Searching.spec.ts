@@ -86,7 +86,12 @@ export = (): void => {
             expect(Str.of('taylor').contains('ylo')).to.equal(true);
             expect(Str.of('taylor').contains('taylor')).to.equal(true);
             expect(Str.of('taylor').contains(['ylo'])).to.equal(true);
-            expect(Str.of('taylor').contains(['xxx', 'ylo'])).to.equal(true);
+            expect(
+                Str.of('taylor').contains([
+                    'xxx',
+                    'ylo',
+                ]),
+            ).to.equal(true);
             expect(Str.of('taylor').contains(['LOR'], true)).to.equal(true);
             expect(Str.of('taylor').contains('xxx')).to.equal(false);
             expect(Str.of('taylor').contains(['xxx'])).to.equal(false);
@@ -95,21 +100,46 @@ export = (): void => {
 
         it('containsAll() reports whether the string contains every value', () => {
             // PHP: SupportStringableTest::testContainsAll
-            expect(Str.of('taylor otwell').containsAll(['taylor', 'otwell'])).to.equal(true);
-            expect(Str.of('taylor otwell').containsAll(['TAYLOR', 'OTWELL'], true)).to.equal(true);
+            expect(
+                Str.of('taylor otwell').containsAll([
+                    'taylor',
+                    'otwell',
+                ]),
+            ).to.equal(true);
+            expect(
+                Str.of('taylor otwell').containsAll([
+                    'TAYLOR',
+                    'OTWELL',
+                ], true),
+            ).to.equal(true);
             expect(Str.of('taylor otwell').containsAll(['taylor'])).to.equal(true);
-            expect(Str.of('taylor otwell').containsAll(['taylor', 'xxx'])).to.equal(false);
+            expect(
+                Str.of('taylor otwell').containsAll([
+                    'taylor',
+                    'xxx',
+                ]),
+            ).to.equal(false);
         });
 
         it('doesntContain() reports the inverse of contains()', () => {
             // PHP: SupportStringableTest::testDoesntContain
             expect(Str.of('taylor').doesntContain('xxx')).to.equal(true);
             expect(Str.of('taylor').doesntContain(['xxx'])).to.equal(true);
-            expect(Str.of('taylor').doesntContain(['xxx', 'yyy'])).to.equal(true);
+            expect(
+                Str.of('taylor').doesntContain([
+                    'xxx',
+                    'yyy',
+                ]),
+            ).to.equal(true);
             expect(Str.of('taylor').doesntContain('')).to.equal(true);
             expect(Str.of('taylor').doesntContain('ylo')).to.equal(false);
             expect(Str.of('taylor').doesntContain('taylor')).to.equal(false);
-            expect(Str.of('taylor').doesntContain(['xxx', 'ylo'])).to.equal(false);
+            expect(
+                Str.of('taylor').doesntContain([
+                    'xxx',
+                    'ylo',
+                ]),
+            ).to.equal(false);
             expect(Str.of('taylor').doesntContain(['LOR'], true)).to.equal(false);
         });
 
@@ -119,7 +149,12 @@ export = (): void => {
             expect(Str.of('jason').startsWith('jas')).to.equal(true);
             expect(Str.of('jason').startsWith('jason')).to.equal(true);
             expect(Str.of('jason').startsWith(['jas'])).to.equal(true);
-            expect(Str.of('jason').startsWith(['day', 'jas'])).to.equal(true);
+            expect(
+                Str.of('jason').startsWith([
+                    'day',
+                    'jas',
+                ]),
+            ).to.equal(true);
             expect(Str.of('jason').startsWith('day')).to.equal(false);
             expect(Str.of('jason').startsWith(['day'])).to.equal(false);
             expect(Str.of('jason').startsWith('J')).to.equal(false);
@@ -148,7 +183,12 @@ export = (): void => {
             expect(Str.of('jason').endsWith('on')).to.equal(true);
             expect(Str.of('jason').endsWith('jason')).to.equal(true);
             expect(Str.of('jason').endsWith(['on'])).to.equal(true);
-            expect(Str.of('jason').endsWith(['no', 'on'])).to.equal(true);
+            expect(
+                Str.of('jason').endsWith([
+                    'no',
+                    'on',
+                ]),
+            ).to.equal(true);
             expect(Str.of('jason').endsWith('no')).to.equal(false);
             expect(Str.of('jason').endsWith(['no'])).to.equal(false);
             expect(Str.of('jason').endsWith('')).to.equal(false);

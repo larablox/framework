@@ -55,11 +55,36 @@ export = (): void => {
             expect(Str.slug('', '')).to.equal('');
             expect(Str.slug('')).to.equal('');
 
-            expect(Str.slug('500$ bill', '-', [['$', 'dollar']])).to.equal('500-dollar-bill');
-            expect(Str.slug('500--$----bill', '-', [['$', 'dollar']])).to.equal('500-dollar-bill');
-            expect(Str.slug('500-$-bill', '-', [['$', 'dollar']])).to.equal('500-dollar-bill');
-            expect(Str.slug('500$--bill', '-', [['$', 'dollar']])).to.equal('500-dollar-bill');
-            expect(Str.slug('500-$--bill', '-', [['$', 'dollar']])).to.equal('500-dollar-bill');
+            expect(Str.slug('500$ bill', '-', [
+                [
+                    '$',
+                    'dollar',
+                ],
+            ])).to.equal('500-dollar-bill');
+            expect(Str.slug('500--$----bill', '-', [
+                [
+                    '$',
+                    'dollar',
+                ],
+            ])).to.equal('500-dollar-bill');
+            expect(Str.slug('500-$-bill', '-', [
+                [
+                    '$',
+                    'dollar',
+                ],
+            ])).to.equal('500-dollar-bill');
+            expect(Str.slug('500$--bill', '-', [
+                [
+                    '$',
+                    'dollar',
+                ],
+            ])).to.equal('500-dollar-bill');
+            expect(Str.slug('500-$--bill', '-', [
+                [
+                    '$',
+                    'dollar',
+                ],
+            ])).to.equal('500-dollar-bill');
         });
 
         it('plural() pluralizes English words by count', () => {

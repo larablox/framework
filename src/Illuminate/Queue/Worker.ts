@@ -186,15 +186,24 @@ export class Worker
     ): StopDecision
     {
         if (this.shouldQuit) {
-            return [Worker.EXIT_SUCCESS, WorkerStopReason.Interrupted];
+            return [
+                Worker.EXIT_SUCCESS,
+                WorkerStopReason.Interrupted,
+            ];
         }
 
         if (this.memoryExceeded(options.memory)) {
-            return [Worker.EXIT_MEMORY_LIMIT, WorkerStopReason.MaxMemoryExceeded];
+            return [
+                Worker.EXIT_MEMORY_LIMIT,
+                WorkerStopReason.MaxMemoryExceeded,
+            ];
         }
 
         if (options.stopWhenEmpty && job === undefined) {
-            return [Worker.EXIT_SUCCESS, WorkerStopReason.QueueEmpty];
+            return [
+                Worker.EXIT_SUCCESS,
+                WorkerStopReason.QueueEmpty,
+            ];
         }
 
         if (
@@ -202,15 +211,24 @@ export class Worker
             && job === undefined
             && InteractsWithTime.currentTime() - lastJobProcessedAt >= options.stopWhenEmptyFor
         ) {
-            return [Worker.EXIT_SUCCESS, WorkerStopReason.QueueEmptyFor];
+            return [
+                Worker.EXIT_SUCCESS,
+                WorkerStopReason.QueueEmptyFor,
+            ];
         }
 
         if (options.maxTime > 0 && InteractsWithTime.currentTime() - startTime >= options.maxTime) {
-            return [Worker.EXIT_SUCCESS, WorkerStopReason.MaxTimeExceeded];
+            return [
+                Worker.EXIT_SUCCESS,
+                WorkerStopReason.MaxTimeExceeded,
+            ];
         }
 
         if (options.maxJobs > 0 && jobsProcessed >= options.maxJobs) {
-            return [Worker.EXIT_SUCCESS, WorkerStopReason.MaxJobsExceeded];
+            return [
+                Worker.EXIT_SUCCESS,
+                WorkerStopReason.MaxJobsExceeded,
+            ];
         }
 
         return undefined;

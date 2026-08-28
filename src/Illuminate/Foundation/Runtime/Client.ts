@@ -57,7 +57,12 @@ export class Client
      */
     public static defaultBootstrappers(): Array<Constructor<Bootstrapper>>
     {
-        return [LoadConfiguration, RegisterFacades, RegisterProviders, BootProviders];
+        return [
+            LoadConfiguration,
+            RegisterFacades,
+            RegisterProviders,
+            BootProviders,
+        ];
     }
 
     /**
@@ -68,7 +73,11 @@ export class Client
      */
     public static defaultServicesToWarm(): Array<Abstract>
     {
-        return ['events', 'config', 'log'];
+        return [
+            'events',
+            'config',
+            'log',
+        ];
     }
 
     /** Bootstrap the application, then warm it. */

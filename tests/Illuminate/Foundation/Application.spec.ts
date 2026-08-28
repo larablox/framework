@@ -78,14 +78,22 @@ export = (): void => {
 
         class BindingsProviderStub extends ServiceProvider
         {
-            public bindings: Array<[Abstract, Concrete]> = [[AbstractClass, ConcreteClass]];
+            public bindings: Array<[Abstract, Concrete]> = [
+                [
+                    AbstractClass,
+                    ConcreteClass,
+                ],
+            ];
         }
 
         class SingletonsProviderStub extends ServiceProvider
         {
             public singletons: Array<[Abstract, Concrete] | Abstract> = [
                 NonContractBackedClass,
-                [AbstractClass, ConcreteClass],
+                [
+                    AbstractClass,
+                    ConcreteClass,
+                ],
             ];
         }
 
@@ -167,7 +175,10 @@ export = (): void => {
 
             public provides(): Array<Abstract>
             {
-                return ['foo', 'bar'];
+                return [
+                    'foo',
+                    'bar',
+                ];
             }
         }
 
@@ -318,7 +329,12 @@ export = (): void => {
         it('a deferred service is bound before its provider registers', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesMarkedAsBound
             const app = new Application();
-            app.setDeferredServices(deferredServices([['foo', ApplicationDeferredServiceProviderStub]]));
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderStub,
+                ],
+            ]));
 
             expect(app.bound('foo')).to.equal(true);
             expect(app.make('foo')).to.equal('foo');
@@ -327,7 +343,12 @@ export = (): void => {
         it('a deferred singleton is shared once its provider registers', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesAreSharedProperly
             const app = new Application();
-            app.setDeferredServices(deferredServices([['foo', ApplicationDeferredSharedServiceProviderStub]]));
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredSharedServiceProviderStub,
+                ],
+            ]));
 
             expect(app.bound('foo')).to.equal(true);
 
@@ -339,7 +360,12 @@ export = (): void => {
         it('extend() reaches a deferred service once it resolves', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesCanBeExtended
             const app = new Application();
-            app.setDeferredServices(deferredServices([['foo', ApplicationDeferredServiceProviderStub]]));
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderStub,
+                ],
+            ]));
             app.extend('foo', (instance: unknown) => `${instance}bar`);
 
             expect(app.make('foo')).to.equal('foobar');
@@ -350,7 +376,12 @@ export = (): void => {
             ApplicationDeferredServiceProviderCountStub.count = 0;
 
             const app = new Application();
-            app.setDeferredServices(deferredServices([['foo', ApplicationDeferredServiceProviderCountStub]]));
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderCountStub,
+                ],
+            ]));
 
             const obj = app.make('foo');
             expect(obj).to.equal(app.make('foo'));
@@ -360,7 +391,12 @@ export = (): void => {
         it('an existing instance short-circuits the deferred provider', () => {
             // PHP: FoundationApplicationTest::testDeferredServiceDontRunWhenInstanceSet
             const app = new Application();
-            app.setDeferredServices(deferredServices([['foo', ApplicationDeferredServiceProviderStub]]));
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderStub,
+                ],
+            ]));
             app.instance('foo', 'bar');
 
             expect(app.make('foo')).to.equal('bar');
@@ -371,7 +407,12 @@ export = (): void => {
             ApplicationDeferredServiceProviderStub.initialized = false;
 
             const app = new Application();
-            app.setDeferredServices(deferredServices([['foo', ApplicationDeferredServiceProviderStub]]));
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderStub,
+                ],
+            ]));
 
             expect(app.bound('foo')).to.equal(true);
             expect(ApplicationDeferredServiceProviderStub.initialized).to.equal(false);
@@ -386,7 +427,12 @@ export = (): void => {
         it('a deferred provider may bind a factory instead of a singleton', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesCanRegisterFactories
             const app = new Application();
-            app.setDeferredServices(deferredServices([['foo', ApplicationFactoryProviderStub]]));
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationFactoryProviderStub,
+                ],
+            ]));
 
             expect(app.bound('foo')).to.equal(true);
             expect(app.make('foo')).to.equal(1);
@@ -399,8 +445,14 @@ export = (): void => {
             const app = new Application();
             app.setDeferredServices(
                 deferredServices([
-                    ['foo', ApplicationMultiProviderStub],
-                    ['bar', ApplicationMultiProviderStub],
+                    [
+                        'foo',
+                        ApplicationMultiProviderStub,
+                    ],
+                    [
+                        'bar',
+                        ApplicationMultiProviderStub,
+                    ],
                 ]),
             );
 
@@ -413,8 +465,14 @@ export = (): void => {
             const app = new Application();
             app.setDeferredServices(
                 deferredServices([
-                    [SampleInterface, InterfaceToImplementationDeferredServiceProvider],
-                    [SampleImplementation, SampleImplementationDeferredServiceProvider],
+                    [
+                        SampleInterface,
+                        InterfaceToImplementationDeferredServiceProvider,
+                    ],
+                    [
+                        SampleImplementation,
+                        SampleImplementationDeferredServiceProvider,
+                    ],
                 ]),
             );
 
@@ -432,12 +490,18 @@ export = (): void => {
             expect(app.environment('foo')).to.equal(true);
             expect(app.environment('f*')).to.equal(true);
             expect(app.environment('foo', 'bar')).to.equal(true);
-            expect(app.environment(['foo', 'bar'])).to.equal(true);
+            expect(app.environment([
+                'foo',
+                'bar',
+            ])).to.equal(true);
 
             expect(app.environment('qux')).to.equal(false);
             expect(app.environment('q*')).to.equal(false);
             expect(app.environment('qux', 'bar')).to.equal(false);
-            expect(app.environment(['qux', 'bar'])).to.equal(false);
+            expect(app.environment([
+                'qux',
+                'bar',
+            ])).to.equal(false);
         });
 
         it('isLocal()/isProduction() read the `env` value (adapted -- see class comment)', () => {
@@ -486,7 +550,11 @@ export = (): void => {
 
             app.terminate();
 
-            expectDeepEqual(result, [1, 2, 3]);
+            expectDeepEqual(result, [
+                1,
+                2,
+                3,
+            ]);
         });
 
         it('terminating() accepts a [instance, method] callable', () => {
@@ -500,7 +568,10 @@ export = (): void => {
             ConcreteTerminator.counter = 0;
 
             const app = new Application();
-            app.terminating([new ConcreteTerminator(), 'terminate']);
+            app.terminating([
+                new ConcreteTerminator(),
+                'terminate',
+            ]);
 
             app.terminate();
 

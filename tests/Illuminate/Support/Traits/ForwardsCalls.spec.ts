@@ -60,25 +60,51 @@ export = (): void => {
             // PHP: ForwardsCallsTest::testForwardsCalls
             const one = new ForwardsCallsOne();
 
-            expectDeepEqual(one.call('forwardedTwo', ['foo', 'bar']), ['foo', 'bar']);
+            expectDeepEqual(
+                one.call('forwardedTwo', [
+                    'foo',
+                    'bar',
+                ]),
+                [
+                    'foo',
+                    'bar',
+                ],
+            );
         });
 
         it('forwards a call through a chain of ForwardsCalls users', () => {
             // PHP: ForwardsCallsTest::testNestedForwardCalls
             const one = new ForwardsCallsOne();
 
-            expectDeepEqual(one.call('forwardedBase', ['foo', 'bar']), ['foo', 'bar']);
+            expectDeepEqual(
+                one.call('forwardedBase', [
+                    'foo',
+                    'bar',
+                ]),
+                [
+                    'foo',
+                    'bar',
+                ],
+            );
         });
 
         it('throws BadMethodCallException naming the target class for a missing method', () => {
             // PHP: ForwardsCallsTest::testMissingForwardedCallThrowsCorrectError
             const one = new ForwardsCallsOne();
 
-            expectThrows(() => one.call('missingMethod', ['foo', 'bar']));
+            expectThrows(() =>
+                one.call('missingMethod', [
+                    'foo',
+                    'bar',
+                ])
+            );
 
             let thrown: unknown;
             try {
-                one.call('missingMethod', ['foo', 'bar']);
+                one.call('missingMethod', [
+                    'foo',
+                    'bar',
+                ]);
             } catch (e) {
                 thrown = e;
             }

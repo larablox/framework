@@ -33,7 +33,10 @@ class SyncQueueTestHandler
 {
     public fire(job: Job, data: unknown): void
     {
-        box.syncTest = [job, data];
+        box.syncTest = [
+            job,
+            data,
+        ];
     }
 }
 

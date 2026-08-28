@@ -68,10 +68,19 @@ export = (): void => {
             // comment)
             expect(Str.chopStart('', '')).to.equal('');
             expect(Str.chopStart('Laravel', '')).to.equal('Laravel');
-            expect(Str.chopStart('Ship it', ['', 'Ship '])).to.equal('it');
-            expect(Str.chopStart('http://laravel.com', ['https://', 'http://'])).to.equal('laravel.com');
+            expect(Str.chopStart('Ship it', [
+                '',
+                'Ship ',
+            ])).to.equal('it');
+            expect(Str.chopStart('http://laravel.com', [
+                'https://',
+                'http://',
+            ])).to.equal('laravel.com');
             expect(Str.chopStart('http://-http://', 'http://')).to.equal('-http://');
-            expect(Str.chopStart('http://www.laravel.com', ['http://', 'www.'])).to.equal('www.laravel.com');
+            expect(Str.chopStart('http://www.laravel.com', [
+                'http://',
+                'www.',
+            ])).to.equal('www.laravel.com');
             expect(Str.chopStart('http://http-is-fun.test', 'http://')).to.equal('http-is-fun.test');
             // Multibyte emoji tests
             expect(Str.chopStart('🌊✋', '✋')).to.equal('🌊✋');
@@ -83,8 +92,14 @@ export = (): void => {
             expect(Str.chopStart('🎉Laravel', '🎉')).to.equal('Laravel');
             expect(Str.chopStart('Hello🌍World', 'Hello🌍')).to.equal('World');
             // Multiple needle array with multibyte
-            expect(Str.chopStart('🌊✋🎉', ['🚀', '🌊'])).to.equal('✋🎉');
-            expect(Str.chopStart('こんにちは世界', ['Hello', 'こんにちは'])).to.equal('世界');
+            expect(Str.chopStart('🌊✋🎉', [
+                '🚀',
+                '🌊',
+            ])).to.equal('✋🎉');
+            expect(Str.chopStart('こんにちは世界', [
+                'Hello',
+                'こんにちは',
+            ])).to.equal('世界');
         });
 
         it('chopEnd() removes a needle from the end of a string', () => {
@@ -92,22 +107,34 @@ export = (): void => {
             // comment)
             expect(Str.chopEnd('', '')).to.equal('');
             expect(Str.chopEnd('Laravel', '')).to.equal('Laravel');
-            expect(Str.chopEnd('Ship it', ['', ' it'])).to.equal('Ship');
-            expect(Str.chopEnd('path/to/file.php', ['.php', 'file'])).to.equal('path/to/file');
+            expect(Str.chopEnd('Ship it', [
+                '',
+                ' it',
+            ])).to.equal('Ship');
+            expect(Str.chopEnd('path/to/file.php', [
+                '.php',
+                'file',
+            ])).to.equal('path/to/file');
             expect(Str.chopEnd('.php-.php', '.php')).to.equal('.php-');
             expect(Str.chopEnd('path/to/php.php', '.php')).to.equal('path/to/php');
             // Multibyte emoji tests
             expect(Str.chopEnd('✋🌊', '✋')).to.equal('✋🌊');
             expect(Str.chopEnd('🌟💫🚀', '💫🚀')).to.equal('🌟');
             // Multibyte character tests (Japanese, Chinese, Arabic, ...)
-            expect(Str.chopEnd('世界こんにちは', ['Hello', 'こんにちは'])).to.equal('世界');
+            expect(Str.chopEnd('世界こんにちは', [
+                'Hello',
+                'こんにちは',
+            ])).to.equal('世界');
             expect(Str.chopEnd('世界你好', '你好')).to.equal('世界');
             expect(Str.chopEnd('بك مرحبا', ' مرحبا')).to.equal('بك');
             // Mixed multibyte and ASCII
             expect(Str.chopEnd('Laravel🎉', '🎉')).to.equal('Laravel');
             expect(Str.chopEnd('Hello🌍World', 'World')).to.equal('Hello🌍');
             // Multiple needle array with multibyte
-            expect(Str.chopEnd('🎉✋🌊', ['🚀', '🌊'])).to.equal('🎉✋');
+            expect(Str.chopEnd('🎉✋🌊', [
+                '🚀',
+                '🌊',
+            ])).to.equal('🎉✋');
         });
 
         it('padBoth() pads both sides of a string', () => {

@@ -57,12 +57,18 @@ export = (): void => {
                 default_ = 'taylor',
             ): [ContainerCallConcreteStub, unknown]
             {
-                return [stub, default_];
+                return [
+                    stub,
+                    default_,
+                ];
             }
 
             public unresolvable(@Inject('$foo') foo: unknown, @Inject('$bar') bar: unknown): Array<unknown>
             {
-                return [foo, bar];
+                return [
+                    foo,
+                    bar,
+                ];
             }
         }
 
@@ -77,7 +83,10 @@ export = (): void => {
             // PHP: ContainerCallTest::testCallWithAtSignBasedClassReferences
             let container = new Container();
             container.bind('ContainerTestCallStub', ContainerTestCallStub);
-            let result = container.call('ContainerTestCallStub@work', ['foo', 'bar']);
+            let result = container.call('ContainerTestCallStub@work', [
+                'foo',
+                'bar',
+            ]);
             expect((result as Array<unknown>)[0]).to.equal('foo');
             expect((result as Array<unknown>)[1]).to.equal('bar');
 
@@ -90,14 +99,25 @@ export = (): void => {
 
             container = new Container();
             container.bind('ContainerTestCallStub', ContainerTestCallStub);
-            result = container.call('ContainerTestCallStub@inject', new Map<string | number, unknown>([[2, 'foo']]));
+            result = container.call(
+                'ContainerTestCallStub@inject',
+                new Map<string | number, unknown>([
+                    [
+                        2,
+                        'foo',
+                    ],
+                ]),
+            );
             const injectedWithOverride = result as [ContainerCallConcreteStub, unknown];
             expect(injectedWithOverride[0] instanceof ContainerCallConcreteStub).to.equal(true);
             expect(injectedWithOverride[1]).to.equal('foo');
 
             container = new Container();
             container.bind('ContainerTestCallStub', ContainerTestCallStub);
-            result = container.call('ContainerTestCallStub', ['foo', 'bar'], 'work');
+            result = container.call('ContainerTestCallStub', [
+                'foo',
+                'bar',
+            ], 'work');
             expect((result as Array<unknown>)[0]).to.equal('foo');
             expect((result as Array<unknown>)[1]).to.equal('bar');
         });
@@ -106,7 +126,13 @@ export = (): void => {
             // PHP: ContainerCallTest::testCallWithCallableArray
             const container = new Container();
             const stub = new ContainerTestCallStub();
-            const result = container.call([stub, 'work'], ['foo', 'bar']);
+            const result = container.call([
+                stub,
+                'work',
+            ], [
+                'foo',
+                'bar',
+            ]);
 
             expect((result as Array<unknown>)[0]).to.equal('foo');
             expect((result as Array<unknown>)[1]).to.equal('bar');
@@ -127,7 +153,10 @@ export = (): void => {
             let container = new Container();
             container.bind('ContainerTestCallStub', ContainerTestCallStub);
             container.bindMethod(
-                [ContainerTestCallStub, 'unresolvable'],
+                [
+                    ContainerTestCallStub,
+                    'unresolvable',
+                ],
                 (stub: ContainerTestCallStub) => stub.unresolvable('foo', 'bar'),
             );
             let result = container.call('ContainerTestCallStub@unresolvable');
@@ -136,17 +165,31 @@ export = (): void => {
 
             container = new Container();
             container.bindMethod(
-                [ContainerTestCallStub, 'unresolvable'],
+                [
+                    ContainerTestCallStub,
+                    'unresolvable',
+                ],
                 (stub: ContainerTestCallStub) => stub.unresolvable('foo', 'bar'),
             );
-            result = container.call([new ContainerTestCallStub(), 'unresolvable']);
+            result = container.call([
+                new ContainerTestCallStub(),
+                'unresolvable',
+            ]);
             expect((result as Array<unknown>)[0]).to.equal('foo');
             expect((result as Array<unknown>)[1]).to.equal('bar');
 
             container = new Container();
             result = container.call(
-                [new ContainerTestCallStub(), 'inject'],
-                new Map<string | number, unknown>([[2, 'bar']]),
+                [
+                    new ContainerTestCallStub(),
+                    'inject',
+                ],
+                new Map<string | number, unknown>([
+                    [
+                        2,
+                        'bar',
+                    ],
+                ]),
             );
             let injected = result as [ContainerCallConcreteStub, unknown];
             expect(injected[0] instanceof ContainerCallConcreteStub).to.equal(true);
@@ -154,8 +197,16 @@ export = (): void => {
 
             container = new Container();
             result = container.call(
-                [new ContainerTestCallStub(), 'inject'],
-                new Map<string | number, unknown>([['$foo', 'foo']]),
+                [
+                    new ContainerTestCallStub(),
+                    'inject',
+                ],
+                new Map<string | number, unknown>([
+                    [
+                        '$foo',
+                        'foo',
+                    ],
+                ]),
             );
             injected = result as [ContainerCallConcreteStub, unknown];
             expect(injected[0] instanceof ContainerCallConcreteStub).to.equal(true);
@@ -167,7 +218,10 @@ export = (): void => {
             let container = new Container();
             container.bind('ContainerTestCallStub', ContainerTestCallStub);
             container.bindMethod(
-                [ContainerTestCallStub, 'unresolvable'],
+                [
+                    ContainerTestCallStub,
+                    'unresolvable',
+                ],
                 (stub: ContainerTestCallStub) => stub.unresolvable('foo', 'bar'),
             );
             let result = container.call('ContainerTestCallStub@unresolvable');
@@ -176,10 +230,16 @@ export = (): void => {
 
             container = new Container();
             container.bindMethod(
-                [ContainerTestCallStub, 'unresolvable'],
+                [
+                    ContainerTestCallStub,
+                    'unresolvable',
+                ],
                 (stub: ContainerTestCallStub) => stub.unresolvable('foo', 'bar'),
             );
-            result = container.call([new ContainerTestCallStub(), 'unresolvable']);
+            result = container.call([
+                new ContainerTestCallStub(),
+                'unresolvable',
+            ]);
             expect((result as Array<unknown>)[0]).to.equal('foo');
             expect((result as Array<unknown>)[1]).to.equal('bar');
         });
@@ -204,7 +264,10 @@ export = (): void => {
                 bar: unknown = [],
             ): [ContainerCallConcreteStub, unknown]
             {
-                return [foo, bar];
+                return [
+                    foo,
+                    bar,
+                ];
             }
 
             public static withConcreteOverride(
@@ -212,7 +275,10 @@ export = (): void => {
                 @Inject(ContainerCallConcreteStub) bar: ContainerCallConcreteStub,
             ): [ContainerCallOtherStub, ContainerCallConcreteStub]
             {
-                return [foo, bar];
+                return [
+                    foo,
+                    bar,
+                ];
             }
 
             public static variadic(
@@ -224,7 +290,10 @@ export = (): void => {
                 @Variadic(ContainerCallConcreteStub) ...bar: Array<ContainerCallConcreteStub>
             ): Array<unknown>
             {
-                return [foo, ...bar];
+                return [
+                    foo,
+                    ...bar,
+                ];
             }
 
             public static unresolvable(
@@ -247,17 +316,31 @@ export = (): void => {
         it('call() injects a class dependency into an annotated method (adapted -- see class comment)', () => {
             // PHP: ContainerCallTest::testClosureCallWithInjectedDependency
             const container = new Container();
-            container.call([ContainerCallClosureStub, 'injected']);
+            container.call([
+                ContainerCallClosureStub,
+                'injected',
+            ]);
             container.call(
-                [ContainerCallClosureStub, 'injected'],
-                new Map<string | number, unknown>([[1, new ContainerCallConcreteStub()]]),
+                [
+                    ContainerCallClosureStub,
+                    'injected',
+                ],
+                new Map<string | number, unknown>([
+                    [
+                        1,
+                        new ContainerCallConcreteStub(),
+                    ],
+                ]),
             );
         });
 
         it('call() resolves dependencies alongside overridden primitives (adapted -- see class comment)', () => {
             // PHP: ContainerCallTest::testCallWithDependencies
             const container = new Container();
-            let result = container.call([ContainerCallClosureStub, 'withDefault']) as [
+            let result = container.call([
+                ContainerCallClosureStub,
+                'withDefault',
+            ]) as [
                 ContainerCallConcreteStub,
                 unknown,
             ];
@@ -266,8 +349,16 @@ export = (): void => {
             expect((result[1] as Array<unknown>).size()).to.equal(0);
 
             result = container.call(
-                [ContainerCallClosureStub, 'withDefault'],
-                new Map<string | number, unknown>([[2, 'taylor']]),
+                [
+                    ContainerCallClosureStub,
+                    'withDefault',
+                ],
+                new Map<string | number, unknown>([
+                    [
+                        2,
+                        'taylor',
+                    ],
+                ]),
             ) as [ContainerCallConcreteStub, unknown];
 
             expect(result[0] instanceof ContainerCallConcreteStub).to.equal(true);
@@ -275,8 +366,16 @@ export = (): void => {
 
             const stub = new ContainerCallConcreteStub();
             const overridden = container.call(
-                [ContainerCallClosureStub, 'withConcreteOverride'],
-                new Map<Abstract | number, unknown>([[ContainerCallConcreteStub, stub]]),
+                [
+                    ContainerCallClosureStub,
+                    'withConcreteOverride',
+                ],
+                new Map<Abstract | number, unknown>([
+                    [
+                        ContainerCallConcreteStub,
+                        stub,
+                    ],
+                ]),
             ) as [ContainerCallOtherStub, ContainerCallConcreteStub];
 
             expect(overridden[0] instanceof ContainerCallOtherStub).to.equal(true);
@@ -284,8 +383,16 @@ export = (): void => {
 
             // Wrap a function...
             const wrapped = container.wrap(
-                [ContainerCallClosureStub, 'withDefault'] as never,
-                new Map<string | number, unknown>([[2, 'taylor']]),
+                [
+                    ContainerCallClosureStub,
+                    'withDefault',
+                ] as never,
+                new Map<string | number, unknown>([
+                    [
+                        2,
+                        'taylor',
+                    ],
+                ]),
             );
             const wrappedResult = wrapped() as [ContainerCallConcreteStub, unknown];
 
@@ -299,9 +406,15 @@ export = (): void => {
             const stub2 = new ContainerCallConcreteStub();
 
             const container = new Container();
-            container.bind(ContainerCallConcreteStub, () => [stub1, stub2]);
+            container.bind(ContainerCallConcreteStub, () => [
+                stub1,
+                stub2,
+            ]);
 
-            const result = container.call([ContainerCallClosureStub, 'variadic']) as Array<unknown>;
+            const result = container.call([
+                ContainerCallClosureStub,
+                'variadic',
+            ]) as Array<unknown>;
 
             expect(result[0] instanceof ContainerCallOtherStub).to.equal(true);
             expect(result[1] instanceof ContainerCallConcreteStub).to.equal(true);
@@ -334,7 +447,11 @@ export = (): void => {
             // PHP: ContainerCallTest::testCallWithoutRequiredParamsOnClosureThrowsException
             const container = new Container();
 
-            expectThrows(() => container.call([ContainerCallClosureStub, 'unresolvable']), BindingResolutionException);
+            expectThrows(() =>
+                container.call([
+                    ContainerCallClosureStub,
+                    'unresolvable',
+                ]), BindingResolutionException);
         });
 
         // `testCallWithNullableClassParameterDefaultValue` (without a prior
@@ -353,7 +470,10 @@ export = (): void => {
             const container = new Container();
             container.bind(ContainerCallConcreteStub);
 
-            const result = container.call([ContainerCallClosureStub, 'nullableDefault']);
+            const result = container.call([
+                ContainerCallClosureStub,
+                'nullableDefault',
+            ]);
 
             expect(result instanceof ContainerCallConcreteStub).to.equal(true);
         });

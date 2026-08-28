@@ -52,7 +52,10 @@ export = (): void => {
         {
             public provides(): Array<Abstract>
             {
-                return ['foo.provides1', 'foo.provides2'];
+                return [
+                    'foo.provides1',
+                    'foo.provides2',
+                ];
             }
         }
 
@@ -63,7 +66,10 @@ export = (): void => {
             const app = new Application();
             const repo = new ProviderRepository(app);
 
-            repo.load([DeferredProviderStub, EagerProviderStub]);
+            repo.load([
+                DeferredProviderStub,
+                EagerProviderStub,
+            ]);
 
             expect(EagerProviderStub.registered).to.equal(true);
             expect(app.providerIsLoaded(EagerProviderStub)).to.equal(true);

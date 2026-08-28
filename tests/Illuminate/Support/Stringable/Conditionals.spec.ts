@@ -82,14 +82,20 @@ export = (): void => {
 
             expect(
                 Str.of('tony stark')
-                    .whenContainsAll(['tony', 'stark'], (target) => target.title())
+                    .whenContainsAll([
+                        'tony',
+                        'stark',
+                    ], (target) => target.title())
                     .toString(),
             ).to.equal('Tony Stark');
 
             expect(
                 Str.of('tony stark')
                     .whenContainsAll(
-                        ['tony', 'xxx'],
+                        [
+                            'tony',
+                            'xxx',
+                        ],
                         (target) => target.title(),
                         (target) => target.studly(),
                     )
@@ -112,7 +118,10 @@ export = (): void => {
             expect(
                 Str.of('tony stark')
                     .whenEndsWith(
-                        ['kra', 'ark'],
+                        [
+                            'kra',
+                            'ark',
+                        ],
                         (target) => target.title(),
                         (target) => target.studly(),
                     )

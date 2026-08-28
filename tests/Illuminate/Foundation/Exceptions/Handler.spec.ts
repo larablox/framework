@@ -181,7 +181,10 @@ export = (): void => {
             const logger = new FakeLogger();
             container.instance('log', logger as unknown as LogManager);
 
-            return [new Handler(container), logger];
+            return [
+                new Handler(container),
+                logger,
+            ];
         }
 
         it("report() logs the exception's message under an `exception` context key", () => {
@@ -367,7 +370,11 @@ export = (): void => {
             const two = new RuntimeException('foo');
             handler.report(two);
 
-            expectDeepEqual(reported, [one, one, two]);
+            expectDeepEqual(reported, [
+                one,
+                one,
+                two,
+            ]);
         });
 
         it('dontReportDuplicates() reports the same exception instance only once', () => {
@@ -388,7 +395,10 @@ export = (): void => {
             const two = new RuntimeException('foo');
             handler.report(two);
 
-            expectDeepEqual(reported, [one, two]);
+            expectDeepEqual(reported, [
+                one,
+                two,
+            ]);
         });
 
         it('dontReportWhen() skips reporting exceptions the callback rejects', () => {

@@ -34,18 +34,34 @@ export = (): void => {
         it('countBy() counts items by their value, a key, or a callback', () => {
             // PHP: SupportCollectionTest::testCountByStandalone,
             // ::testCountByWithKey, ::testCountableByWithCallback
-            const c = new Collection(['foo', 'foo', 'foo', 'bar', 'bar', 'foobar']);
+            const c = new Collection([
+                'foo',
+                'foo',
+                'foo',
+                'bar',
+                'bar',
+                'foobar',
+            ]);
             const counted = c.countBy();
             expect(counted.get('foo')).to.equal(3);
             expect(counted.get('bar')).to.equal(2);
             expect(counted.get('foobar')).to.equal(1);
 
-            const keyed = new Collection([{ key: 'a' }, { key: 'a' }, { key: 'b' }]);
+            const keyed = new Collection([
+                { key: 'a' },
+                { key: 'a' },
+                { key: 'b' },
+            ]);
             const byKey = keyed.countBy((item) => item.key);
             expect(byKey.get('a')).to.equal(2);
             expect(byKey.get('b')).to.equal(1);
 
-            const names = new Collection(['alice', 'aaron', 'bob', 'carla']);
+            const names = new Collection([
+                'alice',
+                'aaron',
+                'bob',
+                'carla',
+            ]);
             const byFirstLetter = names.countBy((name) => name.sub(1, 1));
             expect(byFirstLetter.get('a')).to.equal(2);
             expect(byFirstLetter.get('b')).to.equal(1);
@@ -59,8 +75,20 @@ export = (): void => {
 
             const [firstHalf, secondHalf] = data.partition((item) => item <= 5);
 
-            expectDeepEqual(firstHalf.values().toArray(), [1, 2, 3, 4, 5]);
-            expectDeepEqual(secondHalf.values().toArray(), [6, 7, 8, 9, 10]);
+            expectDeepEqual(firstHalf.values().toArray(), [
+                1,
+                2,
+                3,
+                4,
+                5,
+            ]);
+            expectDeepEqual(secondHalf.values().toArray(), [
+                6,
+                7,
+                8,
+                9,
+                10,
+            ]);
 
             const courses = new Collection([
                 { free: true, title: 'Basic' },
@@ -81,8 +109,16 @@ export = (): void => {
             const data = Collection.range(1, 10).chunk(3);
 
             expect(data.count()).to.equal(4);
-            expectDeepEqual(data.get(0)?.values().all(), [1, 2, 3]);
-            expectDeepEqual(data.get(1)?.values().all(), [4, 5, 6]);
+            expectDeepEqual(data.get(0)?.values().all(), [
+                1,
+                2,
+                3,
+            ]);
+            expectDeepEqual(data.get(1)?.values().all(), [
+                4,
+                5,
+                6,
+            ]);
             expectDeepEqual(data.get(3)?.values().all(), [10]);
 
             expect(Collection.range(1, 10).chunk(0).isEmpty()).to.equal(true);

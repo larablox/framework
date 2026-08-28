@@ -18,16 +18,25 @@ export class JobName
         if (typeIs(job, 'string')) {
             const [klass, method] = Str.parseCallback(job, 'fire');
 
-            return [klass, method ?? 'fire'];
+            return [
+                klass,
+                method ?? 'fire',
+            ];
         }
 
         if (Util.isArray(job)) {
             const [klass, method] = job as [Abstract, string];
 
-            return [klass, method];
+            return [
+                klass,
+                method,
+            ];
         }
 
-        return [job as Abstract, 'fire'];
+        return [
+            job as Abstract,
+            'fire',
+        ];
     }
 
     /** Get the resolved name of the queued job class. */

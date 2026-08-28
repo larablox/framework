@@ -115,7 +115,13 @@ export = (): void => {
             // stands in, and the assertions cover the same mechanic (handler
             // count/order/level/bubble, processor propagation).
             const app = makeApp({
-                stack: { driver: 'stack', channels: ['stderr', 'stdout'] },
+                stack: {
+                    driver: 'stack',
+                    channels: [
+                        'stderr',
+                        'stdout',
+                    ],
+                },
                 stderr: {
                     driver: 'monolog',
                     handler: TestHandler,
@@ -153,7 +159,12 @@ export = (): void => {
             manager.channel('stack');
 
             const names = manager.getChannels().map(([name]) => name);
-            expectDeepEqual(names, ['single', 'daily', 'stderr', 'stack']);
+            expectDeepEqual(names, [
+                'single',
+                'daily',
+                'stderr',
+                'stack',
+            ]);
         });
 
         it('wraps the handler in FingersCrossedHandler when action_level is used', () => {
@@ -383,7 +394,10 @@ export = (): void => {
                 () => new Monolog('uuid', [new TestHandler()], [new UidProcessor()]) as unknown as LoggerInterface,
             );
 
-            const logger = manager.stack(['test', 'uid']);
+            const logger = manager.stack([
+                'test',
+                'uid',
+            ]);
             const underlying = logger.getLogger() as Monolog;
 
             expect(underlying.getHandlers().size()).to.equal(2);

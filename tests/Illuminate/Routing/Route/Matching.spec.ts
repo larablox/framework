@@ -190,7 +190,14 @@ export = (): void => {
         // PHP: RoutingRouteTest::testHeadDispatcher
         it('OPTIONS/HEAD are synthesized for whatever verbs a URI was registered under', () => {
             let r = router();
-            r.match(['GET', 'POST'], 'foo', () => 'bar');
+            r.match(
+                [
+                    'GET',
+                    'POST',
+                ],
+                'foo',
+                () => 'bar',
+            );
 
             let response = r.dispatch(new Request({} as Player, 'OPTIONS', 'foo'));
             expect(response.status()).to.equal(200);
@@ -270,7 +277,10 @@ export = (): void => {
             let route = new Route('GET', 'images/{id}/{ext}', {
                 uses: () => {},
             });
-            expectDeepEqual(route.parameterNames(), ['id', 'ext']);
+            expectDeepEqual(route.parameterNames(), [
+                'id',
+                'ext',
+            ]);
 
             route = new Route('GET', 'foo/{bar?}', { uses: () => {} });
             expectDeepEqual(route.parameterNames(), ['bar']);
@@ -318,12 +328,18 @@ export = (): void => {
             }
 
             r.get('foo/{bar?}', {
-                uses: [RouteTestControllerWithParameterStub, 'returnParameter'],
+                uses: [
+                    RouteTestControllerWithParameterStub,
+                    'returnParameter',
+                ],
             }).defaults('bar', 'foo');
             expect(r.dispatch(new Request({} as Player, 'GET', 'foo')).content()).to.equal('foo');
 
             r.get('foo/{bar?}', {
-                uses: [RouteTestControllerWithParameterStub, 'returnParameter'],
+                uses: [
+                    RouteTestControllerWithParameterStub,
+                    'returnParameter',
+                ],
             }).defaults('bar', 'foo');
             expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('bar');
 
@@ -378,7 +394,10 @@ export = (): void => {
                 }
             }
 
-            const controllerRoute = r.get('foo/bar', [RouteTestControllerStub, 'index']);
+            const controllerRoute = r.get('foo/bar', [
+                RouteTestControllerStub,
+                'index',
+            ]);
             const closureRoute = r.get('foo', () => 'foo');
 
             expect(controllerRoute.getControllerClass()).to.equal(RouteTestControllerStub);
@@ -522,7 +541,11 @@ export = (): void => {
             ];
 
             const r = router();
-            r.middlewarePriority = [ExampleMiddleware, Authenticate, SubstituteBindings];
+            r.middlewarePriority = [
+                ExampleMiddleware,
+                Authenticate,
+                SubstituteBindings,
+            ];
 
             const route = r.get('foo', {
                 middleware,
@@ -553,7 +576,10 @@ export = (): void => {
 
             r.get('foo/bar', {
                 as: 'foo.bar',
-                uses: [RouteTestControllerStub, 'index'],
+                uses: [
+                    RouteTestControllerStub,
+                    'index',
+                ],
             });
 
             expect(r.currentRouteAction()).to.equal(undefined);
@@ -599,10 +625,16 @@ export = (): void => {
             expect(response.content()).to.equal('hello');
 
             r = router();
-            r.get('foo/bar', () => ['foo', 'bar']);
+            r.get('foo/bar', () => [
+                'foo',
+                'bar',
+            ]);
             response = r.dispatch(new Request({} as Player, 'GET', 'foo/bar'));
             expect(response).to.be.a('table');
-            expectDeepEqual(response.content(), ['foo', 'bar']);
+            expectDeepEqual(response.content(), [
+                'foo',
+                'bar',
+            ]);
         });
 
         // PHP: RoutingRouteTest::testRouteFlushController
@@ -646,7 +678,10 @@ export = (): void => {
             }
 
             const r = router();
-            r.get('count', [ActionCountStub, 'index']);
+            r.get('count', [
+                ActionCountStub,
+                'index',
+            ]);
             const request = new Request({} as Player, 'GET', 'count');
 
             expect(r.dispatch(request).content()).to.equal(1);

@@ -333,7 +333,10 @@ export = (): void => {
             container.bind(IContainerContextContractStub, ContainerContextImplementationStub);
 
             container
-                .when([ContainerTestContextInjectTwo, ContainerTestContextInjectThree])
+                .when([
+                    ContainerTestContextInjectTwo,
+                    ContainerTestContextInjectThree,
+                ])
                 .needs(IContainerContextContractStub)
                 .give(ContainerContextImplementationStubTwo);
 
@@ -526,7 +529,10 @@ export = (): void => {
             container
                 .when(ContainerTestContextInjectVariadic)
                 .needs(IContainerContextContractStub)
-                .give([ContainerContextImplementationStub, ContainerContextImplementationStubTwo]);
+                .give([
+                    ContainerContextImplementationStub,
+                    ContainerContextImplementationStubTwo,
+                ]);
 
             const resolvedInstance = container.make(ContainerTestContextInjectVariadic);
 
@@ -561,7 +567,10 @@ export = (): void => {
             // PHP: ContextualBindingTest::testContextualBindingGivesTagsForArray
             const container = new Container();
 
-            container.tag([ContainerContextImplementationStub, ContainerContextImplementationStubTwo], ['stub']);
+            container.tag([
+                ContainerContextImplementationStub,
+                ContainerContextImplementationStubTwo,
+            ], ['stub']);
 
             container.when(ContainerTestContextInjectArray).needs('$stubs').giveTagged('stub');
 
@@ -576,7 +585,10 @@ export = (): void => {
             // PHP: ContextualBindingTest::testContextualBindingGivesTagsForVariadic
             const container = new Container();
 
-            container.tag([ContainerContextImplementationStub, ContainerContextImplementationStubTwo], ['stub']);
+            container.tag([
+                ContainerContextImplementationStub,
+                ContainerContextImplementationStubTwo,
+            ], ['stub']);
 
             container.when(ContainerTestContextInjectVariadic).needs(IContainerContextContractStub).giveTagged('stub');
 
@@ -614,8 +626,14 @@ export = (): void => {
                             [
                                 'test',
                                 new Map<string, unknown>([
-                                    ['username', 'laravel'],
-                                    ['password', 'hunter42'],
+                                    [
+                                        'username',
+                                        'laravel',
+                                    ],
+                                    [
+                                        'password',
+                                        'hunter42',
+                                    ],
                                 ]),
                             ],
                         ]),
@@ -656,9 +674,18 @@ export = (): void => {
                             [
                                 'test',
                                 new Map<string, unknown>([
-                                    ['username', 'laravel'],
-                                    ['password', 'hunter42'],
-                                    ['alias', 'lumen'],
+                                    [
+                                        'username',
+                                        'laravel',
+                                    ],
+                                    [
+                                        'password',
+                                        'hunter42',
+                                    ],
+                                    [
+                                        'alias',
+                                        'lumen',
+                                    ],
                                 ]),
                             ],
                         ]),
@@ -694,7 +721,19 @@ export = (): void => {
             container.singleton(
                 'config',
                 () =>
-                    new FakeConfigRepository(new Map([['test', new Map<string, unknown>([['password', 'hunter42']])]])),
+                    new FakeConfigRepository(
+                        new Map([
+                            [
+                                'test',
+                                new Map<string, unknown>([
+                                    [
+                                        'password',
+                                        'hunter42',
+                                    ],
+                                ]),
+                            ],
+                        ]),
+                    ),
             );
 
             container
@@ -724,9 +763,18 @@ export = (): void => {
             const container = new Container();
 
             const settings = new Map<string, unknown>([
-                ['username', 'laravel'],
-                ['password', 'hunter42'],
-                ['alias', 'lumen'],
+                [
+                    'username',
+                    'laravel',
+                ],
+                [
+                    'password',
+                    'hunter42',
+                ],
+                [
+                    'alias',
+                    'lumen',
+                ],
             ]);
 
             // A class rather than an object literal: `giveConfig()` reaches
@@ -767,7 +815,10 @@ export = (): void => {
 
             const object = new ContainerTestContextInjectMethodArgument();
 
-            const value = container.call([object, 'method']);
+            const value = container.call([
+                object,
+                'method',
+            ]);
             expect(value instanceof ContainerContextImplementationStub).to.equal(true);
         });
     });

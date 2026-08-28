@@ -25,7 +25,10 @@ import type { Transport } from 'Illuminate/Http/Remote';
 import type { ValidatorInterface } from 'Illuminate/Routing/Matching/ValidatorInterface';
 
 /** The transports an ordinary route answers on. */
-const DEFAULT_TRANSPORTS: Array<Transport> = ['call', 'send'];
+const DEFAULT_TRANSPORTS: Array<Transport> = [
+    'call',
+    'send',
+];
 
 /**
  * PHP: `Illuminate\Routing\Route`.
@@ -267,7 +270,11 @@ export class Route
     public static getValidators(): Array<ValidatorInterface>
     {
         if (Route.validators === undefined) {
-            Route.validators = [new UriValidator(), new MethodValidator(), new TransportValidator()];
+            Route.validators = [
+                new UriValidator(),
+                new MethodValidator(),
+                new TransportValidator(),
+            ];
         }
 
         return Route.validators;

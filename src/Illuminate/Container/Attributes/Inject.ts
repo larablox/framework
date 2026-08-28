@@ -114,7 +114,10 @@ export function addParameterAttribute(
     instance: ContextualAttribute,
 ): void
 {
-    declarationFor(target, propertyKey, parameterIndex).attributes.push([attribute, instance]);
+    declarationFor(target, propertyKey, parameterIndex).attributes.push([
+        attribute,
+        instance,
+    ]);
 }
 
 /**

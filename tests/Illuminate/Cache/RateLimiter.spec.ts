@@ -50,7 +50,10 @@ export = (): void => {
             limiter.for('user_limiter', (...args: Array<unknown>) => {
                 const userId = args[0] as string;
 
-                return [Limit.perSecond(3).by(userId), Limit.perMinute(5).by(userId)];
+                return [
+                    Limit.perSecond(3).by(userId),
+                    Limit.perMinute(5).by(userId),
+                ];
             });
 
             const userId1 = '123';

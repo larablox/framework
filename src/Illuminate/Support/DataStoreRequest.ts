@@ -8,10 +8,19 @@ import { retry } from 'Illuminate/Support/Helpers';
  * it certainly was not: `502` is a rejection and `503` a request dropped
  * before it was read, neither of which reaches the data.
  */
-const TRANSIENT = ['502', '503', 'too many requests', 'exceeded limit'];
+const TRANSIENT = [
+    '502',
+    '503',
+    'too many requests',
+    'exceeded limit',
+];
 
 /** How long to wait before each further attempt. */
-const BACKOFF = [1000, 2000, 4000];
+const BACKOFF = [
+    1000,
+    2000,
+    4000,
+];
 
 /**
  * A DataStore call that gets another go when the platform, and not the

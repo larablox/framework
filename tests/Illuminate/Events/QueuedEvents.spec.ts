@@ -198,7 +198,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherQueuedHandler@handle');
-            d.dispatch('some.event', ['foo', 'bar']);
+            d.dispatch('some.event', [
+                'foo',
+                'bar',
+            ]);
 
             expectDeepEqual(factory.connectionCalls, [undefined]);
             expect(factory.queue.pushOnCalls.size()).to.equal(1);
@@ -235,7 +238,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherConnectionQueuedHandler@handle');
-            d.dispatch('some.event', ['foo', 'bar']);
+            d.dispatch('some.event', [
+                'foo',
+                'bar',
+            ]);
 
             expectDeepEqual(factory.connectionCalls, ['redis']);
             expect(factory.queue.laterOnCalls.size()).to.equal(1);
@@ -270,7 +276,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherGetQueue@handle');
-            d.dispatch('some.event', ['foo', 'bar']);
+            d.dispatch('some.event', [
+                'foo',
+                'bar',
+            ]);
 
             expect(factory.queue.pushOnCalls.size()).to.equal(1);
             expect(factory.queue.pushOnCalls[0].queue).to.equal('some_other_queue');
@@ -301,7 +310,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherGetConnection@handle');
-            d.dispatch('some.event', ['foo', 'bar']);
+            d.dispatch('some.event', [
+                'foo',
+                'bar',
+            ]);
 
             expectDeepEqual(factory.connectionCalls, ['some_other_connection']);
         });
@@ -331,7 +343,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherGetDelay@handle');
-            d.dispatch('some.event', ['foo', 'bar']);
+            d.dispatch('some.event', [
+                'foo',
+                'bar',
+            ]);
 
             expect(factory.queue.laterOnCalls.size()).to.equal(1);
             expect(factory.queue.laterOnCalls[0].delay).to.equal(20);
@@ -366,7 +381,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherGetQueueDynamically@handle');
-            d.dispatch('some.event', [{ useHighPriorityQueue: true }, 'bar']);
+            d.dispatch('some.event', [
+                { useHighPriorityQueue: true },
+                'bar',
+            ]);
 
             expect(factory.queue.pushOnCalls.size()).to.equal(1);
             expect(factory.queue.pushOnCalls[0].queue).to.equal('p0');
@@ -399,7 +417,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherGetConnectionDynamically@handle');
-            d.dispatch('some.event', [{ shouldUseRedisConnection: true }, 'bar']);
+            d.dispatch('some.event', [
+                { shouldUseRedisConnection: true },
+                'bar',
+            ]);
 
             expectDeepEqual(factory.connectionCalls, ['redis']);
         });
@@ -433,7 +454,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherGetDelayDynamically@handle');
-            d.dispatch('some.event', [{ useHighDelay: true }, 'bar']);
+            d.dispatch('some.event', [
+                { useHighDelay: true },
+                'bar',
+            ]);
 
             expect(factory.queue.laterOnCalls.size()).to.equal(1);
             expect(factory.queue.laterOnCalls[0].delay).to.equal(60);
@@ -470,7 +494,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherOptions@handle');
-            d.dispatch('some.event', ['foo', 'bar']);
+            d.dispatch('some.event', [
+                'foo',
+                'bar',
+            ]);
 
             expect(factory.queue.pushOnCalls.size()).to.equal(1);
             const job = factory.queue.pushOnCalls[0].job as CallQueuedListener;
@@ -516,7 +543,10 @@ export = (): void => {
             d.setQueueResolver(() => factory);
 
             d.listen('some.event', 'TestDispatcherMiddleware@handle');
-            d.dispatch('some.event', ['foo', 'bar']);
+            d.dispatch('some.event', [
+                'foo',
+                'bar',
+            ]);
 
             expect(factory.queue.pushOnCalls.size()).to.equal(1);
             const job = factory.queue.pushOnCalls[0].job as CallQueuedListener;

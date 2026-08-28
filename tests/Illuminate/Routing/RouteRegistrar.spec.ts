@@ -119,17 +119,35 @@ export = (): void => {
         it('Router::middleware() opens a fluent registrar carrying that middleware', () => {
             const r = router();
 
-            r.middleware(['one', 'two']).get('users', () => 'all-users');
+            r.middleware([
+                'one',
+                'two',
+            ]).get('users', () => 'all-users');
             seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
-            expectDeepEqual(lastRoute(r).middleware(), ['one', 'two']);
+            expectDeepEqual(lastRoute(r).middleware(), [
+                'one',
+                'two',
+            ]);
 
-            r.middleware(['three', 'four']).get('users', () => 'all-users');
+            r.middleware([
+                'three',
+                'four',
+            ]).get('users', () => 'all-users');
             seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
-            expectDeepEqual(lastRoute(r).middleware(), ['three', 'four']);
+            expectDeepEqual(lastRoute(r).middleware(), [
+                'three',
+                'four',
+            ]);
 
-            r.get('users', () => 'all-users').middleware(['five', 'six']);
+            r.get('users', () => 'all-users').middleware([
+                'five',
+                'six',
+            ]);
             seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
-            expectDeepEqual(lastRoute(r).middleware(), ['five', 'six']);
+            expectDeepEqual(lastRoute(r).middleware(), [
+                'five',
+                'six',
+            ]);
 
             r.middleware('seven').get('users', () => 'all-users');
             seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
@@ -140,7 +158,10 @@ export = (): void => {
         it('Route::withoutMiddleware() records excluded middleware', () => {
             const r = router();
 
-            r.middleware(['one', 'two'])
+            r.middleware([
+                'one',
+                'two',
+            ])
                 .get('users', () => 'all-users')
                 .withoutMiddleware('one');
 
@@ -215,7 +236,10 @@ export = (): void => {
         // PHP: RouteRegistrarTest::testCanRegisterRouteWithControllerActionArray
         it('registers a route from a [Controller, method] pair', () => {
             const r = router();
-            r.middleware('controller-middleware').get('users', [RouteRegistrarControllerStub, 'index']);
+            r.middleware('controller-middleware').get('users', [
+                RouteRegistrarControllerStub,
+                'index',
+            ]);
 
             seeResponse(lastRoute(r), 'controller', new Request({} as Player, 'GET', 'users'));
             seeMiddleware(lastRoute(r), 'controller-middleware');
@@ -224,7 +248,10 @@ export = (): void => {
         // PHP: RouteRegistrarTest::testCanRegisterRouteWithArrayAndControllerAction
         it("registers a route from an action array carrying a 'uses' controller pair", () => {
             const r = router();
-            r.middleware('controller-middleware').put('users', [RouteRegistrarControllerStub, 'index']);
+            r.middleware('controller-middleware').put('users', [
+                RouteRegistrarControllerStub,
+                'index',
+            ]);
 
             seeResponse(lastRoute(r), 'controller', new Request({} as Player, 'PUT', 'users'));
             seeMiddleware(lastRoute(r), 'controller-middleware');
@@ -245,7 +272,10 @@ export = (): void => {
         it('Router::withoutMiddleware()->group() applies the exclusion to every route in it', () => {
             const r = router();
             r.withoutMiddleware('one').group(() => {
-                r.get('users', () => 'all-users').middleware(['one', 'two']);
+                r.get('users', () => 'all-users').middleware([
+                    'one',
+                    'two',
+                ]);
             });
 
             seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
@@ -256,7 +286,10 @@ export = (): void => {
         it('Router::prefix()->group() prefixes every URI in it', () => {
             const r = router();
             r.prefix('api').group(() => {
-                r.get('users', [RouteRegistrarControllerStub, 'index']);
+                r.get('users', [
+                    RouteRegistrarControllerStub,
+                    'index',
+                ]);
             });
 
             expect(lastRoute(r).uri()).to.equal('api/users');
@@ -278,7 +311,10 @@ export = (): void => {
         it('Router::name()->group() prefixes every route name in it', () => {
             const r = router();
             r.name('api.').group(() => {
-                r.get('users', [RouteRegistrarControllerStub, 'index']).name('users');
+                r.get('users', [
+                    RouteRegistrarControllerStub,
+                    'index',
+                ]).name('users');
             });
 
             expect(lastRoute(r).getName()).to.equal('api.users');
@@ -390,8 +426,14 @@ export = (): void => {
             const r = router();
             const wheres = { foo: '%d+', bar: '%d+' };
 
-            r.get('/{foo}/{bar}').whereNumber(['foo', 'bar']);
-            r.get('/api/{bar}/{foo}').whereNumber(['bar', 'foo']);
+            r.get('/{foo}/{bar}').whereNumber([
+                'foo',
+                'bar',
+            ]);
+            r.get('/api/{bar}/{foo}').whereNumber([
+                'bar',
+                'foo',
+            ]);
 
             for (const route of r.getRoutes().getRoutes()) {
                 expectDeepEqual(route.wheres, wheres);
@@ -403,8 +445,14 @@ export = (): void => {
             const r = router();
             const wheres = { foo: '%a+', bar: '%a+' };
 
-            r.get('/{foo}/{bar}').whereAlpha(['foo', 'bar']);
-            r.get('/api/{bar}/{foo}').whereAlpha(['bar', 'foo']);
+            r.get('/{foo}/{bar}').whereAlpha([
+                'foo',
+                'bar',
+            ]);
+            r.get('/api/{bar}/{foo}').whereAlpha([
+                'bar',
+                'foo',
+            ]);
 
             for (const route of r.getRoutes().getRoutes()) {
                 expectDeepEqual(route.wheres, wheres);

@@ -85,7 +85,12 @@ export = (): void => {
             expect(when(false, 'There')).to.equal(undefined); // 1 == 2
             expect(when('1', () => undefined)).to.equal(undefined);
             expect(when(0, () => undefined)).to.equal(undefined);
-            expect(when([1, 2, 3, 4], 'True')).to.equal('True');
+            expect(when([
+                1,
+                2,
+                3,
+                4,
+            ], 'True')).to.equal('True');
             // PHP's `when([], 'True')` (null, an empty array being falsy) has
             // no counterpart: `[]` and `{}` are the same Luau value, and the
             // `new stdClass` case just below pins it as truthy.
@@ -150,7 +155,11 @@ export = (): void => {
             // cases dropped: `DataTarget` addresses tables (Collection,
             // OrderedMap, list, plain table), not PHP's stdClass/ArrayAccess.
             const array = [{ users: [{ name: 'Taylor' }] }];
-            const plainArray = [1, 2, 3];
+            const plainArray = [
+                1,
+                2,
+                3,
+            ];
 
             expect(data_has(array, '0.users.0.name')).to.equal(true);
             expect(data_has(array, '0.users.3')).to.equal(false);
@@ -172,9 +181,17 @@ export = (): void => {
 
         it('data_get() fans `*` out over nested arrays', () => {
             // PHP: SupportHelpersTest::testDataGetWithNestedArrays
-            const array = [{ name: 'taylor', email: 'taylorotwell@gmail.com' }, { name: 'abigail' }, { name: 'dayle' }];
+            const array = [
+                { name: 'taylor', email: 'taylorotwell@gmail.com' },
+                { name: 'abigail' },
+                { name: 'dayle' },
+            ];
 
-            expectDeepEqual(data_get(array, '*.name'), ['taylor', 'abigail', 'dayle']);
+            expectDeepEqual(data_get(array, '*.name'), [
+                'taylor',
+                'abigail',
+                'dayle',
+            ]);
         });
 
         it('data_get() collapses a double `*`', () => {
@@ -188,12 +205,20 @@ export = (): void => {
                         ],
                     },
                     {
-                        comments: [{ author: 'abigail', likes: 2 }, { author: 'dayle' }],
+                        comments: [
+                            { author: 'abigail', likes: 2 },
+                            { author: 'dayle' },
+                        ],
                     },
                 ],
             };
 
-            expectDeepEqual(data_get(array, 'posts.*.comments.*.author'), ['taylor', 'abigail', 'abigail', 'dayle']);
+            expectDeepEqual(data_get(array, 'posts.*.comments.*.author'), [
+                'taylor',
+                'abigail',
+                'abigail',
+                'dayle',
+            ]);
         });
 
         it('data_get() understands {first} and {last}', () => {
@@ -263,7 +288,10 @@ export = (): void => {
         it('data_fill() with `*` fills every matching leaf', () => {
             // PHP: SupportHelpersTest::testDataFillWithStar
             const data: Record<string, unknown> = {
-                bar: [{ baz: 'original' }, {}],
+                bar: [
+                    { baz: 'original' },
+                    {},
+                ],
             };
 
             data_fill(data, 'bar.*.baz', 'boom');
@@ -296,7 +324,10 @@ export = (): void => {
         it('data_set() with `*` writes every matching leaf', () => {
             // PHP: SupportHelpersTest::testDataSetWithStar
             const data: Record<string, unknown> = {
-                bar: [{ baz: 'original' }, { baz: 'original' }],
+                bar: [
+                    { baz: 'original' },
+                    { baz: 'original' },
+                ],
             };
 
             data_set(data, 'bar.*.baz', 'boom');
@@ -361,7 +392,11 @@ export = (): void => {
         it('head() and last() answer the first/last item, or undefined', () => {
             // PHP: SupportHelpersTest::testHead, ::testLast -- PHP's `false` on
             // an empty array becomes `undefined` here (Helpers.ts's `head` comment)
-            const array = ['a', 'b', 'c'];
+            const array = [
+                'a',
+                'b',
+                'c',
+            ];
 
             expect(head(array)).to.equal('a');
             expect(last(array)).to.equal('c');

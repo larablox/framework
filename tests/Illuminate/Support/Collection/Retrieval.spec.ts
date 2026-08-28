@@ -21,29 +21,62 @@ export = (): void => {
             // PHP: SupportCollectionTest::testFirstReturnsFirstItemInCollection,
             // ::testFirstWithCallback, ::testFirstWithCallbackAndDefault,
             // ::testFirstWithDefaultAndWithoutCallback
-            expect(new Collection(['foo', 'bar']).first()).to.equal('foo');
+            expect(new Collection([
+                'foo',
+                'bar',
+            ]).first()).to.equal('foo');
 
-            expect(new Collection(['foo', 'bar', 'baz']).first((value) => value === 'bar')).to.equal('bar');
+            expect(new Collection([
+                'foo',
+                'bar',
+                'baz',
+            ]).first((value) => value === 'bar')).to.equal('bar');
 
-            expect(new Collection(['foo', 'bar']).first((value) => value === 'baz', 'default')).to.equal('default');
+            expect(new Collection([
+                'foo',
+                'bar',
+            ]).first((value) => value === 'baz', 'default')).to.equal('default');
 
             expect(new Collection().first(undefined, 'default')).to.equal('default');
-            expect(new Collection(['foo', 'bar']).first(undefined, 'default')).to.equal('foo');
+            expect(new Collection([
+                'foo',
+                'bar',
+            ]).first(undefined, 'default')).to.equal('foo');
         });
 
         it('sole() returns the only matching item, or throws', () => {
             // PHP: SupportCollectionTest::testSoleReturnsFirstItemInCollectionIfOnlyOneExistsWithCallback,
             // ::testSoleThrowsExceptionIfNoItemsExistWithCallback,
             // ::testSoleThrowsExceptionIfMoreThanOneItemExistsWithCallback
-            const data = new Collection(['foo', 'bar', 'baz']);
+            const data = new Collection([
+                'foo',
+                'bar',
+                'baz',
+            ]);
             expect(data.sole((value) => value === 'bar')).to.equal('bar');
 
-            expectThrows(() => new Collection(['foo', 'bar', 'baz']).sole((value) => value === 'invalid'));
+            expectThrows(() =>
+                new Collection([
+                    'foo',
+                    'bar',
+                    'baz',
+                ]).sole((value) => value === 'invalid')
+            );
 
-            expectThrows(() => new Collection(['foo', 'bar', 'bar']).sole((value) => value === 'bar'));
+            expectThrows(() =>
+                new Collection([
+                    'foo',
+                    'bar',
+                    'bar',
+                ]).sole((value) => value === 'bar')
+            );
 
             try {
-                new Collection(['foo', 'bar', 'bar']).sole((value) => value === 'bar');
+                new Collection([
+                    'foo',
+                    'bar',
+                    'bar',
+                ]).sole((value) => value === 'bar');
             } catch (err) {
                 expect(err instanceof MultipleItemsFoundException).to.equal(true);
             }
@@ -53,18 +86,36 @@ export = (): void => {
             // PHP: SupportCollectionTest::testFirstOrFailReturnsFirstItemInCollectionIfOnlyOneExistsWithCallback,
             // ::testFirstOrFailThrowsExceptionIfNoItemsExistWithCallback,
             // ::testFirstOrFailDoesntThrowExceptionIfMoreThanOneItemExistsWithCallback
-            const data = new Collection(['foo', 'bar', 'baz']);
+            const data = new Collection([
+                'foo',
+                'bar',
+                'baz',
+            ]);
             expect(data.firstOrFail((value) => value === 'bar')).to.equal('bar');
 
-            expectThrows(() => new Collection(['foo', 'bar', 'baz']).firstOrFail((value) => value === 'invalid'));
+            expectThrows(() =>
+                new Collection([
+                    'foo',
+                    'bar',
+                    'baz',
+                ]).firstOrFail((value) => value === 'invalid')
+            );
 
             try {
-                new Collection(['foo', 'bar', 'baz']).firstOrFail((value) => value === 'invalid');
+                new Collection([
+                    'foo',
+                    'bar',
+                    'baz',
+                ]).firstOrFail((value) => value === 'invalid');
             } catch (err) {
                 expect(err instanceof ItemNotFoundException).to.equal(true);
             }
 
-            expect(new Collection(['foo', 'bar', 'bar']).firstOrFail((value) => value === 'bar')).to.equal('bar');
+            expect(new Collection([
+                'foo',
+                'bar',
+                'bar',
+            ]).firstOrFail((value) => value === 'bar')).to.equal('bar');
         });
 
         it('firstWhere() finds the first item matching a key/value pair', () => {
@@ -84,34 +135,63 @@ export = (): void => {
             // PHP: SupportCollectionTest::testLastReturnsLastItemInCollection,
             // ::testLastWithCallback, ::testLastWithCallbackAndDefault,
             // ::testLastWithDefaultAndWithoutCallback
-            expect(new Collection(['foo', 'bar']).last()).to.equal('bar');
+            expect(new Collection([
+                'foo',
+                'bar',
+            ]).last()).to.equal('bar');
             expect(new Collection().last()).to.equal(undefined);
 
-            const data = new Collection([100, 200, 300]);
+            const data = new Collection([
+                100,
+                200,
+                300,
+            ]);
             expect(data.last((value) => value < 250)).to.equal(200);
             expect(data.last((_value, key) => (key as number) < 2)).to.equal(200);
             expect(data.last((value) => value > 300)).to.equal(undefined);
 
-            expect(new Collection(['foo', 'bar']).last((value) => value === 'baz', 'default')).to.equal('default');
+            expect(new Collection([
+                'foo',
+                'bar',
+            ]).last((value) => value === 'baz', 'default')).to.equal('default');
 
-            expect(new Collection(['foo', 'bar', 'Bar']).last((value) => value === 'bar', 'default')).to.equal('bar');
+            expect(new Collection([
+                'foo',
+                'bar',
+                'Bar',
+            ]).last((value) => value === 'bar', 'default')).to.equal('bar');
 
             expect(new Collection().last(undefined, 'default')).to.equal('default');
         });
 
         it('has() / hasAny() check for keys, one or many', () => {
             // PHP: SupportCollectionTest::testHas, ::testHasAny
-            const data = new Collection(['taylor', 'otwell']);
+            const data = new Collection([
+                'taylor',
+                'otwell',
+            ]);
 
             expect(data.has(0)).to.equal(true);
             expect(data.has(1)).to.equal(true);
             expect(data.has(2)).to.equal(false);
-            expect(data.has([0, 1])).to.equal(true);
-            expect(data.has([0, 2])).to.equal(false);
+            expect(data.has([
+                0,
+                1,
+            ])).to.equal(true);
+            expect(data.has([
+                0,
+                2,
+            ])).to.equal(false);
 
             expect(data.hasAny(0)).to.equal(true);
-            expect(data.hasAny([0, 2])).to.equal(true);
-            expect(data.hasAny([2, 3])).to.equal(false);
+            expect(data.hasAny([
+                0,
+                2,
+            ])).to.equal(true);
+            expect(data.hasAny([
+                2,
+                3,
+            ])).to.equal(false);
         });
 
         it('get() reads by key, with a default value or a callback default', () => {
@@ -122,7 +202,11 @@ export = (): void => {
             // default is not resolved here -- get()'s defaultValue parameter
             // is a plain `TValue`, so the callback itself is asserted as the
             // returned value)
-            const data = new Collection([1, 2, 3]);
+            const data = new Collection([
+                1,
+                2,
+                3,
+            ]);
             expect(data.get(99)).to.equal(undefined);
 
             const named = new Collection<string, string>({
@@ -137,7 +221,15 @@ export = (): void => {
             // ::testSearchReturnsFalseWhenItemIsNotFound (adapted: no
             // "found"/"not found" ambiguity to resolve since `search()`
             // returns `undefined`, not PHP's falsy `false`, on a miss)
-            const data = new Collection([1, 2, 3, 4, 5, 2, 5]);
+            const data = new Collection([
+                1,
+                2,
+                3,
+                4,
+                5,
+                2,
+                5,
+            ]);
 
             expect(data.search(2)).to.equal(1);
             expect(data.search((value) => value > 4)).to.equal(4);
@@ -154,14 +246,23 @@ export = (): void => {
             });
             expect(named.keys().all().size()).to.equal(2);
 
-            const indexed = new Collection(['taylor', 'laravel']);
-            expectDeepEqual(indexed.keys().all(), [0, 1]);
+            const indexed = new Collection([
+                'taylor',
+                'laravel',
+            ]);
+            expectDeepEqual(indexed.keys().all(), [
+                0,
+                1,
+            ]);
         });
 
         it('pull() retrieves and removes an item by key, or returns a default', () => {
             // PHP: SupportCollectionTest::testPullRetrievesItemFromCollection,
             // ::testPullRemovesItemFromCollection, ::testPullReturnsDefault
-            const c = new Collection(['foo', 'bar']);
+            const c = new Collection([
+                'foo',
+                'bar',
+            ]);
             expect(c.pull(0)).to.equal('foo');
             expectDeepEqual(c.all(), ['bar']);
             expect(c.pull(1)).to.equal('bar');

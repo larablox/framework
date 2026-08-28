@@ -381,7 +381,10 @@ export = (): void => {
             const container = new Container();
             container.bind('one', () => 1);
             container.bind('two', () => 2);
-            container.tag(['one', 'two'], 'numbers');
+            container.tag([
+                'one',
+                'two',
+            ], 'numbers');
 
             const classInstance = container.make(TagTest);
             const values = (classInstance.integers as { toArray(): Array<unknown>; }).toArray();

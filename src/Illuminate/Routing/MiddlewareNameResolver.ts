@@ -44,7 +44,10 @@ export class MiddlewareNameResolver
         // carry a suffix -- so the arguments travel beside it in a list, which
         // is the shape `Pipeline::parsePipeString()` reads.
         if (!typeIs(resolved, 'string')) {
-            return [resolved, ...parameters.split(',')] as Pipe;
+            return [
+                resolved,
+                ...parameters.split(','),
+            ] as Pipe;
         }
 
         return `${resolved}:${parameters}`;
@@ -80,9 +83,15 @@ export class MiddlewareNameResolver
     protected static split(name: string): [string, string | undefined]
     {
         if (!Str.contains(name, ':')) {
-            return [name, undefined];
+            return [
+                name,
+                undefined,
+            ];
         }
 
-        return [Str.before(name, ':'), Str.after(name, ':')];
+        return [
+            Str.before(name, ':'),
+            Str.after(name, ':'),
+        ];
     }
 }

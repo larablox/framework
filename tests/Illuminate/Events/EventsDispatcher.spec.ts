@@ -93,7 +93,10 @@ export = (): void => {
                 expectDeepEqual(eventTest as Array<defined>, []);
             });
 
-            expectDeepEqual(eventTest as Array<defined>, ['foo', 'bar']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                'foo',
+                'bar',
+            ]);
         });
 
         it('nested defer() calls flush inner-first', () => {
@@ -116,7 +119,11 @@ export = (): void => {
                 d.dispatch('foo', ['outer2']);
             });
 
-            expectDeepEqual(eventTest as Array<defined>, ['inner', 'outer1', 'outer2']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                'inner',
+                'outer1',
+                'outer2',
+            ]);
         });
 
         it('defer() with an event-name list only holds back those events', () => {
@@ -139,7 +146,10 @@ export = (): void => {
                 expectDeepEqual(eventTest as Array<defined>, ['immediate']);
             }, ['foo']);
 
-            expectDeepEqual(eventTest as Array<defined>, ['immediate', 'deferred']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                'immediate',
+                'deferred',
+            ]);
         });
 
         it('nested defer() with event-name lists compose correctly', () => {
@@ -165,10 +175,17 @@ export = (): void => {
                     d.dispatch('foo', ['inner-deferred']);
                     d.dispatch('bar', ['inner-immediate']);
 
-                    expectDeepEqual(eventTest as Array<defined>, ['outer-immediate', 'inner-immediate']);
+                    expectDeepEqual(eventTest as Array<defined>, [
+                        'outer-immediate',
+                        'inner-immediate',
+                    ]);
                 }, ['foo']);
 
-                expectDeepEqual(eventTest as Array<defined>, ['outer-immediate', 'inner-immediate', 'inner-deferred']);
+                expectDeepEqual(eventTest as Array<defined>, [
+                    'outer-immediate',
+                    'inner-immediate',
+                    'inner-deferred',
+                ]);
             }, ['foo']);
 
             expectDeepEqual(eventTest as Array<defined>, [
@@ -204,7 +221,10 @@ export = (): void => {
                 expectDeepEqual(eventTest as Array<defined>, ['ImmediateTestEvent']);
             }, [DeferTestEvent]);
 
-            expectDeepEqual(eventTest as Array<defined>, ['ImmediateTestEvent', 'DeferTestEvent']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                'ImmediateTestEvent',
+                'DeferTestEvent',
+            ]);
         });
 
         it('dispatch(halt=true)/until() stop at the first non-undefined response', () => {
@@ -274,7 +294,11 @@ export = (): void => {
 
             const response = d.dispatch('foo', ['bar']);
 
-            expectDeepEqual(response as Array<defined>, [0, [], '']);
+            expectDeepEqual(response as Array<defined>, [
+                0,
+                [],
+                '',
+            ]);
         });
 
         it('a Class@method listener string resolves the class through the container (adapted -- see class comment)', () => {
@@ -308,7 +332,10 @@ export = (): void => {
             container.bind('TestEventListener', TestEventListener);
             const d = new Dispatcher(container);
             d.listen('foo', 'TestEventListener@onFooEvent');
-            const response = d.dispatch('foo', ['foo', 'bar']);
+            const response = d.dispatch('foo', [
+                'foo',
+                'bar',
+            ]);
 
             expectDeepEqual(response as Array<defined>, ['baz']);
             expect(makeCallCount).to.equal(1);
@@ -316,7 +343,10 @@ export = (): void => {
             // Default `handle` method, no explicit `@method` suffix.
             const d2 = new Dispatcher(new Container());
             d2.listen('foo', TestEventListener);
-            const response2 = d2.dispatch('foo', ['foo', 'bar']);
+            const response2 = d2.dispatch('foo', [
+                'foo',
+                'bar',
+            ]);
             expectDeepEqual(response2 as Array<defined>, ['baz']);
         });
 
@@ -421,7 +451,10 @@ export = (): void => {
 
             const response = d.dispatch('foo.bar');
 
-            expectDeepEqual(response as Array<defined>, ['regular', 'wildcard']);
+            expectDeepEqual(response as Array<defined>, [
+                'regular',
+                'wildcard',
+            ]);
         });
 
         it('wildcard cache picks up newly registered listeners', () => {
@@ -525,16 +558,25 @@ export = (): void => {
             let d = new Dispatcher();
             d.listen('foo.*', (event: string, data: Array<string>) => {
                 expect(event).to.equal('foo.bar');
-                expectDeepEqual(data as Array<defined>, ['first', 'second']);
+                expectDeepEqual(data as Array<defined>, [
+                    'first',
+                    'second',
+                ]);
             });
-            d.dispatch('foo.bar', ['first', 'second']);
+            d.dispatch('foo.bar', [
+                'first',
+                'second',
+            ]);
 
             d = new Dispatcher();
             d.listen('foo.bar', (first: string, second: string) => {
                 expect(first).to.equal('first');
                 expect(second).to.equal('second');
             });
-            d.dispatch('foo.bar', ['first', 'second']);
+            d.dispatch('foo.bar', [
+                'first',
+                'second',
+            ]);
         });
 
         it('a class event dispatches by its own class name', () => {
@@ -629,7 +671,10 @@ export = (): void => {
             d.dispatch('event');
             expectDeepEqual(eventTest as Array<defined>, []);
             d.dispatch('event');
-            expectDeepEqual(eventTest as Array<defined>, ['fired 1', 'fired 2']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                'fired 1',
+                'fired 2',
+            ]);
         });
 
         it('the same class listener registered twice fires twice', () => {
@@ -832,12 +877,20 @@ export = (): void => {
             d.dispatch('ExampleEvent');
 
             // It only resolves relevant listeners not all.
-            expectDeepEqual(eventTest as Array<defined>, ['cons-2', 'handle-2']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                'cons-2',
+                'handle-2',
+            ]);
 
             eventTest = new Array<string>();
             d.dispatch('TestEvent');
 
-            expectDeepEqual(eventTest as Array<defined>, ['cons-1', 'handle-1', 'cons-2-falser', 'handle-2-falser']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                'cons-1',
+                'handle-1',
+                'cons-2-falser',
+                'handle-2-falser',
+            ]);
 
             d = new Dispatcher();
             d.listen('TestEvent', TestListener1);
@@ -847,7 +900,10 @@ export = (): void => {
             eventTest = new Array<string>();
             d.dispatch('TestEvent', undefined, true);
 
-            expectDeepEqual(eventTest as Array<defined>, ['cons-1', 'handle-1']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                'cons-1',
+                'handle-1',
+            ]);
         });
 
         it('only handle() is called when a listener declares both handle() and __invoke() (adapted -- see below)', () => {
@@ -877,7 +933,10 @@ export = (): void => {
             const d = new Dispatcher();
             d.listen('myEvent', TestListenerHandler);
             d.dispatch('myEvent');
-            expectDeepEqual(eventTest as Array<defined>, ['__construct', 'handle']);
+            expectDeepEqual(eventTest as Array<defined>, [
+                '__construct',
+                'handle',
+            ]);
 
             eventTest = new Array<string>();
         });

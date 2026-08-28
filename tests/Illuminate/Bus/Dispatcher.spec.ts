@@ -58,7 +58,11 @@ class FakeQueue implements Queue
 
     public push(job: unknown, data?: unknown, queue?: string): unknown
     {
-        this.pushCalls.push([job, data, queue]);
+        this.pushCalls.push([
+            job,
+            data,
+            queue,
+        ]);
 
         return undefined;
     }
@@ -75,7 +79,12 @@ class FakeQueue implements Queue
 
     public later(delay: DelayValue, job: unknown, data?: unknown, queue?: string): unknown
     {
-        this.laterCalls.push([delay, job, data, queue]);
+        this.laterCalls.push([
+            delay,
+            job,
+            data,
+            queue,
+        ]);
 
         return undefined;
     }
@@ -208,7 +217,12 @@ export = (): void => {
             const queue = new FakeQueue();
             const dispatcher = new Dispatcher(container, () => queue);
 
-            dispatcher.map([[StandAloneCommand, StandAloneHandler]]);
+            dispatcher.map([
+                [
+                    StandAloneCommand,
+                    StandAloneHandler,
+                ],
+            ]);
 
             const command = new StandAloneCommand();
             const response = dispatcher.dispatch(command);

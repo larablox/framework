@@ -84,7 +84,17 @@ export = (): void => {
     describe('Http.Request', () => {
         // PHP: HttpRequestTest::testMethodMethod
         it('returns the method it was constructed with, uppercased', () => {
-            for (const method of ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']) {
+            for (
+                const method of [
+                    'GET',
+                    'HEAD',
+                    'POST',
+                    'PUT',
+                    'PATCH',
+                    'DELETE',
+                    'OPTIONS',
+                ]
+            ) {
                 const request = new Request(player, method, '');
                 expect(request.method()).to.equal(method);
             }
@@ -112,9 +122,20 @@ export = (): void => {
         // PHP: HttpRequestTest::testSegmentsMethod (data provider inlined)
         it('returns every path segment', () => {
             expect(new Request(player, 'GET', '').segments().size()).to.equal(0);
-            expectDeepEqual(new Request(player, 'GET', 'foo/bar').segments(), ['foo', 'bar']);
-            expectDeepEqual(new Request(player, 'GET', 'foo/bar//baz').segments(), ['foo', 'bar', 'baz']);
-            expectDeepEqual(new Request(player, 'GET', 'foo/0/bar').segments(), ['foo', '0', 'bar']);
+            expectDeepEqual(new Request(player, 'GET', 'foo/bar').segments(), [
+                'foo',
+                'bar',
+            ]);
+            expectDeepEqual(new Request(player, 'GET', 'foo/bar//baz').segments(), [
+                'foo',
+                'bar',
+                'baz',
+            ]);
+            expectDeepEqual(new Request(player, 'GET', 'foo/0/bar').segments(), [
+                'foo',
+                '0',
+                'bar',
+            ]);
         });
 
         // PHP: HttpRequestTest::testIsMethod
@@ -175,16 +196,27 @@ export = (): void => {
             expect(request.has('name')).to.equal(true);
             expect(request.has('age')).to.equal(true);
             expect(request.has('foo')).to.equal(false);
-            expect(request.has(['name', 'email'])).to.equal(false);
+            expect(request.has([
+                'name',
+                'email',
+            ])).to.equal(false);
 
             request = new Request(player, 'GET', '/', {
                 name: 'Taylor',
                 email: 'foo',
             });
             expect(request.has('name')).to.equal(true);
-            expect(request.has(['name', 'email'])).to.equal(true);
+            expect(request.has([
+                'name',
+                'email',
+            ])).to.equal(true);
 
-            request = new Request(player, 'GET', '/', { foo: ['bar', 'bar'] });
+            request = new Request(player, 'GET', '/', {
+                foo: [
+                    'bar',
+                    'bar',
+                ],
+            });
             expect(request.has('foo')).to.equal(true);
 
             // PHP's fixture is `['foo' => ['bar' => null, 'baz' => '']]`; the
@@ -267,7 +299,10 @@ export = (): void => {
             });
             expect(request.missing('name')).to.equal(false);
             expect(request.missing('foo')).to.equal(true);
-            expect(request.missing(['name', 'email'])).to.equal(true);
+            expect(request.missing([
+                'name',
+                'email',
+            ])).to.equal(true);
 
             request = new Request(player, 'GET', '/', {
                 name: 'Taylor',
@@ -319,7 +354,10 @@ export = (): void => {
             });
             expect(request.hasAny('name')).to.equal(true);
             expect(request.hasAny('foo')).to.equal(false);
-            expect(request.hasAny(['name', 'email'])).to.equal(true);
+            expect(request.hasAny([
+                'name',
+                'email',
+            ])).to.equal(true);
         });
 
         // PHP: HttpRequestTest::testFilledMethod
@@ -334,7 +372,12 @@ export = (): void => {
             expect(request.filled('city')).to.equal(false);
             expect(request.filled('foo')).to.equal(false);
 
-            request = new Request(player, 'GET', '/', { foo: ['bar', 'baz'] });
+            request = new Request(player, 'GET', '/', {
+                foo: [
+                    'bar',
+                    'baz',
+                ],
+            });
             expect(request.filled('foo')).to.equal(true);
 
             request = new Request(player, 'GET', '/', { foo: { bar: 'baz' } });
@@ -363,8 +406,14 @@ export = (): void => {
             });
             expect(request.anyFilled(['name'])).to.equal(true);
             expect(request.anyFilled(['age'])).to.equal(false);
-            expect(request.anyFilled(['age', 'name'])).to.equal(true);
-            expect(request.anyFilled(['foo', 'bar'])).to.equal(false);
+            expect(request.anyFilled([
+                'age',
+                'name',
+            ])).to.equal(true);
+            expect(request.anyFilled([
+                'foo',
+                'bar',
+            ])).to.equal(false);
         });
 
         // PHP: HttpRequestTest::testInputMethod
@@ -433,22 +482,56 @@ export = (): void => {
             expect((request.array() as Array<unknown>).size()).to.equal(0);
 
             request = new Request(player, 'GET', '/', {
-                users: [1, 2, 3],
-                roles: [4, 5, 6],
+                users: [
+                    1,
+                    2,
+                    3,
+                ],
+                roles: [
+                    4,
+                    5,
+                    6,
+                ],
                 email: 'test@example.com',
             });
 
             expectDeepEqual(request.array('missing'), []);
-            expectDeepEqual(request.array('users'), [1, 2, 3]);
-            expectDeepEqual(request.array(['users']), { users: [1, 2, 3] });
+            expectDeepEqual(request.array('users'), [
+                1,
+                2,
+                3,
+            ]);
+            expectDeepEqual(request.array(['users']), {
+                users: [
+                    1,
+                    2,
+                    3,
+                ],
+            });
         });
 
         // PHP: HttpRequestTest::testCollectMethod
         it('collect() wraps input as a Collection', () => {
-            let request = new Request(player, 'GET', '/', { users: [1, 2, 3] });
-            expectDeepEqual(request.collect('users').all(), [1, 2, 3]);
+            let request = new Request(player, 'GET', '/', {
+                users: [
+                    1,
+                    2,
+                    3,
+                ],
+            });
+            expectDeepEqual(request.collect('users').all(), [
+                1,
+                2,
+                3,
+            ]);
             expect(request.collect('developers').isEmpty()).to.equal(true);
-            expectDeepEqual(request.collect().all(), [[1, 2, 3]]);
+            expectDeepEqual(request.collect().all(), [
+                [
+                    1,
+                    2,
+                    3,
+                ],
+            ]);
 
             request = new Request(player, 'GET', '/', {});
             expect(request.collect().isEmpty()).to.equal(true);
@@ -480,20 +563,33 @@ export = (): void => {
                 name: 'Taylor',
                 age: undefined,
             });
-            expectDeepEqual(request.all(['name', 'age', 'email']), {
-                name: 'Taylor',
-                age: undefined,
-                email: undefined,
-            });
+            expectDeepEqual(
+                request.all([
+                    'name',
+                    'age',
+                    'email',
+                ]),
+                {
+                    name: 'Taylor',
+                    age: undefined,
+                    email: undefined,
+                },
+            );
             expectDeepEqual(request.all('name'), { name: 'Taylor' });
             expectDeepEqual(request.all(), { name: 'Taylor', age: undefined });
 
             request = new Request(player, 'GET', '/', {
                 developer: { name: 'Taylor', age: undefined },
             });
-            expectDeepEqual(request.all(['developer.name', 'developer.skills']), {
-                developer: { name: 'Taylor', skills: undefined },
-            });
+            expectDeepEqual(
+                request.all([
+                    'developer.name',
+                    'developer.skills',
+                ]),
+                {
+                    developer: { name: 'Taylor', skills: undefined },
+                },
+            );
         });
 
         // PHP: HttpRequestTest::testKeysMethod
@@ -518,10 +614,17 @@ export = (): void => {
                 name: 'Taylor',
                 age: undefined,
             });
-            expectDeepEqual(request.only(['name', 'age', 'email']), {
-                name: 'Taylor',
-                age: undefined,
-            });
+            expectDeepEqual(
+                request.only([
+                    'name',
+                    'age',
+                    'email',
+                ]),
+                {
+                    name: 'Taylor',
+                    age: undefined,
+                },
+            );
 
             request = new Request(player, 'GET', '/', {
                 developer: { name: 'Taylor', age: undefined },
@@ -539,7 +642,13 @@ export = (): void => {
                 age: 25,
             });
             expectDeepEqual(request.except('age'), { name: 'Taylor' });
-            expectDeepEqual(request.except(['age', 'name']), {});
+            expectDeepEqual(
+                request.except([
+                    'age',
+                    'name',
+                ]),
+                {},
+            );
         });
 
         // PHP: HttpRequestTest::testMergeMethod

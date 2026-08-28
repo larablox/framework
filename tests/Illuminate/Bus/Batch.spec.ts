@@ -112,7 +112,11 @@ class FakeQueue implements Queue
 
     public bulk(jobs: unknown, data?: unknown, queue?: string): void
     {
-        this.bulkCalls.push([jobs, data, queue]);
+        this.bulkCalls.push([
+            jobs,
+            data,
+            queue,
+        ]);
     }
 
     public pop(): undefined
@@ -213,7 +217,10 @@ export = (): void => {
             const job = new TestJob();
             const secondJob = new TestJob();
 
-            const added = batch.add([job, secondJob]);
+            const added = batch.add([
+                job,
+                secondJob,
+            ]);
 
             expect(queueFactory.connectionCalls[0]).to.equal('test-connection');
             expect(queueFactory.queue.bulkCalls.size()).to.equal(1);
@@ -278,7 +285,10 @@ export = (): void => {
 
             const job = new TestJob();
             const secondJob = new TestJob();
-            batch = batch.add([job, secondJob]) as Batch;
+            batch = batch.add([
+                job,
+                secondJob,
+            ]) as Batch;
             expect(batch.pendingJobs).to.equal(2);
 
             batch.recordSuccessfulJob('test-id');
@@ -363,7 +373,10 @@ export = (): void => {
 
             const job = new TestJob();
             const secondJob = new TestJob();
-            batch = batch.add([job, secondJob]) as Batch;
+            batch = batch.add([
+                job,
+                secondJob,
+            ]) as Batch;
 
             batch.recordSuccessfulJob('test-id-1');
             batch.recordSuccessfulJob('test-id-2');
@@ -398,7 +411,10 @@ export = (): void => {
 
             const job = new TestJob();
             const secondJob = new TestJob();
-            batch = batch.add([job, secondJob]) as Batch;
+            batch = batch.add([
+                job,
+                secondJob,
+            ]) as Batch;
 
             batch.recordFailedJob('test-id-1', new RuntimeException('Something went wrong.'));
             batch.recordFailedJob('test-id-2', new RuntimeException('Something else went wrong.'));
@@ -425,7 +441,10 @@ export = (): void => {
 
             const job = new TestJob();
             const secondJob = new TestJob();
-            batch = batch.add([job, secondJob]) as Batch;
+            batch = batch.add([
+                job,
+                secondJob,
+            ]) as Batch;
             expect(batch.pendingJobs).to.equal(2);
 
             batch.recordFailedJob('test-id', new RuntimeException('Something went wrong.'));
@@ -462,7 +481,10 @@ export = (): void => {
 
             const job = new TestJob();
             const secondJob = new TestJob();
-            batch = batch.add([job, secondJob]) as Batch;
+            batch = batch.add([
+                job,
+                secondJob,
+            ]) as Batch;
             expect(batch.pendingJobs).to.equal(2);
 
             batch.recordFailedJob('test-id', new RuntimeException('Something went wrong.'));

@@ -30,7 +30,10 @@ export = (): void => {
         {
             public getDontReport(): Array<AbstractClass>
             {
-                return [...this.dontReportTypes, ...this.internalDontReport];
+                return [
+                    ...this.dontReportTypes,
+                    ...this.internalDontReport,
+                ];
             }
         }
 

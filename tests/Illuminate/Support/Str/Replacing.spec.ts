@@ -35,17 +35,45 @@ export = (): void => {
             expect(Str.replace('baz', 'laravel', 'foo bar baz')).to.equal('foo bar laravel');
             expect(Str.replace('?', '8.x', 'foo bar baz ?')).to.equal('foo bar baz 8.x');
             expect(Str.replace(' ', '/', 'foo bar baz')).to.equal('foo/bar/baz');
-            expect(Str.replace(['?1', '?2', '?3'], ['foo', 'bar', 'baz'], '?1 ?2 ?3')).to.equal('foo bar baz');
+            expect(Str.replace([
+                '?1',
+                '?2',
+                '?3',
+            ], [
+                'foo',
+                'bar',
+                'baz',
+            ], '?1 ?2 ?3')).to.equal('foo bar baz');
         });
 
         it('replaceArray() replaces a placeholder sequentially with an array', () => {
             // PHP: SupportStrTest::testReplaceArray
-            expect(Str.replaceArray('?', ['foo', 'bar', 'baz'], '?/?/?')).to.equal('foo/bar/baz');
-            expect(Str.replaceArray('?', ['foo', 'bar', 'baz'], '?/?/?/?')).to.equal('foo/bar/baz/?');
-            expect(Str.replaceArray('?', ['foo', 'bar', 'baz'], '?/?')).to.equal('foo/bar');
-            expect(Str.replaceArray('x', ['foo', 'bar', 'baz'], '?/?/?')).to.equal('?/?/?');
+            expect(Str.replaceArray('?', [
+                'foo',
+                'bar',
+                'baz',
+            ], '?/?/?')).to.equal('foo/bar/baz');
+            expect(Str.replaceArray('?', [
+                'foo',
+                'bar',
+                'baz',
+            ], '?/?/?/?')).to.equal('foo/bar/baz/?');
+            expect(Str.replaceArray('?', [
+                'foo',
+                'bar',
+                'baz',
+            ], '?/?')).to.equal('foo/bar');
+            expect(Str.replaceArray('x', [
+                'foo',
+                'bar',
+                'baz',
+            ], '?/?/?')).to.equal('?/?/?');
             // Ensure recursive replacements are avoided
-            expect(Str.replaceArray('?', ['foo?', 'bar', 'baz'], '?/?/?')).to.equal('foo?/bar/baz');
+            expect(Str.replaceArray('?', [
+                'foo?',
+                'bar',
+                'baz',
+            ], '?/?/?')).to.equal('foo?/bar/baz');
         });
 
         it('replaceFirst() replaces only the first occurrence', () => {
@@ -106,9 +134,18 @@ export = (): void => {
             expect(Str.remove('bar', 'Foobar')).to.equal('Foo');
             expect(Str.remove('F', 'Foobar')).to.equal('oobar');
             expect(Str.remove('f', 'Foobar')).to.equal('Foobar');
-            expect(Str.remove(['o', 'a'], 'Foobar')).to.equal('Fbr');
-            expect(Str.remove(['f', 'b'], 'Foobar')).to.equal('Fooar');
-            expect(Str.remove(['f', '|'], 'Foo|bar')).to.equal('Foobar');
+            expect(Str.remove([
+                'o',
+                'a',
+            ], 'Foobar')).to.equal('Fbr');
+            expect(Str.remove([
+                'f',
+                'b',
+            ], 'Foobar')).to.equal('Fooar');
+            expect(Str.remove([
+                'f',
+                '|',
+            ], 'Foo|bar')).to.equal('Foobar');
         });
 
         it('swap() replaces multiple keys with their values', () => {
@@ -117,14 +154,25 @@ export = (): void => {
             expect(
                 Str.swap(
                     [
-                        ['PHP', 'PHP 8'],
-                        ['awesome', 'fantastic'],
+                        [
+                            'PHP',
+                            'PHP 8',
+                        ],
+                        [
+                            'awesome',
+                            'fantastic',
+                        ],
                     ],
                     'PHP is awesome',
                 ),
             ).to.equal('PHP 8 is fantastic');
 
-            expect(Str.swap([['ⓐⓑ', 'baz']], 'foo bar ⓐⓑ')).to.equal('foo bar baz');
+            expect(Str.swap([
+                [
+                    'ⓐⓑ',
+                    'baz',
+                ],
+            ], 'foo bar ⓐⓑ')).to.equal('foo bar baz');
         });
 
         it('deduplicate() collapses runs of a character into one', () => {
@@ -133,7 +181,11 @@ export = (): void => {
             expect(Str.deduplicate('whaaat', 'a')).to.equal('what');
             expect(Str.deduplicate('/some//odd//path/', '/')).to.equal('/some/odd/path/');
             expect(Str.deduplicate('ムだだム', 'だ')).to.equal('ムだム');
-            expect(Str.deduplicate(' laravell    foreverrr  ', [' ', 'l', 'r'])).to.equal(' laravel forever ');
+            expect(Str.deduplicate(' laravell    foreverrr  ', [
+                ' ',
+                'l',
+                'r',
+            ])).to.equal(' laravel forever ');
         });
 
         it('replaceMatches() replaces every Luau pattern match', () => {

@@ -146,7 +146,10 @@ export = (): void => {
                 ContainerTestBootable,
                 (_attribute: unknown, instance: ContainerTestHasBootable, c) => {
                     if (typeIs(instance.booting, 'function')) {
-                        c.call([instance, 'booting']);
+                        c.call([
+                            instance,
+                            'booting',
+                        ]);
                     }
                 },
             );

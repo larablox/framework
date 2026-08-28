@@ -48,7 +48,18 @@ export = (): void => {
             expect(Str.contains(Str.password(32, true, true, true, true), ' ')).to.equal(true);
 
             expect(
-                Str.contains(Str.of(Str.password()).value(), ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']),
+                Str.contains(Str.of(Str.password()).value(), [
+                    '0',
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5',
+                    '6',
+                    '7',
+                    '8',
+                    '9',
+                ]),
             ).to.equal(true);
         });
 

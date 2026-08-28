@@ -78,8 +78,17 @@ export = (): void => {
                 public subscribe(): Array<[string, Array<string>]>
                 {
                     return [
-                        ['myEvent1', ['DeclarativeSubscriber@listener1', 'DeclarativeSubscriber@listener2']],
-                        ['myEvent2', ['DeclarativeSubscriber@listener3']],
+                        [
+                            'myEvent1',
+                            [
+                                'DeclarativeSubscriber@listener1',
+                                'DeclarativeSubscriber@listener2',
+                            ],
+                        ],
+                        [
+                            'myEvent2',
+                            ['DeclarativeSubscriber@listener3'],
+                        ],
                     ];
                 }
 

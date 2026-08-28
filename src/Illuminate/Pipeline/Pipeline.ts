@@ -157,7 +157,10 @@ export class Pipeline implements PipelineContract
             return (pipe as (passable: Passable, next: Next) => unknown)(passable, stack);
         }
 
-        let parameters: Array<unknown> = [passable, stack];
+        let parameters: Array<unknown> = [
+            passable,
+            stack,
+        ];
 
         let instance: object;
 
@@ -166,7 +169,11 @@ export class Pipeline implements PipelineContract
 
             instance = this.getContainer().make(name) as object;
 
-            parameters = [passable, stack, ...extra];
+            parameters = [
+                passable,
+                stack,
+                ...extra,
+            ];
         } else {
             instance = pipe as object;
         }
@@ -216,20 +223,32 @@ export class Pipeline implements PipelineContract
                 parameters.push(list[index] as string);
             }
 
-            return [list[0] as Abstract, parameters];
+            return [
+                list[0] as Abstract,
+                parameters,
+            ];
         }
 
         if (!typeIs(pipe, 'string')) {
-            return [pipe as Abstract, []];
+            return [
+                pipe as Abstract,
+                [],
+            ];
         }
 
         const separator = pipe.find(':')[0];
 
         if (separator === undefined) {
-            return [pipe, []];
+            return [
+                pipe,
+                [],
+            ];
         }
 
-        return [pipe.sub(1, separator - 1), pipe.sub(separator + 1).split(',')];
+        return [
+            pipe.sub(1, separator - 1),
+            pipe.sub(separator + 1).split(','),
+        ];
     }
 
     /** Get the array of configured pipes. */

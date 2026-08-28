@@ -205,10 +205,14 @@ inside `.github/actions/setup` — for GitHub Actions it reads
   formatter is **dprint** (`dprint.json`), configured to read like Laravel:
   PSR-12 brace placement (declarations open on the next line, control flow
   on the same one), single quotes, and — the reason prettier is gone — it
-  **preserves authored multi-line layout**: an array or argument list
-  written in the upstream shape stays that way. Import order is authored
-  too (`sortImportDeclarations: maintain`). When porting, copy upstream's
-  line breaks along with its names.
+  **preserves authored multi-line layout**: an argument list written in the
+  upstream shape stays that way. Array literals are not authored but
+  enforced: `@stylistic/array-element-newline` in the eslint config expands
+  every array literal of two or more elements to one element per line
+  (destructuring patterns stay inline), which is the Laravel shape --
+  accepting that the few tuples PHP returns inline expand here too. Import
+  order is authored (`sortImportDeclarations: maintain`). When porting, copy
+  upstream's line breaks along with its names.
 - No Node APIs, no DOM, no `window`. The runtime is Luau; the only usable npm
   packages are `@rbxts/*`.
 - Do not add dependencies unless asked.

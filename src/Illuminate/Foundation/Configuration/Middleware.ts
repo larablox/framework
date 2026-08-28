@@ -75,7 +75,10 @@ export class Middleware
     /** Prepend middleware to the application's global middleware stack. */
     public prepend(middleware: Pipe | Array<Pipe>): this
     {
-        this.prepends = [...Arr.wrap(middleware), ...this.prepends];
+        this.prepends = [
+            ...Arr.wrap(middleware),
+            ...this.prepends,
+        ];
 
         return this;
     }
@@ -83,7 +86,10 @@ export class Middleware
     /** Append middleware to the application's global middleware stack. */
     public append(middleware: Pipe | Array<Pipe>): this
     {
-        this.appends = [...this.appends, ...Arr.wrap(middleware)];
+        this.appends = [
+            ...this.appends,
+            ...Arr.wrap(middleware),
+        ];
 
         return this;
     }
@@ -91,7 +97,10 @@ export class Middleware
     /** Remove middleware from the application's global middleware stack. */
     public remove(middleware: Pipe | Array<Pipe>): this
     {
-        this.removals = [...this.removals, ...Arr.wrap(middleware)];
+        this.removals = [
+            ...this.removals,
+            ...Arr.wrap(middleware),
+        ];
 
         return this;
     }
@@ -99,7 +108,10 @@ export class Middleware
     /** Specify a middleware that should be replaced with another middleware. */
     public replace(search: Pipe, replace: Pipe): this
     {
-        this.replacements.push([search, replace]);
+        this.replacements.push([
+            search,
+            replace,
+        ]);
 
         return this;
     }
@@ -127,7 +139,10 @@ export class Middleware
     /** Prepend the given middleware to the specified group. */
     public prependToGroup(group: string, middleware: Pipe | Array<Pipe>): this
     {
-        this.groupPrepends[group] = [...Arr.wrap(middleware), ...(this.groupPrepends[group] ?? new Array<Pipe>())];
+        this.groupPrepends[group] = [
+            ...Arr.wrap(middleware),
+            ...(this.groupPrepends[group] ?? new Array<Pipe>()),
+        ];
 
         return this;
     }
@@ -135,7 +150,10 @@ export class Middleware
     /** Append the given middleware to the specified group. */
     public appendToGroup(group: string, middleware: Pipe | Array<Pipe>): this
     {
-        this.groupAppends[group] = [...(this.groupAppends[group] ?? new Array<Pipe>()), ...Arr.wrap(middleware)];
+        this.groupAppends[group] = [
+            ...(this.groupAppends[group] ?? new Array<Pipe>()),
+            ...Arr.wrap(middleware),
+        ];
 
         return this;
     }
@@ -143,7 +161,10 @@ export class Middleware
     /** Remove the given middleware from the specified group. */
     public removeFromGroup(group: string, middleware: Pipe | Array<Pipe>): this
     {
-        this.groupRemovals[group] = [...Arr.wrap(middleware), ...(this.groupRemovals[group] ?? new Array<Pipe>())];
+        this.groupRemovals[group] = [
+            ...Arr.wrap(middleware),
+            ...(this.groupRemovals[group] ?? new Array<Pipe>()),
+        ];
 
         return this;
     }
@@ -153,7 +174,10 @@ export class Middleware
     {
         const replacements = this.groupReplacements[group] ?? new Array<[Pipe, Pipe]>();
 
-        replacements.push([search, replace]);
+        replacements.push([
+            search,
+            replace,
+        ]);
 
         this.groupReplacements[group] = replacements;
 
@@ -218,7 +242,10 @@ export class Middleware
     /** Prepend middleware to the priority middleware. */
     public prependToPriorityList(before: Pipe | Array<Pipe>, prepend: Pipe): this
     {
-        this.prependPriority.push([prepend, before]);
+        this.prependPriority.push([
+            prepend,
+            before,
+        ]);
 
         return this;
     }
@@ -226,7 +253,10 @@ export class Middleware
     /** Append middleware to the priority middleware. */
     public appendToPriorityList(after: Pipe | Array<Pipe>, append: Pipe): this
     {
-        this.appendPriority.push([append, after]);
+        this.appendPriority.push([
+            append,
+            after,
+        ]);
 
         return this;
     }
@@ -249,7 +279,11 @@ export class Middleware
             replaced.push(this.replacementFor(this.replacements, entry));
         }
 
-        const merged = [...this.prepends, ...replaced, ...this.appends];
+        const merged = [
+            ...this.prepends,
+            ...replaced,
+            ...this.appends,
+        ];
         const resolved = new Array<Pipe>();
 
         for (const entry of merged) {
@@ -266,7 +300,10 @@ export class Middleware
     {
         const middleware: Record<string, Array<Pipe>> = {
             api: this.apiLimiter !== undefined
-                ? [`throttle:${this.apiLimiter}`, SubstituteBindings]
+                ? [
+                    `throttle:${this.apiLimiter}`,
+                    SubstituteBindings,
+                ]
                 : [SubstituteBindings],
         };
 

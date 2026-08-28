@@ -49,7 +49,14 @@ export = (): void => {
             // see class comment.
             expect(Str.trim(' é ')).to.equal('é');
 
-            const trimDefaultChars = [' ', '\n', '\r', '\t', '\v', '\0'];
+            const trimDefaultChars = [
+                ' ',
+                '\n',
+                '\r',
+                '\t',
+                '\v',
+                '\0',
+            ];
 
             for (const character of trimDefaultChars) {
                 expect(Str.trim(` ${character} `)).to.equal('');
@@ -75,7 +82,14 @@ export = (): void => {
 
             expect(Str.ltrim(' é ')).to.equal('é ');
 
-            const ltrimDefaultChars = [' ', '\n', '\r', '\t', '\v', '\0'];
+            const ltrimDefaultChars = [
+                ' ',
+                '\n',
+                '\r',
+                '\t',
+                '\v',
+                '\0',
+            ];
 
             for (const character of ltrimDefaultChars) {
                 expect(Str.ltrim(` ${character} `)).to.equal('');
@@ -101,7 +115,14 @@ export = (): void => {
 
             expect(Str.rtrim(' é ')).to.equal(' é');
 
-            const rtrimDefaultChars = [' ', '\n', '\r', '\t', '\v', '\0'];
+            const rtrimDefaultChars = [
+                ' ',
+                '\n',
+                '\r',
+                '\t',
+                '\v',
+                '\0',
+            ];
 
             for (const character of rtrimDefaultChars) {
                 expect(Str.rtrim(` ${character} `)).to.equal('');

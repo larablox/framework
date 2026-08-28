@@ -26,7 +26,10 @@ export = (): void => {
         it('tag()/tagged() group bindings and resolve every tagged entry', () => {
             // PHP: ContainerTaggingTest::testContainerTags
             const container = new Container();
-            container.tag(ContainerImplementationTaggedStub, ['foo', 'bar']);
+            container.tag(ContainerImplementationTaggedStub, [
+                'foo',
+                'bar',
+            ]);
             container.tag(ContainerImplementationTaggedStubTwo, ['foo']);
 
             expect(container.tagged('bar').count()).to.equal(1);
@@ -40,7 +43,10 @@ export = (): void => {
             expect(fooResults[1] instanceof ContainerImplementationTaggedStubTwo).to.equal(true);
 
             const container2 = new Container();
-            container2.tag([ContainerImplementationTaggedStub, ContainerImplementationTaggedStubTwo], ['foo']);
+            container2.tag([
+                ContainerImplementationTaggedStub,
+                ContainerImplementationTaggedStubTwo,
+            ], ['foo']);
             expect(container2.tagged('foo').count()).to.equal(2);
 
             const fooResults2 = container2.tagged('foo').toArray();

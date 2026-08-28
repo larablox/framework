@@ -517,7 +517,10 @@ export class Application extends Container implements ApplicationContract
         provider.callBootingCallbacks();
 
         if (typeIs((provider as unknown as Record<string, unknown>).boot, 'function')) {
-            this.call([provider, 'boot']);
+            this.call([
+                provider,
+                'boot',
+            ]);
         }
 
         provider.callBootedCallbacks();
@@ -641,11 +644,30 @@ export class Application extends Container implements ApplicationContract
     public registerCoreContainerAliases(): void
     {
         const aliases: Array<[string, Array<Abstract>]> = [
-            ['app', [Application, Container, ContainerContract]],
-            ['config', [ConfigRepository]],
-            ['events', [Dispatcher]],
-            ['log', [LogManager]],
-            ['queue', [QueueManager]],
+            [
+                'app',
+                [
+                    Application,
+                    Container,
+                    ContainerContract,
+                ],
+            ],
+            [
+                'config',
+                [ConfigRepository],
+            ],
+            [
+                'events',
+                [Dispatcher],
+            ],
+            [
+                'log',
+                [LogManager],
+            ],
+            [
+                'queue',
+                [QueueManager],
+            ],
         ];
 
         for (const [key, targets] of aliases) {

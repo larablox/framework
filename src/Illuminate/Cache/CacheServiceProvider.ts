@@ -41,6 +41,10 @@ export class CacheServiceProvider extends ServiceProvider implements DeferrableP
     /** Get the services provided by the provider. */
     public provides(): Array<Abstract>
     {
-        return ['cache', 'cache.store', RateLimiter];
+        return [
+            'cache',
+            'cache.store',
+            RateLimiter,
+        ];
     }
 }

@@ -111,7 +111,10 @@ class RecordingDispatcher implements DispatcherContract
 
     public listen(events: EventName | Array<EventName>, listener: Listener): void
     {
-        this.listenCalls.push([events, listener]);
+        this.listenCalls.push([
+            events,
+            listener,
+        ]);
     }
 
     public hasListeners(): boolean

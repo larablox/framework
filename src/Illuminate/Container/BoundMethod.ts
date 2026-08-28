@@ -47,7 +47,10 @@ export class BoundMethod
             throw new InvalidArgumentException('Method not provided.');
         }
 
-        return BoundMethod.call(container, [container.make(segments[0]) as object, method], parameters);
+        return BoundMethod.call(container, [
+            container.make(segments[0]) as object,
+            method,
+        ], parameters);
     }
 
     /** Call a method that has been bound to the container. */
@@ -79,7 +82,10 @@ export class BoundMethod
     {
         const [target, method] = callback;
 
-        return [(BoundMethod.classOfTarget(target) ?? target) as Abstract, method];
+        return [
+            (BoundMethod.classOfTarget(target) ?? target) as Abstract,
+            method,
+        ];
     }
 
     /** The class a callable's first element refers to, if it can be determined. */
@@ -161,7 +167,10 @@ export class BoundMethod
 
         for (const [key, value] of parameters) {
             if (!consumed.has(key) && typeIs(key, 'number')) {
-                leftovers.push([key, value as defined]);
+                leftovers.push([
+                    key,
+                    value as defined,
+                ]);
             }
         }
 

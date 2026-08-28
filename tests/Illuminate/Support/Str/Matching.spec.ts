@@ -48,16 +48,39 @@ export = (): void => {
             // is not case sensitive
             expect(Str.is('A', 'a', true)).to.equal(true);
             expect(Str.is('*BAZ*', 'foo/bar/baz', true)).to.equal(true);
-            expect(Str.is(['A*', 'B*'], 'a/', true)).to.equal(true);
-            expect(Str.is(['A*', 'B*'], 'f/', true)).to.equal(false);
+            expect(Str.is(
+                [
+                    'A*',
+                    'B*',
+                ],
+                'a/',
+                true,
+            )).to.equal(true);
+            expect(Str.is(
+                [
+                    'A*',
+                    'B*',
+                ],
+                'f/',
+                true,
+            )).to.equal(false);
             expect(Str.is('FOO', 'foo', true)).to.equal(true);
             expect(Str.is('*FOO*', 'foo/bar/baz', true)).to.equal(true);
             expect(Str.is('foo/*', 'FOO/bar', true)).to.equal(true);
 
             // Accepts array of patterns
-            expect(Str.is(['a*', 'b*'], 'a/')).to.equal(true);
-            expect(Str.is(['a*', 'b*'], 'b/')).to.equal(true);
-            expect(Str.is(['a*', 'b*'], 'f/')).to.equal(false);
+            expect(Str.is([
+                'a*',
+                'b*',
+            ], 'a/')).to.equal(true);
+            expect(Str.is([
+                'a*',
+                'b*',
+            ], 'b/')).to.equal(true);
+            expect(Str.is([
+                'a*',
+                'b*',
+            ], 'f/')).to.equal(false);
 
             expect(Str.is('*/foo', 'blah/baz/foo')).to.equal(true);
 
@@ -77,9 +100,15 @@ export = (): void => {
 
         it('matchAll() returns every match as a collection', () => {
             // PHP: SupportStrTest::testMatch
-            expect(arraysEqual(Str.matchAll('bar', 'bar foo bar').all(), ['bar', 'bar'])).to.equal(true);
+            expect(arraysEqual(Str.matchAll('bar', 'bar foo bar').all(), [
+                'bar',
+                'bar',
+            ])).to.equal(true);
 
-            expect(arraysEqual(Str.matchAll('f(%w*)', 'bar fun bar fly').all(), ['un', 'ly'])).to.equal(true);
+            expect(arraysEqual(Str.matchAll('f(%w*)', 'bar fun bar fly').all(), [
+                'un',
+                'ly',
+            ])).to.equal(true);
 
             expect(Str.matchAll('nothing', 'bar fun bar fly').isEmpty()).to.equal(true);
 
@@ -94,8 +123,14 @@ export = (): void => {
             expect(Str.isMatch('^Hello', 'Hello, Laravel!')).to.equal(true);
             expect(Str.isMatch('nope!', 'Hello, Laravel!')).to.equal(false);
 
-            expect(Str.isMatch(['nope!', 'Laravel'], 'Hello, Laravel!')).to.equal(true);
-            expect(Str.isMatch(['nope!', 'also nope'], 'Hello, Laravel!')).to.equal(false);
+            expect(Str.isMatch([
+                'nope!',
+                'Laravel',
+            ], 'Hello, Laravel!')).to.equal(true);
+            expect(Str.isMatch([
+                'nope!',
+                'also nope',
+            ], 'Hello, Laravel!')).to.equal(false);
         });
     });
 };

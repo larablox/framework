@@ -44,7 +44,10 @@ export = (): void => {
                 },
             );
 
-            expectDeepEqual(logger.values, ['when', 2]);
+            expectDeepEqual(logger.values, [
+                'when',
+                2,
+            ]);
 
             const logger2 = new ConditionableLogger().log('init').when(
                 (l) => l.has('init'),
@@ -56,7 +59,11 @@ export = (): void => {
                 },
             );
 
-            expectDeepEqual(logger2.values, ['init', 'when', true]);
+            expectDeepEqual(logger2.values, [
+                'init',
+                'when',
+                true,
+            ]);
         });
 
         it('when() invokes the default callback for a falsy condition', () => {
@@ -71,7 +78,10 @@ export = (): void => {
                 },
             );
 
-            expectDeepEqual(logger.values, ['default', undefined]);
+            expectDeepEqual(logger.values, [
+                'default',
+                undefined,
+            ]);
 
             const logger2 = new ConditionableLogger().when(
                 (l) => l.has('missing'),
@@ -83,7 +93,10 @@ export = (): void => {
                 },
             );
 
-            expectDeepEqual(logger2.values, ['default', false]);
+            expectDeepEqual(logger2.values, [
+                'default',
+                false,
+            ]);
         });
 
         it('unless() invokes the callback for a falsy static or callback condition', () => {
@@ -98,7 +111,10 @@ export = (): void => {
                 },
             );
 
-            expectDeepEqual(logger.values, ['unless', undefined]);
+            expectDeepEqual(logger.values, [
+                'unless',
+                undefined,
+            ]);
 
             const logger2 = new ConditionableLogger().unless(
                 (l) => l.has('missing'),
@@ -110,7 +126,10 @@ export = (): void => {
                 },
             );
 
-            expectDeepEqual(logger2.values, ['unless', false]);
+            expectDeepEqual(logger2.values, [
+                'unless',
+                false,
+            ]);
         });
 
         it('unless() invokes the default callback for a truthy condition', () => {
@@ -125,7 +144,10 @@ export = (): void => {
                 },
             );
 
-            expectDeepEqual(logger.values, ['default', 2]);
+            expectDeepEqual(logger.values, [
+                'default',
+                2,
+            ]);
 
             const logger2 = new ConditionableLogger().log('init').unless(
                 (l) => l.has('init'),
@@ -137,7 +159,11 @@ export = (): void => {
                 },
             );
 
-            expectDeepEqual(logger2.values, ['init', 'default', true]);
+            expectDeepEqual(logger2.values, [
+                'init',
+                'default',
+                true,
+            ]);
         });
     });
 };

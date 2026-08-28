@@ -150,7 +150,20 @@ function encode(value: unknown, seen: Map<object, boolean>): unknown
 
         return {
             [TYPE_KEY]: 'cframe',
-            components: [x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22],
+            components: [
+                x,
+                y,
+                z,
+                r00,
+                r01,
+                r02,
+                r10,
+                r11,
+                r12,
+                r20,
+                r21,
+                r22,
+            ],
         };
     }
 
@@ -169,7 +182,12 @@ function encode(value: unknown, seen: Map<object, boolean>): unknown
     if (typeIs(value, 'UDim2')) {
         return {
             [TYPE_KEY]: 'udim2',
-            components: [value.X.Scale, value.X.Offset, value.Y.Scale, value.Y.Offset],
+            components: [
+                value.X.Scale,
+                value.X.Offset,
+                value.Y.Scale,
+                value.Y.Offset,
+            ],
         };
     }
 
@@ -256,7 +274,10 @@ function encodeTable(value: object, seen: Map<object, boolean>): unknown
         const pairsList = new Array<defined>();
 
         for (const [key, item] of pairs(entries)) {
-            pairsList.push([encode(key, seen), encode(item, seen)] as unknown as defined);
+            pairsList.push([
+                encode(key, seen),
+                encode(item, seen),
+            ] as unknown as defined);
         }
 
         encoded = { [TYPE_KEY]: 'map', entries: pairsList };

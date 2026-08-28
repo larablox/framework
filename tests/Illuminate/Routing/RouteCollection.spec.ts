@@ -176,7 +176,11 @@ export = (): void => {
             routeCollection.add(routeShow);
             routeCollection.add(routeNew);
 
-            expectDeepEqual(routeCollection.getRoutes(), [routeIndex, routeShow, routeNew]);
+            expectDeepEqual(routeCollection.getRoutes(), [
+                routeIndex,
+                routeShow,
+                routeNew,
+            ]);
         });
 
         // PHP: RouteCollectionTest::testRouteCollectionCanGetRoutesByName
@@ -238,11 +242,17 @@ export = (): void => {
         it('refreshing the lookups drops the lookups of routes since overwritten', () => {
             const routeCollection = new RouteCollection();
             const routeA = new Route('GET', 'product', {
-                controller: ['View', 'view'],
+                controller: [
+                    'View',
+                    'view',
+                ],
                 as: 'routeA',
             } as never);
             const routeB = new Route('GET', 'product', {
-                controller: ['OverwrittenView', 'view'],
+                controller: [
+                    'OverwrittenView',
+                    'view',
+                ],
                 as: 'overwrittenRouteA',
             } as never);
 

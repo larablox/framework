@@ -109,7 +109,15 @@ export abstract class AbstractRouteCollection
      */
     protected alternateVerbOrder(): Array<string>
     {
-        const verbs = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+        const verbs = [
+            'GET',
+            'HEAD',
+            'POST',
+            'PUT',
+            'PATCH',
+            'DELETE',
+            'OPTIONS',
+        ];
         const registered = this.registeredMethods();
 
         return [

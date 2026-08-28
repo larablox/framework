@@ -38,7 +38,10 @@ class PipelineTestParameterPipe
 
     public handle(piped: unknown, _next: Next, parameter1?: string, parameter2?: string): unknown
     {
-        this.parameters = [parameter1, parameter2];
+        this.parameters = [
+            parameter1,
+            parameter2,
+        ];
 
         return _next(piped);
     }
@@ -104,7 +107,10 @@ export = (): void => {
 
             const result = new Pipeline(container)
                 .send('foo')
-                .through([PipelineTestPipeOne, pipeTwo])
+                .through([
+                    PipelineTestPipeOne,
+                    pipeTwo,
+                ])
                 .then((piped) => piped);
 
             expect(result).to.equal('foo');
@@ -196,7 +202,10 @@ export = (): void => {
 
             const result = new Pipeline(new Container())
                 .send('foo')
-                .through([(): string => 'm(-_-)m', (): string => (secondCalled = 'm(-_-)m')])
+                .through([
+                    (): string => 'm(-_-)m',
+                    (): string => (secondCalled = 'm(-_-)m'),
+                ])
                 .then((piped) => {
                     thenCalled = '(0_0)';
 
@@ -305,7 +314,10 @@ export = (): void => {
             let finallyReceived: unknown;
             const result = new Pipeline(container)
                 .send('foo')
-                .through([PipelineTestPipeOne, pipeTwo])
+                .through([
+                    PipelineTestPipeOne,
+                    pipeTwo,
+                ])
                 .finally((piped) => {
                     finallyReceived = piped;
                 })
@@ -331,7 +343,10 @@ export = (): void => {
             let finallyReceived: unknown;
             const result = new Pipeline(container)
                 .send('foo')
-                .through([PipelineTestPipeOne, pipeTwo])
+                .through([
+                    PipelineTestPipeOne,
+                    pipeTwo,
+                ])
                 .finally((piped) => {
                     finallyReceived = piped;
                 })

@@ -105,8 +105,14 @@ export class Dispatcher implements QueueingDispatcher
 
         const callback = (passable: unknown): unknown =>
             resolved !== undefined
-                ? this.container.call([resolved, this.methodOf(resolved)], [passable])
-                : this.container.call([passable as object, this.methodOf(passable as object)]);
+                ? this.container.call([
+                    resolved,
+                    this.methodOf(resolved),
+                ], [passable])
+                : this.container.call([
+                    passable as object,
+                    this.methodOf(passable as object),
+                ]);
 
         const pipeline = this.pipeline.send(command).through(this.pipes);
 

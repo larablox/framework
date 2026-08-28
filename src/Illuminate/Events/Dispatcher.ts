@@ -187,7 +187,10 @@ export class Dispatcher implements DispatcherContract
         for (const [event, listeners] of events) {
             for (const listener of Util.arrayWrap(listeners)) {
                 if (typeIs(listener, 'string') && typeIs((resolved as Record<string, unknown>)[listener], 'function')) {
-                    this.listen(event, [Reflector.classOf(resolved) as Abstract, listener]);
+                    this.listen(event, [
+                        Reflector.classOf(resolved) as Abstract,
+                        listener,
+                    ]);
 
                     continue;
                 }
@@ -269,10 +272,16 @@ export class Dispatcher implements DispatcherContract
     protected parseEventAndPayload(event: EventName | object, payload: unknown): [EventName, EventPayload]
     {
         if (Reflector.isInstance(event)) {
-            return [Reflector.classOf(event as object) as EventName, [event as defined]];
+            return [
+                Reflector.classOf(event as object) as EventName,
+                [event as defined],
+            ];
         }
 
-        return [event as EventName, Util.arrayWrap(payload as defined | Array<defined> | undefined)];
+        return [
+            event as EventName,
+            Util.arrayWrap(payload as defined | Array<defined> | undefined),
+        ];
     }
 
     /** Get all of the listeners for a given event name. */
@@ -372,7 +381,10 @@ export class Dispatcher implements DispatcherContract
 
         const instance = (resolved ?? this.container.make(klass)) as Record<string, unknown>;
 
-        return this.toCallable([instance as unknown as object, method]);
+        return this.toCallable([
+            instance as unknown as object,
+            method,
+        ]);
     }
 
     /** Determine if the event handler class should be queued. */
@@ -543,10 +555,16 @@ export class Dispatcher implements DispatcherContract
         if (typeIs(listener, 'string')) {
             const [target, method] = Str.parseCallback(listener, 'handle');
 
-            return [target, method as string];
+            return [
+                target,
+                method as string,
+            ];
         }
 
-        return [listener, 'handle'];
+        return [
+            listener,
+            'handle',
+        ];
     }
 
     /** Determine if the listener is an already resolved `[instance, method]` pair. */

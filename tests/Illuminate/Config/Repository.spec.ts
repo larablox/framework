@@ -73,7 +73,10 @@ export = (): void => {
                     x: 'xxx',
                     y: 'yyy',
                 },
-                array: ['aaa', 'zzz'],
+                array: [
+                    'aaa',
+                    'zzz',
+                ],
                 x: {
                     z: 'zoo',
                 },
@@ -133,15 +136,28 @@ export = (): void => {
 
         it('getMany() reads several keys at once, dotted and defaulted', () => {
             // PHP: RepositoryTest::testGetWithArrayOfKeys (adapted -- see class comment)
-            const first = repository.getMany(['foo', 'bar', 'none']);
+            const first = repository.getMany([
+                'foo',
+                'bar',
+                'none',
+            ]);
             expect(first.foo).to.equal('bar');
             expect(first.bar).to.equal('baz');
             expect(first.none).to.equal(undefined);
 
             const second = repository.getMany([
-                ['x.y', 'default'],
-                ['x.z', 'default'],
-                ['bar', 'default'],
+                [
+                    'x.y',
+                    'default',
+                ],
+                [
+                    'x.z',
+                    'default',
+                ],
+                [
+                    'bar',
+                    'default',
+                ],
                 'baz',
             ] as Array<string | [string, unknown]>);
             expectDeepEqual(second, {
@@ -154,15 +170,28 @@ export = (): void => {
 
         it('getMany() reads several keys at once, dotted and defaulted', () => {
             // PHP: RepositoryTest::testGetMany
-            const first = repository.getMany(['foo', 'bar', 'none']);
+            const first = repository.getMany([
+                'foo',
+                'bar',
+                'none',
+            ]);
             expect(first.foo).to.equal('bar');
             expect(first.bar).to.equal('baz');
             expect(first.none).to.equal(undefined);
 
             const second = repository.getMany([
-                ['x.y', 'default'],
-                ['x.z', 'default'],
-                ['bar', 'default'],
+                [
+                    'x.y',
+                    'default',
+                ],
+                [
+                    'x.z',
+                    'default',
+                ],
+                [
+                    'bar',
+                    'default',
+                ],
                 'baz',
             ] as Array<string | [string, unknown]>);
             expectDeepEqual(second, {
@@ -248,7 +277,10 @@ export = (): void => {
 
         it('array() reads an array configuration value', () => {
             // PHP: RepositoryTest::testItGetsAsArray
-            expectDeepEqual(repository.array('array'), ['aaa', 'zzz']);
+            expectDeepEqual(repository.array('array'), [
+                'aaa',
+                'zzz',
+            ]);
         });
 
         it('array() throws for a non-array value', () => {

@@ -41,7 +41,10 @@ export = (): void => {
             expect(Str.startsWith('jason', 'jas')).to.equal(true);
             expect(Str.startsWith('jason', 'jason')).to.equal(true);
             expect(Str.startsWith('jason', ['jas'])).to.equal(true);
-            expect(Str.startsWith('jason', ['day', 'jas'])).to.equal(true);
+            expect(Str.startsWith('jason', [
+                'day',
+                'jas',
+            ])).to.equal(true);
             expect(Str.startsWith('jason', 'day')).to.equal(false);
             expect(Str.startsWith('jason', ['day'])).to.equal(false);
             expect(Str.startsWith('0123', '0')).to.equal(true);
@@ -70,7 +73,10 @@ export = (): void => {
             expect(Str.doesntStartWith('jason', 'jas')).to.equal(false);
             expect(Str.doesntStartWith('jason', 'jason')).to.equal(false);
             expect(Str.doesntStartWith('jason', ['jas'])).to.equal(false);
-            expect(Str.doesntStartWith('jason', ['day', 'jas'])).to.equal(false);
+            expect(Str.doesntStartWith('jason', [
+                'day',
+                'jas',
+            ])).to.equal(false);
             expect(Str.doesntStartWith('jason', 'day')).to.equal(true);
             expect(Str.doesntStartWith('jason', ['day'])).to.equal(true);
             expect(Str.doesntStartWith('0123', '0')).to.equal(false);
@@ -99,7 +105,10 @@ export = (): void => {
             expect(Str.endsWith('jason', 'on')).to.equal(true);
             expect(Str.endsWith('jason', 'jason')).to.equal(true);
             expect(Str.endsWith('jason', ['on'])).to.equal(true);
-            expect(Str.endsWith('jason', ['no', 'on'])).to.equal(true);
+            expect(Str.endsWith('jason', [
+                'no',
+                'on',
+            ])).to.equal(true);
             expect(Str.endsWith('jason', 'no')).to.equal(false);
             expect(Str.endsWith('jason', ['no'])).to.equal(false);
             expect(Str.endsWith('jason', '')).to.equal(false);
@@ -127,7 +136,10 @@ export = (): void => {
             expect(Str.doesntEndWith('jason', 'on')).to.equal(false);
             expect(Str.doesntEndWith('jason', 'jason')).to.equal(false);
             expect(Str.doesntEndWith('jason', ['on'])).to.equal(false);
-            expect(Str.doesntEndWith('jason', ['no', 'on'])).to.equal(false);
+            expect(Str.doesntEndWith('jason', [
+                'no',
+                'on',
+            ])).to.equal(false);
             expect(Str.doesntEndWith('jason', 'no')).to.equal(true);
             expect(Str.doesntEndWith('jason', ['no'])).to.equal(true);
             expect(Str.doesntEndWith('jason', '')).to.equal(true);
@@ -153,18 +165,80 @@ export = (): void => {
         it('contains() checks a haystack for one or more needles', () => {
             // PHP: SupportStrTest::testStrContains / strContainsProvider
             const cases: Array<[string, string | Array<string>, boolean, boolean?]> = [
-                ['Taylor', 'ylo', true, true],
-                ['Taylor', 'ylo', true, false],
-                ['Taylor', 'taylor', true, true],
-                ['Taylor', 'taylor', false, false],
-                ['Taylor', ['ylo'], true, true],
-                ['Taylor', ['ylo'], true, false],
-                ['Taylor', ['xxx', 'ylo'], true, true],
-                ['Taylor', ['xxx', 'ylo'], true, false],
-                ['Taylor', 'xxx', false],
-                ['Taylor', ['xxx'], false],
-                ['Taylor', '', false],
-                ['', '', false],
+                [
+                    'Taylor',
+                    'ylo',
+                    true,
+                    true,
+                ],
+                [
+                    'Taylor',
+                    'ylo',
+                    true,
+                    false,
+                ],
+                [
+                    'Taylor',
+                    'taylor',
+                    true,
+                    true,
+                ],
+                [
+                    'Taylor',
+                    'taylor',
+                    false,
+                    false,
+                ],
+                [
+                    'Taylor',
+                    ['ylo'],
+                    true,
+                    true,
+                ],
+                [
+                    'Taylor',
+                    ['ylo'],
+                    true,
+                    false,
+                ],
+                [
+                    'Taylor',
+                    [
+                        'xxx',
+                        'ylo',
+                    ],
+                    true,
+                    true,
+                ],
+                [
+                    'Taylor',
+                    [
+                        'xxx',
+                        'ylo',
+                    ],
+                    true,
+                    false,
+                ],
+                [
+                    'Taylor',
+                    'xxx',
+                    false,
+                ],
+                [
+                    'Taylor',
+                    ['xxx'],
+                    false,
+                ],
+                [
+                    'Taylor',
+                    '',
+                    false,
+                ],
+                [
+                    '',
+                    '',
+                    false,
+                ],
             ];
 
             for (const [haystack, needles, expected, ignoreCase] of cases) {
@@ -175,13 +249,60 @@ export = (): void => {
         it('containsAll() checks a haystack for every needle', () => {
             // PHP: SupportStrTest::testStrContainsAll / strContainsAllProvider
             const cases: Array<[string, Array<string>, boolean, boolean]> = [
-                ['Taylor Otwell', ['taylor', 'otwell'], false, false],
-                ['Taylor Otwell', ['taylor', 'otwell'], true, true],
-                ['Taylor Otwell', ['taylor'], false, false],
-                ['Taylor Otwell', ['taylor'], true, true],
-                ['Taylor Otwell', ['taylor', 'xxx'], false, false],
-                ['Taylor Otwell', ['taylor', 'xxx'], false, true],
-                ['Taylor Otwell', [], false, false],
+                [
+                    'Taylor Otwell',
+                    [
+                        'taylor',
+                        'otwell',
+                    ],
+                    false,
+                    false,
+                ],
+                [
+                    'Taylor Otwell',
+                    [
+                        'taylor',
+                        'otwell',
+                    ],
+                    true,
+                    true,
+                ],
+                [
+                    'Taylor Otwell',
+                    ['taylor'],
+                    false,
+                    false,
+                ],
+                [
+                    'Taylor Otwell',
+                    ['taylor'],
+                    true,
+                    true,
+                ],
+                [
+                    'Taylor Otwell',
+                    [
+                        'taylor',
+                        'xxx',
+                    ],
+                    false,
+                    false,
+                ],
+                [
+                    'Taylor Otwell',
+                    [
+                        'taylor',
+                        'xxx',
+                    ],
+                    false,
+                    true,
+                ],
+                [
+                    'Taylor Otwell',
+                    [],
+                    false,
+                    false,
+                ],
             ];
 
             for (const [haystack, needles, expected, ignoreCase] of cases) {

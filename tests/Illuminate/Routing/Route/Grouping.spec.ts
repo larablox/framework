@@ -123,7 +123,10 @@ export = (): void => {
             });
 
             const route = r.getRoutes().getRoutes()[0];
-            expectDeepEqual(route.middleware(), ['boo:foo', 'baz:gaz']);
+            expectDeepEqual(route.middleware(), [
+                'boo:foo',
+                'baz:gaz',
+            ]);
         });
 
         // PHP: RoutingRouteTest::testRoutePrefixing

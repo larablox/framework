@@ -40,6 +40,9 @@ export class BusServiceProvider extends ServiceProvider implements DeferrablePro
     /** Get the services provided by the provider. */
     public provides(): Array<Abstract>
     {
-        return [Dispatcher, 'bus.batches'];
+        return [
+            Dispatcher,
+            'bus.batches',
+        ];
     }
 }

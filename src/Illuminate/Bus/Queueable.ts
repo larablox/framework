@@ -137,7 +137,10 @@ export class Queueable extends InteractsWithQueue
     /** Prepend a job to the current chain so that it is run after the currently running job. */
     public prependToChain(job: object): this
     {
-        this.chained = [this.serializeJob(job), ...this.chained];
+        this.chained = [
+            this.serializeJob(job),
+            ...this.chained,
+        ];
 
         return this;
     }
@@ -145,7 +148,10 @@ export class Queueable extends InteractsWithQueue
     /** Append a job to the end of the current chain. */
     public appendToChain(job: object): this
     {
-        this.chained = [...this.chained, this.serializeJob(job)];
+        this.chained = [
+            ...this.chained,
+            this.serializeJob(job),
+        ];
 
         return this;
     }

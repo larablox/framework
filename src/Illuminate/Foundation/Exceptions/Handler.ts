@@ -87,7 +87,10 @@ export class Handler implements ExceptionHandler
      * PHP's list is longer only because it has more to list: the authentication,
      * authorisation, validation and model exceptions are not ported yet.
      */
-    protected internalDontReport: Array<AbstractClass> = [HttpException, HttpResponseException];
+    protected internalDontReport: Array<AbstractClass> = [
+        HttpException,
+        HttpResponseException,
+    ];
 
     /** Indicates that an exception instance should only be reported once. */
     protected withoutDuplicates = false;
@@ -146,7 +149,10 @@ export class Handler implements ExceptionHandler
             : (e: unknown) =>
                 new (to as unknown as new(message: string, code: number, previous: unknown) => object)('', 0, e);
 
-        this.exceptionMap.push([from, mapper]);
+        this.exceptionMap.push([
+            from,
+            mapper,
+        ]);
 
         return this;
     }
@@ -191,7 +197,10 @@ export class Handler implements ExceptionHandler
     /** Set the log level for the given exception type. */
     public level(exceptionType: AbstractClass, level: LogLevel): this
     {
-        this.levels.push([exceptionType, level]);
+        this.levels.push([
+            exceptionType,
+            level,
+        ]);
 
         return this;
     }
@@ -230,7 +239,12 @@ export class Handler implements ExceptionHandler
         // PHP: `Reflector::isCallable([$e, 'report'])` -- an exception that
         // knows how to report itself. The container makes the call so that the
         // method's own dependencies are resolved.
-        if (this.hasMethod(e, 'report') && this.container.call([e as object, 'report']) !== false) {
+        if (
+            this.hasMethod(e, 'report') && this.container.call([
+                    e as object,
+                    'report',
+                ]) !== false
+        ) {
             return;
         }
 

@@ -394,7 +394,10 @@ export class Collection<TKey extends defined, TValue extends defined>
         const entries = new Array<[TKey, TResult]>();
 
         for (const [key, value] of this.items.entries()) {
-            entries.push([key, callback(value, key)]);
+            entries.push([
+                key,
+                callback(value, key),
+            ]);
         }
 
         return Collection.fromEntries(entries);
@@ -451,7 +454,10 @@ export class Collection<TKey extends defined, TValue extends defined>
             const keep = callback === undefined ? Collection.truthy(value) : callback(value, key);
 
             if (keep) {
-                entries.push([key, value]);
+                entries.push([
+                    key,
+                    value,
+                ]);
             }
         }
 
@@ -515,7 +521,10 @@ export class Collection<TKey extends defined, TValue extends defined>
 
             const pluckedKey = key === undefined ? index : (Collection.dataGet(item, key) as defined);
 
-            entries.push([pluckedKey, plucked]);
+            entries.push([
+                pluckedKey,
+                plucked,
+            ]);
             index += 1;
         }
 
@@ -534,7 +543,10 @@ export class Collection<TKey extends defined, TValue extends defined>
                 ? (keyBy as ValueCallback<TKey, TValue, TNewKey>)(value, key)
                 : (Collection.dataGet(value, keyBy as string) as TNewKey);
 
-            entries.push([newKey, value]);
+            entries.push([
+                newKey,
+                value,
+            ]);
         }
 
         return Collection.fromEntries(entries);
@@ -559,7 +571,10 @@ export class Collection<TKey extends defined, TValue extends defined>
                 groups.set(groupKey, group);
             }
 
-            group.push([key, value]);
+            group.push([
+                key,
+                value,
+            ]);
         }
 
         const result = new OrderedMap<TGroupKey, Collection<TKey, TValue>>();
@@ -599,7 +614,10 @@ export class Collection<TKey extends defined, TValue extends defined>
             }
 
             seen.add(identity);
-            entries.push([key, value]);
+            entries.push([
+                key,
+                value,
+            ]);
         }
 
         return Collection.fromEntries(entries);
@@ -662,13 +680,22 @@ export class Collection<TKey extends defined, TValue extends defined>
 
         for (const [key, value] of this.items.entries()) {
             if (callback(value, key)) {
-                passed.push([key, value]);
+                passed.push([
+                    key,
+                    value,
+                ]);
             } else {
-                failed.push([key, value]);
+                failed.push([
+                    key,
+                    value,
+                ]);
             }
         }
 
-        return [Collection.fromEntries(passed), Collection.fromEntries(failed)];
+        return [
+            Collection.fromEntries(passed),
+            Collection.fromEntries(failed),
+        ];
     }
 
     /** Chunk the collection into chunks of the given size. */
@@ -826,7 +853,10 @@ export class Collection<TKey extends defined, TValue extends defined>
 
         for (const [key, value] of this.items.entries()) {
             if (wanted.includes(key)) {
-                entries.push([key, value]);
+                entries.push([
+                    key,
+                    value,
+                ]);
             }
         }
 

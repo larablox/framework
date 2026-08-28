@@ -26,12 +26,19 @@ class FakeMemoryStoreQueue
 
     public deleteReserved(queue: string, job: MemoryStoreJob): void
     {
-        this.deleteReservedCalls.push([queue, job]);
+        this.deleteReservedCalls.push([
+            queue,
+            job,
+        ]);
     }
 
     public deleteAndRelease(queue: string, job: MemoryStoreJob, delay: number): void
     {
-        this.deleteAndReleaseCalls.push([queue, job, delay]);
+        this.deleteAndReleaseCalls.push([
+            queue,
+            job,
+            delay,
+        ]);
     }
 }
 
@@ -41,7 +48,10 @@ class FooHandler
 
     public fire(job: unknown, data: unknown): void
     {
-        this.called = [job, data];
+        this.called = [
+            job,
+            data,
+        ];
     }
 }
 
@@ -66,7 +76,10 @@ function getJob(memoryStore: FakeMemoryStoreQueue): [MemoryStoreJob, FooHandler]
         'default',
     );
 
-    return [job, handler];
+    return [
+        job,
+        handler,
+    ];
 }
 
 export = (): void => {

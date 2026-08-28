@@ -58,7 +58,10 @@ export = (): void => {
             // PHP: KernelTest::testGetMiddlewarePriority
             const kernel = new Kernel(application(), router());
 
-            expectDeepEqual(kernel.getMiddlewarePriority(), [ThrottleRequests, SubstituteBindings] as Array<Pipe>);
+            expectDeepEqual(kernel.getMiddlewarePriority(), [
+                ThrottleRequests,
+                SubstituteBindings,
+            ] as Array<Pipe>);
         });
 
         it('addToMiddlewarePriorityAfter() splices the entry in after the named middleware (adapted -- see class comment)', () => {
@@ -126,7 +129,11 @@ export = (): void => {
 
             kernel.terminate(new Request({} as Player, 'GET', '/'), new Response());
 
-            expectDeepEqual(called, ['terminating event', 'terminating middleware', 'terminating callback']);
+            expectDeepEqual(called, [
+                'terminating event',
+                'terminating middleware',
+                'terminating callback',
+            ]);
         });
     });
 };

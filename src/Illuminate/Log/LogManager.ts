@@ -175,7 +175,15 @@ export class LogManager implements LoggerContract
     /** Parse the given tap class string into a class name and arguments string. */
     protected parseTap(tap: string): [string, string]
     {
-        return Str.contains(tap, ':') ? [Str.before(tap, ':'), Str.after(tap, ':')] : [tap, ''];
+        return Str.contains(tap, ':')
+            ? [
+                Str.before(tap, ':'),
+                Str.after(tap, ':'),
+            ]
+            : [
+                tap,
+                '',
+            ];
     }
 
     /** Create an emergency log handler to avoid white screens of death. */

@@ -117,7 +117,10 @@ export abstract class Queue
         const payload = this.withCreatePayloadHooks(queue, {
             uuid: Str.uuid(),
             displayName: this.getDisplayName(job),
-            job: [CallQueuedHandler, 'call'],
+            job: [
+                CallQueuedHandler,
+                'call',
+            ],
             maxTries: this.getJobTries(job) as number | undefined,
             maxExceptions: ReadsClassAttributes.getAttributeValue(job, MaxExceptions, 'maxExceptions') as
                 | number

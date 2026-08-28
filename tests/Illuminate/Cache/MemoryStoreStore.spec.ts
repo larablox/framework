@@ -132,7 +132,12 @@ export = (): void => {
             store.put('fizz', 'buzz', 60);
             store.put('norf', 'quz', 60);
 
-            const results = store.many(['foo', 'fizz', 'norf', 'null']);
+            const results = store.many([
+                'foo',
+                'fizz',
+                'norf',
+                'null',
+            ]);
 
             expect(results.get('foo')).to.equal('bar');
             expect(results.get('fizz')).to.equal('buzz');

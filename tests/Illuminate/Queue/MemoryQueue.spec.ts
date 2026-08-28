@@ -103,7 +103,14 @@ export = (): void => {
         it('bulk() pushes every job onto the given queue', () => {
             const queue = freshQueue();
 
-            queue.bulk(['foo', 'bar'], ['data'], 'queue');
+            queue.bulk(
+                [
+                    'foo',
+                    'bar',
+                ],
+                ['data'],
+                'queue',
+            );
 
             const records = queue.pendingJobs('queue');
 

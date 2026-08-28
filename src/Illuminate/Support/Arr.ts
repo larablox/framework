@@ -564,7 +564,10 @@ export class Arr
             }
         }
 
-        return [passed, failed];
+        return [
+            passed,
+            failed,
+        ];
     }
 
     /** Run a map over each of the items in the array. */
@@ -765,7 +768,10 @@ export class Arr
             values.push(value as defined);
         }
 
-        return [keys, values];
+        return [
+            keys,
+            values,
+        ];
     }
 
     /** Join all items using a string, with a separate glue for the final item. */

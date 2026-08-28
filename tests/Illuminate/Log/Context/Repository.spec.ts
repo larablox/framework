@@ -57,7 +57,11 @@ export = (): void => {
                 int: 5,
                 float: 5.5,
                 undef: undefined,
-                array: [1, 2, 3],
+                array: [
+                    1,
+                    2,
+                    3,
+                ],
                 hash: { foo: 'bar' },
             };
 
@@ -164,7 +168,11 @@ export = (): void => {
                 bool: false,
                 int: 5,
                 float: 5.5,
-                array: [1, 2, 3],
+                array: [
+                    1,
+                    2,
+                    3,
+                ],
                 hash: { foo: 'bar' },
             });
             context.addHidden('number', 55);
@@ -193,7 +201,12 @@ export = (): void => {
             context.push('breadcrumbs', 'bar');
             context.push('breadcrumbs', 'baz', 'qux');
 
-            expectDeepEqual(context.get('breadcrumbs'), ['foo', 'bar', 'baz', 'qux']);
+            expectDeepEqual(context.get('breadcrumbs'), [
+                'foo',
+                'bar',
+                'baz',
+                'qux',
+            ]);
         });
 
         it('push() throws when the key is not an array', () => {
@@ -408,10 +421,16 @@ export = (): void => {
             context.add('parent.child.2', 6);
             context.add('another', 7);
 
-            expectDeepEqual(context.only(['parent.child.1', 'parent.child.2']), {
-                'parent.child.1': 5,
-                'parent.child.2': 6,
-            });
+            expectDeepEqual(
+                context.only([
+                    'parent.child.1',
+                    'parent.child.2',
+                ]),
+                {
+                    'parent.child.1': 5,
+                    'parent.child.2': 6,
+                },
+            );
         });
 
         it('except() excludes a subset of context', () => {
@@ -422,7 +441,13 @@ export = (): void => {
             context.add('parent.child.2', 6);
             context.add('another', 7);
 
-            expectDeepEqual(context.except(['parent.child.1', 'parent.child.2']), { another: 7 });
+            expectDeepEqual(
+                context.except([
+                    'parent.child.1',
+                    'parent.child.2',
+                ]),
+                { another: 7 },
+            );
         });
 
         it('exceptHidden() excludes a subset of hidden context', () => {
@@ -433,7 +458,13 @@ export = (): void => {
             context.addHidden('parent.child.2', 6);
             context.addHidden('another', 7);
 
-            expectDeepEqual(context.exceptHidden(['parent.child.1', 'parent.child.2']), { another: 7 });
+            expectDeepEqual(
+                context.exceptHidden([
+                    'parent.child.1',
+                    'parent.child.2',
+                ]),
+                { another: 7 },
+            );
         });
 
         it('addHidden()/getHidden()/pushHidden() manage the hidden bag independently of add()', () => {
@@ -457,7 +488,10 @@ export = (): void => {
 
             context.pushHidden('foo', 1);
             context.pushHidden('foo', 2);
-            expectDeepEqual(context.getHidden('foo'), [1, 2]);
+            expectDeepEqual(context.getHidden('foo'), [
+                1,
+                2,
+            ]);
 
             context.addHidden('foo', 'bar');
 

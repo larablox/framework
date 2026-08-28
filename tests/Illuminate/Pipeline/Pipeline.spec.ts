@@ -91,6 +91,41 @@ class PipelineTestParameterPipe
  * for the same technique), which keeps `Pipeline` on the exact "resolve a class
  * from the container" code path while still giving the test a handle to inspect.
  */
+/** A pipe whose handle() returns the value CarryHandlingPipeline explodes on. */
+class BoomPipe
+{
+    public handle(): unknown
+    {
+        return 'boom';
+    }
+}
+
+/**
+ * Overrides both hooks the way Routing's pipeline does -- see the two
+ * `handleCarry` tests. What `handleException` received is stashed on the
+ * instance for the test to assert on (`expect` only exists inside an `it`).
+ */
+class CarryHandlingPipeline extends Pipeline
+{
+    public caught?: unknown;
+
+    protected handleCarry(carry: unknown): unknown
+    {
+        if (carry === 'boom') {
+            throw new RuntimeException('carry exploded');
+        }
+
+        return carry;
+    }
+
+    protected handleException(_passable: unknown, e: unknown): unknown
+    {
+        this.caught = e;
+
+        return 'handled';
+    }
+}
+
 export = (): void => {
     describe('Pipeline', () => {
         it('runs a class pipe resolved from the container, then a closure pipe', () => {
@@ -500,32 +535,31 @@ export = (): void => {
             // No upstream twin: pins the port to PHP's `try` shape, where
             // `handleCarry()` runs inside it -- Routing overrides it with
             // `toResponse()`, and what that throws must become a rendered
-            // response, not an exception through the stack.
-            class CarryHandlingPipeline extends Pipeline
-            {
-                protected handleCarry(carry: unknown): unknown
-                {
-                    if (carry === 'boom') {
-                        throw new RuntimeException('carry exploded');
-                    }
+            // response, not an exception through the stack. The pipe is an
+            // instance: only resolved and object pipes flow through
+            // `handleCarry()` (see the next test).
+            const pipeline = new CarryHandlingPipeline();
+            const result = pipeline
+                .send('payload')
+                .through([new BoomPipe()])
+                .then((passable: unknown) => passable);
 
-                    return carry;
-                }
+            expect(result).to.equal('handled');
+            expect(pipeline.caught instanceof RuntimeException).to.equal(true);
+        });
 
-                protected handleException(_passable: unknown, e: unknown): unknown
-                {
-                    expect(e instanceof RuntimeException).to.equal(true);
-
-                    return 'handled';
-                }
-            }
-
-            const result = new CarryHandlingPipeline()
+        it('a closure pipe returns straight to the caller, skipping handleCarry()', () => {
+            // PHP: carry()'s is_callable branch returns the callable's result
+            // directly -- handleCarry() never sees it, so a handler that
+            // would throw on this value proves the bypass by not throwing.
+            const pipeline = new CarryHandlingPipeline();
+            const result = pipeline
                 .send('payload')
                 .through([() => 'boom'])
                 .then((passable: unknown) => passable);
 
-            expect(result).to.equal('handled');
+            expect(result).to.equal('boom');
+            expect(pipeline.caught).to.equal(undefined);
         });
     });
 };

@@ -104,7 +104,8 @@ upstream mixes in. Explicitly compare each file's `uses:` traits against the por
 extends/mixin chain; a trait the port has already built elsewhere (`Conditionable` is
 mixed into Stringable, Request and others) is a finding, not a waiver.
 
-**Extra port-only members** inside a matched pair (`asList`, `callPipe`) have no waiver
+**Extra port-only members** inside a matched pair (`isPipeInstance`, the port's
+`is_object`) have no waiver
 mechanism — record the judgment about them in the notes of the upstream members whose
 logic they carry, and in the session report. One sanctioned kind exists: a **language
 compensation** — a helper standing in for a PHP builtin the platform lacks

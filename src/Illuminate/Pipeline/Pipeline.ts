@@ -133,59 +133,60 @@ export class Pipeline implements PipelineContract
     {
         return (stack: Next, pipe: Pipe) => {
             return (passable: Passable) => {
-                // `handleCarry` runs inside the try, as it does in PHP's:
-                // Routing overrides it with `toResponse()`, and what that
-                // throws must reach `handleException`, not the caller.
                 try {
-                    return this.handleCarry(this.callPipe(pipe, passable, stack));
+                    if (typeIs(pipe, 'function')) {
+                        // If the pipe is a callable, then we will call it directly, but otherwise we
+                        // will resolve the pipes out of the dependency container and call it with
+                        // the appropriate method and arguments, returning the results back out.
+                        return (pipe as (passable: Passable, next: Next) => unknown)(passable, stack);
+                    }
+
+                    let instance: object;
+
+                    let parameters: Array<unknown>;
+
+                    if (typeIs(pipe, 'string') || !this.isPipeInstance(pipe)) {
+                        const [name, extra] = typeIs(pipe, 'string') ? this.parsePipeString(pipe) : splitPipe(pipe);
+
+                        // If the pipe is a string we will parse the string and resolve the class out
+                        // of the dependency injection container. We can then build a callable and
+                        // execute the pipe function giving in the parameters that are required.
+                        instance = this.getContainer().make(name) as object;
+
+                        parameters = [
+                            passable,
+                            stack,
+                            ...extra,
+                        ];
+                    } else {
+                        // If the pipe is already an object we'll just make a callable and pass it to
+                        // the pipe as-is. There is no need to do any extra parsing and formatting
+                        // since the object we're given was already a fully instantiated object.
+                        instance = pipe as object;
+
+                        parameters = [
+                            passable,
+                            stack,
+                        ];
+                    }
+
+                    const handler = (instance as Record<string, unknown>)[this.method];
+
+                    if (!typeIs(handler, 'function')) {
+                        throw new RuntimeException(`The pipe [${tostring(pipe)}] has no [${this.method}] method.`);
+                    }
+
+                    const carry = (handler as (self: object, ...args: Array<unknown>) => unknown)(
+                        instance,
+                        ...(parameters as Array<never>),
+                    );
+
+                    return this.handleCarry(carry);
                 } catch (e) {
                     return this.handleException(passable, e);
                 }
             };
         };
-    }
-
-    /** Call one pipe, whichever of the three shapes it is. */
-    protected callPipe(pipe: Pipe, passable: Passable, stack: Next): unknown
-    {
-        // If the pipe is a callable, then we will call it directly, but otherwise we
-        // will resolve the pipes out of the dependency container and call it with
-        // the appropriate method and arguments, returning the results back out.
-        if (typeIs(pipe, 'function')) {
-            return (pipe as (passable: Passable, next: Next) => unknown)(passable, stack);
-        }
-
-        let parameters: Array<unknown> = [
-            passable,
-            stack,
-        ];
-
-        let instance: object;
-
-        if (typeIs(pipe, 'string') || !this.isPipeInstance(pipe)) {
-            const [name, extra] = typeIs(pipe, 'string') ? this.parsePipeString(pipe) : splitPipe(pipe);
-
-            instance = this.getContainer().make(name) as object;
-
-            parameters = [
-                passable,
-                stack,
-                ...extra,
-            ];
-        } else {
-            instance = pipe as object;
-        }
-
-        const handler = (instance as Record<string, unknown>)[this.method];
-
-        if (!typeIs(handler, 'function')) {
-            throw new RuntimeException(`The pipe [${tostring(pipe)}] has no [${this.method}] method.`);
-        }
-
-        return (handler as (self: object, ...args: Array<unknown>) => unknown)(
-            instance,
-            ...(parameters as Array<never>),
-        );
     }
 
     /**

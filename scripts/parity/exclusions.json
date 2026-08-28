@@ -1,7 +1,7 @@
 {
     "members": {
         "Pipeline/Pipeline.php#Pipeline#withinTransaction@property": {
-            "php_hash": null,
+            "php_hash": "66886a0f2b35432bfc8e8ca0e911bdd9cb489d4d",
             "kind": "deferred",
             "reason": "Wraps the run in a 'db' connection transaction; the port has no database component and no 'db' binding to reach for. Revisit when a database layer (e.g. over DataStore) lands and 'db' becomes bindable."
         },

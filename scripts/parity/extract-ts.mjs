@@ -88,13 +88,16 @@ function addMember(sink, member)
     if (existing && existing.hash !== null && member.hash === null) {
         return; // keep the implementation over a Shape mirror
     }
+    if (existing && !existing.mirror && member.mirror) {
+        return; // keep the implementation over a Shape mirror, hashes or not
+    }
     if (existing && existing.hash === null && member.hash === null && existing.kind === member.kind) {
         return; // first declaration wins between equals
     }
     sink.set(member.name, member);
 }
 
-function collectClassMembers(node, sourceFile, group)
+function collectClassMembers(node, sourceFile, group, mirror = false)
 {
     for (const member of node.members ?? []) {
         if (ts.isConstructorDeclaration(member)) {
@@ -115,8 +118,9 @@ function collectClassMembers(node, sourceFile, group)
                         static: false,
                         abstract: false,
                         declaration: group.name,
-                        hash: null,
+                        hash: hashNode(param, sourceFile),
                         lines: lineSpan(param, sourceFile),
+                        mirror,
                     });
                 }
             }
@@ -129,6 +133,7 @@ function collectClassMembers(node, sourceFile, group)
                 declaration: group.name,
                 hash: member.body ? hashNode(member, sourceFile) : null,
                 lines: lineSpan(member, sourceFile),
+                mirror,
             });
             continue;
         }
@@ -146,6 +151,7 @@ function collectClassMembers(node, sourceFile, group)
                 declaration: group.name,
                 hash: member.body ? hashNode(member, sourceFile) : null,
                 lines: lineSpan(member, sourceFile),
+                mirror,
             });
         } else if (ts.isPropertyDeclaration(member) || ts.isPropertySignature(member)) {
             addMember(group.sink, {
@@ -155,8 +161,9 @@ function collectClassMembers(node, sourceFile, group)
                 static: isStatic(member),
                 abstract: false,
                 declaration: group.name,
-                hash: null,
+                hash: ts.isPropertyDeclaration(member) && !mirror ? hashNode(member, sourceFile) : null,
                 lines: lineSpan(member, sourceFile),
+                mirror,
             });
         } else if (ts.isGetAccessorDeclaration(member) || ts.isSetAccessorDeclaration(member)) {
             const key = `${isStatic(member) ? 'static:' : ''}${name}`;
@@ -224,7 +231,7 @@ function extractFile(sourceFile)
                 }
             }
         }
-        collectClassMembers(node, sourceFile, group);
+        collectClassMembers(node, sourceFile, group, kind === 'shape');
     };
 
     const walkStatements = (statements) => {

@@ -6,6 +6,13 @@
         "proposed_at": "2026-08-28",
         "note": "Body matches (assign the optional container). Dismissed: @Inject(ContainerContract) on the parameter is the port's spelling of PHP's reflected ?Container type hint -- owed because the provider registers singleton(PipelineHubContract, Hub) class-as-concrete; the parameter property replaces the explicit $this->container assignment."
     },
+    "Pipeline/Hub.php#Hub#container@property": {
+        "php_hash": "5edb3489e2048f7c8c11e282fbdd13f57ea9ae5b",
+        "ts_hash": "f5de4eef2b814576fdac647e618c254710db4060",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Promoted constructor parameter on both sides; @Inject(ContainerContract) as on Pipeline, owed by the class-as-concrete singleton registration."
+    },
     "Pipeline/Hub.php#Hub#defaults": {
         "php_hash": "5c5482f0aa53f8190af7505be42baff2ad7f39ae",
         "ts_hash": "f3ed63e9efd6688997a1224cf52bce6a736e12f6",
@@ -26,6 +33,13 @@
         "status": "pending",
         "proposed_at": "2026-08-28",
         "note": "Matches. Dismissed: PHP's keyed array becomes OrderedMap.set -- the port's standing representation for PHP associative arrays (Container, Router, LogManager and a dozen others); only keyed get/set are used here, so the choice is unobservable."
+    },
+    "Pipeline/Hub.php#Hub#pipelines@property": {
+        "php_hash": "22f27b6c45bcbf71ffe21ddf352c1fdc58acd413",
+        "ts_hash": "a1ce4d4c94bb3855d97fd86c79ba590e853a4271",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "protected, empty default on both sides; PHP's keyed array is an OrderedMap here, the approved representation from Hub#pipeline's note."
     },
     "Pipeline/Hub.php#Hub#setContainer": {
         "php_hash": "f11f08e4b9219fada03497ede6ebd503ddd97a04",
@@ -50,6 +64,13 @@
         "note": "The upstream closure statement for statement: is_callable first (isCallable in the helpers -- a function, or a table with __call, the platform's __invoke), the not-an-object branch reassigning pipe from the container as upstream reassigns $pipe, the object branch, then the method_exists ternary -- a resolved or given object without the method is called as an invokable, so a __call table runs and anything else raises Luau's attempt-to-call, reaching handleException exactly as PHP's Error does. This closes the field-test finding: the port used to throw its own RuntimeException with no invokable path, and both upstream invokable tests are now ported. Dismissed: the destructured slot is _parameters with the merged list in let parameters (PHP retypes in place, as parsePipeString's note records); array_merge([passable, stack], parameters) is Arr.merge, the same language compensation as Arr.pad/Arr.reverse; the ternary is token for token through the helpers -- methodExists (method_exists; a method here is a function-valued field reached through __index), callMethod ($pipe->{$this->method}(...$parameters), the explicit target being the self PHP passes implicitly) and call ($callable(...$args)) -- so no local and no cast survives at the site. Known corners, neither reached by an upstream test: a binding resolving to a bare function fails methodExists (not a table) and falls to call(pipe, ...), which PHP would also end up calling; a closure stored in a field named like the method counts as a method here where PHP's method_exists would say false.",
         "approved_at": "2026-08-28"
     },
+    "Pipeline/Pipeline.php#Pipeline#container@property": {
+        "php_hash": "5edb3489e2048f7c8c11e282fbdd13f57ea9ae5b",
+        "ts_hash": "f5de4eef2b814576fdac647e618c254710db4060",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Promoted constructor parameter on both sides; the port adds @Inject(ContainerContract), the approved spelling of the reflected ?Container hint (see __construct)."
+    },
     "Pipeline/Pipeline.php#Pipeline#finally": {
         "php_hash": "13c6c00386ec42eef6b7bc32b9a5dd8e253f3f3a",
         "ts_hash": "3e6d66d43592d9c0d8cde57e72710bdbe7df3736",
@@ -57,6 +78,13 @@
         "proposed_at": "2026-08-28",
         "note": "Verbatim. The $finally property lives as _finally under the underscore convention (property/method name collision in one Luau table); the comparator matches it automatically.",
         "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#finally@property": {
+        "php_hash": "839b7e5b91643fd1f09b7e4622ef5408e9ec6566",
+        "ts_hash": "a619feffc62e8a5b30bda99fdc80e98033d86df1",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "protected, no default on either side; lives as _finally under the underscore convention (collides with the finally() method) and carries the callback type PHP leaves to the docblock."
     },
     "Pipeline/Pipeline.php#Pipeline#getContainer": {
         "php_hash": "a1034a6d82aef39051bd7aa74916c8de1117d36a",
@@ -82,6 +110,20 @@
         "note": "Verbatim rethrow; throw e compiles to error(e), so the original pcall error value propagates unchanged.",
         "approved_at": "2026-08-28"
     },
+    "Pipeline/Pipeline.php#Pipeline#isPipeInstance": {
+        "php_hash": null,
+        "ts_hash": "6692ccc775eb926cdc7696434f62f55dbaaacaaa",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Port-only: the platform's is_object for carry()'s not-an-object branch -- PHP asks is_object(), a class is a table here too, so the question is whether the metatable marks an instance (__index === metatable). Cannot dissolve into carry(): it is a reusable predicate with its own docblock, and the branch reads as upstream's elseif through it."
+    },
+    "Pipeline/Pipeline.php#Pipeline#method@property": {
+        "php_hash": "b2c89d3b486a81a55e25387c74be3ea002f7ab06",
+        "ts_hash": "fd6c3d1f35756a61a15f5456f48192b505a1f0b5",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: protected, default 'handle' on both sides."
+    },
     "Pipeline/Pipeline.php#Pipeline#parsePipeString": {
         "php_hash": "fbf5a45239c080d0160e8962f12d35b7aa4b1724",
         "ts_hash": "82d576187e56bd0afb343b514ed210e4f313acd0",
@@ -89,6 +131,13 @@
         "proposed_at": "2026-08-28",
         "note": "The upstream line itself: [name, parameters] destructured from Arr.pad(Str.explode(':', pipe, 2), 2, undefined) -- explode and array_pad are language compensations (extra members on Str/Arr, docblocked), and the undefined pad is the identity a Luau array forces, with the missing slot destructuring to undefined and playing is_null. The is_null branch is upstream's if/else and the return is the single [name, parameters]. Dismissed: the string slot destructures as _parameters under the underscore convention (the same spelling _pipes uses) -- PHP retypes $parameters from string to array in place, a TS binding's type is fixed at declaration, so the retyped half lives in let parameters; the exact-same-name encoding does compile but costs a tuple annotation plus a cast on the declaration, judged not worth it. The contract is upstream's (string in), and the port's non-string carriers ([Class, ...args], a bare class) live in splitPipe() in Pipeline/helpers.ts, dispatched where carry() resolves the pipe; both parsers feed make(), whose Abstract union plays the DI role PHP's string plays. Known scope difference for subclasses: an override of parsePipeString sees only string pipes here (in PHP every parameterized pipe is a string); one that needs every carrier overrides carry(), as it would upstream.",
         "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#passable@property": {
+        "php_hash": "3c9138db4ad4161ba39cef9743308e25c4498608",
+        "ts_hash": "3b2ddd93037a2a7bcfcfe64684aaed71154c24d6",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: protected, no default; typed Passable (unknown), the widest honest type for what send() accepts."
     },
     "Pipeline/Pipeline.php#Pipeline#pipe": {
         "php_hash": "23530aa6c0f7eb0c58b04b95a07be81643ed94db",
@@ -105,6 +154,13 @@
         "proposed_at": "2026-08-28",
         "note": "Verbatim; the $pipes property is _pipes under the underscore convention (collides with this method's name in one Luau table).",
         "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#pipes@property": {
+        "php_hash": "6f4f0476e381f5cbccb79e888088bc96f4d5087a",
+        "ts_hash": "287f24c83f0c5c448c417aaaaf7d35a34ce874f0",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "protected, empty-list default on both sides ([] as new Array<Pipe>()); lives as _pipes under the underscore convention (collides with the pipes() method)."
     },
     "Pipeline/Pipeline.php#Pipeline#prepareDestination": {
         "php_hash": "03bb42a1fad5fc77d57b4cca4fc2c3f8e8324a11",

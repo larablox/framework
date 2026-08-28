@@ -2,8 +2,6 @@
 // member to member, applies aliases, exclusions and approvals, and produces
 // the rows for files.csv / members.csv plus the per-component summary.
 
-const REVIEWABLE_KINDS = new Set(['method', 'function', 'accessor']);
-
 function stripExt(path)
 {
     return path.replace(/\.(php|ts)$/, '');
@@ -37,6 +35,15 @@ function ownProp(object, key)
 export function memberKey(phpPath, declName, phpMemberName)
 {
     return `${phpPath}#${declName}#${phpMemberName}`;
+}
+
+// Methods keep their historical kindless keys; every other kind carries a
+// `@kind` suffix so a property can live beside its same-named method
+// ($pipes beside pipes()) without colliding in the registries.
+export function approvalKey(phpPath, declName, memberName, kind)
+{
+    const base = memberKey(phpPath, declName, memberName);
+    return kind === 'method' || kind === 'function' ? base : `${base}@${kind}`;
 }
 
 export function compare({ php, ts, aliases, exclusions, approvals, component })
@@ -256,13 +263,13 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
             }
 
             let implStatus = '';
+            const reviewKey = approvalKey(pair.phpPath, decl.name, phpMember.name, phpMember.kind);
             if (status === 'both') {
-                const reviewable = REVIEWABLE_KINDS.has(phpMember.kind) && phpMember.hash !== null
-                    && tsMember.hash !== null;
+                const reviewable = phpMember.hash !== null && tsMember.hash !== null;
                 if (!reviewable) {
                     implStatus = 'n/a';
                 } else {
-                    const approval = ownProp(ctx.approvals, key);
+                    const approval = ownProp(ctx.approvals, reviewKey);
                     if (!approval) {
                         implStatus = 'unreviewed';
                         fileRow.impl_unreviewed++;
@@ -280,7 +287,7 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
                     } else {
                         implStatus = 'stale';
                         fileRow.impl_stale++;
-                        ctx.staleKeys.push(key);
+                        ctx.staleKeys.push(reviewKey);
                     }
                     if (approval?.note) noteParts.push(approval.note);
                 }
@@ -316,12 +323,37 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
         }
     }
 
-    // Port members with no upstream counterpart inside a matched pair.
+    // Port members with no upstream counterpart inside a matched pair. They
+    // are reviewable too: an approval records ts_hash with php_hash null, and
+    // goes stale when the port edits the member.
     for (const tsDecl of tsData.declarations) {
         const used = consumed.get(tsDecl.name) ?? new Set();
         for (const tsMember of tsDecl.members) {
             if (used.has(tsMember.name)) continue;
             fileRow.members_extra_in_port++;
+            const noteParts = [];
+            let implStatus = '';
+            if (tsMember.hash !== null) {
+                const reviewKey = approvalKey(pair.phpPath, tsDecl.name, tsMember.name, tsMember.kind);
+                const approval = ownProp(ctx.approvals, reviewKey);
+                if (!approval) {
+                    implStatus = 'unreviewed';
+                    fileRow.impl_unreviewed++;
+                } else if ((approval.php_hash ?? null) === null && approval.ts_hash === tsMember.hash) {
+                    if (approval.status === 'pending') {
+                        implStatus = 'pending';
+                        fileRow.impl_pending++;
+                    } else {
+                        implStatus = 'approved';
+                        fileRow.impl_approved++;
+                    }
+                } else {
+                    implStatus = 'stale';
+                    fileRow.impl_stale++;
+                    ctx.staleKeys.push(reviewKey);
+                }
+                if (approval?.note) noteParts.push(approval.note);
+            }
             memberRows.push({
                 component: fileRow.component,
                 laravel_path: pair.phpPath,
@@ -334,13 +366,13 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
                 php_static: '',
                 ts_visibility: tsMember.visibility,
                 ts_static: tsMember.static ? 'static' : '',
-                impl_status: '',
+                impl_status: implStatus,
                 vendor_deps: '',
                 php_line: '',
                 ts_line: tsMember.lines?.[0] ?? '',
                 php_hash: '',
                 ts_hash: tsMember.hash ?? '',
-                note: '',
+                note: noteParts.join(' '),
             });
         }
     }

@@ -127,9 +127,11 @@ The registries next to the scripts are committed and are the point of the tool:
 `aliases.json` (deliberate renames: `RedisQueue` → `MemoryStoreQueue`, ...;
 a leading underscore needs no alias — `_x` matches `x` by convention for
 names TS cannot use as-is), `exclusions.json` (typed waivers with reasons),
-`approvals.json` (per-method "implementation reviewed" marks keyed to
-body hashes of **both** sides, so editing the port or bumping Laravel flips
-the mark to stale automatically). Review loop:
+`approvals.json` (per-member "implementation reviewed" marks keyed to
+hashes of **both** sides — method bodies, and declaration hashes for
+properties and consts — so editing the port or bumping Laravel flips the
+mark to stale automatically; non-method keys carry an `@kind` suffix, and
+port-only extras are recorded with `php_hash: null`). Review loop:
 `--list stale|unreviewed|pending`, `--show "<key>"` (both bodies side by
 side, then the recorded review note and waiver, if any), `--propose "<key>"` / `--propose-file` (a review lands at
 **pending**), `--approve "<key>"` / `--approve-file` (promotion to

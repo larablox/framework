@@ -20,7 +20,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { FILE_COLUMNS, MEMBER_COLUMNS, compare, memberKey, summaryText, toCsv } from './compare.mjs';
+import { FILE_COLUMNS, MEMBER_COLUMNS, approvalKey, compare, memberKey, summaryText, toCsv } from './compare.mjs';
 import { extractTs } from './extract-ts.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -185,9 +185,11 @@ function main()
 
     // ---- registry commands ------------------------------------------------
     let registriesChanged = false;
+    const rowKey = (row) => approvalKey(row.laravel_path, row.declaration, row.member, row.kind);
     const approvableRows = () =>
         result.memberRows.filter((row) =>
-            row.status === 'both' && row.php_hash !== '' && row.ts_hash !== '' && row.impl_status !== 'n/a'
+            (row.status === 'both' && row.php_hash !== '' && row.ts_hash !== '' && row.impl_status !== 'n/a')
+            || (row.status === 'extra_in_port' && row.ts_hash !== '')
         );
 
     // A review lands at `pending` (--propose); only a person promotes to
@@ -199,7 +201,7 @@ function main()
         const existing = approvals[key] ?? {};
         approvals[key] = {
             ...existing,
-            php_hash: row.php_hash,
+            php_hash: row.php_hash === '' ? null : row.php_hash,
             ts_hash: row.ts_hash,
             status,
             ...(status === 'pending' ? { proposed_at: existing.proposed_at ?? today() } : { approved_at: today() }),
@@ -208,7 +210,7 @@ function main()
     };
 
     if (typeof args.propose === 'string') {
-        const row = approvableRows().find((r) => memberKey(r.laravel_path, r.declaration, r.member) === args.propose);
+        const row = approvableRows().find((r) => rowKey(r) === args.propose);
         if (!row) fail(`No reviewable member found for key: ${args.propose}`);
         record(args.propose, row, 'pending');
         registriesChanged = true;
@@ -218,13 +220,13 @@ function main()
         const rows = approvableRows().filter((r) => r.laravel_path === args['propose-file']);
         if (rows.length === 0) fail(`No reviewable members found in pair: ${args['propose-file']}`);
         for (const row of rows) {
-            record(memberKey(row.laravel_path, row.declaration, row.member), row, 'pending');
+            record(rowKey(row), row, 'pending');
         }
         registriesChanged = true;
     }
 
     if (typeof args.approve === 'string') {
-        const row = approvableRows().find((r) => memberKey(r.laravel_path, r.declaration, r.member) === args.approve);
+        const row = approvableRows().find((r) => rowKey(r) === args.approve);
         if (!row) fail(`No reviewable member found for key: ${args.approve}`);
         record(args.approve, row, 'approved');
         registriesChanged = true;
@@ -234,7 +236,7 @@ function main()
         const rows = approvableRows().filter((r) => r.laravel_path === args['approve-file']);
         if (rows.length === 0) fail(`No reviewable members found in pair: ${args['approve-file']}`);
         for (const row of rows) {
-            record(memberKey(row.laravel_path, row.declaration, row.member), row, 'approved');
+            record(rowKey(row), row, 'approved');
         }
         registriesChanged = true;
     }
@@ -280,7 +282,7 @@ function main()
             row.impl_status === wanted || (wanted === 'stale' && row.note.includes('STALE exclusion'))
         );
         for (const row of rows) {
-            console.log(memberKey(row.laravel_path, row.declaration, row.member));
+            console.log(rowKey(row));
         }
         console.log(`${rows.length} ${wanted} member(s)`);
         return;
@@ -288,12 +290,16 @@ function main()
 
     if (typeof args.show === 'string') {
         const phpFound = findPhpMember(php, args.show);
-        if (!phpFound) fail(`No upstream member found for key: ${args.show}`);
-        const phpFile = phpFound.member.file
-            ? join(vendorRoot, phpFound.member.file)
-            : join(upstreamSrc, phpFound.path);
-        printSlice('laravel', phpFile, phpFound.member.lines);
         const tsFound = findTsMember(php, ts, aliases, args.show);
+        if (!phpFound && !tsFound) fail(`No member found for key: ${args.show}`);
+        if (phpFound) {
+            const phpFile = phpFound.member.file
+                ? join(vendorRoot, phpFound.member.file)
+                : join(upstreamSrc, phpFound.path);
+            printSlice('laravel', phpFile, phpFound.member.lines);
+        } else {
+            console.log('--- laravel ---\n(no upstream twin)');
+        }
         if (tsFound) {
             printSlice('port', join(portSrc, tsFound.path), tsFound.member.lines);
         } else {
@@ -301,7 +307,9 @@ function main()
         }
         // The recorded judgment belongs next to the bodies it judges.
         const baseKey = args.show.split('@')[0];
-        const approval = Object.hasOwn(approvals, baseKey) ? approvals[baseKey] : undefined;
+        const approval = Object.hasOwn(approvals, args.show)
+            ? approvals[args.show]
+            : (Object.hasOwn(approvals, baseKey) ? approvals[baseKey] : undefined);
         if (approval) {
             const dates = [
                 approval.proposed_at ? `proposed ${approval.proposed_at}` : '',

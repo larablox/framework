@@ -154,8 +154,13 @@ never treat a general "закончи ревью" as that instruction.
   judgment cannot be challenged, and unchallengeable judgments is how the closure-capture
   bug got through. Add notes by editing `scripts/parity/approvals.json` (the field is
   `note`); re-proposing keeps the existing entry's note and `proposed_at`.
-- `n/a` members (properties, consts, bodiless methods) carry no approval; their parity is
-  presence + visibility, already in the CSV.
+- Properties and consts are reviewable like methods: both extractors hash the
+  *declaration* (modifiers, type, name, default), so a proposal goes stale when either
+  side's declaration changes. Their registry keys carry an `@kind` suffix
+  (`...#pipes@property`) so a property lives beside its same-named method; methods keep
+  kindless keys. Extra port-only members are reviewable too — the entry records
+  `php_hash: null` and stales on port edits. `n/a` remains only for what has no content
+  to hash (bodiless signatures, enum cases).
 - After a mechanical reformat that flips approvals stale: verify `php_hash` unchanged, then
   refresh `ts_hash` in place (keep notes) — no content re-review is owed for whitespace.
   A stale with a *changed* `php_hash` is an upstream change and gets a real re-review.

@@ -317,12 +317,20 @@ final class Parser
     private function parseBody(array &$decl): void
     {
         $modifiers = $this->freshModifiers();
+        // Tokens between the modifiers and the member name -- a property's
+        // type, mostly. They belong to the declaration hash.
+        $lead = [];
 
         while (($token = $this->advance()) !== null) {
             if ($token === '}') {
                 return;
             }
             if (! is_array($token)) {
+                if ($token === ';') {
+                    $lead = [];
+                } else {
+                    $lead[] = $token;
+                }
                 continue;
             }
 
@@ -334,15 +342,19 @@ final class Parser
                 case T_PROTECTED:
                 case T_PRIVATE:
                     $modifiers['visibility'] = strtolower($token[1]);
+                    $lead = [];
                     break;
                 case T_STATIC:
                     $modifiers['static'] = true;
+                    $lead = [];
                     break;
                 case T_ABSTRACT:
                     $modifiers['abstract'] = true;
+                    $lead = [];
                     break;
                 case T_VAR:
                     $modifiers['visibility'] = 'public';
+                    $lead = [];
                     break;
                 case T_USE:
                     do {
@@ -354,18 +366,21 @@ final class Parser
                     } else {
                         $this->consumeUntilChar(';');
                     }
+                    $lead = [];
                     break;
                 case T_CASE:
                     $caseName = $this->nextSignificant();
                     if (is_array($caseName) && $caseName[0] === T_STRING) {
-                        $decl['members'][] = $this->member($caseName[1], 'case', 'public', $modifiers, null, null, []);
+                        $decl['members'][] = $this->member($caseName[1], 'case', 'public', $modifiers, null, [$caseName[2], $caseName[2]], []);
                     }
                     $this->consumeUntilChar(';');
                     $modifiers = $this->freshModifiers();
+                    $lead = [];
                     break;
                 case T_CONST:
                     $this->parseConst($decl, $modifiers);
                     $modifiers = $this->freshModifiers();
+                    $lead = [];
                     break;
                 case T_FUNCTION:
                     $method = $this->parseFunctionLike($token[2], $modifiers, $decl);
@@ -373,11 +388,28 @@ final class Parser
                         $decl['members'][] = $method;
                     }
                     $modifiers = $this->freshModifiers();
+                    $lead = [];
                     break;
                 case T_VARIABLE:
-                    $decl['members'][] = $this->member(substr($token[1], 1), 'property', $modifiers['visibility'] ?? 'public', $modifiers, null, null, []);
-                    $this->consumePropertyRest($decl, $modifiers);
+                    $first = count($decl['members']);
+                    $decl['members'][] = $this->member(substr($token[1], 1), 'property', $modifiers['visibility'] ?? 'public', $modifiers, null, [$token[2], $token[2]], []);
+                    $rest = $this->consumePropertyRest($decl, $modifiers);
+                    $hash = sha1(implode("\x1f", array_merge(
+                        [$modifiers['visibility'] ?? 'public', $modifiers['static'] ? 'static' : ''],
+                        $lead,
+                        [$token[1]],
+                        $rest,
+                    )));
+                    for ($i = $first, $n = count($decl['members']); $i < $n; $i++) {
+                        $decl['members'][$i]['hash'] = $hash;
+                    }
                     $modifiers = $this->freshModifiers();
+                    $lead = [];
+                    break;
+                default:
+                    if (! in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                        $lead[] = $token[1];
+                    }
                     break;
             }
         }
@@ -412,12 +444,15 @@ final class Parser
     /**
      * Everything after the first `$name` of a property declaration: default
      * value, further `, $names`, and 8.4 property hooks (`{ get; set; }`).
+     * Returns the significant tokens consumed, for the declaration hash.
      *
      * @param array<string, mixed> $decl
      * @param array{visibility: ?string, static: bool, abstract: bool} $modifiers
+     * @return list<string>
      */
-    private function consumePropertyRest(array &$decl, array $modifiers): void
+    private function consumePropertyRest(array &$decl, array $modifiers): array
     {
+        $collected = [];
         $depth = 0;
         while (($token = $this->advance()) !== null) {
             if ($token === '(' || $token === '[') {
@@ -425,15 +460,19 @@ final class Parser
             } elseif ($token === ')' || $token === ']') {
                 $depth--;
             } elseif ($token === '{' && $depth === 0) {
+                $collected[] = '{';
                 $this->skipBalanced('{', '}'); // property hooks
 
-                return;
+                return $collected;
             } elseif ($token === ';' && $depth === 0) {
-                return;
+                return $collected;
             } elseif (is_array($token) && $token[0] === T_VARIABLE && $depth === 0) {
-                $decl['members'][] = $this->member(substr($token[1], 1), 'property', $modifiers['visibility'] ?? 'public', $modifiers, null, null, []);
+                $decl['members'][] = $this->member(substr($token[1], 1), 'property', $modifiers['visibility'] ?? 'public', $modifiers, null, [$token[2], $token[2]], []);
             }
+            $this->collectSignificant($collected, $token);
         }
+
+        return $collected;
     }
 
     /**
@@ -442,18 +481,27 @@ final class Parser
      */
     private function parseConst(array &$decl, array $modifiers): void
     {
+        $collected = [];
+        $first = count($decl['members']);
+        $depth = 0;
         while (($token = $this->advance()) !== null) {
-            if ($token === ';') {
-                return;
+            if ($token === ';' && $depth === 0) {
+                break;
             }
             if ($token === '(' || $token === '[') {
-                // skip const expression internals
-                $this->skipBalanced($token, $token === '(' ? ')' : ']');
-                continue;
+                $depth++;
+            } elseif ($token === ')' || $token === ']') {
+                $depth--;
             }
-            if (is_array($token) && $token[0] === T_STRING && $this->peekSignificant() === '=') {
-                $decl['members'][] = $this->member($token[1], 'const', $modifiers['visibility'] ?? 'public', $modifiers, null, null, []);
+            if (is_array($token) && $token[0] === T_STRING && $depth === 0 && $this->peekSignificant() === '=') {
+                $decl['members'][] = $this->member($token[1], 'const', $modifiers['visibility'] ?? 'public', $modifiers, null, [$token[2], $token[2]], []);
             }
+            $this->collectSignificant($collected, $token);
+        }
+
+        $hash = sha1(implode("\x1f", $collected));
+        for ($i = $first, $n = count($decl['members']); $i < $n; $i++) {
+            $decl['members'][$i]['hash'] = $hash;
         }
     }
 
@@ -491,6 +539,8 @@ final class Parser
         $signatureTokens[] = '(';
         $depth = 1;
         $paramModifier = null;
+        $paramStart = count($signatureTokens);
+        $pendingPromoted = null;
         while ($depth > 0 && ($token = $this->advance()) !== null) {
             if ($token === '(') {
                 $depth++;
@@ -498,7 +548,20 @@ final class Parser
                 $depth--;
             }
             $this->collectSignificant($signatureTokens, $token);
-            if (! is_array($token) || $depth !== 1) {
+            if (! is_array($token)) {
+                // A parameter ends at a top-level `,` or at the closing `)`;
+                // its token slice is the promoted property's declaration hash.
+                if (($token === ',' && $depth === 1) || $depth === 0) {
+                    if ($pendingPromoted !== null && $decl !== null) {
+                        $slice = array_slice($signatureTokens, $paramStart, count($signatureTokens) - $paramStart - 1);
+                        $decl['members'][$pendingPromoted]['hash'] = sha1(implode("\x1f", $slice));
+                        $pendingPromoted = null;
+                    }
+                    $paramStart = count($signatureTokens);
+                }
+                continue;
+            }
+            if ($depth !== 1) {
                 continue;
             }
             if (in_array($token[0], [T_PUBLIC, T_PROTECTED, T_PRIVATE], true)) {
@@ -507,7 +570,8 @@ final class Parser
                 $paramModifier ??= 'public';
             } elseif ($token[0] === T_VARIABLE) {
                 if ($paramModifier !== null && $decl !== null) {
-                    $decl['members'][] = $this->member(substr($token[1], 1), 'property', $paramModifier, $this->freshModifiers(), null, null, []);
+                    $pendingPromoted = count($decl['members']);
+                    $decl['members'][] = $this->member(substr($token[1], 1), 'property', $paramModifier, $this->freshModifiers(), null, [$token[2], $token[2]], []);
                 }
                 $paramModifier = null;
             } elseif ($token[0] === T_ATTRIBUTE) {

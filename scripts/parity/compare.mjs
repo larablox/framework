@@ -282,6 +282,7 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx)
                         fileRow.impl_stale++;
                         ctx.staleKeys.push(key);
                     }
+                    if (approval?.note) noteParts.push(approval.note);
                 }
             }
 

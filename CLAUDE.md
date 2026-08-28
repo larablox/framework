@@ -131,7 +131,7 @@ names TS cannot use as-is), `exclusions.json` (typed waivers with reasons),
 body hashes of **both** sides, so editing the port or bumping Laravel flips
 the mark to stale automatically). Review loop:
 `--list stale|unreviewed|pending`, `--show "<key>"` (both bodies side by
-side), `--propose "<key>"` / `--propose-file` (a review lands at
+side, then the recorded review note and waiver, if any), `--propose "<key>"` / `--propose-file` (a review lands at
 **pending**), `--approve "<key>"` / `--approve-file` (promotion to
 **approved** is a person's call — the user runs it, or Claude runs it only
 on the user's explicit instruction), `--check` (non-zero exit on anything

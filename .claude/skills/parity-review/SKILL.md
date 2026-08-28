@@ -29,7 +29,9 @@ Work one component at a time:
 1. `node scripts/parity/run.mjs --list unreviewed --component <X>` — the queue.
 2. For each pair of files, read **both files whole** (upstream lives under
    `.upstream/vendor/laravel/framework/src/Illuminate/`), not just the flagged members —
-   member-level `--show "<path>#<Decl>#<member>"` is for spot checks and re-reviews.
+   member-level `--show "<path>#<Decl>#<member>"` is for spot checks and re-reviews (it
+   prints the recorded review note and waiver under the bodies; `members.csv` carries the
+   note in its `note` column).
 3. Interrogate every difference (checklist below). Fix, waive, or propose with a note.
 4. After any `src/` edit: `npm run analyze`, `npm test`, `npm run lint`, `npm run format`.
 5. `node scripts/parity/run.mjs --component <X> --check` must end green: everything

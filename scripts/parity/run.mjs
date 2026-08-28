@@ -299,6 +299,25 @@ function main()
         } else {
             console.log('--- port ---\n(no counterpart)');
         }
+        // The recorded judgment belongs next to the bodies it judges.
+        const baseKey = args.show.split('@')[0];
+        const approval = Object.hasOwn(approvals, baseKey) ? approvals[baseKey] : undefined;
+        if (approval) {
+            const dates = [
+                approval.proposed_at ? `proposed ${approval.proposed_at}` : '',
+                approval.approved_at ? `approved ${approval.approved_at}` : '',
+            ].filter(Boolean).join(', ');
+            console.log(`--- review: ${approval.status}${dates ? ` (${dates})` : ''} ---`);
+            if (approval.note) console.log(approval.note);
+        }
+        const memberWaivers = exclusions.members ?? {};
+        const waiver = Object.hasOwn(memberWaivers, args.show)
+            ? memberWaivers[args.show]
+            : (Object.hasOwn(memberWaivers, baseKey) ? memberWaivers[baseKey] : undefined);
+        if (waiver) {
+            console.log(`--- waiver: ${waiver.kind ?? 'deferred'} ---`);
+            if (waiver.reason) console.log(waiver.reason);
+        }
         return;
     }
 

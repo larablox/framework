@@ -122,10 +122,10 @@
     },
     "Pipeline/Pipeline.php#Pipeline#then": {
         "php_hash": "e6aef20b60628c05ced41ceb20905b6905b36161",
-        "ts_hash": "0abb89477630f6078f105d13932c07b2de00ab20",
+        "ts_hash": "28c29efec9f469fdbb9b32065972c17e6e895f60",
         "status": "pending",
         "proposed_at": "2026-08-28",
-        "note": "Same onion, same try/finally with the same guard on _finally. Dismissed: (1) array_reduce(array_reverse(...)) becomes a backwards fold loop -- roblox-ts arrays have reduce but no reverse and no reduceRight, so the reversed reduce cannot be spelled directly; (2) with the reduce forced out, carry() takes (stack, pipe) directly instead of returning a reducer closure (carry itself is left unproposed for a separate finding, see review report); (3) the withinTransaction branch is omitted together with the withinTransaction waiver -- no database to open a transaction on; (4) the accumulator is named stack, the name upstream's carry() closure gives the same value, rather than $pipeline."
+        "note": "The upstream expression itself: Arr.reverse(this.pipes()).reduce(this.carry(), this.prepareDestination(destination)) -- reduce is array_reduce, carry() is the reducer factory as upstream, and Arr.reverse stands in for the array_reverse builtin (a deliberate language compensation with no upstream twin; its docblock says so). The reduce runs before try and try wraps only the run, matching upstream. Remaining dismissal: the withinTransaction ternary is omitted together with its waiver -- no database to open a transaction on."
     },
     "Pipeline/Pipeline.php#Pipeline#thenReturn": {
         "php_hash": "8769eeff97e702e251d6301db6bc1a6a2c4e9d96",

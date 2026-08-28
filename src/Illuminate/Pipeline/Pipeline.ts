@@ -1,3 +1,4 @@
+import { Arr } from 'Illuminate/Support/Arr';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
 import { isPipeArray } from 'Illuminate/Pipeline/helpers';
 import { RuntimeException } from 'Illuminate/Exception';
@@ -75,16 +76,10 @@ export class Pipeline implements PipelineContract
     /** Run the pipeline with a final destination callback. */
     public then(destination: (passable: Passable) => unknown): unknown
     {
-        const pipes = this.pipes();
-
-        let stack: Next = this.prepareDestination(destination);
-
-        for (let index = pipes.size() - 1; index >= 0; index--) {
-            stack = this.carry(stack, pipes[index]);
-        }
+        const pipeline = Arr.reverse(this.pipes()).reduce(this.carry(), this.prepareDestination(destination));
 
         try {
-            return stack(this.passable);
+            return pipeline(this.passable);
         } finally {
             if (this._finally !== undefined) {
                 this._finally(this.passable);
@@ -120,20 +115,22 @@ export class Pipeline implements PipelineContract
         };
     }
 
-    /** Wrap one pipe around the rest of the stack. */
-    protected carry(stack: Next, pipe: Pipe): Next
+    /** Get a Closure that represents a slice of the application onion. */
+    protected carry(): (stack: Next, pipe: Pipe) => Next
     {
-        return (passable: Passable) => {
-            // `handleCarry` runs inside the protected region, as it does in
-            // PHP's try: Routing overrides it with `toResponse()`, and what
-            // that throws must reach `handleException`, not the caller.
-            const [ok, result] = pcall(() => this.handleCarry(this.callPipe(pipe, passable, stack)));
+        return (stack: Next, pipe: Pipe) => {
+            return (passable: Passable) => {
+                // `handleCarry` runs inside the protected region, as it does in
+                // PHP's try: Routing overrides it with `toResponse()`, and what
+                // that throws must reach `handleException`, not the caller.
+                const [ok, result] = pcall(() => this.handleCarry(this.callPipe(pipe, passable, stack)));
 
-            if (!ok) {
-                return this.handleException(passable, result);
-            }
+                if (!ok) {
+                    return this.handleException(passable, result);
+                }
 
-            return result;
+                return result;
+            };
         };
     }
 

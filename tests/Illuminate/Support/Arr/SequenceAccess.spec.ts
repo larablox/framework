@@ -927,6 +927,29 @@ export = (): void => {
             expectThrows(() => Arr.random([], 2));
         });
 
+        it('reverse() returns a reversed copy, leaving the input untouched', () => {
+            // No upstream twin: PHP gets array_reverse from the language, so
+            // SupportArrTest never tests it -- see the method's docblock.
+            const array = [
+                'a',
+                'b',
+                'c',
+            ];
+
+            expectDeepEqual(Arr.reverse(array), [
+                'c',
+                'b',
+                'a',
+            ]);
+            expectDeepEqual(array, [
+                'a',
+                'b',
+                'c',
+            ]);
+            expectDeepEqual(Arr.reverse([]), []);
+            expectDeepEqual(Arr.reverse(['solo']), ['solo']);
+        });
+
         it('shuffle() reorders an array while keeping the same values', () => {
             // PHP: SupportArrTest::testShuffleActuallyShuffles,
             // ::testShuffleKeepsSameValues, ::testEmptyShuffle

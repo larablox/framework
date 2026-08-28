@@ -819,6 +819,18 @@ export class Arr
         return Arr.take(shuffled, requested);
     }
 
+    /** Reverse the given array. */
+    public static reverse<T extends defined>(list: Array<T>): Array<T>
+    {
+        const reversed = new Array<T>(list.size());
+
+        for (let index = list.size() - 1; index >= 0; index--) {
+            reversed.push(list[index]);
+        }
+
+        return reversed;
+    }
+
     /** Shuffle the given array and return the result. */
     public static shuffle<T extends defined>(list: Array<T>): Array<T>
     {

@@ -79,7 +79,16 @@ function baseName(name)
 /** One merge group: the member sink for a declaration and its Shape mirrors. */
 function freshGroup(name, kind, abstract)
 {
-    return { name, kind, abstract, heritage: [], decorators: [], mergedFrom: [], sink: new Map(), accessors: new Map() };
+    return {
+        name,
+        kind,
+        abstract,
+        heritage: [],
+        decorators: [],
+        mergedFrom: [],
+        sink: new Map(),
+        accessors: new Map(),
+    };
 }
 
 function addMember(sink, member)
@@ -348,7 +357,12 @@ function extractFile(sourceFile)
             implements: [],
             uses: [],
             notes: group.mergedFrom.length > 1 ? [`merged:${group.mergedFrom.join('+')}`] : [],
-            members: [...group.sink.values()],
+            // A Shape's type-only constructor is declaration-emit plumbing,
+            // not surface; other mirror-only members stay visible -- a member
+            // the Shape declares and the implementation lost is drift.
+            members: [...group.sink.values()].filter(
+                (member) => !(member.mirror && member.hash === null && member.name === 'constructor'),
+            ),
         });
     }
 

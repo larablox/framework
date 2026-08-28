@@ -46,6 +46,14 @@
         {
             "name": "casts",
             "rule": "Type assertions (`as T`) carry types PHP never wrote; the verifier ignores them, and repeated identical casts at one site mean a compensation is missing."
+        },
+        {
+            "name": "nullable-default",
+            "rule": "A PHP = null parameter default spells as TS ? optionality -- absence is undefined here."
+        },
+        {
+            "name": "instanceof-closure",
+            "rule": "\\ instanceof Closure spells as \typeIs(x, 'function') -- a closure is a bare function value."
         }
     ],
     "markerDecorators": {

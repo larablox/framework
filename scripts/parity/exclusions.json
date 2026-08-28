@@ -16,6 +16,11 @@
     },
     "paths": [
         {
+            "glob": "Conditionable/HigherOrderWhenProxy.php",
+            "kind": "deferred",
+            "reason": "A proxy capturing the next property or method access through __get/__call to apply it conditionally. Not impossible -- the facades' metatable pattern covers __callStatic already -- but it needs a designed instance-level dynamic proxy and arity-aware when()/unless() signatures. Revisit when such a proxy is designed; until then callbacks are required at the call sites (see the @deferred markers in Support/Traits/Conditionable.ts)."
+        },
+        {
             "glob": "Pipeline/helpers.ts",
             "kind": "port-only",
             "reason": "Port-only helper with no upstream twin: isPipeArray/wrapPipes/isPipeWithParameters tell one parameterized pipe `[Class, 'args']` from a list of pipes -- a distinction PHP spells inside a single string ('Class:args') and never has to make, because a class is not a string on this platform. isPipeArray is Pipeline.through()/pipe()'s is_array; wrapPipes serves Routing/Route and Routing/Controller."

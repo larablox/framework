@@ -1,4 +1,18 @@
 {
+    "Conditionable/Traits/Conditionable.php#Conditionable#unless": {
+        "php_hash": "b50290d39aac9deb74efbe5b8443d2592b9a5a39",
+        "ts_hash": "6a87dc2bd54ce3994d367c83675f4d82bf68112c",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. Statement for statement through truthiness (bare if () is Util.truthy), instanceof-closure (typeIs function, PHP reassigning  in place), nullable-default (= null parameter defaults as ? optionality) and the underscore convention (_default: default is a reserved word); the elseif and both ?? this fallbacks are the letter. The HigherOrderWhenProxy branches (func_num_args 0 and 1) are omitted under the deferred waiver on Conditionable/HigherOrderWhenProxy.php, marked @deferred at the site."
+    },
+    "Conditionable/Traits/Conditionable.php#Conditionable#when": {
+        "php_hash": "a858339b620db8c30391917756d5db1000369d32",
+        "ts_hash": "b0bb7c3a23ea9fbf0d3fdf440bc226d60c80ab9b",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. Statement for statement through truthiness (bare if () is Util.truthy), instanceof-closure (typeIs function, PHP reassigning  in place), nullable-default (= null parameter defaults as ? optionality) and the underscore convention (_default: default is a reserved word); the elseif and both ?? this fallbacks are the letter. The HigherOrderWhenProxy branches (func_num_args 0 and 1) are omitted under the deferred waiver on Conditionable/HigherOrderWhenProxy.php, marked @deferred at the site."
+    },
     "Pipeline/Hub.php#Hub#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
         "ts_hash": "eeb15bae042ed94224a8ccd983cc71cc89c05fd4",

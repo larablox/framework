@@ -24,7 +24,8 @@ function tokenizePhp(scriptDir, file, lines)
 }
 
 // A small JS lexer, enough for transpiled member bodies.
-const JS_TOKEN = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[A-Za-z_$][\w$]*|\d[\w.]*|===|!==|\*\*=?|=>|\.\.\.|&&|\|\||\+\+|--|[+\-*/%<>=!&|^]=|<=|>=|[{}()[\].,;:?<>+\-*/%=!&|^~]/g;
+const JS_TOKEN =
+    /\/\/[^\n]*|\/\*[\s\S]*?\*\/|`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[A-Za-z_$][\w$]*|\d[\w.]*|===|!==|\?\?|\*\*=?|=>|\.\.\.|&&|\|\||\+\+|--|[+\-*/%<>=!&|^]=|<=|>=|[{}()[\].,;:?<>+\-*/%=!&|^~]/g;
 
 function tokenizeJs(text)
 {
@@ -93,7 +94,10 @@ function canonicalizePhp(tokens)
         if (token.startsWith('$')) token = token.slice(1);
         if (token === '->' || token === '::') token = '.';
         if (token === '__construct') token = 'constructor';
-        if (token === 'elseif') token = 'else if';
+        if (token === 'elseif') {
+            out.push('else', 'if');
+            continue;
+        }
         out.push(token);
     }
     // A method declaration's `function` keyword; JS spells the name alone.

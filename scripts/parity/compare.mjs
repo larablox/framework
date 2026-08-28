@@ -203,14 +203,24 @@ export function compare({ php, ts, aliases, exclusions, approvals, conventions, 
                         if (matched === undefined) {
                             notes.push(`[missing ${label}: ${short}]`);
                             row.impl_rejected++;
-                            memberRows.push(relationRow(short, kind, missingStatus, 'rejected', `${notePrefix}:${fqcn}`));
+                            memberRows.push(
+                                relationRow(short, kind, missingStatus, 'rejected', `${notePrefix}:${fqcn}`),
+                            );
                             return;
                         }
                         const requiredDecorator = kind === 'implements' ? ownProp(markerDecorators, short) : undefined;
                         if (requiredDecorator !== undefined && !tsDecorators.includes(requiredDecorator)) {
                             notes.push(`[missing decorator: @${requiredDecorator}]`);
                             row.impl_rejected++;
-                            memberRows.push(relationRow(short, kind, 'both', 'rejected', `${notePrefix}:${fqcn} [missing decorator: @${requiredDecorator}]`));
+                            memberRows.push(
+                                relationRow(
+                                    short,
+                                    kind,
+                                    'both',
+                                    'rejected',
+                                    `${notePrefix}:${fqcn} [missing decorator: @${requiredDecorator}]`,
+                                ),
+                            );
                             return;
                         }
                         const phpHash = `rel:${fqcn}`;
@@ -231,14 +241,23 @@ export function compare({ php, ts, aliases, exclusions, approvals, conventions, 
                             staleKeys.push(reviewKey);
                         }
                         if (approval?.note) noteParts.push(approval.note);
-                        memberRows.push(relationRow(short, kind, 'both', implStatus, noteParts.join(' '), phpHash, tsHash));
+                        memberRows.push(
+                            relationRow(short, kind, 'both', implStatus, noteParts.join(' '), phpHash, tsHash),
+                        );
                     };
 
                     for (const trait of decl.uses) {
                         relation('trait', trait, traitExclusions, 'missing_mixin', 'mixin', 'uses');
                     }
                     for (const iface of decl.implements) {
-                        relation('implements', iface, heritageExclusions, 'missing_interface', 'interface', 'implements');
+                        relation(
+                            'implements',
+                            iface,
+                            heritageExclusions,
+                            'missing_interface',
+                            'interface',
+                            'implements',
+                        );
                     }
                     for (const parent of decl.extends) {
                         relation('extends', parent, heritageExclusions, 'missing_parent', 'parent', 'extends');
@@ -604,7 +623,9 @@ export function summaryText(summary, upstreamVersion)
     const line = (entry) =>
         `| ${entry.component} | ${entry.files} | ${entry.matched} | ${entry.deferred} | ${entry.impossible} | ${entry.port_only} | ${entry.missing} | ${entry.extra} | ${
             coverageOf(entry)
-        } | ${fidelityOf(entry)} | ${entry.approved} | ${entry.pending} | ${entry.decision} | ${entry.rejected} | ${entry.stale} | ${entry.unreviewed} |`;
+        } | ${
+            fidelityOf(entry)
+        } | ${entry.approved} | ${entry.pending} | ${entry.decision} | ${entry.rejected} | ${entry.stale} | ${entry.unreviewed} |`;
     for (const entry of summary) {
         lines.push(line(entry));
         for (const key of Object.keys(totals)) {

@@ -37,37 +37,42 @@
     "Pipeline/Pipeline.php#Pipeline#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
         "ts_hash": "eeb15bae042ed94224a8ccd983cc71cc89c05fd4",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Body matches; container optional as upstream, parameter property replaces the explicit assignment. @Inject(ContainerContract) is the port's spelling of the reflected ?Container hint, exactly as on Hub#__construct (the byte-identical upstream body): $app->make(Pipeline::class) is a public path and must hand the pipeline the resolving container. The earlier dismissal ('upstream never container-resolves Pipeline, so no hint is owed') did not survive the public-surface rule -- the framework's own call sites say nothing about consumers'; pinned by the 'receives the container when resolved from one' spec."
+        "note": "Body matches; container optional as upstream, parameter property replaces the explicit assignment. @Inject(ContainerContract) is the port's spelling of the reflected ?Container hint, exactly as on Hub#__construct (the byte-identical upstream body): $app->make(Pipeline::class) is a public path and must hand the pipeline the resolving container. The earlier dismissal ('upstream never container-resolves Pipeline, so no hint is owed') did not survive the public-surface rule -- the framework's own call sites say nothing about consumers'; pinned by the 'receives the container when resolved from one' spec.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#finally": {
         "php_hash": "13c6c00386ec42eef6b7bc32b9a5dd8e253f3f3a",
         "ts_hash": "3e6d66d43592d9c0d8cde57e72710bdbe7df3736",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim. The $finally property lives as _finally under the underscore convention (property/method name collision in one Luau table); the comparator matches it automatically."
+        "note": "Verbatim. The $finally property lives as _finally under the underscore convention (property/method name collision in one Luau table); the comparator matches it automatically.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#getContainer": {
         "php_hash": "a1034a6d82aef39051bd7aa74916c8de1117d36a",
         "ts_hash": "283312e850cc839d40619dc45db40cf929753154",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: guard, RuntimeException with upstream's exact message, return."
+        "note": "Verbatim: guard, RuntimeException with upstream's exact message, return.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#handleCarry": {
         "php_hash": "e8a5f4a1d295c49abe2e0451d26c3e1f82b66e59",
         "ts_hash": "218a74fecb9e60c3e3fc4e04654caef72bc23f34",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim identity hook. Its call site sits inside the pcall-protected region in carry(), matching upstream's try -- the shape the earlier carry() bug was about."
+        "note": "Verbatim identity hook. Its call site sits inside the pcall-protected region in carry(), matching upstream's try -- the shape the earlier carry() bug was about.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#handleException": {
         "php_hash": "86c427cd0ecde1660fbc44ca8aab7b03eb2a3f3a",
         "ts_hash": "791e597f673a84e9c09306b479b1aa8762957787",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim rethrow; throw e compiles to error(e), so the original pcall error value propagates unchanged."
+        "note": "Verbatim rethrow; throw e compiles to error(e), so the original pcall error value propagates unchanged.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#parsePipeString": {
         "php_hash": "fbf5a45239c080d0160e8962f12d35b7aa4b1724",
@@ -79,16 +84,18 @@
     "Pipeline/Pipeline.php#Pipeline#pipe": {
         "php_hash": "23530aa6c0f7eb0c58b04b95a07be81643ed94db",
         "ts_hash": "b25f366d1a2b72b1ee3dc25e91fe2bcbae531681",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Same expression as through(): is_array($pipes) ? $pipes : func_get_args() is a rest parameter plus the same ternary over isPipeArray. Dismissed: array_push's spread becomes an append loop -- roblox-ts's push macro rejects spread arguments (roblox-ts#1149), verified by the compile error."
+        "note": "Same expression as through(): is_array($pipes) ? $pipes : func_get_args() is a rest parameter plus the same ternary over isPipeArray. Dismissed: array_push's spread becomes an append loop -- roblox-ts's push macro rejects spread arguments (roblox-ts#1149), verified by the compile error.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#pipes": {
         "php_hash": "a2d9b19186db34bb7a72e95c9c63272a16eeb5fc",
         "ts_hash": "6ecceffc70602d1d523512e19869f10cbf1c0a35",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim; the $pipes property is _pipes under the underscore convention (collides with this method's name in one Luau table)."
+        "note": "Verbatim; the $pipes property is _pipes under the underscore convention (collides with this method's name in one Luau table).",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#prepareDestination": {
         "php_hash": "03bb42a1fad5fc77d57b4cca4fc2c3f8e8324a11",
@@ -100,16 +107,18 @@
     "Pipeline/Pipeline.php#Pipeline#send": {
         "php_hash": "53ea116f56b71e6bfc12cd2a6afa94810486d3a5",
         "ts_hash": "4d20e710a264a92884a961bb8523801c04c2155c",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: assign, return this."
+        "note": "Verbatim: assign, return this.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#setContainer": {
         "php_hash": "f11f08e4b9219fada03497ede6ebd503ddd97a04",
         "ts_hash": "56d225e5b24d66d35c04a9f1f44d9818ee2fd4f1",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: assign, return this."
+        "note": "Verbatim: assign, return this.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#then": {
         "php_hash": "e6aef20b60628c05ced41ceb20905b6905b36161",
@@ -128,16 +137,18 @@
     "Pipeline/Pipeline.php#Pipeline#through": {
         "php_hash": "9b68c30f5c5375c00a286305e598f50b2ce3a458",
         "ts_hash": "49c4ee950b2dea3ad76614c9bf52e6ea204ce76e",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim shape: is_array($pipes) ? $pipes : func_get_args() maps to a rest parameter and the same ternary, with isPipeArray as the platform's is_array for pipes -- it additionally tells one parameterized pipe [Class, 'args'] from a list (a class is not a string here) and recognizes the empty list Util.isArray cannot see (Pipeline/helpers.ts documents both). Even the pathological through([a], b) drops the extras like PHP does. Known heuristic edge remains for the single-array form ([ClassPipe, 'bindingName'] reads as one parameterized pipe); the restored variadic form is the unambiguous spelling of that case."
+        "note": "Verbatim shape: is_array($pipes) ? $pipes : func_get_args() maps to a rest parameter and the same ternary, with isPipeArray as the platform's is_array for pipes -- it additionally tells one parameterized pipe [Class, 'args'] from a list (a class is not a string here) and recognizes the empty list Util.isArray cannot see (Pipeline/helpers.ts documents both). Even the pathological through([a], b) drops the extras like PHP does. Known heuristic edge remains for the single-array form ([ClassPipe, 'bindingName'] reads as one parameterized pipe); the restored variadic form is the unambiguous spelling of that case.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#via": {
         "php_hash": "bf622dfb0e778b05f7e079ffc6efb27fa22af604",
         "ts_hash": "60f9fd1f68ae1e0ad3c80a4fcf53325830f1ea47",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: assign, return this."
+        "note": "Verbatim: assign, return this.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",

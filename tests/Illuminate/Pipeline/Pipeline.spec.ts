@@ -277,6 +277,29 @@ export = (): void => {
             expect(parameterPipe.parameters?.[1]).to.equal('two');
         });
 
+        it('resolves a class pipe carrying its parameters as a list', () => {
+            // The list form of PipelineTest::testPipelineUsageWithParameters:
+            // [Class, 'one', 'two'] is what 'Class:one,two' says in PHP,
+            // where a class is a string to begin with -- see
+            // parsePipeString() and Pipeline/helpers.ts.
+            const container = new Container();
+            const parameterPipe = new PipelineTestParameterPipe();
+            container.instance(PipelineTestParameterPipe, parameterPipe);
+
+            const result = new Pipeline(container)
+                .send('foo')
+                .through([
+                    PipelineTestParameterPipe,
+                    'one',
+                    'two',
+                ])
+                .then((piped) => piped);
+
+            expect(result).to.equal('foo');
+            expect(parameterPipe.parameters?.[0]).to.equal('one');
+            expect(parameterPipe.parameters?.[1]).to.equal('two');
+        });
+
         it('via() changes the method called on the pipes', () => {
             // PHP: PipelineTest::testPipelineViaChangesTheMethodBeingCalledOnThePipes
             const pipelineInstance = new Pipeline(new Container());

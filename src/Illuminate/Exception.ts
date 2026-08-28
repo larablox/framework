@@ -7,7 +7,7 @@
  */
 export class Exception {
     public constructor(
-        protected readonly message: string = "",
+        protected readonly message: string = '',
         protected readonly code: number = 0,
         protected readonly previous?: Exception,
     ) {}

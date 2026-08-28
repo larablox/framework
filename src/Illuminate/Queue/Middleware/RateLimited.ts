@@ -1,10 +1,10 @@
-import { Container } from "Illuminate/Container/Container";
-import { RateLimiter } from "Illuminate/Cache/RateLimiter";
-import { Unlimited } from "Illuminate/Cache/RateLimiting/Unlimited";
-import { Util } from "Illuminate/Container/Util";
-import type { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import type { Limit } from "Illuminate/Cache/RateLimiting/Limit";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
+import { Container } from 'Illuminate/Container/Container';
+import { RateLimiter } from 'Illuminate/Cache/RateLimiter';
+import { Unlimited } from 'Illuminate/Cache/RateLimiting/Unlimited';
+import { Util } from 'Illuminate/Container/Util';
+import type { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import type { Limit } from 'Illuminate/Cache/RateLimiting/Limit';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
 
 /** One limit, reduced to what the middleware needs. */
 interface ResolvedLimit {

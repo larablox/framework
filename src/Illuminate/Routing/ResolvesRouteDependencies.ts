@@ -1,12 +1,12 @@
-import { BindingResolutionException } from "Illuminate/Contracts/Container/BindingResolutionException";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Trait } from "Illuminate/Support/Traits/Trait";
-import { Util } from "Illuminate/Container/Util";
-import { getInjectedDependencies } from "Illuminate/Container/Attributes/Inject";
-import type { AssertNoExtraMembers, AssertTrue, Constructor } from "Illuminate/Support/Traits/Trait";
-import type { Container } from "Illuminate/Container/Container";
-import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
-import type { OrderedMap } from "Illuminate/Support/OrderedMap";
+import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Trait } from 'Illuminate/Support/Traits/Trait';
+import { Util } from 'Illuminate/Container/Util';
+import { getInjectedDependencies } from 'Illuminate/Container/Attributes/Inject';
+import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/Support/Traits/Trait';
+import type { Container } from 'Illuminate/Container/Container';
+import type { Container as ContainerContract } from 'Illuminate/Contracts/Container/Container';
+import type { OrderedMap } from 'Illuminate/Support/OrderedMap';
 
 /**
  * The instance type `ResolvesRouteDependencies()` mixes in.

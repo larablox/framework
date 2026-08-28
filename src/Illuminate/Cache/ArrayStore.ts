@@ -1,9 +1,9 @@
-import { ArrayLock } from "Illuminate/Cache/ArrayLock";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { Lock } from "Illuminate/Contracts/Cache/Lock";
-import type { LockProvider } from "Illuminate/Contracts/Cache/LockProvider";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import { ArrayLock } from 'Illuminate/Cache/ArrayLock';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { Lock } from 'Illuminate/Contracts/Cache/Lock';
+import type { LockProvider } from 'Illuminate/Contracts/Cache/LockProvider';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
 /** One item as the store keeps it. */
 interface ArrayItem {
@@ -165,6 +165,6 @@ export class ArrayStore implements Store, LockProvider {
 
     /** Get the cache key prefix. */
     public getPrefix(): string {
-        return "";
+        return '';
     }
 }

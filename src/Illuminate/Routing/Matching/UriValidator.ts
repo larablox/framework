@@ -1,6 +1,6 @@
-import type { Request } from "Illuminate/Http/Request";
-import type { Route } from "Illuminate/Routing/Route";
-import type { ValidatorInterface } from "Illuminate/Routing/Matching/ValidatorInterface";
+import type { Request } from 'Illuminate/Http/Request';
+import type { Route } from 'Illuminate/Routing/Route';
+import type { ValidatorInterface } from 'Illuminate/Routing/Matching/ValidatorInterface';
 
 /**
  * PHP: `Illuminate\Routing\Matching\UriValidator`.

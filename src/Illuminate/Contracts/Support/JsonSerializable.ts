@@ -13,5 +13,5 @@ export interface JsonSerializable {
 
 /** PHP: `$value instanceof JsonSerializable`. Interfaces are erased; see `isArrayable`. */
 export function isJsonSerializable(value: unknown): value is JsonSerializable {
-    return typeIs(value, "table") && typeIs((value as JsonSerializable).jsonSerialize, "function");
+    return typeIs(value, 'table') && typeIs((value as JsonSerializable).jsonSerialize, 'function');
 }

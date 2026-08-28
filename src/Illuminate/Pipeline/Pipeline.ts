@@ -1,9 +1,9 @@
-import { wrapPipes } from "Illuminate/Pipeline/Pipes";
-import { RuntimeException } from "Illuminate/Exception";
-import { Util } from "Illuminate/Container/Util";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Passable, Pipe, Pipeline as PipelineContract } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { wrapPipes } from 'Illuminate/Pipeline/Pipes';
+import { RuntimeException } from 'Illuminate/Exception';
+import { Util } from 'Illuminate/Container/Util';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Passable, Pipe, Pipeline as PipelineContract } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /** The rest of the stack, as a pipe receives it. */
 export type Next = (passable: Passable) => unknown;
@@ -26,7 +26,7 @@ export class Pipeline implements PipelineContract {
     protected _pipes = new Array<Pipe>();
 
     /** The method to call on each pipe. */
-    protected method = "handle";
+    protected method = 'handle';
 
     /** The callback that runs when the pipeline is done, whatever happened. */
     protected _finally?: (passable: Passable) => void;
@@ -140,7 +140,7 @@ export class Pipeline implements PipelineContract {
         // If the pipe is a callable, then we will call it directly, but otherwise we
         // will resolve the pipes out of the dependency container and call it with
         // the appropriate method and arguments, returning the results back out.
-        if (typeIs(pipe, "function")) {
+        if (typeIs(pipe, 'function')) {
             return (pipe as (passable: Passable, next: Next) => unknown)(passable, stack);
         }
 
@@ -148,7 +148,7 @@ export class Pipeline implements PipelineContract {
 
         let instance: object;
 
-        if (typeIs(pipe, "string") || !this.isPipeInstance(pipe)) {
+        if (typeIs(pipe, 'string') || !this.isPipeInstance(pipe)) {
             const [name, extra] = this.parsePipeString(pipe);
 
             instance = this.getContainer().make(name) as object;
@@ -160,7 +160,7 @@ export class Pipeline implements PipelineContract {
 
         const handler = (instance as Record<string, unknown>)[this.method];
 
-        if (!typeIs(handler, "function")) {
+        if (!typeIs(handler, 'function')) {
             throw new RuntimeException(`The pipe [${tostring(pipe)}] has no [${this.method}] method.`);
         }
 
@@ -177,13 +177,13 @@ export class Pipeline implements PipelineContract {
      * is whether it is an instance of one.
      */
     protected isPipeInstance(pipe: Pipe): boolean {
-        if (!typeIs(pipe, "table")) {
+        if (!typeIs(pipe, 'table')) {
             return false;
         }
 
         const metatable = getmetatable(pipe as object) as object | undefined;
 
-        return metatable !== undefined && rawget(metatable, "__index") === metatable;
+        return metatable !== undefined && rawget(metatable, '__index') === metatable;
     }
 
     /**
@@ -204,17 +204,17 @@ export class Pipeline implements PipelineContract {
             return [list[0] as Abstract, parameters];
         }
 
-        if (!typeIs(pipe, "string")) {
+        if (!typeIs(pipe, 'string')) {
             return [pipe as Abstract, []];
         }
 
-        const separator = pipe.find(":")[0];
+        const separator = pipe.find(':')[0];
 
         if (separator === undefined) {
             return [pipe, []];
         }
 
-        return [pipe.sub(1, separator - 1), pipe.sub(separator + 1).split(",")];
+        return [pipe.sub(1, separator - 1), pipe.sub(separator + 1).split(',')];
     }
 
     /** Get the array of configured pipes. */
@@ -225,7 +225,7 @@ export class Pipeline implements PipelineContract {
     /** Get the container instance. */
     protected getContainer(): Container {
         if (this.container === undefined) {
-            throw new RuntimeException("A container instance has not been passed to the Pipeline.");
+            throw new RuntimeException('A container instance has not been passed to the Pipeline.');
         }
 
         return this.container;

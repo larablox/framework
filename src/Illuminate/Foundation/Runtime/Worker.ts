@@ -1,18 +1,18 @@
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { Kernel as HttpKernel } from "Illuminate/Foundation/Http/Kernel";
-import { RequestReceived } from "Illuminate/Foundation/Events/RequestReceived";
-import { RequestTerminated } from "Illuminate/Foundation/Events/RequestTerminated";
-import { RuntimeException } from "Illuminate/Exception";
-import { Str } from "Illuminate/Support/Str";
-import { WorkerErrorOccurred } from "Illuminate/Foundation/Events/WorkerErrorOccurred";
-import { WorkerStarting } from "Illuminate/Foundation/Events/WorkerStarting";
-import { WorkerStopping } from "Illuminate/Foundation/Events/WorkerStopping";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Repository as ConfigRepository } from "Illuminate/Config/Repository";
-import type { Request } from "Illuminate/Http/Request";
-import type { Response } from "Illuminate/Http/Response";
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { Kernel as HttpKernel } from 'Illuminate/Foundation/Http/Kernel';
+import { RequestReceived } from 'Illuminate/Foundation/Events/RequestReceived';
+import { RequestTerminated } from 'Illuminate/Foundation/Events/RequestTerminated';
+import { RuntimeException } from 'Illuminate/Exception';
+import { Str } from 'Illuminate/Support/Str';
+import { WorkerErrorOccurred } from 'Illuminate/Foundation/Events/WorkerErrorOccurred';
+import { WorkerStarting } from 'Illuminate/Foundation/Events/WorkerStarting';
+import { WorkerStopping } from 'Illuminate/Foundation/Events/WorkerStopping';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Response } from 'Illuminate/Http/Response';
 
 /**
  * PHP: `Laravel\Octane\Worker`.
@@ -71,7 +71,7 @@ export class Worker {
     protected booted = false;
 
     /** Create a new worker instance. */
-    public constructor(@Inject("app") protected readonly app: Application) {}
+    public constructor(@Inject('app') protected readonly app: Application) {}
 
     /**
      * The services resolved before the first request is answered.
@@ -79,13 +79,13 @@ export class Worker {
      * PHP: `Octane::defaultServicesToWarm()`, cut down to what exists here.
      */
     public static defaultServicesToWarm(): Array<Abstract> {
-        return ["events", "config", "log", "router", "queue"];
+        return ['events', 'config', 'log', 'router', 'queue'];
     }
 
     /** Boot the worker: bootstrap the application once, then warm it. */
     public boot(services?: Array<Abstract>): void {
         if (this.booted) {
-            throw new RuntimeException("The worker has already booted.");
+            throw new RuntimeException('The worker has already booted.');
         }
 
         this.kernel = this.app.make<HttpKernel>(HttpKernel);
@@ -109,7 +109,7 @@ export class Worker {
     public warm(services?: Array<Abstract>): void {
         const configured =
             services ??
-            (this.app.make<ConfigRepository>("config").get("app.warm") as Array<Abstract> | undefined) ??
+            (this.app.make<ConfigRepository>('config').get('app.warm') as Array<Abstract> | undefined) ??
             Worker.defaultServicesToWarm();
 
         for (const service of configured) {
@@ -224,7 +224,7 @@ export class Worker {
      */
     protected bootedKernel(): HttpKernel {
         if (!this.booted || this.kernel === undefined) {
-            throw new RuntimeException("Worker has not booted. Unable to handle requests.");
+            throw new RuntimeException('Worker has not booted. Unable to handle requests.');
         }
 
         return this.kernel;
@@ -237,10 +237,10 @@ export class Worker {
      * the dispatcher is bound, and one that nobody can hear is not an error.
      */
     protected dispatchEvent(app: Application, event: object): void {
-        if (!app.bound("events")) {
+        if (!app.bound('events')) {
             return;
         }
 
-        app.make<Dispatcher>("events").dispatch(event);
+        app.make<Dispatcher>('events').dispatch(event);
     }
 }

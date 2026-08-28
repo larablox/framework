@@ -1,5 +1,5 @@
-import type { WorkerOptions } from "Illuminate/Queue/WorkerOptions";
-import type { WorkerStopReason } from "Illuminate/Queue/WorkerStopReason";
+import type { WorkerOptions } from 'Illuminate/Queue/WorkerOptions';
+import type { WorkerStopReason } from 'Illuminate/Queue/WorkerStopReason';
 
 /** PHP: `IlluminateQueueEventsWorkerStopping`. */
 export class WorkerStopping {

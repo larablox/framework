@@ -1,16 +1,16 @@
 /// <reference types="@rbxts/testez/globals" />
-import { ArrayBatchRepository } from "Illuminate/Bus/ArrayBatchRepository";
-import { Batch } from "Illuminate/Bus/Batch";
-import { BatchCanceled } from "Illuminate/Bus/Events/BatchCanceled";
-import { BatchFinished } from "Illuminate/Bus/Events/BatchFinished";
-import { BatchStarted } from "Illuminate/Bus/Events/BatchStarted";
-import { Batchable } from "Illuminate/Bus/Batchable";
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher as EventDispatcher } from "Illuminate/Events/Dispatcher";
-import { PendingBatch } from "Illuminate/Bus/PendingBatch";
-import { RuntimeException } from "Illuminate/Exception";
-import type { Factory as QueueFactory } from "Illuminate/Contracts/Queue/Factory";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
+import { ArrayBatchRepository } from 'Illuminate/Bus/ArrayBatchRepository';
+import { Batch } from 'Illuminate/Bus/Batch';
+import { BatchCanceled } from 'Illuminate/Bus/Events/BatchCanceled';
+import { BatchFinished } from 'Illuminate/Bus/Events/BatchFinished';
+import { BatchStarted } from 'Illuminate/Bus/Events/BatchStarted';
+import { Batchable } from 'Illuminate/Bus/Batchable';
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher as EventDispatcher } from 'Illuminate/Events/Dispatcher';
+import { PendingBatch } from 'Illuminate/Bus/PendingBatch';
+import { RuntimeException } from 'Illuminate/Exception';
+import type { Factory as QueueFactory } from 'Illuminate/Contracts/Queue/Factory';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /**
  * PHP: `Illuminate\Tests\Bus\BusBatchTest`.
@@ -107,7 +107,7 @@ class FakeQueue implements Queue {
     }
 
     public getConnectionName(): string {
-        return "fake";
+        return 'fake';
     }
 
     public setConnectionName(): this {
@@ -147,7 +147,7 @@ function createTestBatch(
     allowFailures = false,
 ): Batch {
     const repository = new ArrayBatchRepository(queueFactory);
-    container.instance("bus.batches", repository);
+    container.instance('bus.batches', repository);
 
     const pendingBatch = new PendingBatch(container, [])
         .progress((batch) => {
@@ -168,15 +168,15 @@ function createTestBatch(
             counters.finally++;
         })
         .allowFailures(allowFailures)
-        .onConnection("test-connection")
-        .onQueue("test-queue");
+        .onConnection('test-connection')
+        .onQueue('test-queue');
 
     return repository.store(pendingBatch);
 }
 
 export = (): void => {
-    describe("Batch", () => {
-        it("jobs are added to the batch (adapted -- see class comment)", () => {
+    describe('Batch', () => {
+        it('jobs are added to the batch (adapted -- see class comment)', () => {
             // PHP: BusBatchTest::test_jobs_can_be_added_to_the_batch
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
@@ -196,20 +196,20 @@ export = (): void => {
 
             const added = batch.add([job, secondJob]);
 
-            expect(queueFactory.connectionCalls[0]).to.equal("test-connection");
+            expect(queueFactory.connectionCalls[0]).to.equal('test-connection');
             expect(queueFactory.queue.bulkCalls.size()).to.equal(1);
             const [bulkJobs, , bulkQueue] = queueFactory.queue.bulkCalls[0];
             expect((bulkJobs as Array<unknown>).size()).to.equal(2);
-            expect(bulkQueue).to.equal("test-queue");
+            expect(bulkQueue).to.equal('test-queue');
 
             expect(added?.totalJobs).to.equal(2);
             expect(added?.pendingJobs).to.equal(2);
-            expect(typeIs(job.batchId, "string")).to.equal(true);
-            expect(typeIs(secondJob.batchId, "string")).to.equal(true);
-            expect(typeIs(added?.createdAt, "number")).to.equal(true);
+            expect(typeIs(job.batchId, 'string')).to.equal(true);
+            expect(typeIs(secondJob.batchId, 'string')).to.equal(true);
+            expect(typeIs(added?.createdAt, 'number')).to.equal(true);
         });
 
-        it("jobs are added to a pending batch", () => {
+        it('jobs are added to a pending batch', () => {
             // PHP: BusBatchTest::test_jobs_can_be_added_to_pending_batch
             const batch = new PendingBatch(new Container(), []);
             expect(batch.jobs.size()).to.equal(0);
@@ -223,13 +223,13 @@ export = (): void => {
             expect(batch.jobs.size()).to.equal(2);
         });
 
-        it("processedJobs() and progress() are computed from totalJobs and pendingJobs", () => {
+        it('processedJobs() and progress() are computed from totalJobs and pendingJobs', () => {
             // PHP: BusBatchTest::test_processed_jobs_can_be_calculated
             const batch = new Batch(
                 new FakeQueueFactory(),
                 new ArrayBatchRepository(new FakeQueueFactory()),
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 10,
                 4,
                 0,
@@ -242,7 +242,7 @@ export = (): void => {
             expect(batch.progress()).to.equal(60);
         });
 
-        it("successful jobs are recorded and fire progress/then/finally callbacks", () => {
+        it('successful jobs are recorded and fire progress/then/finally callbacks', () => {
             // PHP: BusBatchTest::test_successful_jobs_can_be_recorded
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
@@ -262,8 +262,8 @@ export = (): void => {
             batch = batch.add([job, secondJob]) as Batch;
             expect(batch.pendingJobs).to.equal(2);
 
-            batch.recordSuccessfulJob("test-id");
-            batch.recordSuccessfulJob("test-id");
+            batch.recordSuccessfulJob('test-id');
+            batch.recordSuccessfulJob('test-id');
 
             expect(lastBatch.finally instanceof Batch).to.equal(true);
             expect(lastBatch.progress instanceof Batch).to.equal(true);
@@ -277,12 +277,12 @@ export = (): void => {
             expect(counters.then).to.equal(1);
         });
 
-        it("BatchStarted and BatchFinished are dispatched once the batch finishes", () => {
+        it('BatchStarted and BatchFinished are dispatched once the batch finishes', () => {
             // PHP: BusBatchTest::test_batch_finished_event_is_dispatched
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
             const events = new EventDispatcher();
-            container.instance("events", events);
+            container.instance('events', events);
             Container.setInstance(container);
 
             const dispatched = new Array<object>();
@@ -305,7 +305,7 @@ export = (): void => {
             const job = new TestJob();
             batch = batch.add([job]) as Batch;
 
-            batch.recordSuccessfulJob("test-id");
+            batch.recordSuccessfulJob('test-id');
 
             expect(dispatched.size()).to.equal(2);
             expect(dispatched[0] instanceof BatchStarted).to.equal(true);
@@ -316,12 +316,12 @@ export = (): void => {
             Container.setInstance(undefined);
         });
 
-        it("BatchStarted fires once, on the very first job processed", () => {
+        it('BatchStarted fires once, on the very first job processed', () => {
             // PHP: BusBatchTest::test_batch_started_event_is_dispatched
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
             const events = new EventDispatcher();
-            container.instance("events", events);
+            container.instance('events', events);
             Container.setInstance(container);
 
             let startedCount = 0;
@@ -346,8 +346,8 @@ export = (): void => {
             const secondJob = new TestJob();
             batch = batch.add([job, secondJob]) as Batch;
 
-            batch.recordSuccessfulJob("test-id-1");
-            batch.recordSuccessfulJob("test-id-2");
+            batch.recordSuccessfulJob('test-id-1');
+            batch.recordSuccessfulJob('test-id-2');
 
             expect(startedCount).to.equal(1);
             expect(finishedCount).to.equal(1);
@@ -355,12 +355,12 @@ export = (): void => {
             Container.setInstance(undefined);
         });
 
-        it("BatchStarted fires when the first job fails, not just when one succeeds", () => {
+        it('BatchStarted fires when the first job fails, not just when one succeeds', () => {
             // PHP: BusBatchTest::test_batch_started_event_is_dispatched_when_first_job_fails
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
             const events = new EventDispatcher();
-            container.instance("events", events);
+            container.instance('events', events);
             Container.setInstance(container);
 
             let startedCount = 0;
@@ -381,15 +381,15 @@ export = (): void => {
             const secondJob = new TestJob();
             batch = batch.add([job, secondJob]) as Batch;
 
-            batch.recordFailedJob("test-id-1", new RuntimeException("Something went wrong."));
-            batch.recordFailedJob("test-id-2", new RuntimeException("Something else went wrong."));
+            batch.recordFailedJob('test-id-1', new RuntimeException('Something went wrong.'));
+            batch.recordFailedJob('test-id-2', new RuntimeException('Something else went wrong.'));
 
             expect(startedCount).to.equal(1);
 
             Container.setInstance(undefined);
         });
 
-        it("failed jobs cancel the batch when failures are not allowed", () => {
+        it('failed jobs cancel the batch when failures are not allowed', () => {
             // PHP: BusBatchTest::test_failed_jobs_can_be_recorded_while_not_allowing_failures
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
@@ -409,8 +409,8 @@ export = (): void => {
             batch = batch.add([job, secondJob]) as Batch;
             expect(batch.pendingJobs).to.equal(2);
 
-            batch.recordFailedJob("test-id", new RuntimeException("Something went wrong."));
-            batch.recordFailedJob("test-id", new RuntimeException("Something else went wrong."));
+            batch.recordFailedJob('test-id', new RuntimeException('Something went wrong.'));
+            batch.recordFailedJob('test-id', new RuntimeException('Something else went wrong.'));
 
             expect(lastBatch.finally instanceof Batch).to.equal(true);
             expect(lastBatch.then).to.equal(undefined);
@@ -423,10 +423,10 @@ export = (): void => {
             expect(counters.finally).to.equal(1);
             expect(counters.progress).to.equal(0);
             expect(counters.catch).to.equal(1);
-            expect((lastException.catch as RuntimeException).getMessage()).to.equal("Something went wrong.");
+            expect((lastException.catch as RuntimeException).getMessage()).to.equal('Something went wrong.');
         });
 
-        it("failed jobs do not cancel the batch when failures are allowed", () => {
+        it('failed jobs do not cancel the batch when failures are allowed', () => {
             // PHP: BusBatchTest::test_failed_jobs_can_be_recorded_while_allowing_failures
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
@@ -446,8 +446,8 @@ export = (): void => {
             batch = batch.add([job, secondJob]) as Batch;
             expect(batch.pendingJobs).to.equal(2);
 
-            batch.recordFailedJob("test-id", new RuntimeException("Something went wrong."));
-            batch.recordFailedJob("test-id", new RuntimeException("Something else went wrong."));
+            batch.recordFailedJob('test-id', new RuntimeException('Something went wrong.'));
+            batch.recordFailedJob('test-id', new RuntimeException('Something else went wrong.'));
 
             // While allowing failures this batch never actually completes...
             expect(lastBatch.then).to.equal(undefined);
@@ -459,10 +459,10 @@ export = (): void => {
             expect(batch.cancelled()).to.equal(false);
             expect(counters.catch).to.equal(1);
             expect(counters.progress).to.equal(2);
-            expect((lastException.catch as RuntimeException).getMessage()).to.equal("Something went wrong.");
+            expect((lastException.catch as RuntimeException).getMessage()).to.equal('Something went wrong.');
         });
 
-        it("cancel() marks the batch cancelled", () => {
+        it('cancel() marks the batch cancelled', () => {
             // PHP: BusBatchTest::test_batch_can_be_cancelled
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
@@ -482,12 +482,12 @@ export = (): void => {
             expect(batch.cancelled()).to.equal(true);
         });
 
-        it("cancel() dispatches BatchCanceled carrying the batch id and exception", () => {
+        it('cancel() dispatches BatchCanceled carrying the batch id and exception', () => {
             // PHP: BusBatchTest::test_batch_cancelled_event_is_dispatched
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
             const events = new EventDispatcher();
-            container.instance("events", events);
+            container.instance('events', events);
             Container.setInstance(container);
 
             let received: BatchCanceled | undefined;
@@ -504,7 +504,7 @@ export = (): void => {
             } = {};
             const batch = createTestBatch(container, queueFactory, counters, lastBatch, {});
 
-            const exception = new RuntimeException("Something went wrong.");
+            const exception = new RuntimeException('Something went wrong.');
             batch.cancel(exception);
 
             expect(received?.batch.id).to.equal(batch.id);
@@ -513,7 +513,7 @@ export = (): void => {
             Container.setInstance(undefined);
         });
 
-        it("delete() removes the batch from the repository", () => {
+        it('delete() removes the batch from the repository', () => {
             // PHP: BusBatchTest::test_batch_can_be_deleted
             const queueFactory = new FakeQueueFactory();
             const container = new Container();
@@ -532,17 +532,17 @@ export = (): void => {
             expect(batch.fresh()).to.equal(undefined);
         });
 
-        it("finished()/hasProgressCallbacks()/hasThenCallbacks()/allowsFailures()/hasFailures()/hasCatchCallbacks()/cancelled() reflect batch state (adapted -- see class comment)", () => {
+        it('finished()/hasProgressCallbacks()/hasThenCallbacks()/allowsFailures()/hasFailures()/hasCatchCallbacks()/cancelled() reflect batch state (adapted -- see class comment)', () => {
             // PHP: BusBatchTest::test_batch_state_can_be_inspected (adapted -- see class comment)
             const repository = new ArrayBatchRepository(new FakeQueueFactory());
 
-            let batch = new Batch(new FakeQueueFactory(), repository, "test-id", "test-batch", 0, 0, 0, [], {}, 0);
+            let batch = new Batch(new FakeQueueFactory(), repository, 'test-id', 'test-batch', 0, 0, 0, [], {}, 0);
             expect(batch.finished()).to.equal(false);
             batch = new Batch(
                 new FakeQueueFactory(),
                 repository,
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 0,
                 0,
                 0,
@@ -557,8 +557,8 @@ export = (): void => {
             batch = new Batch(
                 new FakeQueueFactory(),
                 repository,
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 0,
                 0,
                 0,
@@ -570,8 +570,8 @@ export = (): void => {
             batch = new Batch(
                 new FakeQueueFactory(),
                 repository,
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 0,
                 0,
                 0,
@@ -584,8 +584,8 @@ export = (): void => {
             batch = new Batch(
                 new FakeQueueFactory(),
                 repository,
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 0,
                 0,
                 0,
@@ -597,8 +597,8 @@ export = (): void => {
             batch = new Batch(
                 new FakeQueueFactory(),
                 repository,
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 0,
                 0,
                 0,
@@ -608,13 +608,13 @@ export = (): void => {
             );
             expect(batch.hasThenCallbacks()).to.equal(true);
 
-            batch = new Batch(new FakeQueueFactory(), repository, "test-id", "test-batch", 0, 0, 0, [], {}, 0);
+            batch = new Batch(new FakeQueueFactory(), repository, 'test-id', 'test-batch', 0, 0, 0, [], {}, 0);
             expect(batch.allowsFailures()).to.equal(false);
             batch = new Batch(
                 new FakeQueueFactory(),
                 repository,
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 0,
                 0,
                 0,
@@ -624,16 +624,16 @@ export = (): void => {
             );
             expect(batch.allowsFailures()).to.equal(true);
 
-            batch = new Batch(new FakeQueueFactory(), repository, "test-id", "test-batch", 0, 0, 0, [], {}, 0);
+            batch = new Batch(new FakeQueueFactory(), repository, 'test-id', 'test-batch', 0, 0, 0, [], {}, 0);
             expect(batch.hasFailures()).to.equal(false);
-            batch = new Batch(new FakeQueueFactory(), repository, "test-id", "test-batch", 0, 0, 1, [], {}, 0);
+            batch = new Batch(new FakeQueueFactory(), repository, 'test-id', 'test-batch', 0, 0, 1, [], {}, 0);
             expect(batch.hasFailures()).to.equal(true);
 
             batch = new Batch(
                 new FakeQueueFactory(),
                 repository,
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 0,
                 0,
                 0,
@@ -645,8 +645,8 @@ export = (): void => {
             batch = new Batch(
                 new FakeQueueFactory(),
                 repository,
-                "test-id",
-                "test-batch",
+                'test-id',
+                'test-batch',
                 0,
                 0,
                 0,
@@ -656,9 +656,9 @@ export = (): void => {
             );
             expect(batch.hasCatchCallbacks()).to.equal(true);
 
-            batch = new Batch(new FakeQueueFactory(), repository, "test-id", "test-batch", 0, 0, 0, [], {}, 0);
+            batch = new Batch(new FakeQueueFactory(), repository, 'test-id', 'test-batch', 0, 0, 0, [], {}, 0);
             expect(batch.cancelled()).to.equal(false);
-            batch = new Batch(new FakeQueueFactory(), repository, "test-id", "test-batch", 0, 0, 0, [], {}, 0, 100);
+            batch = new Batch(new FakeQueueFactory(), repository, 'test-id', 'test-batch', 0, 0, 0, [], {}, 0, 100);
             expect(batch.cancelled()).to.equal(true);
         });
     });

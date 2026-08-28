@@ -1,7 +1,7 @@
-import { Container } from "Illuminate/Container/Container";
-import { Queueable } from "Illuminate/Bus/Queueable";
-import type { Batch } from "Illuminate/Bus/Batch";
-import type { BatchRepository } from "Illuminate/Bus/BatchRepository";
+import { Container } from 'Illuminate/Container/Container';
+import { Queueable } from 'Illuminate/Bus/Queueable';
+import type { Batch } from 'Illuminate/Bus/Batch';
+import type { BatchRepository } from 'Illuminate/Bus/BatchRepository';
 
 /**
  * PHP: `Illuminate\Bus\Batchable`.
@@ -25,11 +25,11 @@ export class Batchable extends Queueable {
 
         const container = Container.getInstance();
 
-        if (!container.bound("bus.batches")) {
+        if (!container.bound('bus.batches')) {
             return undefined;
         }
 
-        return container.make<BatchRepository>("bus.batches").find(this.batchId);
+        return container.make<BatchRepository>('bus.batches').find(this.batchId);
     }
 
     /** Determine if the batch is still active and processing. */

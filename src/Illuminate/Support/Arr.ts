@@ -1,5 +1,5 @@
-import { InvalidArgumentException, ItemNotFoundException, MultipleItemsFoundException } from "Illuminate/Exception";
-import { Util } from "Illuminate/Container/Util";
+import { InvalidArgumentException, ItemNotFoundException, MultipleItemsFoundException } from 'Illuminate/Exception';
+import { Util } from 'Illuminate/Container/Util';
 
 /** A nested table addressed by string keys, as produced by an object literal. */
 export type ArrayAccessible = Record<string, unknown>;
@@ -23,7 +23,7 @@ export type ArrCallback<TValue, TReturn> = (value: TValue, key: string | number)
 export class Arr {
     /** Determine whether the given value is array accessible. */
     public static accessible(value: unknown): value is ArrayAccessible {
-        return typeIs(value, "table");
+        return typeIs(value, 'table');
     }
 
     /** Determine if the given key exists in the provided array. */
@@ -54,13 +54,13 @@ export class Arr {
             return target[key];
         }
 
-        if (key.find(".", 1, true)[0] === undefined) {
+        if (key.find('.', 1, true)[0] === undefined) {
             return defaultValue;
         }
 
         let current: unknown = target;
 
-        for (const segment of key.split(".")) {
+        for (const segment of key.split('.')) {
             if (!Arr.accessible(current) || !Arr.exists(current, segment)) {
                 return defaultValue;
             }
@@ -86,7 +86,7 @@ export class Arr {
 
             let current: unknown = target;
 
-            for (const segment of key.split(".")) {
+            for (const segment of key.split('.')) {
                 if (!Arr.accessible(current) || !Arr.exists(current, segment)) {
                     return false;
                 }
@@ -134,7 +134,7 @@ export class Arr {
 
     /** Set an array item to a given value using "dot" notation. */
     public static set(target: ArrayAccessible, key: string, value: unknown): ArrayAccessible {
-        const segments = key.split(".");
+        const segments = key.split('.');
         let current = target;
 
         while (segments.size() > 1) {
@@ -184,7 +184,7 @@ export class Arr {
                 continue;
             }
 
-            const segments = key.split(".");
+            const segments = key.split('.');
             let current = target;
             let missing = false;
 
@@ -259,7 +259,7 @@ export class Arr {
      * itself, so that removing the key cannot touch the original.
      */
     private static detachPath(target: ArrayAccessible, key: string): void {
-        const segments = key.split(".");
+        const segments = key.split('.');
         let current = target;
 
         for (let index = 0; index < segments.size() - 1; index++) {
@@ -289,7 +289,7 @@ export class Arr {
     }
 
     /** Flatten a multi-dimensional associative array with dots. */
-    public static dot(target: ArrayAccessible, prepend = "", depth = math.huge): ArrayAccessible {
+    public static dot(target: ArrayAccessible, prepend = '', depth = math.huge): ArrayAccessible {
         const results: ArrayAccessible = {};
 
         const flatten = (data: ArrayAccessible, prefix: string, currentDepth: number): void => {
@@ -336,7 +336,7 @@ export class Arr {
         let expected = 1;
 
         for (const [key] of pairs(target as object)) {
-            if (!typeIs(key, "number") || key !== expected) {
+            if (!typeIs(key, 'number') || key !== expected) {
                 return false;
             }
 
@@ -354,7 +354,7 @@ export class Arr {
     public static string(target: unknown, key: string, defaultValue?: string): string {
         const value = Arr.get(target, key, defaultValue);
 
-        if (!typeIs(value, "string")) {
+        if (!typeIs(value, 'string')) {
             throw new InvalidArgumentException(
                 `Array value for key [${key}] must be a string, ${typeOf(value)} found.`,
             );
@@ -367,7 +367,7 @@ export class Arr {
     public static integer(target: unknown, key: string, defaultValue?: number): number {
         const value = Arr.get(target, key, defaultValue);
 
-        if (!typeIs(value, "number") || math.floor(value) !== value) {
+        if (!typeIs(value, 'number') || math.floor(value) !== value) {
             throw new InvalidArgumentException(
                 `Array value for key [${key}] must be an integer, ${typeOf(value)} found.`,
             );
@@ -380,7 +380,7 @@ export class Arr {
     public static boolean(target: unknown, key: string, defaultValue?: boolean): boolean {
         const value = Arr.get(target, key, defaultValue);
 
-        if (!typeIs(value, "boolean")) {
+        if (!typeIs(value, 'boolean')) {
             throw new InvalidArgumentException(
                 `Array value for key [${key}] must be a boolean, ${typeOf(value)} found.`,
             );
@@ -441,7 +441,7 @@ export class Arr {
         const matched = callback === undefined ? list : Arr.where(list, callback);
 
         if (matched.isEmpty()) {
-            throw new ItemNotFoundException("No items were found.");
+            throw new ItemNotFoundException('No items were found.');
         }
 
         if (matched.size() > 1) {
@@ -579,7 +579,7 @@ export class Arr {
 
         for (let index = 0; index < list.size(); index++) {
             const value = list[index];
-            const key = typeIs(keyBy, "function")
+            const key = typeIs(keyBy, 'function')
                 ? (keyBy as ArrCallback<T, string>)(value, index)
                 : tostring(Arr.get(value, keyBy as string));
 
@@ -721,13 +721,13 @@ export class Arr {
     }
 
     /** Join all items using a string, with a separate glue for the final item. */
-    public static join(list: Array<defined>, glue: string, finalGlue = ""): string {
-        if (finalGlue === "") {
+    public static join(list: Array<defined>, glue: string, finalGlue = ''): string {
+        if (finalGlue === '') {
             return list.map((value) => tostring(value)).join(glue);
         }
 
         if (list.isEmpty()) {
-            return "";
+            return '';
         }
 
         if (list.size() === 1) {
@@ -789,7 +789,7 @@ export class Arr {
         const resolve = (value: T, index: number): defined =>
             callback === undefined
                 ? (value as defined)
-                : typeIs(callback, "function")
+                : typeIs(callback, 'function')
                   ? (callback as ArrCallback<T, defined>)(value, index)
                   : (Arr.get(value, callback as string) as defined);
 
@@ -827,11 +827,11 @@ export class Arr {
             return items as Array<defined>;
         }
 
-        if (typeIs(items, "table") && typeIs((items as { all?: unknown }).all, "function")) {
+        if (typeIs(items, 'table') && typeIs((items as { all?: unknown }).all, 'function')) {
             return ((items as { all: Callback }).all as Callback)(items) as Array<defined>;
         }
 
-        throw new InvalidArgumentException("Items cannot be represented by a scalar value.");
+        throw new InvalidArgumentException('Items cannot be represented by a scalar value.');
     }
 
     // -----------------------------------------------------------------
@@ -858,7 +858,7 @@ export class Arr {
 
     /** Compare two values, ordering numbers and strings naturally. */
     private static compare(first: unknown, second: unknown): number {
-        if (typeIs(first, "number") && typeIs(second, "number")) {
+        if (typeIs(first, 'number') && typeIs(second, 'number')) {
             return first - second;
         }
 
@@ -867,7 +867,7 @@ export class Arr {
         // `tostring()` here would compare table *addresses* instead, and put
         // `Arr::sort([['name' => 'Desk'], ['name' => 'Chair']])` in whatever
         // order the allocator happened to produce.
-        if (typeIs(first, "table") && typeIs(second, "table")) {
+        if (typeIs(first, 'table') && typeIs(second, 'table')) {
             return Arr.compareTables(first, second);
         }
 

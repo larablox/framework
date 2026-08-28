@@ -1,6 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../../TestHelpers";
-import { Collection } from "Illuminate/Support/Collection";
+import { expectDeepEqual } from '../../TestHelpers';
+import { Collection } from 'Illuminate/Support/Collection';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportCollectionTest` -- `take`, `skip`,
@@ -14,8 +14,8 @@ import { Collection } from "Illuminate/Support/Collection";
  * are dropped.
  */
 export = (): void => {
-    describe("Collection slicing", () => {
-        it("take() takes items from the front, or the back with a negative count", () => {
+    describe('Collection slicing', () => {
+        it('take() takes items from the front, or the back with a negative count', () => {
             // PHP: SupportCollectionTest::testTake, ::testTakeLast
             const data = new Collection([1, 2, 3, 4, 5]);
 
@@ -23,7 +23,7 @@ export = (): void => {
             expectDeepEqual(data.take(-2).values().all(), [4, 5]);
         });
 
-        it("skip() drops items from the front", () => {
+        it('skip() drops items from the front', () => {
             // PHP: SupportCollectionTest::testSkipMethod
             const data = new Collection([1, 2, 3, 4, 5, 6]);
 
@@ -31,7 +31,7 @@ export = (): void => {
             expectDeepEqual(data.skip(10).values().all(), []);
         });
 
-        it("slice() takes a sub-range by offset, and optionally by length", () => {
+        it('slice() takes a sub-range by offset, and optionally by length', () => {
             // PHP: SupportCollectionTest::testSliceOffset,
             // ::testSliceNegativeOffset, ::testSliceOffsetAndLength,
             // ::testSliceNegativeOffsetAndLength
@@ -43,12 +43,12 @@ export = (): void => {
             expectDeepEqual(data.slice(-5, 3).values().toArray(), [4, 5, 6]);
         });
 
-        it("forPage() returns a fixed-size page of items", () => {
+        it('forPage() returns a fixed-size page of items', () => {
             // PHP: SupportCollectionTest::testPaginate
-            const c = new Collection(["one", "two", "three", "four"]);
+            const c = new Collection(['one', 'two', 'three', 'four']);
 
-            expectDeepEqual(c.forPage(1, 2).all(), ["one", "two"]);
-            expectDeepEqual(c.forPage(2, 2).all(), ["three", "four"]);
+            expectDeepEqual(c.forPage(1, 2).all(), ['one', 'two']);
+            expectDeepEqual(c.forPage(2, 2).all(), ['three', 'four']);
             expectDeepEqual(c.forPage(3, 2).all(), []);
         });
 

@@ -1,8 +1,8 @@
-import { Container } from "Illuminate/Container/Container";
-import { RateLimiter } from "Illuminate/Cache/RateLimiter";
-import { Reflector } from "Illuminate/Support/Reflector";
-import type { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
+import { Container } from 'Illuminate/Container/Container';
+import { RateLimiter } from 'Illuminate/Cache/RateLimiter';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import type { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
 
 /** A test run against the exception a job threw. */
 export type ExceptionTest = (e: unknown) => boolean;
@@ -25,7 +25,7 @@ export type ExceptionTest = (e: unknown) => boolean;
  */
 export class ThrottlesExceptions {
     /** The developer specified key. */
-    protected key = "";
+    protected key = '';
 
     /** Indicates whether the throttle key should use the job's uuid. */
     protected byJobUuid = false;
@@ -49,7 +49,7 @@ export class ThrottlesExceptions {
     protected failWhenCallbacks = new Array<ExceptionTest>();
 
     /** The prefix of the rate limiter key. */
-    protected prefix = "laravel_throttles_exceptions:";
+    protected prefix = 'laravel_throttles_exceptions:';
 
     /** Create a new middleware instance. */
     public constructor(
@@ -151,7 +151,7 @@ export class ThrottlesExceptions {
 
     /** Get the number of seconds to wait before retrying after an exception. */
     protected getTimeUntilNextRetryAfterException(e: unknown): number {
-        const backoff = typeIs(this.retryAfterMinutes, "function")
+        const backoff = typeIs(this.retryAfterMinutes, 'function')
             ? (this.retryAfterMinutes as (e: unknown) => number)(e)
             : (this.retryAfterMinutes as number);
 
@@ -182,19 +182,19 @@ export class ThrottlesExceptions {
 
     /** Get the cache key associated for the rate limiter. */
     protected getKey(job: InteractsWithQueue): string {
-        if (this.key !== "") {
+        if (this.key !== '') {
             return this.prefix + this.key;
         }
 
         if (this.byJobUuid) {
-            return this.prefix + (job.job?.uuid() ?? "");
+            return this.prefix + (job.job?.uuid() ?? '');
         }
 
         const displayName = (job as { displayName?: unknown }).displayName;
 
         return (
             this.prefix +
-            (typeIs(displayName, "function")
+            (typeIs(displayName, 'function')
                 ? (displayName as (self: object) => string)(job)
                 : Reflector.className(Reflector.classOf(job)))
         );

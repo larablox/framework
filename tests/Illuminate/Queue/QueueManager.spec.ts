@@ -1,14 +1,14 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Arr } from "Illuminate/Support/Arr";
-import { Container } from "Illuminate/Container/Container";
-import { Repository as ConfigRepository } from "Illuminate/Config/Repository";
-import { NullConnector } from "Illuminate/Queue/Connectors/NullConnector";
-import { NullQueue } from "Illuminate/Queue/NullQueue";
-import { QueueManager } from "Illuminate/Queue/QueueManager";
-import { SyncConnector } from "Illuminate/Queue/Connectors/SyncConnector";
-import { SyncQueue } from "Illuminate/Queue/SyncQueue";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
+import { Arr } from 'Illuminate/Support/Arr';
+import { Container } from 'Illuminate/Container/Container';
+import { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
+import { NullConnector } from 'Illuminate/Queue/Connectors/NullConnector';
+import { NullQueue } from 'Illuminate/Queue/NullQueue';
+import { QueueManager } from 'Illuminate/Queue/QueueManager';
+import { SyncConnector } from 'Illuminate/Queue/Connectors/SyncConnector';
+import { SyncQueue } from 'Illuminate/Queue/SyncQueue';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueManagerTest`.
@@ -37,88 +37,88 @@ function makeApp(config: ArrayAccessible): Application {
     // `Repository` addresses a *nested* table -- and `set()` writes into one,
     // so a flat `"queue.default"` key would be shadowed the moment
     // `setDefaultDriver()` wrote a nested one beside it.
-    container.singleton("config", () => new ConfigRepository(Arr.undot(config)));
+    container.singleton('config', () => new ConfigRepository(Arr.undot(config)));
 
     return container as unknown as Application;
 }
 
 export = (): void => {
-    describe("QueueManager", () => {
+    describe('QueueManager', () => {
         // PHP: QueueManagerTest::testDefaultConnectionCanBeResolved
-        it("resolves the default connection through its registered connector", () => {
+        it('resolves the default connection through its registered connector', () => {
             const app = makeApp({
-                "queue.default": "sync",
-                "queue.connections.sync": { driver: "sync" },
+                'queue.default': 'sync',
+                'queue.connections.sync': { driver: 'sync' },
             });
             const manager = new QueueManager(app);
-            manager.addConnector("sync", () => new SyncConnector());
+            manager.addConnector('sync', () => new SyncConnector());
 
-            const queue = manager.connection("sync");
+            const queue = manager.connection('sync');
 
             expect(queue instanceof SyncQueue).to.equal(true);
-            expect(queue.getConnectionName()).to.equal("sync");
-            expect(manager.connection("sync")).to.equal(queue);
+            expect(queue.getConnectionName()).to.equal('sync');
+            expect(manager.connection('sync')).to.equal(queue);
         });
 
         // PHP: QueueManagerTest::testOtherConnectionCanBeResolved
-        it("resolves a non-default connection by name", () => {
+        it('resolves a non-default connection by name', () => {
             const app = makeApp({
-                "queue.default": "sync",
-                "queue.connections.foo": { driver: "bar" },
+                'queue.default': 'sync',
+                'queue.connections.foo': { driver: 'bar' },
             });
             const manager = new QueueManager(app);
-            manager.addConnector("bar", () => new SyncConnector());
+            manager.addConnector('bar', () => new SyncConnector());
 
-            const queue = manager.connection("foo");
+            const queue = manager.connection('foo');
 
-            expect(queue.getConnectionName()).to.equal("foo");
+            expect(queue.getConnectionName()).to.equal('foo');
         });
 
         // PHP: QueueManagerTest::testNullConnectionCanBeResolved
         it("resolves the null connection when the default driver is 'null'", () => {
-            const app = makeApp({ "queue.default": "null" });
+            const app = makeApp({ 'queue.default': 'null' });
             const manager = new QueueManager(app);
-            manager.addConnector("null", () => new NullConnector());
+            manager.addConnector('null', () => new NullConnector());
 
-            const queue = manager.connection("null");
+            const queue = manager.connection('null');
 
             expect(queue instanceof NullQueue).to.equal(true);
-            expect(queue.getConnectionName()).to.equal("null");
+            expect(queue.getConnectionName()).to.equal('null');
         });
 
         // PHP: no direct equivalent -- exercises `getConfig()`'s "no name given"
         // branch, `{ driver: 'null' }`, the same branch `testNullConnectionCanBeResolved`
         // reaches by explicit name.
-        it("falls back to a null driver config when no connection is named", () => {
+        it('falls back to a null driver config when no connection is named', () => {
             const app = makeApp({});
             const manager = new QueueManager(app);
-            manager.addConnector("null", () => new NullConnector());
+            manager.addConnector('null', () => new NullConnector());
 
             const queue = manager.connection();
 
             expect(queue instanceof NullQueue).to.equal(true);
         });
 
-        it("connected() reports whether a connection has already been resolved", () => {
+        it('connected() reports whether a connection has already been resolved', () => {
             const app = makeApp({
-                "queue.default": "sync",
-                "queue.connections.sync": { driver: "sync" },
+                'queue.default': 'sync',
+                'queue.connections.sync': { driver: 'sync' },
             });
             const manager = new QueueManager(app);
-            manager.addConnector("sync", () => new SyncConnector());
+            manager.addConnector('sync', () => new SyncConnector());
 
-            expect(manager.connected("sync")).to.equal(false);
-            manager.connection("sync");
-            expect(manager.connected("sync")).to.equal(true);
+            expect(manager.connected('sync')).to.equal(false);
+            manager.connection('sync');
+            expect(manager.connected('sync')).to.equal(true);
         });
 
-        it("push() forwards to the default connection", () => {
+        it('push() forwards to the default connection', () => {
             const app = makeApp({
-                "queue.default": "sync",
-                "queue.connections.sync": { driver: "sync" },
+                'queue.default': 'sync',
+                'queue.connections.sync': { driver: 'sync' },
             });
             const manager = new QueueManager(app);
-            manager.addConnector("sync", () => new SyncConnector());
+            manager.addConnector('sync', () => new SyncConnector());
 
             let fired = false;
 
@@ -133,18 +133,18 @@ export = (): void => {
             expect(fired).to.equal(true);
         });
 
-        it("getDefaultDriver()/setDefaultDriver() read and write the config", () => {
+        it('getDefaultDriver()/setDefaultDriver() read and write the config', () => {
             const app = makeApp({
-                "queue.default": "sync",
-                "queue.connections.sync": { driver: "sync" },
+                'queue.default': 'sync',
+                'queue.connections.sync': { driver: 'sync' },
             });
             const manager = new QueueManager(app);
 
-            expect(manager.getDefaultDriver()).to.equal("sync");
+            expect(manager.getDefaultDriver()).to.equal('sync');
 
-            manager.setDefaultDriver("other");
+            manager.setDefaultDriver('other');
 
-            expect(manager.getDefaultDriver()).to.equal("other");
+            expect(manager.getDefaultDriver()).to.equal('other');
         });
     });
 };

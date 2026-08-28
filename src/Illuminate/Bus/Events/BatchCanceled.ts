@@ -1,4 +1,4 @@
-import type { Batch } from "Illuminate/Bus/Batch";
+import type { Batch } from 'Illuminate/Bus/Batch';
 
 /** PHP: `Illuminate\Bus\Events\BatchCanceled`. */
 export class BatchCanceled {

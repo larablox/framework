@@ -1,14 +1,14 @@
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { Remote, RemoteLimits } from "Illuminate/Http/Remote";
-import { Request } from "Illuminate/Http/Request";
-import { Response } from "Illuminate/Http/Response";
-import { RuntimeException } from "Illuminate/Exception";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { LogManager } from "Illuminate/Log/LogManager";
-import type { ResponseEnvelope, Transport } from "Illuminate/Http/Remote";
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { Remote, RemoteLimits } from 'Illuminate/Http/Remote';
+import { Request } from 'Illuminate/Http/Request';
+import { Response } from 'Illuminate/Http/Response';
+import { RuntimeException } from 'Illuminate/Exception';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { LogManager } from 'Illuminate/Log/LogManager';
+import type { ResponseEnvelope, Transport } from 'Illuminate/Http/Remote';
 
-const RunService = game.GetService("RunService");
+const RunService = game.GetService('RunService');
 
 /** What the gateway hands a request to. */
 export type RequestHandler = (request: Request) => Response;
@@ -46,16 +46,16 @@ export class RemoteGateway {
     protected listening = false;
 
     /** Create a new gateway. */
-    public constructor(@Inject("app") protected readonly app: Application) {}
+    public constructor(@Inject('app') protected readonly app: Application) {}
 
     /** Attach the gateway to the remotes and route what arrives to the handler. */
     public listen(handler: RequestHandler): void {
         if (!RunService.IsServer()) {
-            throw new RuntimeException("The remote gateway may only listen on the server.");
+            throw new RuntimeException('The remote gateway may only listen on the server.');
         }
 
         if (this.listening) {
-            throw new RuntimeException("The remote gateway is already listening.");
+            throw new RuntimeException('The remote gateway is already listening.');
         }
 
         Remote.call().OnServerInvoke = (player: Player, ...args: Array<unknown>) =>
@@ -63,13 +63,13 @@ export class RemoteGateway {
 
         this.connections.push(
             Remote.send().OnServerEvent.Connect((player: Player, ...args: Array<unknown>) => {
-                this.handleDispatchOnly(handler, player, args, "send");
+                this.handleDispatchOnly(handler, player, args, 'send');
             }),
         );
 
         this.connections.push(
             Remote.stream().OnServerEvent.Connect((player: Player, ...args: Array<unknown>) => {
-                this.handleDispatchOnly(handler, player, args, "stream");
+                this.handleDispatchOnly(handler, player, args, 'stream');
             }),
         );
 
@@ -95,9 +95,9 @@ export class RemoteGateway {
 
     /** Handle a request that expects a response. */
     protected handleCall(handler: RequestHandler, player: Player, args: Array<unknown>): ResponseEnvelope {
-        const parsed = this.parse(player, args, "call");
+        const parsed = this.parse(player, args, 'call');
 
-        if (typeIs(parsed, "number")) {
+        if (typeIs(parsed, 'number')) {
             return { status: parsed };
         }
 
@@ -118,7 +118,7 @@ export class RemoteGateway {
     ): void {
         const parsed = this.parse(player, args, transport);
 
-        if (typeIs(parsed, "number")) {
+        if (typeIs(parsed, 'number')) {
             return;
         }
 
@@ -138,15 +138,15 @@ export class RemoteGateway {
 
         const [method, path, data] = args;
 
-        if (!typeIs(method, "string") || method.size() === 0 || method.size() > RemoteLimits.method) {
+        if (!typeIs(method, 'string') || method.size() === 0 || method.size() > RemoteLimits.method) {
             return Response.HTTP_BAD_REQUEST;
         }
 
-        if (!typeIs(path, "string") || path.size() === 0 || path.size() > RemoteLimits.path) {
+        if (!typeIs(path, 'string') || path.size() === 0 || path.size() > RemoteLimits.path) {
             return Response.HTTP_BAD_REQUEST;
         }
 
-        if (data !== undefined && !typeIs(data, "table")) {
+        if (data !== undefined && !typeIs(data, 'table')) {
             return Response.HTTP_BAD_REQUEST;
         }
 
@@ -169,7 +169,7 @@ export class RemoteGateway {
         }
 
         for (const [key, nested] of pairs(value as Record<string, unknown>)) {
-            if (!typeIs(key, "string") && !typeIs(key, "number")) {
+            if (!typeIs(key, 'string') && !typeIs(key, 'number')) {
                 return false;
             }
 
@@ -179,7 +179,7 @@ export class RemoteGateway {
                 return false;
             }
 
-            if (typeIs(nested, "table") && !this.withinLimits(nested, depth + 1, counter)) {
+            if (typeIs(nested, 'table') && !this.withinLimits(nested, depth + 1, counter)) {
                 return false;
             }
         }
@@ -188,7 +188,7 @@ export class RemoteGateway {
     }
 
     /** Run the handler, turning anything it throws into a 500. */
-    protected dispatch(handler: RequestHandler, request: Request, transport: Transport = "call"): Response {
+    protected dispatch(handler: RequestHandler, request: Request, transport: Transport = 'call'): Response {
         try {
             return handler(request);
         } catch (exception) {
@@ -228,13 +228,13 @@ export class RemoteGateway {
      * worker makes.
      */
     protected report(request: Request, transport: Transport, exception: unknown): void {
-        if (!this.app.bound("log")) {
+        if (!this.app.bound('log')) {
             warn(`[${transport}] ${request.method()} ${request.path()}`, exception);
 
             return;
         }
 
-        this.app.make<LogManager>("log").error(`Unhandled exception for [${request.method()} ${request.path()}].`, {
+        this.app.make<LogManager>('log').error(`Unhandled exception for [${request.method()} ${request.path()}].`, {
             transport: transport,
             player: request.player().Name,
             exception: exception,

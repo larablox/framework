@@ -1,16 +1,16 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
-import { InteractsWithData } from "Illuminate/Support/Traits/InteractsWithData";
-import { Str } from "Illuminate/Support/Str";
-import { Util } from "Illuminate/Container/Util";
-import { data_get, data_set } from "Illuminate/Support/Helpers";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
+import { Arr } from 'Illuminate/Support/Arr';
+import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
+import { InteractsWithData } from 'Illuminate/Support/Traits/InteractsWithData';
+import { Str } from 'Illuminate/Support/Str';
+import { Util } from 'Illuminate/Container/Util';
+import { data_get, data_set } from 'Illuminate/Support/Helpers';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
+import type { ConditionableShape } from 'Illuminate/Support/Traits/Conditionable';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { InteractsWithDataShape } from "Illuminate/Support/Traits/InteractsWithData";
-import type { Route } from "Illuminate/Routing/Route";
-import type { Transport } from "Illuminate/Http/Remote";
+import type { InteractsWithDataShape } from 'Illuminate/Support/Traits/InteractsWithData';
+import type { Route } from 'Illuminate/Routing/Route';
+import type { Transport } from 'Illuminate/Http/Remote';
 
 /**
  * PHP: `Illuminate\Http\Request`.
@@ -74,7 +74,7 @@ export class Request extends InteractsWithData(Conditionable()) {
         method: string,
         path: string,
         input: ArrayAccessible = {},
-        transport: Transport = "call",
+        transport: Transport = 'call',
     ) {
         super();
 
@@ -87,9 +87,9 @@ export class Request extends InteractsWithData(Conditionable()) {
 
     /** Strip the slashes PHP's `getPathInfo()` would have left behind. */
     protected static normalizePath(path: string): string {
-        const trimmed = Str.trim(path, "/");
+        const trimmed = Str.trim(path, '/');
 
-        return trimmed === "" ? "/" : trimmed;
+        return trimmed === '' ? '/' : trimmed;
     }
 
     /**
@@ -129,8 +129,8 @@ export class Request extends InteractsWithData(Conditionable()) {
     public segments(): Array<string> {
         const segments = new Array<string>();
 
-        for (const segment of this.requestPath.split("/")) {
-            if (segment !== "") {
+        for (const segment of this.requestPath.split('/')) {
+            if (segment !== '') {
                 segments.push(segment);
             }
         }

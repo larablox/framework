@@ -1,7 +1,7 @@
-import { BadMethodCallException } from "Illuminate/Exception";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Trait } from "Illuminate/Support/Traits/Trait";
-import type { AssertNoExtraMembers, AssertTrue, Constructor } from "Illuminate/Support/Traits/Trait";
+import { BadMethodCallException } from 'Illuminate/Exception';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Trait } from 'Illuminate/Support/Traits/Trait';
+import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/Support/Traits/Trait';
 
 /**
  * The instance type `ForwardsCalls()` mixes in.
@@ -43,7 +43,7 @@ function forwardsCalls<TBase extends Constructor>(Base: TBase) {
         protected forwardCallTo(target: object, method: string, parameters: Array<unknown>): unknown {
             const callable = (target as Record<string, unknown>)[method];
 
-            if (!typeIs(callable, "function")) {
+            if (!typeIs(callable, 'function')) {
                 throw new BadMethodCallException(
                     `Call to undefined method ${Reflector.className(Reflector.classOf(target) ?? target)}::${method}()`,
                 );

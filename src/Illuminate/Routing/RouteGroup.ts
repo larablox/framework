@@ -1,6 +1,6 @@
-import { Str } from "Illuminate/Support/Str";
-import type { ActionAttributes } from "Illuminate/Routing/RouteAction";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Str } from 'Illuminate/Support/Str';
+import type { ActionAttributes } from 'Illuminate/Routing/RouteAction';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Routing\RouteGroup`.
@@ -47,15 +47,15 @@ export class RouteGroup {
         old: ActionAttributes,
         prependExistingPrefix: boolean,
     ): string | undefined {
-        const previous = old.prefix ?? "";
+        const previous = old.prefix ?? '';
 
         if (attributes.prefix === undefined) {
-            return previous === "" ? undefined : previous;
+            return previous === '' ? undefined : previous;
         }
 
         return prependExistingPrefix
-            ? `${Str.trim(previous, "/")}/${Str.trim(attributes.prefix, "/")}`
-            : `${Str.trim(attributes.prefix, "/")}/${Str.trim(previous, "/")}`;
+            ? `${Str.trim(previous, '/')}/${Str.trim(attributes.prefix, '/')}`
+            : `${Str.trim(attributes.prefix, '/')}/${Str.trim(previous, '/')}`;
     }
 
     /** Format the "wheres" for the new group attributes. */
@@ -76,7 +76,7 @@ export class RouteGroup {
             return attributes.as;
         }
 
-        return `${old.as}${attributes.as ?? ""}`;
+        return `${old.as}${attributes.as ?? ''}`;
     }
 
     /** Append one middleware list to another, keeping both. */

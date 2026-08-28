@@ -35,7 +35,7 @@ export class Reflector {
 
     /** PHP: `is_a($target, $parent, true)` -- true when the classes are equal. */
     public static isSubclassOf(target: unknown, parent: unknown): boolean {
-        if (!typeIs(target, "table") || !typeIs(parent, "table")) {
+        if (!typeIs(target, 'table') || !typeIs(parent, 'table')) {
             return false;
         }
 
@@ -61,13 +61,13 @@ export class Reflector {
      * So `__index === metatable` holds for instances only.
      */
     public static isInstance(value: unknown): boolean {
-        if (!typeIs(value, "table")) {
+        if (!typeIs(value, 'table')) {
             return false;
         }
 
         const metatable = getmetatable(value) as object | undefined;
 
-        return metatable !== undefined && rawget(metatable, "__index") === metatable;
+        return metatable !== undefined && rawget(metatable, '__index') === metatable;
     }
 
     /** PHP: `$value instanceof $class`. */

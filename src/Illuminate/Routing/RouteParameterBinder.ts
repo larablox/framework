@@ -1,6 +1,6 @@
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { Request } from "Illuminate/Http/Request";
-import type { Route } from "Illuminate/Routing/Route";
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Route } from 'Illuminate/Routing/Route';
 
 /**
  * PHP: `Illuminate\Routing\RouteParameterBinder`.

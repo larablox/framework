@@ -1,24 +1,24 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import { Bind } from "Illuminate/Container/Attributes/Bind";
-import { BindingResolutionException } from "Illuminate/Contracts/Container/BindingResolutionException";
-import { CircularDependencyException } from "Illuminate/Contracts/Container/CircularDependencyException";
-import { BoundMethod } from "Illuminate/Container/BoundMethod";
-import { ContextualBindingBuilder } from "Illuminate/Container/ContextualBindingBuilder";
-import { EntryNotFoundException } from "Illuminate/Container/EntryNotFoundException";
-import { Exception, LogicException } from "Illuminate/Exception";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { RewindableGenerator } from "Illuminate/Container/RewindableGenerator";
-import { Scoped } from "Illuminate/Container/Attributes/Scoped";
-import { Singleton } from "Illuminate/Container/Attributes/Singleton";
-import { Util } from "Illuminate/Container/Util";
-import { getInjectedDependencies } from "Illuminate/Container/Attributes/Inject";
-import type { ParameterAttribute, ParameterDependency } from "Illuminate/Container/Attributes/Inject";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import { Bind } from 'Illuminate/Container/Attributes/Bind';
+import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
+import { CircularDependencyException } from 'Illuminate/Contracts/Container/CircularDependencyException';
+import { BoundMethod } from 'Illuminate/Container/BoundMethod';
+import { ContextualBindingBuilder } from 'Illuminate/Container/ContextualBindingBuilder';
+import { EntryNotFoundException } from 'Illuminate/Container/EntryNotFoundException';
+import { Exception, LogicException } from 'Illuminate/Exception';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { RewindableGenerator } from 'Illuminate/Container/RewindableGenerator';
+import { Scoped } from 'Illuminate/Container/Attributes/Scoped';
+import { Singleton } from 'Illuminate/Container/Attributes/Singleton';
+import { Util } from 'Illuminate/Container/Util';
+import { getInjectedDependencies } from 'Illuminate/Container/Attributes/Inject';
+import type { ParameterAttribute, ParameterDependency } from 'Illuminate/Container/Attributes/Inject';
 import type {
     AfterResolvingAttributeCallback,
     ContextualAttributeHandler,
-} from "Illuminate/Contracts/Container/ContextualAttribute";
-import { isSelfBuilding } from "Illuminate/Contracts/Container/SelfBuilding";
+} from 'Illuminate/Contracts/Container/ContextualAttribute';
+import { isSelfBuilding } from 'Illuminate/Contracts/Container/SelfBuilding';
 import type {
     Abstract,
     AbstractClass,
@@ -36,13 +36,13 @@ import type {
     ParameterList,
     ParameterOverrides,
     ResolvingCallback,
-} from "Illuminate/Container/Types";
-import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
-import type { Contract } from "Illuminate/Container/Contract";
-import type { ContextualBindingBuilder as ContextualBindingBuilderContract } from "Illuminate/Contracts/Container/ContextualBindingBuilder";
+} from 'Illuminate/Container/Types';
+import type { Container as ContainerContract } from 'Illuminate/Contracts/Container/Container';
+import type { Contract } from 'Illuminate/Container/Contract';
+import type { ContextualBindingBuilder as ContextualBindingBuilderContract } from 'Illuminate/Contracts/Container/ContextualBindingBuilder';
 
 /** The result of a Singleton / Scoped attribute lookup; `false` is PHP's null. */
-type ScopedType = "singleton" | "scoped" | false;
+type ScopedType = 'singleton' | 'scoped' | false;
 
 export class Container implements ContainerContract {
     /**
@@ -196,7 +196,7 @@ export class Container implements ContainerContract {
             return false;
         }
 
-        if (scopedType === "scoped") {
+        if (scopedType === 'scoped') {
             if (!this.scopedInstances.includes(abstract)) {
                 this.scopedInstances.push(abstract);
             }
@@ -216,9 +216,9 @@ export class Container implements ContainerContract {
         let scopedType: ScopedType = false;
 
         if (Attributes.has(target, Singleton)) {
-            scopedType = "singleton";
+            scopedType = 'singleton';
         } else if (Attributes.has(target, Scoped)) {
-            scopedType = "scoped";
+            scopedType = 'scoped';
         }
 
         this.checkedForSingletonOrScopedAttributes.set(target, scopedType);
@@ -251,7 +251,7 @@ export class Container implements ContainerContract {
         // If the factory is not a Closure, it means it is just a class name which is
         // bound into this container to the abstract type and we will just wrap it
         // up inside its own Closure to give us more convenience when extending.
-        if (!typeIs(concrete, "function")) {
+        if (!typeIs(concrete, 'function')) {
             concrete = this.getClosure(abstract, concrete);
         }
 
@@ -315,10 +315,10 @@ export class Container implements ContainerContract {
         }
 
         const raw = method as string;
-        const [position] = raw.find("@", 1, true);
+        const [position] = raw.find('@', 1, true);
 
         if (position === undefined) {
-            return [raw, ""];
+            return [raw, ''];
         }
 
         return [raw.sub(1, position - 1), raw.sub(position + 1)];
@@ -591,7 +591,7 @@ export class Container implements ContainerContract {
 
         const [target] = callback as [object | Abstract, string];
 
-        if (typeIs(target, "string")) {
+        if (typeIs(target, 'string')) {
             return undefined;
         }
 
@@ -743,7 +743,7 @@ export class Container implements ContainerContract {
         let maybeConcrete: Concrete | undefined;
 
         for (const attribute of bindAttributes) {
-            if (attribute.environments.size() === 1 && attribute.environments[0] === "*") {
+            if (attribute.environments.size() === 1 && attribute.environments[0] === '*') {
                 maybeConcrete = attribute.concrete;
 
                 continue;
@@ -766,9 +766,9 @@ export class Container implements ContainerContract {
 
         const scopedType = this.getScopedTyped(abstract);
 
-        if (scopedType === "scoped") {
+        if (scopedType === 'scoped') {
             this.scoped(abstract, concrete);
-        } else if (scopedType === "singleton") {
+        } else if (scopedType === 'singleton') {
             this.singleton(abstract, concrete);
         } else {
             this.bind(abstract, concrete);
@@ -818,7 +818,7 @@ export class Container implements ContainerContract {
 
     /** Determine if the given concrete is buildable. */
     protected isBuildable(concrete: Concrete, abstract: Abstract): boolean {
-        return concrete === abstract || typeIs(concrete, "function");
+        return concrete === abstract || typeIs(concrete, 'function');
     }
 
     /** Instantiate a concrete instance of the given type. */
@@ -826,7 +826,7 @@ export class Container implements ContainerContract {
         // If the concrete type is actually a Closure, we will just execute it and
         // hand back the results of the functions, which allows functions to be
         // used as resolvers for more fine-tuned resolution of these objects.
-        if (typeIs(concrete, "function")) {
+        if (typeIs(concrete, 'function')) {
             this.buildStack.push(concrete);
 
             try {
@@ -836,7 +836,7 @@ export class Container implements ContainerContract {
             }
         }
 
-        if (!typeIs(concrete, "table")) {
+        if (!typeIs(concrete, 'table')) {
             throw new BindingResolutionException(`Target class [${concrete}] does not exist.`);
         }
 
@@ -894,14 +894,14 @@ export class Container implements ContainerContract {
      * ones, so its presence on the class table itself is the test.
      */
     protected isInstantiable(concrete: object): boolean {
-        return typeIs(rawget(concrete, "new"), "function");
+        return typeIs(rawget(concrete, 'new'), 'function');
     }
 
     /** Instantiate a concrete instance of the given self building type. */
     protected buildSelfBuildingInstance(concrete: object): unknown {
         this.buildStack.push(concrete as Abstract);
 
-        const instance = this.call([concrete as Abstract, "newInstance"]);
+        const instance = this.call([concrete as Abstract, 'newInstance']);
 
         this.buildStack.pop();
 
@@ -984,7 +984,7 @@ export class Container implements ContainerContract {
 
     /** A dependency spelled `"$name"` asks for a contextually bound primitive. */
     protected isPrimitive(dependency: Abstract): boolean {
-        return typeIs(dependency, "string") && dependency.sub(1, 1) === "$";
+        return typeIs(dependency, 'string') && dependency.sub(1, 1) === '$';
     }
 
     /** Determine if the given dependency has a parameter override. */
@@ -1118,7 +1118,7 @@ export class Container implements ContainerContract {
                 names.push(Reflector.className(entry));
             }
 
-            message = `Target [${Reflector.className(concrete)}] is not instantiable while building [${names.join(", ")}].`;
+            message = `Target [${Reflector.className(concrete)}] is not instantiable while building [${names.join(', ')}].`;
         } else {
             message = `Target [${Reflector.className(concrete)}] is not instantiable.`;
         }
@@ -1133,7 +1133,7 @@ export class Container implements ContainerContract {
 
     /** Register a new before resolving callback for all types. */
     public beforeResolving(abstract: Abstract | BeforeResolvingCallback, callback?: BeforeResolvingCallback): void {
-        if (typeIs(abstract, "function")) {
+        if (typeIs(abstract, 'function')) {
             if (callback === undefined) {
                 this.globalBeforeResolvingCallbacks.push(abstract as BeforeResolvingCallback);
 
@@ -1148,7 +1148,7 @@ export class Container implements ContainerContract {
 
     /** Register a new resolving callback. */
     public resolving(abstract: Abstract | ResolvingCallback, callback?: ResolvingCallback): void {
-        if (typeIs(abstract, "function")) {
+        if (typeIs(abstract, 'function')) {
             if (callback === undefined) {
                 this.globalResolvingCallbacks.push(abstract as ResolvingCallback);
 
@@ -1163,7 +1163,7 @@ export class Container implements ContainerContract {
 
     /** Register a new after resolving callback for all types. */
     public afterResolving(abstract: Abstract | ResolvingCallback, callback?: ResolvingCallback): void {
-        if (typeIs(abstract, "function")) {
+        if (typeIs(abstract, 'function')) {
             if (callback === undefined) {
                 this.globalAfterResolvingCallbacks.push(abstract as ResolvingCallback);
 
@@ -1441,7 +1441,7 @@ export class Container implements ContainerContract {
 
     /** Set the value at a given offset. */
     public offsetSet(offset: Abstract, value: unknown): void {
-        this.bind(offset, typeIs(value, "function") ? (value as ContainerClosure) : () => value);
+        this.bind(offset, typeIs(value, 'function') ? (value as ContainerClosure) : () => value);
     }
 
     /** Unset the value at a given offset. */

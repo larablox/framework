@@ -1,7 +1,7 @@
-import { ReadsClassAttributes } from "Illuminate/Support/Traits/ReadsClassAttributes";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { UniqueFor } from "Illuminate/Queue/Attributes/UniqueFor";
-import type { Repository as Cache } from "Illuminate/Cache/Repository";
+import { ReadsClassAttributes } from 'Illuminate/Support/Traits/ReadsClassAttributes';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { UniqueFor } from 'Illuminate/Queue/Attributes/UniqueFor';
+import type { Repository as Cache } from 'Illuminate/Cache/Repository';
 
 /**
  * PHP: `Illuminate\Bus\UniqueLock`.
@@ -26,9 +26,9 @@ export class UniqueLock {
     public acquire(job: object): boolean {
         const declared = (job as { uniqueFor?: unknown }).uniqueFor;
 
-        const uniqueFor = typeIs(declared, "function")
+        const uniqueFor = typeIs(declared, 'function')
             ? ((declared as (self: object) => number)(job) ?? 0)
-            : ((ReadsClassAttributes.getAttributeValue(job, UniqueFor, "uniqueFor") as number | undefined) ?? 0);
+            : ((ReadsClassAttributes.getAttributeValue(job, UniqueFor, 'uniqueFor') as number | undefined) ?? 0);
 
         return this.cache.lock(UniqueLock.getKey(job), uniqueFor).get() === true;
     }
@@ -42,11 +42,11 @@ export class UniqueLock {
     public static getKey(job: object): string {
         const declared = (job as { uniqueId?: unknown }).uniqueId;
 
-        const uniqueId = typeIs(declared, "function")
+        const uniqueId = typeIs(declared, 'function')
             ? tostring((declared as (self: object) => unknown)(job))
             : declared !== undefined
               ? tostring(declared)
-              : "";
+              : '';
 
         const name = Reflector.className(Reflector.classOf(job));
 

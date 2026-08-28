@@ -1,17 +1,17 @@
-import { ArrayStore } from "Illuminate/Cache/ArrayStore";
-import { DataStoreStore } from "Illuminate/Cache/DataStoreStore";
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { MemoryStoreStore } from "Illuminate/Cache/MemoryStoreStore";
-import { NullStore } from "Illuminate/Cache/NullStore";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { Repository } from "Illuminate/Cache/Repository";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Factory } from "Illuminate/Contracts/Cache/Factory";
-import type { Repository as RepositoryContract } from "Illuminate/Contracts/Cache/Repository";
-import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config/Repository";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import { ArrayStore } from 'Illuminate/Cache/ArrayStore';
+import { DataStoreStore } from 'Illuminate/Cache/DataStoreStore';
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { MemoryStoreStore } from 'Illuminate/Cache/MemoryStoreStore';
+import { NullStore } from 'Illuminate/Cache/NullStore';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { Repository } from 'Illuminate/Cache/Repository';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Factory } from 'Illuminate/Contracts/Cache/Factory';
+import type { Repository as RepositoryContract } from 'Illuminate/Contracts/Cache/Repository';
+import type { Repository as ConfigRepository } from 'Illuminate/Contracts/Config/Repository';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
 /** A store factory registered through `extend()`. */
 export type CacheDriverCreator = (app: Application, config: ArrayAccessible) => RepositoryContract;
@@ -80,19 +80,19 @@ export class CacheManager implements Factory {
             return custom(this.app, config);
         }
 
-        if (driver === "array") {
+        if (driver === 'array') {
             return this.createArrayDriver(config);
         }
 
-        if (driver === "memorystore") {
+        if (driver === 'memorystore') {
             return this.createMemorystoreDriver(config);
         }
 
-        if (driver === "datastore") {
+        if (driver === 'datastore') {
             return this.createDatastoreDriver(config);
         }
 
-        if (driver === "null") {
+        if (driver === 'null') {
             return this.createNullDriver(config);
         }
 
@@ -108,8 +108,8 @@ export class CacheManager implements Factory {
     protected createMemorystoreDriver(config: ArrayAccessible): RepositoryContract {
         return this.repository(
             new MemoryStoreStore(
-                (config.map as string | undefined) ?? "cache",
-                (config.prefix as string | undefined) ?? "",
+                (config.map as string | undefined) ?? 'cache',
+                (config.prefix as string | undefined) ?? '',
             ),
             config,
         );
@@ -119,8 +119,8 @@ export class CacheManager implements Factory {
     protected createDatastoreDriver(config: ArrayAccessible): RepositoryContract {
         return this.repository(
             new DataStoreStore(
-                (config.store_name as string | undefined) ?? "cache",
-                (config.prefix as string | undefined) ?? "",
+                (config.store_name as string | undefined) ?? 'cache',
+                (config.prefix as string | undefined) ?? '',
                 config.scope as string | undefined,
             ),
             config,
@@ -136,8 +136,8 @@ export class CacheManager implements Factory {
     public repository(store: Store, config: ArrayAccessible = {}): RepositoryContract {
         const repository = new Repository(store, config);
 
-        if (this.app.bound("events") && config.events !== false) {
-            repository.setEventDispatcher(this.app.make<Dispatcher>("events"));
+        if (this.app.bound('events') && config.events !== false) {
+            repository.setEventDispatcher(this.app.make<Dispatcher>('events'));
         }
 
         return repository;
@@ -145,17 +145,17 @@ export class CacheManager implements Factory {
 
     /** Get the cache connection configuration. */
     protected getConfig(name: string): ArrayAccessible | undefined {
-        return this.app.make<ConfigRepository>("config").get(`cache.stores.${name}`) as ArrayAccessible | undefined;
+        return this.app.make<ConfigRepository>('config').get(`cache.stores.${name}`) as ArrayAccessible | undefined;
     }
 
     /** Get the default cache driver name. */
     public getDefaultDriver(): string {
-        return this.app.make<ConfigRepository>("config").get("cache.default") as string;
+        return this.app.make<ConfigRepository>('config').get('cache.default') as string;
     }
 
     /** Set the default cache driver name. */
     public setDefaultDriver(name: string): void {
-        this.app.make<ConfigRepository>("config").set("cache.default", name);
+        this.app.make<ConfigRepository>('config').set('cache.default', name);
     }
 
     /** Unset the given driver instances. */

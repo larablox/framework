@@ -1,5 +1,5 @@
-import { RuntimeException } from "Illuminate/Exception";
-import type { Response } from "Illuminate/Http/Response";
+import { RuntimeException } from 'Illuminate/Exception';
+import type { Response } from 'Illuminate/Http/Response';
 
 /**
  * PHP: `Illuminate\Http\Exceptions\HttpResponseException`.

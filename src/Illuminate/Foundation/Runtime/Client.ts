@@ -1,12 +1,12 @@
-import { BootProviders } from "Illuminate/Foundation/Bootstrap/BootProviders";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { LoadConfiguration } from "Illuminate/Foundation/Bootstrap/LoadConfiguration";
-import { RegisterFacades } from "Illuminate/Foundation/Bootstrap/RegisterFacades";
-import { RegisterProviders } from "Illuminate/Foundation/Bootstrap/RegisterProviders";
-import { RuntimeException } from "Illuminate/Exception";
-import type { Abstract, Constructor } from "Illuminate/Container/Types";
-import type { Application, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
-import type { Repository as ConfigRepository } from "Illuminate/Config/Repository";
+import { BootProviders } from 'Illuminate/Foundation/Bootstrap/BootProviders';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { LoadConfiguration } from 'Illuminate/Foundation/Bootstrap/LoadConfiguration';
+import { RegisterFacades } from 'Illuminate/Foundation/Bootstrap/RegisterFacades';
+import { RegisterProviders } from 'Illuminate/Foundation/Bootstrap/RegisterProviders';
+import { RuntimeException } from 'Illuminate/Exception';
+import type { Abstract, Constructor } from 'Illuminate/Container/Types';
+import type { Application, Bootstrapper } from 'Illuminate/Contracts/Foundation/Application';
+import type { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
 
 /**
  * The client's entry point, as `Worker` is the server's.
@@ -42,7 +42,7 @@ export class Client {
     protected booted = false;
 
     /** Create a new client instance. */
-    public constructor(@Inject("app") protected readonly app: Application) {}
+    public constructor(@Inject('app') protected readonly app: Application) {}
 
     /**
      * The bootstrappers the client runs.
@@ -64,7 +64,7 @@ export class Client {
      * without routes and no queue worker on a client.
      */
     public static defaultServicesToWarm(): Array<Abstract> {
-        return ["events", "config", "log"];
+        return ['events', 'config', 'log'];
     }
 
     /** Bootstrap the application, then warm it. */
@@ -73,7 +73,7 @@ export class Client {
         services?: Array<Abstract>,
     ): void {
         if (this.booted) {
-            throw new RuntimeException("The client has already booted.");
+            throw new RuntimeException('The client has already booted.');
         }
 
         // Guarded the way `Kernel::bootstrap()` guards it: `bootstrapWith()`
@@ -96,7 +96,7 @@ export class Client {
     public warm(services?: Array<Abstract>): void {
         const configured =
             services ??
-            (this.app.make<ConfigRepository>("config").get("app.warm") as Array<Abstract> | undefined) ??
+            (this.app.make<ConfigRepository>('config').get('app.warm') as Array<Abstract> | undefined) ??
             Client.defaultServicesToWarm();
 
         for (const service of configured) {

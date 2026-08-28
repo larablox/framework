@@ -1,7 +1,7 @@
-import { AbstractRouteCollection } from "Illuminate/Routing/AbstractRouteCollection";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { Request } from "Illuminate/Http/Request";
-import type { Route } from "Illuminate/Routing/Route";
+import { AbstractRouteCollection } from 'Illuminate/Routing/AbstractRouteCollection';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Route } from 'Illuminate/Routing/Route';
 
 /**
  * PHP: `Illuminate\Routing\RouteCollection`.
@@ -47,7 +47,7 @@ export class RouteCollection extends AbstractRouteCollection {
             byUri.set(uri, route);
         }
 
-        this.allRoutes.set(`${route.methods().join("|")}${uri}`, route);
+        this.allRoutes.set(`${route.methods().join('|')}${uri}`, route);
     }
 
     /** Add the route to any look-up tables if necessary. */

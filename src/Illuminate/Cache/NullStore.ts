@@ -1,7 +1,7 @@
-import { NoLock } from "Illuminate/Cache/NoLock";
-import type { Lock } from "Illuminate/Contracts/Cache/Lock";
-import type { LockProvider } from "Illuminate/Contracts/Cache/LockProvider";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import { NoLock } from 'Illuminate/Cache/NoLock';
+import type { Lock } from 'Illuminate/Contracts/Cache/Lock';
+import type { LockProvider } from 'Illuminate/Contracts/Cache/LockProvider';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
 /** PHP: `Illuminate\Cache\NullStore`. */
 /* eslint-disable @typescript-eslint/no-unused-vars -- storing nothing is the
@@ -75,7 +75,7 @@ export class NullStore implements Store, LockProvider {
 
     /** Get the cache key prefix. */
     public getPrefix(): string {
-        return "";
+        return '';
     }
 }
 /* eslint-enable @typescript-eslint/no-unused-vars */

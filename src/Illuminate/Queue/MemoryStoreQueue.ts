@@ -1,19 +1,19 @@
-import { Collection } from "Illuminate/Support/Collection";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { InvalidPayloadException } from "Illuminate/Queue/InvalidPayloadException";
-import { MemoryStoreJob } from "Illuminate/Queue/Jobs/MemoryStoreJob";
-import { Queue } from "Illuminate/Queue/Queue";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { RuntimeException } from "Illuminate/Exception";
-import { Serializer } from "Illuminate/Support/Serializer";
-import { Str } from "Illuminate/Support/Str";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Job, JobPayload, JobPayloadData } from "Illuminate/Contracts/Queue/Job";
-import type { ClearableQueue } from "Illuminate/Contracts/Queue/ClearableQueue";
-import type { JobTarget, Queue as QueueContract } from "Illuminate/Contracts/Queue/Queue";
+import { Collection } from 'Illuminate/Support/Collection';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { InvalidPayloadException } from 'Illuminate/Queue/InvalidPayloadException';
+import { MemoryStoreJob } from 'Illuminate/Queue/Jobs/MemoryStoreJob';
+import { Queue } from 'Illuminate/Queue/Queue';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { RuntimeException } from 'Illuminate/Exception';
+import { Serializer } from 'Illuminate/Support/Serializer';
+import { Str } from 'Illuminate/Support/Str';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Job, JobPayload, JobPayloadData } from 'Illuminate/Contracts/Queue/Job';
+import type { ClearableQueue } from 'Illuminate/Contracts/Queue/ClearableQueue';
+import type { JobTarget, Queue as QueueContract } from 'Illuminate/Contracts/Queue/Queue';
 
-const MemoryStoreService = game.GetService("MemoryStoreService");
+const MemoryStoreService = game.GetService('MemoryStoreService');
 
 /** The largest value MemoryStore accepts for one item. */
 const MAX_ITEM_BYTES = 32 * 1024;
@@ -54,11 +54,11 @@ const MAX_PAGE = 100;
 export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQueue {
     /** Create a new MemoryStore queue instance. */
     public constructor(
-        protected readonly defaultQueue = "default",
+        protected readonly defaultQueue = 'default',
         protected readonly retryAfter = 60,
         protected readonly blockFor = 0,
         protected readonly expiration = 604800,
-        protected readonly prefix = "queue:",
+        protected readonly prefix = 'queue:',
         dispatchAfterCommit = false,
     ) {
         super();
@@ -72,7 +72,7 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     }
 
     /** The MemoryStore queue backing the given name. */
-    protected queueFor(queue?: string): ReturnType<MemoryStoreService["GetQueue"]> {
+    protected queueFor(queue?: string): ReturnType<MemoryStoreService['GetQueue']> {
         return MemoryStoreService.GetQueue(`${this.prefix}${this.getQueue(queue)}`, this.retryAfter);
     }
 
@@ -226,7 +226,7 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     /* eslint-enable @typescript-eslint/no-unused-vars */
 
     /** Create a payload array, counting attempts the way the Redis driver does. */
-    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ""): JobPayload {
+    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ''): JobPayload {
         const payload = super.createPayloadArray(job, queue, data);
 
         payload.attempts = 0;
@@ -268,7 +268,7 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     }
 
     /** Push a new job onto the queue. */
-    public push(job: JobTarget, data: unknown = "", queue?: string): unknown {
+    public push(job: JobTarget, data: unknown = '', queue?: string): unknown {
         return this.enqueueUsing(
             job,
             this.createPayload(job, this.getQueue(queue), data),
@@ -291,7 +291,7 @@ export class MemoryStoreQueue extends Queue implements QueueContract, ClearableQ
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(delay: Delay, job: JobTarget, data: unknown = "", queue?: string): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = '', queue?: string): unknown {
         return this.enqueueUsing(
             job,
             this.createPayload(job, this.getQueue(queue), data, delay),

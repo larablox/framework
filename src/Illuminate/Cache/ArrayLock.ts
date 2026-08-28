@@ -1,6 +1,6 @@
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { Lock } from "Illuminate/Cache/Lock";
-import type { ArrayStore } from "Illuminate/Cache/ArrayStore";
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { Lock } from 'Illuminate/Cache/Lock';
+import type { ArrayStore } from 'Illuminate/Cache/ArrayStore';
 
 /** PHP: `Illuminate\Cache\ArrayLock`. */
 export class ArrayLock extends Lock {

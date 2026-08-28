@@ -1,9 +1,9 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { ItemNotFoundException, MultipleItemsFoundException } from "Illuminate/Exception";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Util } from "Illuminate/Container/Util";
-import { VarDumper } from "Illuminate/Support/VarDumper";
+import { Arr } from 'Illuminate/Support/Arr';
+import { ItemNotFoundException, MultipleItemsFoundException } from 'Illuminate/Exception';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Util } from 'Illuminate/Container/Util';
+import { VarDumper } from 'Illuminate/Support/VarDumper';
 
 /** What a collection can be built from. */
 export type ArrayableItems<TKey extends defined, TValue extends defined> =
@@ -16,7 +16,7 @@ export type ValueCallback<TKey extends defined, TValue extends defined, TReturn>
 ) => TReturn;
 
 /** The operators `where()` understands. */
-export type WhereOperator = "=" | "==" | "!=" | "<>" | "<" | "<=" | ">" | ">=";
+export type WhereOperator = '=' | '==' | '!=' | '<>' | '<' | '<=' | '>' | '>=';
 
 /**
  * PHP: `Illuminate\Support\Collection` (the core of it).
@@ -281,7 +281,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         const matched = callback === undefined ? this : this.filter(callback);
 
         if (matched.isEmpty()) {
-            throw new ItemNotFoundException("No items were found.");
+            throw new ItemNotFoundException('No items were found.');
         }
 
         if (matched.count() > 1) {
@@ -296,7 +296,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         const value = this.first(callback);
 
         if (value === undefined) {
-            throw new ItemNotFoundException("No items were found.");
+            throw new ItemNotFoundException('No items were found.');
         }
 
         return value;
@@ -305,7 +305,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
     /** Search the collection for a given value and return the corresponding key. */
     public search(value: TValue | ValueCallback<TKey, TValue, boolean>): TKey | undefined {
         for (const [key, item] of this.items.entries()) {
-            const matches = typeIs(value, "function")
+            const matches = typeIs(value, 'function')
                 ? ((value as ValueCallback<TKey, TValue, boolean>)(item, key) as boolean)
                 : item === value;
 
@@ -481,7 +481,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         const entries = new Array<[TNewKey, TValue]>();
 
         for (const [key, value] of this.items.entries()) {
-            const newKey = typeIs(keyBy, "function")
+            const newKey = typeIs(keyBy, 'function')
                 ? (keyBy as ValueCallback<TKey, TValue, TNewKey>)(value, key)
                 : (Collection.dataGet(value, keyBy as string) as TNewKey);
 
@@ -498,7 +498,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         const groups = new OrderedMap<TGroupKey, Array<[TKey, TValue]>>();
 
         for (const [key, value] of this.items.entries()) {
-            const groupKey = typeIs(groupBy, "function")
+            const groupKey = typeIs(groupBy, 'function')
                 ? (groupBy as ValueCallback<TKey, TValue, TGroupKey>)(value, key)
                 : (Collection.dataGet(value, groupBy as string) as TGroupKey);
 
@@ -696,7 +696,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         nextIndex += 1;
 
         for (const [existingKey, existingValue] of entries) {
-            if (typeIs(existingKey, "number")) {
+            if (typeIs(existingKey, 'number')) {
                 this.items.set(nextIndex as unknown as TKey, existingValue);
                 nextIndex += 1;
             } else {
@@ -895,7 +895,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         const entries = this.items.entries();
 
         const resolve = (key: TKey, value: TValue): defined =>
-            typeIs(callback, "function")
+            typeIs(callback, 'function')
                 ? (callback as ValueCallback<TKey, TValue, defined>)(value, key)
                 : (Collection.dataGet(value, callback as string) as defined);
 
@@ -1103,7 +1103,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
 
     /** Compare two values, ordering numbers and strings naturally. */
     protected static compare(first: unknown, second: unknown): number {
-        if (typeIs(first, "number") && typeIs(second, "number")) {
+        if (typeIs(first, 'number') && typeIs(second, 'number')) {
             return first - second;
         }
 
@@ -1127,7 +1127,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
             return tonumber(value) ?? 0;
         }
 
-        if (typeIs(callback, "function")) {
+        if (typeIs(callback, 'function')) {
             return (callback as ValueCallback<TKey, TValue, number>)(value, key);
         }
 
@@ -1155,7 +1155,7 @@ export class Collection<TKey extends defined, TValue extends defined> {
         operator?: WhereOperator | defined,
         value?: defined,
     ): ValueCallback<TKey, TValue, boolean> {
-        let comparison: WhereOperator = "=";
+        let comparison: WhereOperator = '=';
         let expected = value;
 
         if (value === undefined) {
@@ -1167,25 +1167,25 @@ export class Collection<TKey extends defined, TValue extends defined> {
         return (item: TValue) => {
             const actual = Collection.dataGet(item, key);
 
-            if (comparison === "=" || comparison === "==") {
+            if (comparison === '=' || comparison === '==') {
                 return actual === expected;
             }
 
-            if (comparison === "!=" || comparison === "<>") {
+            if (comparison === '!=' || comparison === '<>') {
                 return actual !== expected;
             }
 
             const order = Collection.compare(actual, expected);
 
-            if (comparison === "<") {
+            if (comparison === '<') {
                 return order < 0;
             }
 
-            if (comparison === "<=") {
+            if (comparison === '<=') {
                 return order <= 0;
             }
 
-            if (comparison === ">") {
+            if (comparison === '>') {
                 return order > 0;
             }
 

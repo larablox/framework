@@ -1,7 +1,7 @@
-import type { Abstract, Constructor, EnvironmentResolver } from "Illuminate/Container/Types";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { ServiceProvider } from "Illuminate/Support/ServiceProvider";
+import type { Abstract, Constructor, EnvironmentResolver } from 'Illuminate/Container/Types';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
 
 /** A class that bootstraps the application, as passed to `bootstrapWith()`. */
 export interface Bootstrapper {

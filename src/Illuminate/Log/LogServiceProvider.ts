@@ -1,6 +1,6 @@
-import { LogManager } from "Illuminate/Log/LogManager";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
+import { LogManager } from 'Illuminate/Log/LogManager';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
 
 export class LogServiceProvider extends ServiceProvider {
     /**
@@ -13,6 +13,6 @@ export class LogServiceProvider extends ServiceProvider {
     public register(): void {
         const app: Application = this.app;
 
-        this.app.singleton("log", () => new LogManager(app));
+        this.app.singleton('log', () => new LogManager(app));
     }
 }

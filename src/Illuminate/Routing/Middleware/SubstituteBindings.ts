@@ -1,8 +1,8 @@
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
-import type { Request } from "Illuminate/Http/Request";
-import type { Route } from "Illuminate/Routing/Route";
-import type { Router } from "Illuminate/Routing/Router";
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Route } from 'Illuminate/Routing/Route';
+import type { Router } from 'Illuminate/Routing/Router';
 
 /**
  * PHP: `Illuminate\Routing\Middleware\SubstituteBindings`.
@@ -17,7 +17,7 @@ import type { Router } from "Illuminate/Routing/Router";
  */
 export class SubstituteBindings {
     /** Create a new bindings substitutor. */
-    public constructor(@Inject("router") protected readonly router: Router) {}
+    public constructor(@Inject('router') protected readonly router: Router) {}
 
     /** Handle an incoming request. */
     public handle(request: Request, _next: Next): unknown {

@@ -1,4 +1,4 @@
-import type { Logger } from "Illuminate/Contracts/Log/Logger";
+import type { Logger } from 'Illuminate/Contracts/Log/Logger';
 
 /** PHP: `Psr\Log\NullLogger`. Discards everything. */
 export class NullLogger implements Logger {

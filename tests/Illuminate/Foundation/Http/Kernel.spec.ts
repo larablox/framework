@@ -1,16 +1,16 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../../TestHelpers";
-import { Application } from "Illuminate/Foundation/Application";
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { Kernel } from "Illuminate/Foundation/Http/Kernel";
-import { Request } from "Illuminate/Http/Request";
-import { Response } from "Illuminate/Http/Response";
-import { Router } from "Illuminate/Routing/Router";
-import { SubstituteBindings } from "Illuminate/Routing/Middleware/SubstituteBindings";
-import { Terminating } from "Illuminate/Foundation/Events/Terminating";
-import { ThrottleRequests } from "Illuminate/Routing/Middleware/ThrottleRequests";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { expectDeepEqual } from '../../TestHelpers';
+import { Application } from 'Illuminate/Foundation/Application';
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { Kernel } from 'Illuminate/Foundation/Http/Kernel';
+import { Request } from 'Illuminate/Http/Request';
+import { Response } from 'Illuminate/Http/Response';
+import { Router } from 'Illuminate/Routing/Router';
+import { SubstituteBindings } from 'Illuminate/Routing/Middleware/SubstituteBindings';
+import { Terminating } from 'Illuminate/Foundation/Events/Terminating';
+import { ThrottleRequests } from 'Illuminate/Routing/Middleware/ThrottleRequests';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Tests\Foundation\Http\KernelTest`.
@@ -33,7 +33,7 @@ import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
  * `Before`'s splice logic -- do not depend on which two classes bracket it.
  */
 export = (): void => {
-    describe("Foundation.Http.Kernel", () => {
+    describe('Foundation.Http.Kernel', () => {
         class ValidateSignatureStub {}
 
         function application(): Application {
@@ -44,7 +44,7 @@ export = (): void => {
             return new Router(new Dispatcher(), new Container());
         }
 
-        it("getMiddlewareGroups() starts empty", () => {
+        it('getMiddlewareGroups() starts empty', () => {
             // PHP: KernelTest::testGetMiddlewareGroups
             const kernel = new Kernel(application(), router());
 
@@ -58,7 +58,7 @@ export = (): void => {
             expectDeepEqual(kernel.getMiddlewarePriority(), [ThrottleRequests, SubstituteBindings] as Array<Pipe>);
         });
 
-        it("addToMiddlewarePriorityAfter() splices the entry in after the named middleware (adapted -- see class comment)", () => {
+        it('addToMiddlewarePriorityAfter() splices the entry in after the named middleware (adapted -- see class comment)', () => {
             // PHP: KernelTest::testAddToMiddlewarePriorityAfter
             const kernel = new Kernel(application(), router());
 
@@ -76,7 +76,7 @@ export = (): void => {
             ] as Array<Pipe>);
         });
 
-        it("addToMiddlewarePriorityBefore() splices the entry in before the named middleware (adapted -- see class comment)", () => {
+        it('addToMiddlewarePriorityBefore() splices the entry in before the named middleware (adapted -- see class comment)', () => {
             // PHP: KernelTest::testAddToMiddlewarePriorityBefore
             const kernel = new Kernel(application(), router());
 
@@ -94,7 +94,7 @@ export = (): void => {
             const called = new Array<string>();
             const app = application();
             const events = new Dispatcher(app);
-            app.instance("events", events);
+            app.instance('events', events);
 
             const kernel = new Kernel(app, router());
 
@@ -104,23 +104,23 @@ export = (): void => {
                 }
 
                 public terminate(): void {
-                    called.push("terminating middleware");
+                    called.push('terminating middleware');
                 }
             }
 
-            app.instance("terminating-middleware", new TerminatingMiddlewareStub());
-            kernel.setGlobalMiddleware(["terminating-middleware"]);
+            app.instance('terminating-middleware', new TerminatingMiddlewareStub());
+            kernel.setGlobalMiddleware(['terminating-middleware']);
 
             events.listen(Terminating, () => {
-                called.push("terminating event");
+                called.push('terminating event');
             });
             app.terminating(() => {
-                called.push("terminating callback");
+                called.push('terminating callback');
             });
 
-            kernel.terminate(new Request({} as Player, "GET", "/"), new Response());
+            kernel.terminate(new Request({} as Player, 'GET', '/'), new Response());
 
-            expectDeepEqual(called, ["terminating event", "terminating middleware", "terminating callback"]);
+            expectDeepEqual(called, ['terminating event', 'terminating middleware', 'terminating callback']);
         });
     });
 };

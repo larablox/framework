@@ -1,5 +1,5 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import type { Delay as DelayValue } from "Illuminate/Support/InteractsWithTime";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import type { Delay as DelayValue } from 'Illuminate/Support/InteractsWithTime';
 
 /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] class Delay`. */
 export interface Delay {

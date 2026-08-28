@@ -1,26 +1,26 @@
-import { MiddlewareNameResolver } from "Illuminate/Routing/MiddlewareNameResolver";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { Pipeline } from "Illuminate/Routing/Pipeline";
-import { PreparingResponse } from "Illuminate/Routing/Events/PreparingResponse";
-import { Response } from "Illuminate/Http/Response";
-import { ResponsePrepared } from "Illuminate/Routing/Events/ResponsePrepared";
-import { Route } from "Illuminate/Routing/Route";
-import { RouteAction } from "Illuminate/Routing/RouteAction";
-import { RouteCollection } from "Illuminate/Routing/RouteCollection";
-import { RouteGroup } from "Illuminate/Routing/RouteGroup";
-import { RouteMatched } from "Illuminate/Routing/Events/RouteMatched";
-import { RouteRegistrar } from "Illuminate/Routing/RouteRegistrar";
-import { SortedMiddleware } from "Illuminate/Routing/SortedMiddleware";
-import { Routing } from "Illuminate/Routing/Events/Routing";
-import { Str } from "Illuminate/Support/Str";
-import { Util } from "Illuminate/Container/Util";
-import { isArrayable } from "Illuminate/Contracts/Support/Arrayable";
-import { isResponsable } from "Illuminate/Contracts/Support/Responsable";
-import type { ActionAttributes, ActionTarget } from "Illuminate/Routing/RouteAction";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
-import type { Request } from "Illuminate/Http/Request";
+import { MiddlewareNameResolver } from 'Illuminate/Routing/MiddlewareNameResolver';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { Pipeline } from 'Illuminate/Routing/Pipeline';
+import { PreparingResponse } from 'Illuminate/Routing/Events/PreparingResponse';
+import { Response } from 'Illuminate/Http/Response';
+import { ResponsePrepared } from 'Illuminate/Routing/Events/ResponsePrepared';
+import { Route } from 'Illuminate/Routing/Route';
+import { RouteAction } from 'Illuminate/Routing/RouteAction';
+import { RouteCollection } from 'Illuminate/Routing/RouteCollection';
+import { RouteGroup } from 'Illuminate/Routing/RouteGroup';
+import { RouteMatched } from 'Illuminate/Routing/Events/RouteMatched';
+import { RouteRegistrar } from 'Illuminate/Routing/RouteRegistrar';
+import { SortedMiddleware } from 'Illuminate/Routing/SortedMiddleware';
+import { Routing } from 'Illuminate/Routing/Events/Routing';
+import { Str } from 'Illuminate/Support/Str';
+import { Util } from 'Illuminate/Container/Util';
+import { isArrayable } from 'Illuminate/Contracts/Support/Arrayable';
+import { isResponsable } from 'Illuminate/Contracts/Support/Responsable';
+import type { ActionAttributes, ActionTarget } from 'Illuminate/Routing/RouteAction';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
+import type { Request } from 'Illuminate/Http/Request';
 
 /** What one coroutine is dispatching, if anything. */
 interface DispatchedOnThread {
@@ -45,7 +45,7 @@ export type BinderCallback = (value: string, route: Route) => unknown;
  */
 export class Router {
     /** All of the verbs supported by the router. */
-    public static readonly verbs: Array<string> = ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"];
+    public static readonly verbs: Array<string> = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 
     /** The route collection instance. */
     protected routes = new RouteCollection();
@@ -69,7 +69,7 @@ export class Router {
      * collected. Clearing on the way out would be wrong -- PHP leaves these
      * readable after the response, and terminable middleware runs then.
      */
-    protected readonly dispatching = setmetatable(new Map<thread, DispatchedOnThread>(), { __mode: "k" });
+    protected readonly dispatching = setmetatable(new Map<thread, DispatchedOnThread>(), { __mode: 'k' });
 
     /** All of the short-hand keys for middlewares. */
     protected middlewareAliases = new OrderedMap<string, Pipe>();
@@ -107,32 +107,32 @@ export class Router {
 
     /** Register a new GET route with the router. */
     public get(uri: string, action?: ActionTarget | ActionAttributes): Route {
-        return this.addRoute(["GET", "HEAD"], uri, action);
+        return this.addRoute(['GET', 'HEAD'], uri, action);
     }
 
     /** Register a new POST route with the router. */
     public post(uri: string, action?: ActionTarget | ActionAttributes): Route {
-        return this.addRoute(["POST"], uri, action);
+        return this.addRoute(['POST'], uri, action);
     }
 
     /** Register a new PUT route with the router. */
     public put(uri: string, action?: ActionTarget | ActionAttributes): Route {
-        return this.addRoute(["PUT"], uri, action);
+        return this.addRoute(['PUT'], uri, action);
     }
 
     /** Register a new PATCH route with the router. */
     public patch(uri: string, action?: ActionTarget | ActionAttributes): Route {
-        return this.addRoute(["PATCH"], uri, action);
+        return this.addRoute(['PATCH'], uri, action);
     }
 
     /** Register a new DELETE route with the router. */
     public delete(uri: string, action?: ActionTarget | ActionAttributes): Route {
-        return this.addRoute(["DELETE"], uri, action);
+        return this.addRoute(['DELETE'], uri, action);
     }
 
     /** Register a new OPTIONS route with the router. */
     public options(uri: string, action?: ActionTarget | ActionAttributes): Route {
-        return this.addRoute(["OPTIONS"], uri, action);
+        return this.addRoute(['OPTIONS'], uri, action);
     }
 
     /** Register a new route responding to all verbs. */
@@ -160,13 +160,13 @@ export class Router {
      * verb and URI identify exactly one route, so give it a path of its own.
      */
     public stream(uri: string, action?: ActionTarget | ActionAttributes): Route {
-        return this.addRoute(["POST"], uri, action).setTransports(["stream"]);
+        return this.addRoute(['POST'], uri, action).setTransports(['stream']);
     }
 
     /** Register a new fallback route with the router. */
     public fallback(action: ActionTarget | ActionAttributes): Route {
-        return this.addRoute(["GET", "HEAD"], "{fallbackPlaceholder}", action)
-            .where("fallbackPlaceholder", ".*")
+        return this.addRoute(['GET', 'HEAD'], '{fallbackPlaceholder}', action)
+            .where('fallbackPlaceholder', '.*')
             .fallback();
     }
 
@@ -263,9 +263,9 @@ export class Router {
 
     /** Prefix the given URI with the last prefix. */
     protected prefixWithGroup(uri: string): string {
-        const prefixed = Str.trim(`${Str.trim(this.getLastGroupPrefix(), "/")}/${Str.trim(uri, "/")}`, "/");
+        const prefixed = Str.trim(`${Str.trim(this.getLastGroupPrefix(), '/')}/${Str.trim(uri, '/')}`, '/');
 
-        return prefixed === "" ? "/" : prefixed;
+        return prefixed === '' ? '/' : prefixed;
     }
 
     /** Add the necessary where clauses to the route based on its initial registration. */
@@ -284,10 +284,10 @@ export class Router {
     /** Get the prefix from the last group on the stack. */
     public getLastGroupPrefix(): string {
         if (!this.hasGroupStack()) {
-            return "";
+            return '';
         }
 
-        return this.groupStack[this.groupStack.size() - 1].prefix ?? "";
+        return this.groupStack[this.groupStack.size() - 1].prefix ?? '';
     }
 
     /** Determine if the router currently has a group stack. */
@@ -368,7 +368,7 @@ export class Router {
         const container = route.getContainer() ?? this.container;
 
         const shouldSkipMiddleware =
-            container.bound("middleware.disable") && container.make("middleware.disable") === true;
+            container.bound('middleware.disable') && container.make('middleware.disable') === true;
 
         const middleware = shouldSkipMiddleware ? new Array<Pipe>() : this.gatherRouteMiddleware(route);
 
@@ -391,7 +391,7 @@ export class Router {
         const resolved = new Array<Pipe>();
 
         for (const entry of this.flatten(middleware)) {
-            if (!typeIs(entry, "function") && resolvedExcluded.includes(entry)) {
+            if (!typeIs(entry, 'function') && resolvedExcluded.includes(entry)) {
                 continue;
             }
 
@@ -416,7 +416,7 @@ export class Router {
             // Only a group name resolves to several middleware. A class that
             // carries its arguments beside it is a list too, and flattening
             // that one would hand the pipeline `"60"` as if it were a pipe.
-            if (typeIs(entry, "string") && this.middlewareGroups.has(entry)) {
+            if (typeIs(entry, 'string') && this.middlewareGroups.has(entry)) {
                 for (const nested of resolved as Array<Pipe>) {
                     flattened.push(nested);
                 }
@@ -485,12 +485,12 @@ export class Router {
 
     /** Add a new route parameter binder. */
     public bind(key: string, binder: BinderCallback): void {
-        this.binders.set(Str.replace("-", "_", key), binder);
+        this.binders.set(Str.replace('-', '_', key), binder);
     }
 
     /** Get the binding callback for a given binding. */
     public getBindingCallback(key: string): BinderCallback | undefined {
-        return this.binders.get(Str.replace("-", "_", key));
+        return this.binders.get(Str.replace('-', '_', key));
     }
 
     /** Substitute the route bindings onto the route. */

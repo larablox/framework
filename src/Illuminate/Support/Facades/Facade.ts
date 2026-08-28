@@ -1,6 +1,6 @@
-import { RuntimeException } from "Illuminate/Exception";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
+import { RuntimeException } from 'Illuminate/Exception';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
 
 /**
  * PHP: `Illuminate\Support\Facades\Facade`.
@@ -29,7 +29,7 @@ export abstract class Facade {
         const app = Facade.app;
 
         if (app === undefined) {
-            throw new RuntimeException("A facade root has not been set.");
+            throw new RuntimeException('A facade root has not been set.');
         }
 
         if (app.resolved(accessor)) {
@@ -57,7 +57,7 @@ export abstract class Facade {
 
     /** Get the registered name of the component. */
     protected static getFacadeAccessor(): Abstract {
-        throw new RuntimeException("Facade does not implement getFacadeAccessor method.");
+        throw new RuntimeException('Facade does not implement getFacadeAccessor method.');
     }
 
     /** Resolve the facade root instance from the container. */

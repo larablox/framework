@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Util } from "Illuminate/Container/Util";
+import { Util } from 'Illuminate/Container/Util';
 
 /**
  * PHP: `Illuminate\Tests\Container\UtilTest`.
@@ -22,22 +22,22 @@ import { Util } from "Illuminate/Container/Util";
  *   registry-based mechanism, not a byte-for-byte equivalent).
  */
 export = (): void => {
-    describe("Util", () => {
-        it("unwrapIfClosure() returns a plain value as is, and calls a function value", () => {
+    describe('Util', () => {
+        it('unwrapIfClosure() returns a plain value as is, and calls a function value', () => {
             // PHP: UtilTest::testUnwrapIfClosure
-            expect(Util.unwrapIfClosure("foo")).to.equal("foo");
-            expect(Util.unwrapIfClosure(() => "foo")).to.equal("foo");
+            expect(Util.unwrapIfClosure('foo')).to.equal('foo');
+            expect(Util.unwrapIfClosure(() => 'foo')).to.equal('foo');
         });
 
         it("arrayWrap() wraps a scalar, passes an array through, and treats undefined as PHP's null", () => {
             // PHP: UtilTest::testArrayWrap (partial -- see class comment)
-            const object = { value: "a" };
+            const object = { value: 'a' };
 
-            const wrappedString = Util.arrayWrap("a");
+            const wrappedString = Util.arrayWrap('a');
             expect(wrappedString.size()).to.equal(1);
-            expect(wrappedString[0]).to.equal("a");
+            expect(wrappedString[0]).to.equal('a');
 
-            const array = ["a"];
+            const array = ['a'];
             const wrappedArray = Util.arrayWrap(array);
             expect(wrappedArray).to.equal(array);
 
@@ -48,11 +48,11 @@ export = (): void => {
             const wrappedUndefined = Util.arrayWrap(undefined);
             expect(wrappedUndefined.size()).to.equal(0);
 
-            const wrappedEmptyString = Util.arrayWrap("");
+            const wrappedEmptyString = Util.arrayWrap('');
             expect(wrappedEmptyString.size()).to.equal(1);
-            expect(wrappedEmptyString[0]).to.equal("");
+            expect(wrappedEmptyString[0]).to.equal('');
 
-            const emptyStringArray = [""];
+            const emptyStringArray = [''];
             const wrappedEmptyStringArray = Util.arrayWrap(emptyStringArray);
             expect(wrappedEmptyStringArray).to.equal(emptyStringArray);
 

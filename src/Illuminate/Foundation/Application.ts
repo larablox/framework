@@ -1,24 +1,24 @@
-import { ApplicationBuilder } from "Illuminate/Foundation/Configuration/ApplicationBuilder";
-import { BusServiceProvider } from "Illuminate/Bus/BusServiceProvider";
-import { Container } from "Illuminate/Container/Container";
-import { ContainerContract } from "Illuminate/Contracts/Container/Container";
-import { ContextServiceProvider } from "Illuminate/Log/Context/ContextServiceProvider";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { EventServiceProvider } from "Illuminate/Events/EventServiceProvider";
-import { FoundationServiceProvider } from "Illuminate/Foundation/Providers/FoundationServiceProvider";
-import { LogManager } from "Illuminate/Log/LogManager";
-import { LogServiceProvider } from "Illuminate/Log/LogServiceProvider";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { PipelineServiceProvider } from "Illuminate/Pipeline/PipelineServiceProvider";
-import { ProviderRepository } from "Illuminate/Foundation/ProviderRepository";
-import { QueueManager } from "Illuminate/Queue/QueueManager";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Repository as ConfigRepository } from "Illuminate/Config/Repository";
-import { RoutingServiceProvider } from "Illuminate/Routing/RoutingServiceProvider";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import { Str } from "Illuminate/Support/Str";
-import { Util } from "Illuminate/Container/Util";
-import { Worker } from "Illuminate/Foundation/Runtime/Worker";
+import { ApplicationBuilder } from 'Illuminate/Foundation/Configuration/ApplicationBuilder';
+import { BusServiceProvider } from 'Illuminate/Bus/BusServiceProvider';
+import { Container } from 'Illuminate/Container/Container';
+import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
+import { ContextServiceProvider } from 'Illuminate/Log/Context/ContextServiceProvider';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { EventServiceProvider } from 'Illuminate/Events/EventServiceProvider';
+import { FoundationServiceProvider } from 'Illuminate/Foundation/Providers/FoundationServiceProvider';
+import { LogManager } from 'Illuminate/Log/LogManager';
+import { LogServiceProvider } from 'Illuminate/Log/LogServiceProvider';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { PipelineServiceProvider } from 'Illuminate/Pipeline/PipelineServiceProvider';
+import { ProviderRepository } from 'Illuminate/Foundation/ProviderRepository';
+import { QueueManager } from 'Illuminate/Queue/QueueManager';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
+import { RoutingServiceProvider } from 'Illuminate/Routing/RoutingServiceProvider';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import { Str } from 'Illuminate/Support/Str';
+import { Util } from 'Illuminate/Container/Util';
+import { Worker } from 'Illuminate/Foundation/Runtime/Worker';
 import type {
     Abstract,
     AbstractClass,
@@ -26,12 +26,12 @@ import type {
     Constructor,
     ParameterList,
     ParameterOverrides,
-} from "Illuminate/Container/Types";
-import type { Application as ApplicationContract, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
-import type { Dispatcher as DispatcherContract } from "Illuminate/Contracts/Events/Dispatcher";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Request } from "Illuminate/Http/Request";
-import type { Response } from "Illuminate/Http/Response";
+} from 'Illuminate/Container/Types';
+import type { Application as ApplicationContract, Bootstrapper } from 'Illuminate/Contracts/Foundation/Application';
+import type { Dispatcher as DispatcherContract } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Response } from 'Illuminate/Http/Response';
 
 /**
  * PHP: `Illuminate\Foundation\Application`.
@@ -43,7 +43,7 @@ import type { Response } from "Illuminate/Http/Response";
  */
 export class Application extends Container implements ApplicationContract {
     /** The framework version. */
-    public static readonly VERSION = "0.2.1";
+    public static readonly VERSION = '0.2.1';
 
     /**
      * Indicates if the application has been bootstrapped before.
@@ -127,7 +127,7 @@ export class Application extends Container implements ApplicationContract {
         // PHP: `CurrentApplication::set()`. The two keys the container answers
         // itself under have to point at the copy, or everything resolved
         // through them would reach past the sandbox into the root.
-        sandbox.instance("app", sandbox);
+        sandbox.instance('app', sandbox);
         sandbox.instance(Container, sandbox);
 
         return sandbox;
@@ -171,7 +171,7 @@ export class Application extends Container implements ApplicationContract {
     protected registerBaseBindings(): void {
         Container.setInstance(this);
 
-        this.instance("app", this);
+        this.instance('app', this);
 
         this.instance(Container, this);
     }
@@ -202,7 +202,7 @@ export class Application extends Container implements ApplicationContract {
         this.bootstrapped = true;
 
         for (const bootstrapper of bootstrappers) {
-            const events = this.make<DispatcherContract>("events");
+            const events = this.make<DispatcherContract>('events');
             const name = Reflector.className(bootstrapper);
 
             events.dispatch(`bootstrapping: ${name}`, [this]);
@@ -215,12 +215,12 @@ export class Application extends Container implements ApplicationContract {
 
     /** Register a callback to run before a bootstrapper. */
     public beforeBootstrapping(bootstrapper: Constructor<Bootstrapper>, callback: Callback): void {
-        this.make<DispatcherContract>("events").listen(`bootstrapping: ${Reflector.className(bootstrapper)}`, callback);
+        this.make<DispatcherContract>('events').listen(`bootstrapping: ${Reflector.className(bootstrapper)}`, callback);
     }
 
     /** Register a callback to run after a bootstrapper. */
     public afterBootstrapping(bootstrapper: Constructor<Bootstrapper>, callback: Callback): void {
-        this.make<DispatcherContract>("events").listen(`bootstrapped: ${Reflector.className(bootstrapper)}`, callback);
+        this.make<DispatcherContract>('events').listen(`bootstrapped: ${Reflector.className(bootstrapper)}`, callback);
     }
 
     /** Determine if the application has been bootstrapped before. */
@@ -230,12 +230,12 @@ export class Application extends Container implements ApplicationContract {
 
     /** Determine if middleware has been disabled for the application. */
     public shouldSkipMiddleware(): boolean {
-        return this.bound("middleware.disable") && this.make("middleware.disable") === true;
+        return this.bound('middleware.disable') && this.make('middleware.disable') === true;
     }
 
     /** Get or check the current application environment. */
     public environment(...environments: Array<string | Array<string>>): string | boolean {
-        const current = this.make<string>("env");
+        const current = this.make<string>('env');
 
         if (!environments.isEmpty()) {
             const patterns = Util.isArray(environments[0])
@@ -250,17 +250,17 @@ export class Application extends Container implements ApplicationContract {
 
     /** Detect the application's current environment. */
     public detectEnvironment(callback: () => string): string {
-        return this.instance("env", callback());
+        return this.instance('env', callback());
     }
 
     /** Determine if the application is in the local environment. */
     public isLocal(): boolean {
-        return this.make<string>("env") === "local";
+        return this.make<string>('env') === 'local';
     }
 
     /** Determine if the application is in the production environment. */
     public isProduction(): boolean {
-        return this.make<string>("env") === "production";
+        return this.make<string>('env') === 'production';
     }
 
     /** Register a new registered listener. */
@@ -276,7 +276,7 @@ export class Application extends Container implements ApplicationContract {
      * configured order is the order.
      */
     public registerConfiguredProviders(): void {
-        const providers = (this.make<ConfigRepository>("config").get("app.providers", []) ?? []) as Array<
+        const providers = (this.make<ConfigRepository>('config').get('app.providers', []) ?? []) as Array<
             Constructor<ServiceProvider>
         >;
 
@@ -481,8 +481,8 @@ export class Application extends Container implements ApplicationContract {
     protected bootProvider(provider: ServiceProvider): void {
         provider.callBootingCallbacks();
 
-        if (typeIs((provider as unknown as Record<string, unknown>).boot, "function")) {
-            this.call([provider, "boot"]);
+        if (typeIs((provider as unknown as Record<string, unknown>).boot, 'function')) {
+            this.call([provider, 'boot']);
         }
 
         provider.callBootedCallbacks();
@@ -592,11 +592,11 @@ export class Application extends Container implements ApplicationContract {
      */
     public registerCoreContainerAliases(): void {
         const aliases: Array<[string, Array<Abstract>]> = [
-            ["app", [Application, Container, ContainerContract]],
-            ["config", [ConfigRepository]],
-            ["events", [Dispatcher]],
-            ["log", [LogManager]],
-            ["queue", [QueueManager]],
+            ['app', [Application, Container, ContainerContract]],
+            ['config', [ConfigRepository]],
+            ['events', [Dispatcher]],
+            ['log', [LogManager]],
+            ['queue', [QueueManager]],
         ];
 
         for (const [key, targets] of aliases) {

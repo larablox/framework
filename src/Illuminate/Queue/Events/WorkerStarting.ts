@@ -1,4 +1,4 @@
-import type { WorkerOptions } from "Illuminate/Queue/WorkerOptions";
+import type { WorkerOptions } from 'Illuminate/Queue/WorkerOptions';
 
 /** PHP: `IlluminateQueueEventsWorkerStarting`. */
 export class WorkerStarting {

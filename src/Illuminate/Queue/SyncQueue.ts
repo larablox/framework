@@ -1,15 +1,15 @@
-import { Collection } from "Illuminate/Support/Collection";
-import { JobAttempted } from "Illuminate/Queue/Events/JobAttempted";
-import { JobExceptionOccurred } from "Illuminate/Queue/Events/JobExceptionOccurred";
-import { JobProcessed } from "Illuminate/Queue/Events/JobProcessed";
-import { JobProcessing } from "Illuminate/Queue/Events/JobProcessing";
-import { Queue } from "Illuminate/Queue/Queue";
-import { SyncJob } from "Illuminate/Queue/Jobs/SyncJob";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type { JobTarget, Queue as QueueContract } from "Illuminate/Contracts/Queue/Queue";
+import { Collection } from 'Illuminate/Support/Collection';
+import { JobAttempted } from 'Illuminate/Queue/Events/JobAttempted';
+import { JobExceptionOccurred } from 'Illuminate/Queue/Events/JobExceptionOccurred';
+import { JobProcessed } from 'Illuminate/Queue/Events/JobProcessed';
+import { JobProcessing } from 'Illuminate/Queue/Events/JobProcessing';
+import { Queue } from 'Illuminate/Queue/Queue';
+import { SyncJob } from 'Illuminate/Queue/Jobs/SyncJob';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Job, JobPayload } from 'Illuminate/Contracts/Queue/Job';
+import type { JobTarget, Queue as QueueContract } from 'Illuminate/Contracts/Queue/Queue';
 
 /**
  * PHP: `Illuminate\Queue\SyncQueue`.
@@ -87,12 +87,12 @@ export class SyncQueue extends Queue implements QueueContract {
     /* eslint-enable @typescript-eslint/no-unused-vars */
 
     /** Push a new job onto the queue. */
-    public push(job: JobTarget, data: unknown = "", queue?: string): unknown {
+    public push(job: JobTarget, data: unknown = '', queue?: string): unknown {
         return this.executeJob(job, data, queue);
     }
 
     /** Execute a given job synchronously. */
-    protected executeJob(job: JobTarget, data: unknown = "", queue?: string): number {
+    protected executeJob(job: JobTarget, data: unknown = '', queue?: string): number {
         const queueJob = this.resolveJob(this.createPayload(job, queue, data), queue);
 
         let exceptionOccurred: unknown;
@@ -116,36 +116,36 @@ export class SyncQueue extends Queue implements QueueContract {
 
     /** Resolve a Sync job instance. */
     protected resolveJob(payload: JobPayload, queue?: string): Job {
-        return new SyncJob(this.container, payload, this.connectionName, queue ?? "");
+        return new SyncJob(this.container, payload, this.connectionName, queue ?? '');
     }
 
     /** Raise the before queue job event. */
     protected raiseBeforeJobEvent(job: Job): void {
-        if (this.container.bound("events")) {
-            this.container.make<Dispatcher>("events").dispatch(new JobProcessing(this.connectionName, job));
+        if (this.container.bound('events')) {
+            this.container.make<Dispatcher>('events').dispatch(new JobProcessing(this.connectionName, job));
         }
     }
 
     /** Raise the after queue job event. */
     protected raiseAfterJobEvent(job: Job): void {
-        if (this.container.bound("events")) {
-            this.container.make<Dispatcher>("events").dispatch(new JobProcessed(this.connectionName, job));
+        if (this.container.bound('events')) {
+            this.container.make<Dispatcher>('events').dispatch(new JobProcessed(this.connectionName, job));
         }
     }
 
     /** Raise the job attempted event. */
     protected raiseJobAttemptedEvent(job: Job, exceptionOccurred?: unknown): void {
-        if (this.container.bound("events")) {
+        if (this.container.bound('events')) {
             this.container
-                .make<Dispatcher>("events")
+                .make<Dispatcher>('events')
                 .dispatch(new JobAttempted(this.connectionName, job, exceptionOccurred));
         }
     }
 
     /** Raise the exception occurred queue job event. */
     protected raiseExceptionOccurredJobEvent(job: Job, e: unknown): void {
-        if (this.container.bound("events")) {
-            this.container.make<Dispatcher>("events").dispatch(new JobExceptionOccurred(this.connectionName, job, e));
+        if (this.container.bound('events')) {
+            this.container.make<Dispatcher>('events').dispatch(new JobExceptionOccurred(this.connectionName, job, e));
         }
     }
 
@@ -167,7 +167,7 @@ export class SyncQueue extends Queue implements QueueContract {
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(delay: Delay, job: JobTarget, data: unknown = "", queue?: string): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = '', queue?: string): unknown {
         return this.push(job, data, queue);
     }
 

@@ -1,4 +1,4 @@
-import type { LogRecord } from "@larablox/monolog/out/Monolog/LogRecord";
+import type { LogRecord } from '@larablox/monolog/out/Monolog/LogRecord';
 
 /**
  * PHP: `interface Illuminate\Contracts\Log\ContextLogProcessor`.

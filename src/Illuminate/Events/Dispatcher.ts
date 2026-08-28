@@ -1,32 +1,32 @@
-import { Backoff } from "Illuminate/Queue/Attributes/Backoff";
-import { CallQueuedListener } from "Illuminate/Events/CallQueuedListener";
-import { Connection } from "Illuminate/Queue/Attributes/Connection";
-import { Delay } from "Illuminate/Queue/Attributes/Delay";
-import { DeleteWhenMissingModels } from "Illuminate/Queue/Attributes/DeleteWhenMissingModels";
-import { FailOnTimeout } from "Illuminate/Queue/Attributes/FailOnTimeout";
-import { MaxExceptions } from "Illuminate/Queue/Attributes/MaxExceptions";
-import { Queue as QueueAttribute } from "Illuminate/Queue/Attributes/Queue";
-import { ReadsClassAttributes } from "Illuminate/Support/Traits/ReadsClassAttributes";
-import { RuntimeException } from "Illuminate/Exception";
-import { Timeout } from "Illuminate/Queue/Attributes/Timeout";
-import { Tries } from "Illuminate/Queue/Attributes/Tries";
-import { isShouldQueue } from "Illuminate/Contracts/Queue/ShouldQueue";
-import type { Delay as DelayValue } from "Illuminate/Support/InteractsWithTime";
-import type { Factory as QueueFactory } from "Illuminate/Contracts/Queue/Factory";
-import { BindingResolutionException } from "Illuminate/Contracts/Container/BindingResolutionException";
-import { Container } from "Illuminate/Container/Container";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Str } from "Illuminate/Support/Str";
-import { Util } from "Illuminate/Container/Util";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
+import { Backoff } from 'Illuminate/Queue/Attributes/Backoff';
+import { CallQueuedListener } from 'Illuminate/Events/CallQueuedListener';
+import { Connection } from 'Illuminate/Queue/Attributes/Connection';
+import { Delay } from 'Illuminate/Queue/Attributes/Delay';
+import { DeleteWhenMissingModels } from 'Illuminate/Queue/Attributes/DeleteWhenMissingModels';
+import { FailOnTimeout } from 'Illuminate/Queue/Attributes/FailOnTimeout';
+import { MaxExceptions } from 'Illuminate/Queue/Attributes/MaxExceptions';
+import { Queue as QueueAttribute } from 'Illuminate/Queue/Attributes/Queue';
+import { ReadsClassAttributes } from 'Illuminate/Support/Traits/ReadsClassAttributes';
+import { RuntimeException } from 'Illuminate/Exception';
+import { Timeout } from 'Illuminate/Queue/Attributes/Timeout';
+import { Tries } from 'Illuminate/Queue/Attributes/Tries';
+import { isShouldQueue } from 'Illuminate/Contracts/Queue/ShouldQueue';
+import type { Delay as DelayValue } from 'Illuminate/Support/InteractsWithTime';
+import type { Factory as QueueFactory } from 'Illuminate/Contracts/Queue/Factory';
+import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
+import { Container } from 'Illuminate/Container/Container';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Str } from 'Illuminate/Support/Str';
+import { Util } from 'Illuminate/Container/Util';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Container as ContainerContract } from 'Illuminate/Contracts/Container/Container';
 import type {
     Dispatcher as DispatcherContract,
     EventName,
     EventPayload,
     Listener,
-} from "Illuminate/Contracts/Events/Dispatcher";
+} from 'Illuminate/Contracts/Events/Dispatcher';
 
 /** One dispatch held back while `defer()` runs. */
 interface DeferredEvent {
@@ -86,7 +86,7 @@ export class Dispatcher implements DispatcherContract {
      */
     public listen(events: EventName | Array<EventName>, listener: Listener): void {
         for (const event of Util.arrayWrap(events)) {
-            if (typeIs(event, "string") && Str.contains(event, "*")) {
+            if (typeIs(event, 'string') && Str.contains(event, '*')) {
                 this.setupWildcardListen(event, listener);
             } else {
                 let registered = this.listeners.get(event);
@@ -121,7 +121,7 @@ export class Dispatcher implements DispatcherContract {
             return true;
         }
 
-        if (typeIs(eventName, "string")) {
+        if (typeIs(eventName, 'string')) {
             return this.wildcards.has(eventName) || this.hasWildcardListeners(eventName);
         }
 
@@ -157,7 +157,7 @@ export class Dispatcher implements DispatcherContract {
 
         const subscribe = (resolved as unknown as Record<string, unknown>).subscribe;
 
-        if (!typeIs(subscribe, "function")) {
+        if (!typeIs(subscribe, 'function')) {
             throw new BindingResolutionException(
                 `Subscriber [${Reflector.className(Reflector.classOf(resolved))}] has no subscribe method.`,
             );
@@ -169,13 +169,13 @@ export class Dispatcher implements DispatcherContract {
         // PHP wraps the loop below in `if (is_array($events))`, so a
         // `subscribe()` that registers its listeners itself and hands back
         // something else -- or nothing -- is not an error.
-        if (!typeIs(events, "table")) {
+        if (!typeIs(events, 'table')) {
             return;
         }
 
         for (const [event, listeners] of events) {
             for (const listener of Util.arrayWrap(listeners)) {
-                if (typeIs(listener, "string") && typeIs((resolved as Record<string, unknown>)[listener], "function")) {
+                if (typeIs(listener, 'string') && typeIs((resolved as Record<string, unknown>)[listener], 'function')) {
                     this.listen(event, [Reflector.classOf(resolved) as Abstract, listener]);
 
                     continue;
@@ -265,7 +265,7 @@ export class Dispatcher implements DispatcherContract {
 
         // A class event has no namespace to match on, so a wildcard is tested
         // against its bare name.
-        const name = typeIs(eventName, "string") ? eventName : Reflector.className(eventName);
+        const name = typeIs(eventName, 'string') ? eventName : Reflector.className(eventName);
 
         const wildcards = this.wildcardsCache.get(name) ?? this.getWildcardListeners(name);
 
@@ -273,7 +273,7 @@ export class Dispatcher implements DispatcherContract {
             listeners.push(wildcard);
         }
 
-        return typeIs(eventName, "string") ? listeners : this.addInterfaceListeners(eventName, listeners);
+        return typeIs(eventName, 'string') ? listeners : this.addInterfaceListeners(eventName, listeners);
     }
 
     /** Get the wildcard listeners for the event. */
@@ -306,7 +306,7 @@ export class Dispatcher implements DispatcherContract {
 
     /** Register an event listener with the dispatcher. */
     public makeListener(listener: Listener, wildcard = false): Callback {
-        if (!typeIs(listener, "function") && !this.isInstanceCallable(listener)) {
+        if (!typeIs(listener, 'function') && !this.isInstanceCallable(listener)) {
             return this.createClassListener(listener as Abstract | [Abstract, string], wildcard);
         }
 
@@ -342,7 +342,7 @@ export class Dispatcher implements DispatcherContract {
         // anything to ask -- and the resolved object is then reused for the
         // call rather than resolved a second time, which the container would
         // otherwise report as two `make()`s for one dispatch.
-        const resolved = typeIs(klass, "string") ? this.container.make(klass) : undefined;
+        const resolved = typeIs(klass, 'string') ? this.container.make(klass) : undefined;
 
         if (this.handlerShouldBeQueued(resolved ?? klass)) {
             return this.createQueuedHandlerCallable(klass, method);
@@ -373,7 +373,7 @@ export class Dispatcher implements DispatcherContract {
 
         const shouldQueue = instance.shouldQueue;
 
-        if (typeIs(shouldQueue, "function")) {
+        if (typeIs(shouldQueue, 'function')) {
             return (shouldQueue as (self: object, event: unknown) => boolean)(instance as unknown as object, args[0]);
         }
 
@@ -385,12 +385,12 @@ export class Dispatcher implements DispatcherContract {
         const [listener, job] = this.createListenerAndJob(klass, method, args);
 
         const connection = this.resolveQueue().connection(
-            this.optionFor(listener, args, "viaConnection", Connection, "connection") as string | undefined,
+            this.optionFor(listener, args, 'viaConnection', Connection, 'connection') as string | undefined,
         );
 
-        const queue = this.optionFor(listener, args, "viaQueue", QueueAttribute, "queue") as string | undefined;
+        const queue = this.optionFor(listener, args, 'viaQueue', QueueAttribute, 'queue') as string | undefined;
 
-        const delay = this.optionFor(listener, args, "withDelay", Delay, "delaySeconds") as DelayValue | undefined;
+        const delay = this.optionFor(listener, args, 'withDelay', Delay, 'delaySeconds') as DelayValue | undefined;
 
         if (delay === undefined) {
             connection.pushOn(queue as string, job);
@@ -414,7 +414,7 @@ export class Dispatcher implements DispatcherContract {
     ): unknown {
         const declared = (listener as Record<string, unknown>)[method];
 
-        if (typeIs(declared, "function")) {
+        if (typeIs(declared, 'function')) {
             return (declared as (self: object, event: unknown) => unknown)(listener, args[0]);
         }
 
@@ -458,7 +458,7 @@ export class Dispatcher implements DispatcherContract {
         const method = (name: string): unknown => {
             const declared = (listener as Record<string, unknown>)[name];
 
-            return typeIs(declared, "function")
+            return typeIs(declared, 'function')
                 ? (declared as (self: object, ...data: Array<never>) => unknown)(
                       listener,
                       ...(job.data as Array<never>),
@@ -466,22 +466,22 @@ export class Dispatcher implements DispatcherContract {
                 : undefined;
         };
 
-        job.tries = (method("tries") ?? read(Tries, "tries")) as number | undefined;
+        job.tries = (method('tries') ?? read(Tries, 'tries')) as number | undefined;
 
-        job.backoff = (method("backoff") ?? read(Backoff, "backoff")) as number | Array<number> | undefined;
+        job.backoff = (method('backoff') ?? read(Backoff, 'backoff')) as number | Array<number> | undefined;
 
-        job.maxExceptions = read(MaxExceptions, "maxExceptions") as number | undefined;
+        job.maxExceptions = read(MaxExceptions, 'maxExceptions') as number | undefined;
 
-        job.retryUntil = method("retryUntil") as number | undefined;
+        job.retryUntil = method('retryUntil') as number | undefined;
 
-        job.timeout = read(Timeout, "timeout") as number | undefined;
+        job.timeout = read(Timeout, 'timeout') as number | undefined;
 
-        job.failOnTimeout = (read(FailOnTimeout, "failOnTimeout") as boolean | undefined) ?? false;
+        job.failOnTimeout = (read(FailOnTimeout, 'failOnTimeout') as boolean | undefined) ?? false;
 
         job.deleteWhenMissingModels =
-            (read(DeleteWhenMissingModels, "deleteWhenMissingModels") as boolean | undefined) ?? false;
+            (read(DeleteWhenMissingModels, 'deleteWhenMissingModels') as boolean | undefined) ?? false;
 
-        const middleware = method("middleware");
+        const middleware = method('middleware');
 
         if (middleware !== undefined) {
             job.through(middleware as Array<unknown>);
@@ -493,7 +493,7 @@ export class Dispatcher implements DispatcherContract {
     /** Resolve the queue implementation. */
     protected resolveQueue(): QueueFactory {
         if (this.queueResolver === undefined) {
-            throw new RuntimeException("The queue resolver has not been set on the event dispatcher.");
+            throw new RuntimeException('The queue resolver has not been set on the event dispatcher.');
         }
 
         return this.queueResolver();
@@ -508,13 +508,13 @@ export class Dispatcher implements DispatcherContract {
 
     /** Parse the class listener into class and method. */
     protected parseClassCallable(listener: Abstract): [Abstract, string] {
-        if (typeIs(listener, "string")) {
-            const [target, method] = Str.parseCallback(listener, "handle");
+        if (typeIs(listener, 'string')) {
+            const [target, method] = Str.parseCallback(listener, 'handle');
 
             return [target, method as string];
         }
 
-        return [listener, "handle"];
+        return [listener, 'handle'];
     }
 
     /** Determine if the listener is an already resolved `[instance, method]` pair. */
@@ -524,14 +524,14 @@ export class Dispatcher implements DispatcherContract {
 
     /** Turn a callable listener into a plain function. */
     protected toCallable(listener: Callback | [object, string]): Callback {
-        if (typeIs(listener, "function")) {
+        if (typeIs(listener, 'function')) {
             return listener;
         }
 
         const [target, method] = listener;
         const fn = (target as unknown as Record<string, unknown>)[method];
 
-        if (!typeIs(fn, "function")) {
+        if (!typeIs(fn, 'function')) {
             throw new BindingResolutionException(
                 `Method [${method}] does not exist on [${Reflector.className(Reflector.classOf(target))}].`,
             );
@@ -542,13 +542,13 @@ export class Dispatcher implements DispatcherContract {
 
     /** Remove a set of listeners from the dispatcher. */
     public forget(event: EventName): void {
-        if (typeIs(event, "string") && Str.contains(event, "*")) {
+        if (typeIs(event, 'string') && Str.contains(event, '*')) {
             this.wildcards.delete(event);
         } else {
             this.listeners.delete(event);
         }
 
-        if (typeIs(event, "string")) {
+        if (typeIs(event, 'string')) {
             for (const [key] of this.wildcardsCache) {
                 if (Str.is(event, key)) {
                     this.wildcardsCache.delete(key);
@@ -560,7 +560,7 @@ export class Dispatcher implements DispatcherContract {
     /** Forget all of the pushed listeners. */
     public forgetPushed(): void {
         for (const key of this.listeners.keys()) {
-            if (typeIs(key, "string") && Str.endsWith(key, "_pushed")) {
+            if (typeIs(key, 'string') && Str.endsWith(key, '_pushed')) {
                 this.forget(key);
             }
         }
@@ -575,7 +575,7 @@ export class Dispatcher implements DispatcherContract {
      * for its subclasses, which is the shape Laravel gets from interfaces.
      */
     protected addInterfaceListeners(eventName: EventName, listeners: Array<Callback>): Array<Callback> {
-        if (!typeIs(eventName, "table")) {
+        if (!typeIs(eventName, 'table')) {
             return listeners;
         }
 

@@ -1,4 +1,4 @@
-import type { Abstract } from "Illuminate/Container/Types";
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * PHP: one entry of `through()`.

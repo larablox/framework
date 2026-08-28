@@ -1,17 +1,17 @@
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import { InstanceNotFoundException, Serializer } from "Illuminate/Support/Serializer";
-import { Pipeline } from "Illuminate/Pipeline/Pipeline";
-import { UniqueLock } from "Illuminate/Bus/UniqueLock";
-import type { Batchable } from "Illuminate/Bus/Batchable";
-import { isShouldBeUnique } from "Illuminate/Contracts/Queue/ShouldBeUnique";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Util } from "Illuminate/Container/Util";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Job, JobPayloadData } from "Illuminate/Contracts/Queue/Job";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
-import type { Repository as Cache } from "Illuminate/Cache/Repository";
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import { InstanceNotFoundException, Serializer } from 'Illuminate/Support/Serializer';
+import { Pipeline } from 'Illuminate/Pipeline/Pipeline';
+import { UniqueLock } from 'Illuminate/Bus/UniqueLock';
+import type { Batchable } from 'Illuminate/Bus/Batchable';
+import { isShouldBeUnique } from 'Illuminate/Contracts/Queue/ShouldBeUnique';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Util } from 'Illuminate/Container/Util';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Job, JobPayloadData } from 'Illuminate/Contracts/Queue/Job';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
+import type { Repository as Cache } from 'Illuminate/Cache/Repository';
 
 /**
  * PHP: `Illuminate\Queue\CallQueuedHandler`.
@@ -38,7 +38,7 @@ export class CallQueuedHandler {
      */
     public constructor(
         @Inject(Dispatcher) protected readonly dispatcher: Dispatcher,
-        @Inject("app") protected readonly container: Container,
+        @Inject('app') protected readonly container: Container,
     ) {}
 
     /** Handle the queued job. */
@@ -85,7 +85,7 @@ export class CallQueuedHandler {
      * only one that did comes back as a string to be read.
      */
     protected getCommand(data: JobPayloadData): object {
-        if (typeIs(data.command, "string")) {
+        if (typeIs(data.command, 'string')) {
             return Serializer.unserialize(data.command) as object;
         }
 
@@ -110,7 +110,7 @@ export class CallQueuedHandler {
     protected middlewareFor(command: object): Array<Pipe> {
         const declared = (command as { middleware?: unknown }).middleware;
 
-        if (typeIs(declared, "function")) {
+        if (typeIs(declared, 'function')) {
             return (declared as (self: object) => Array<Pipe>)(command);
         }
 
@@ -130,40 +130,40 @@ export class CallQueuedHandler {
 
     /** Release the unique lock a job marked `ShouldBeUnique` was holding. */
     protected ensureUniqueJobLockIsReleased(command: object): void {
-        if (!isShouldBeUnique(command) || !this.container.bound("cache.store")) {
+        if (!isShouldBeUnique(command) || !this.container.bound('cache.store')) {
             return;
         }
 
-        new UniqueLock(this.container.make<Cache>("cache.store")).release(command);
+        new UniqueLock(this.container.make<Cache>('cache.store')).release(command);
     }
 
     /** Tell the batch this job belongs to that it finished. */
     protected ensureSuccessfulBatchJobIsRecorded(command: object): void {
         const batchable = command as Batchable;
 
-        if (!typeIs(batchable.batch, "function")) {
+        if (!typeIs(batchable.batch, 'function')) {
             return;
         }
 
-        batchable.batch()?.recordSuccessfulJob(batchable.batchId ?? "");
+        batchable.batch()?.recordSuccessfulJob(batchable.batchId ?? '');
     }
 
     /** Tell the batch this job belongs to that it failed. */
     protected ensureFailedBatchJobIsRecorded(command: object, e: unknown): void {
         const batchable = command as Batchable;
 
-        if (!typeIs(batchable.batch, "function")) {
+        if (!typeIs(batchable.batch, 'function')) {
             return;
         }
 
-        batchable.batch()?.recordFailedJob(batchable.batchId ?? "", e);
+        batchable.batch()?.recordFailedJob(batchable.batchId ?? '', e);
     }
 
     /** Ensure the next job in the chain is dispatched if applicable. */
     protected ensureNextJobInChainIsDispatched(command: object): void {
         const dispatchNext = (command as { dispatchNextJobInChain?: unknown }).dispatchNextJobInChain;
 
-        if (typeIs(dispatchNext, "function")) {
+        if (typeIs(dispatchNext, 'function')) {
             (dispatchNext as (self: object) => void)(command);
         }
     }
@@ -218,7 +218,7 @@ export class CallQueuedHandler {
 
         const handler = (command as Record<string, unknown>).failed;
 
-        if (typeIs(handler, "function")) {
+        if (typeIs(handler, 'function')) {
             (handler as (self: object, e: unknown) => void)(command, e);
         }
     }

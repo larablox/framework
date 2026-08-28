@@ -1,5 +1,5 @@
-import type { Request } from "Illuminate/Http/Request";
-import type { Route } from "Illuminate/Routing/Route";
+import type { Request } from 'Illuminate/Http/Request';
+import type { Route } from 'Illuminate/Routing/Route';
 
 /** PHP: `Illuminate\Routing\Events\RouteMatched`. */
 export class RouteMatched {

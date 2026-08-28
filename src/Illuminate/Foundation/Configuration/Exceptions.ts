@@ -1,9 +1,9 @@
-import type { AbstractClass } from "Illuminate/Container/Types";
-import type { Handler } from "Illuminate/Foundation/Exceptions/Handler";
-import type { LogContext, LogLevel } from "Illuminate/Contracts/Log/Logger";
-import type { ReportableHandler } from "Illuminate/Foundation/Exceptions/ReportableHandler";
-import type { Request } from "Illuminate/Http/Request";
-import type { Response } from "Illuminate/Http/Response";
+import type { AbstractClass } from 'Illuminate/Container/Types';
+import type { Handler } from 'Illuminate/Foundation/Exceptions/Handler';
+import type { LogContext, LogLevel } from 'Illuminate/Contracts/Log/Logger';
+import type { ReportableHandler } from 'Illuminate/Foundation/Exceptions/ReportableHandler';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Response } from 'Illuminate/Http/Response';
 
 /**
  * PHP: `Illuminate\Foundation\Configuration\Exceptions`.

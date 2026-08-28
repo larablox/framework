@@ -1,13 +1,13 @@
-import { BatchCanceled } from "Illuminate/Bus/Events/BatchCanceled";
-import { BatchFinished } from "Illuminate/Bus/Events/BatchFinished";
-import { BatchStarted } from "Illuminate/Bus/Events/BatchStarted";
-import { Container } from "Illuminate/Container/Container";
-import { Util } from "Illuminate/Container/Util";
-import type { BatchRepository } from "Illuminate/Bus/BatchRepository";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Factory as QueueFactory } from "Illuminate/Contracts/Queue/Factory";
-import type { Batchable } from "Illuminate/Bus/Batchable";
-import type { UpdatedBatchJobCounts } from "Illuminate/Bus/UpdatedBatchJobCounts";
+import { BatchCanceled } from 'Illuminate/Bus/Events/BatchCanceled';
+import { BatchFinished } from 'Illuminate/Bus/Events/BatchFinished';
+import { BatchStarted } from 'Illuminate/Bus/Events/BatchStarted';
+import { Container } from 'Illuminate/Container/Container';
+import { Util } from 'Illuminate/Container/Util';
+import type { BatchRepository } from 'Illuminate/Bus/BatchRepository';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Factory as QueueFactory } from 'Illuminate/Contracts/Queue/Factory';
+import type { Batchable } from 'Illuminate/Bus/Batchable';
+import type { UpdatedBatchJobCounts } from 'Illuminate/Bus/UpdatedBatchJobCounts';
 
 /** A batch callback, as `then()` and friends take it. */
 export type BatchCallback = (batch: Batch, e?: unknown) => void;
@@ -72,7 +72,7 @@ export class Batch {
         this.repository.transaction(() => {
             this.repository.incrementTotalJobs(this.id, added.size());
 
-            this.queue.connection(this.options.connection).bulk(added, "", this.options.queue);
+            this.queue.connection(this.options.connection).bulk(added, '', this.options.queue);
         });
 
         return this.fresh();
@@ -97,7 +97,7 @@ export class Batch {
         }
 
         if (this.hasProgressCallbacks()) {
-            this.invokeCallbacks("progress");
+            this.invokeCallbacks('progress');
         }
 
         if (counts.pendingJobs === 0) {
@@ -107,11 +107,11 @@ export class Batch {
         }
 
         if (counts.pendingJobs === 0 && this.hasThenCallbacks()) {
-            this.invokeCallbacks("then");
+            this.invokeCallbacks('then');
         }
 
         if (counts.allJobsHaveRanExactlyOnce() && this.hasFinallyCallbacks()) {
-            this.invokeCallbacks("finally");
+            this.invokeCallbacks('finally');
         }
     }
 
@@ -163,15 +163,15 @@ export class Batch {
         }
 
         if (this.allowsFailures() && this.hasProgressCallbacks()) {
-            this.invokeCallbacks("progress", e);
+            this.invokeCallbacks('progress', e);
         }
 
         if (counts.failedJobs === 1 && this.hasCatchCallbacks()) {
-            this.invokeCallbacks("catch", e);
+            this.invokeCallbacks('catch', e);
         }
 
         if (counts.allJobsHaveRanExactlyOnce() && this.hasFinallyCallbacks()) {
-            this.invokeCallbacks("finally");
+            this.invokeCallbacks('finally');
         }
     }
 
@@ -213,7 +213,7 @@ export class Batch {
     }
 
     /** Invoke a batch callback handler. */
-    protected invokeCallbacks(kind: "before" | "progress" | "then" | "catch" | "finally", e?: unknown): void {
+    protected invokeCallbacks(kind: 'before' | 'progress' | 'then' | 'catch' | 'finally', e?: unknown): void {
         const batch = this.fresh() ?? this;
 
         for (const callback of this.options[kind] ?? []) {
@@ -225,8 +225,8 @@ export class Batch {
     protected dispatchEvent(event: object): void {
         const container = Container.getInstance();
 
-        if (container.bound("events")) {
-            container.make<Dispatcher>("events").dispatch(event);
+        if (container.bound('events')) {
+            container.make<Dispatcher>('events').dispatch(event);
         }
     }
 }

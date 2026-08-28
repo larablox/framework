@@ -1,13 +1,13 @@
-import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
-import { ConnectionException } from "Illuminate/Http/Client/ConnectionException";
-import { Remote } from "Illuminate/Http/Remote";
-import { Response } from "Illuminate/Http/Client/Response";
-import { retry } from "Illuminate/Support/Helpers";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
+import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
+import { ConnectionException } from 'Illuminate/Http/Client/ConnectionException';
+import { Remote } from 'Illuminate/Http/Remote';
+import { Response } from 'Illuminate/Http/Client/Response';
+import { retry } from 'Illuminate/Support/Helpers';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
-import type { RequestException } from "Illuminate/Http/Client/RequestException";
-import type { ResponseEnvelope, Transport } from "Illuminate/Http/Remote";
+import type { ConditionableShape } from 'Illuminate/Support/Traits/Conditionable';
+import type { RequestException } from 'Illuminate/Http/Client/RequestException';
+import type { ResponseEnvelope, Transport } from 'Illuminate/Http/Remote';
 
 /** PHP: `$sleepMilliseconds`, which may be a closure. */
 type RetryDelay = number | ((attempts: number, exception: unknown) => number);
@@ -35,7 +35,7 @@ type RetryDelay = number | ((attempts: number, exception: unknown) => number);
  */
 export class PendingRequest extends Conditionable() {
     /** Which remote the request will leave on. */
-    protected transport: Transport = "call";
+    protected transport: Transport = 'call';
 
     /** The number of times to try the request. */
     protected tries: number | Array<number> = 1;
@@ -57,14 +57,14 @@ export class PendingRequest extends Conditionable() {
 
     /** Send the request over the remote that expects no response. */
     public withoutWaiting(): this {
-        this.transport = "send";
+        this.transport = 'send';
 
         return this;
     }
 
     /** Send the request over the remote that may drop it. */
     public unreliable(): this {
-        this.transport = "stream";
+        this.transport = 'stream';
 
         return this;
     }
@@ -96,7 +96,7 @@ export class PendingRequest extends Conditionable() {
         condition: boolean | ((response: Response) => boolean),
         callback?: (response: Response, exception: RequestException) => void,
     ): this {
-        if (typeIs(condition, "function")) {
+        if (typeIs(condition, 'function')) {
             this.throwIfCallback = condition as (response: Response) => boolean;
 
             return this.throw(callback);
@@ -112,32 +112,32 @@ export class PendingRequest extends Conditionable() {
      * its data in the payload like every other verb.
      */
     public get(path: string, query?: ArrayAccessible): Response {
-        return this.send("GET", path, query);
+        return this.send('GET', path, query);
     }
 
     /** Issue a POST request to the given path. */
     public post(path: string, data?: ArrayAccessible): Response {
-        return this.send("POST", path, data);
+        return this.send('POST', path, data);
     }
 
     /** Issue a PUT request to the given path. */
     public put(path: string, data?: ArrayAccessible): Response {
-        return this.send("PUT", path, data);
+        return this.send('PUT', path, data);
     }
 
     /** Issue a PATCH request to the given path. */
     public patch(path: string, data?: ArrayAccessible): Response {
-        return this.send("PATCH", path, data);
+        return this.send('PATCH', path, data);
     }
 
     /** Issue a DELETE request to the given path. */
     public delete(path: string, data?: ArrayAccessible): Response {
-        return this.send("DELETE", path, data);
+        return this.send('DELETE', path, data);
     }
 
     /** Send the request to the given path. */
     public send(method: string, path: string, data?: ArrayAccessible): Response {
-        if (this.transport !== "call") {
+        if (this.transport !== 'call') {
             this.fire(method, path, data);
 
             // Nothing will come back, so the caller is answered the way a
@@ -191,12 +191,12 @@ export class PendingRequest extends Conditionable() {
 
     /** How many attempts the configured `tries` amounts to. */
     protected potentialTries(): number {
-        return typeIs(this.tries, "table") ? this.tries.size() + 1 : this.tries;
+        return typeIs(this.tries, 'table') ? this.tries.size() + 1 : this.tries;
     }
 
     /** Send a request that nothing is waiting on. */
     protected fire(method: string, path: string, data?: ArrayAccessible): void {
-        if (this.transport === "stream") {
+        if (this.transport === 'stream') {
             Remote.stream().FireServer(method, path, data);
 
             return;
@@ -215,7 +215,7 @@ export class PendingRequest extends Conditionable() {
             throw new ConnectionException(`Could not reach the server for [${method} ${path}]: ${tostring(exception)}`);
         }
 
-        if (!typeIs(envelope, "table") || !typeIs((envelope as ResponseEnvelope).status, "number")) {
+        if (!typeIs(envelope, 'table') || !typeIs((envelope as ResponseEnvelope).status, 'number')) {
             throw new ConnectionException(
                 `The server answered [${method} ${path}] with something that is not a response.`,
             );

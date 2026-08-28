@@ -1,19 +1,19 @@
-import { CacheHit } from "Illuminate/Cache/Events/CacheHit";
-import { CacheMissed } from "Illuminate/Cache/Events/CacheMissed";
-import { ForgettingKey } from "Illuminate/Cache/Events/ForgettingKey";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { KeyForgetFailed } from "Illuminate/Cache/Events/KeyForgetFailed";
-import { KeyForgotten } from "Illuminate/Cache/Events/KeyForgotten";
-import { KeyWriteFailed } from "Illuminate/Cache/Events/KeyWriteFailed";
-import { KeyWritten } from "Illuminate/Cache/Events/KeyWritten";
-import { RetrievingKey } from "Illuminate/Cache/Events/RetrievingKey";
-import { WritingKey } from "Illuminate/Cache/Events/WritingKey";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Lock } from "Illuminate/Contracts/Cache/Lock";
-import type { LockProvider } from "Illuminate/Contracts/Cache/LockProvider";
-import type { Repository as RepositoryContract, Ttl } from "Illuminate/Contracts/Cache/Repository";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import { CacheHit } from 'Illuminate/Cache/Events/CacheHit';
+import { CacheMissed } from 'Illuminate/Cache/Events/CacheMissed';
+import { ForgettingKey } from 'Illuminate/Cache/Events/ForgettingKey';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { KeyForgetFailed } from 'Illuminate/Cache/Events/KeyForgetFailed';
+import { KeyForgotten } from 'Illuminate/Cache/Events/KeyForgotten';
+import { KeyWriteFailed } from 'Illuminate/Cache/Events/KeyWriteFailed';
+import { KeyWritten } from 'Illuminate/Cache/Events/KeyWritten';
+import { RetrievingKey } from 'Illuminate/Cache/Events/RetrievingKey';
+import { WritingKey } from 'Illuminate/Cache/Events/WritingKey';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Lock } from 'Illuminate/Contracts/Cache/Lock';
+import type { LockProvider } from 'Illuminate/Contracts/Cache/LockProvider';
+import type { Repository as RepositoryContract, Ttl } from 'Illuminate/Contracts/Cache/Repository';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
 /**
  * PHP: `Illuminate\Cache\Repository`.
@@ -59,7 +59,7 @@ export class Repository implements RepositoryContract {
         if (value === undefined) {
             this.event(new CacheMissed(this.getName(), key));
 
-            return typeIs(dflt, "function") ? (dflt as Callback)() : dflt;
+            return typeIs(dflt, 'function') ? (dflt as Callback)() : dflt;
         }
 
         this.event(new CacheHit(this.getName(), key, value));
@@ -143,7 +143,7 @@ export class Repository implements RepositoryContract {
 
             const adder = (this.store as { add?: unknown }).add;
 
-            if (typeIs(adder, "function")) {
+            if (typeIs(adder, 'function')) {
                 return (adder as (self: Store, key: string, value: unknown, seconds: number) => boolean)(
                     this.store,
                     this.itemKey(key),
@@ -258,28 +258,28 @@ export class Repository implements RepositoryContract {
     public string(key: string, dflt?: string): string {
         const value = this.get(key, dflt);
 
-        return value === undefined ? "" : tostring(value);
+        return value === undefined ? '' : tostring(value);
     }
 
     /** Retrieve an item from the cache as a number. */
     public integer(key: string, dflt?: number): number {
         const value = this.get(key, dflt);
 
-        return typeIs(value, "number") ? value : (tonumber(value) ?? 0);
+        return typeIs(value, 'number') ? value : (tonumber(value) ?? 0);
     }
 
     /** Retrieve an item from the cache as a boolean. */
     public boolean(key: string, dflt?: boolean): boolean {
         const value = this.get(key, dflt);
 
-        return value === true || value === "true" || value === 1;
+        return value === true || value === 'true' || value === 1;
     }
 
     /** Retrieve an item from the cache as an array. */
     public array(key: string, dflt?: Array<defined>): Array<defined> {
         const value = this.get(key, dflt);
 
-        return typeIs(value, "table") ? (value as Array<defined>) : [];
+        return typeIs(value, 'table') ? (value as Array<defined>) : [];
     }
 
     /** Calculate the number of seconds for the given TTL. */

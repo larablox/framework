@@ -1,13 +1,13 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Config } from "Illuminate/Container/Attributes/Config";
-import { Container } from "Illuminate/Container/Container";
-import { Context } from "Illuminate/Container/Attributes/Context";
-import { Give } from "Illuminate/Container/Attributes/Give";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { Tag } from "Illuminate/Container/Attributes/Tag";
-import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
-import { Repository as ContextRepository } from "Illuminate/Log/Context/Repository";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { Config } from 'Illuminate/Container/Attributes/Config';
+import { Container } from 'Illuminate/Container/Container';
+import { Context } from 'Illuminate/Container/Attributes/Context';
+import { Give } from 'Illuminate/Container/Attributes/Give';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { Tag } from 'Illuminate/Container/Attributes/Tag';
+import { addParameterAttribute } from 'Illuminate/Container/Attributes/Inject';
+import { Repository as ContextRepository } from 'Illuminate/Log/Context/Repository';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /**
  * PHP: `Illuminate\Tests\Container\ContextualAttributeBindingTest`.
@@ -46,7 +46,7 @@ import type { ContextualAttribute } from "Illuminate/Contracts/Container/Context
  *   small hand-written fake bound in its place.
  */
 export = (): void => {
-    describe("Contextual attribute bindings", () => {
+    describe('Contextual attribute bindings', () => {
         abstract class ContainerTestContract {}
 
         class ContainerTestImplA extends ContainerTestContract {}
@@ -54,10 +54,10 @@ export = (): void => {
         class ContainerTestImplB extends ContainerTestContract {}
 
         interface ContainerTestAttributeThatResolvesContractImpl extends ContextualAttribute {
-            readonly name: "A" | "B";
+            readonly name: 'A' | 'B';
         }
 
-        function ContainerTestAttributeThatResolvesContractImpl(name: "A" | "B") {
+        function ContainerTestAttributeThatResolvesContractImpl(name: 'A' | 'B') {
             const instance: ContainerTestAttributeThatResolvesContractImpl = {
                 name,
             };
@@ -75,19 +75,19 @@ export = (): void => {
 
         class ContainerTestHasAttributeThatResolvesToImplA {
             public constructor(
-                @ContainerTestAttributeThatResolvesContractImpl("A")
+                @ContainerTestAttributeThatResolvesContractImpl('A')
                 public readonly property: ContainerTestContract,
             ) {}
         }
 
         class ContainerTestHasAttributeThatResolvesToImplB {
             public constructor(
-                @ContainerTestAttributeThatResolvesContractImpl("B")
+                @ContainerTestAttributeThatResolvesContractImpl('B')
                 public readonly property: ContainerTestContract,
             ) {}
         }
 
-        it("resolves a dependency through whenHasAttribute()", () => {
+        it('resolves a dependency through whenHasAttribute()', () => {
             // PHP: ContextualAttributeBindingTest::testDependencyCanBeResolvedFromAttributeBinding
             const container = new Container();
 
@@ -95,7 +95,7 @@ export = (): void => {
             container.whenHasAttribute(
                 ContainerTestAttributeThatResolvesContractImpl,
                 (attribute: ContainerTestAttributeThatResolvesContractImpl) =>
-                    attribute.name === "A" ? new ContainerTestImplA() : new ContainerTestImplB(),
+                    attribute.name === 'A' ? new ContainerTestImplA() : new ContainerTestImplB(),
             );
 
             const classA = container.make(ContainerTestHasAttributeThatResolvesToImplA);
@@ -115,7 +115,7 @@ export = (): void => {
             // PHP overrides this by name (`['param' => true]`); with no
             // parameter names here it is overridden by position, and only an
             // annotated parameter takes a positional override at all.
-            public constructor(@Inject("$param") public readonly param: boolean) {
+            public constructor(@Inject('$param') public readonly param: boolean) {
                 super();
             }
         }
@@ -134,7 +134,7 @@ export = (): void => {
             ) {}
         }
 
-        it("resolves a simple dependency through Give()", () => {
+        it('resolves a simple dependency through Give()', () => {
             // PHP: ContextualAttributeBindingTest::testSimpleDependencyCanBeResolvedCorrectlyFromGiveAttributeBinding
             const container = new Container();
             container.bind(ContainerTestContract, ContainerTestImplA);
@@ -144,7 +144,7 @@ export = (): void => {
             expect(resolution.dependency instanceof SimpleDependency).to.equal(true);
         });
 
-        it("resolves a dependency with constructor parameters through Give()", () => {
+        it('resolves a dependency with constructor parameters through Give()', () => {
             // PHP: ContextualAttributeBindingTest::testComplexDependencyCanBeResolvedCorrectlyFromGiveAttributeBinding
             const container = new Container();
             container.bind(ContainerTestContract, ContainerTestImplA);
@@ -180,30 +180,30 @@ export = (): void => {
 
         class ContainerTestHasConfigValueProperty {
             public constructor(
-                @ContainerTestConfigValue("app.timezone")
+                @ContainerTestConfigValue('app.timezone')
                 public readonly timezone: string,
             ) {}
         }
 
-        it("resolves a scalar dependency through whenHasAttribute()", () => {
+        it('resolves a scalar dependency through whenHasAttribute()', () => {
             // PHP: ContextualAttributeBindingTest::testScalarDependencyCanBeResolvedFromAttributeBinding
             const container = new Container();
             container.singleton(
-                "config",
+                'config',
                 () =>
                     new FakeConfigRepository({
-                        "app.timezone": "Europe/Paris",
+                        'app.timezone': 'Europe/Paris',
                     }),
             );
 
             container.whenHasAttribute(ContainerTestConfigValue, (attribute: ContainerTestConfigValue, c) =>
-                c.make<FakeConfigRepository>("config").get(attribute.key),
+                c.make<FakeConfigRepository>('config').get(attribute.key),
             );
 
             const classInstance = container.make(ContainerTestHasConfigValueProperty);
 
             expect(classInstance instanceof ContainerTestHasConfigValueProperty).to.equal(true);
-            expect(classInstance.timezone).to.equal("Europe/Paris");
+            expect(classInstance.timezone).to.equal('Europe/Paris');
         });
 
         interface ContainerTestConfigValueWithResolve extends ContextualAttribute {
@@ -214,7 +214,7 @@ export = (): void => {
             const instance: ContainerTestConfigValueWithResolve = {
                 key,
                 resolve: (attribute: ContainerTestConfigValueWithResolve, c) =>
-                    c.make<FakeConfigRepository>("config").get(attribute.key),
+                    c.make<FakeConfigRepository>('config').get(attribute.key),
             };
 
             return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
@@ -230,7 +230,7 @@ export = (): void => {
 
         class ContainerTestHasConfigValueWithResolveProperty {
             public constructor(
-                @ContainerTestConfigValueWithResolve("app.env")
+                @ContainerTestConfigValueWithResolve('app.env')
                 public readonly env: string,
             ) {}
         }
@@ -238,16 +238,16 @@ export = (): void => {
         it("resolves a scalar dependency through the attribute's own resolve()", () => {
             // PHP: ContextualAttributeBindingTest::testScalarDependencyCanBeResolvedFromAttributeResolveMethod
             const container = new Container();
-            container.singleton("config", () => new FakeConfigRepository({ "app.env": "production" }));
+            container.singleton('config', () => new FakeConfigRepository({ 'app.env': 'production' }));
 
             const classInstance = container.make(ContainerTestHasConfigValueWithResolveProperty);
 
             expect(classInstance instanceof ContainerTestHasConfigValueWithResolveProperty).to.equal(true);
-            expect(classInstance.env).to.equal("production");
+            expect(classInstance.env).to.equal('production');
         });
 
         class Person {
-            public name = "Taylor";
+            public name = 'Taylor';
             public role?: string;
         }
 
@@ -257,7 +257,7 @@ export = (): void => {
             const instance: ContainerTestConfigValueWithResolveAndAfter = {
                 resolve: () => new Person(),
                 after: (_attribute: never, value: Person) => {
-                    value.role = "Developer";
+                    value.role = 'Developer';
                 },
             };
 
@@ -285,41 +285,41 @@ export = (): void => {
 
             const classInstance = container.make(ContainerTestHasConfigValueWithResolvePropertyAndAfterCallback);
 
-            expect(classInstance.person.role).to.equal("Developer");
+            expect(classInstance.person.role).to.equal('Developer');
         });
 
-        it("make() resolves the same attributed dependency call() would (adapted -- see class comment)", () => {
+        it('make() resolves the same attributed dependency call() would (adapted -- see class comment)', () => {
             // PHP: ContextualAttributeBindingTest::testInjectionWithAttributeOnAppCall
             const container = new Container();
 
             const hasAttribute = container.make(ContainerTestHasConfigValueWithResolvePropertyAndAfterCallback);
 
-            expect(hasAttribute.person.name).to.equal("Taylor");
+            expect(hasAttribute.person.name).to.equal('Taylor');
         });
 
         class ConfigTest {
             public constructor(
-                @Config("foo") public readonly foo: string,
-                @Config("bar") public readonly bar: string,
+                @Config('foo') public readonly foo: string,
+                @Config('bar') public readonly bar: string,
             ) {}
         }
 
-        it("resolves two Config()-attributed dependencies", () => {
+        it('resolves two Config()-attributed dependencies', () => {
             // PHP: ContextualAttributeBindingTest::testConfigAttribute
             const container = new Container();
-            container.singleton("config", () => new FakeConfigRepository({ foo: "foo", bar: "bar" }));
+            container.singleton('config', () => new FakeConfigRepository({ foo: 'foo', bar: 'bar' }));
 
             const classInstance = container.make(ConfigTest);
 
-            expect(classInstance.foo).to.equal("foo");
-            expect(classInstance.bar).to.equal("bar");
+            expect(classInstance.foo).to.equal('foo');
+            expect(classInstance.bar).to.equal('bar');
         });
 
         class TimezoneObject {
-            public constructor(@Config("app.timezone") public readonly timezone?: string) {}
+            public constructor(@Config('app.timezone') public readonly timezone?: string) {}
         }
 
-        it("Config() resolves the configured key (adapted -- see class comment)", () => {
+        it('Config() resolves the configured key (adapted -- see class comment)', () => {
             // PHP: ContextualAttributeBindingTest::testAttributeOnAppCall / testNestedAttributeOnAppCall
             //
             // Upstream's second half reads `'app.locale' => null` back as
@@ -330,27 +330,27 @@ export = (): void => {
             // sub-case is dropped.
             const container = new Container();
             container.singleton(
-                "config",
+                'config',
                 () =>
                     new FakeConfigRepository({
-                        "app.timezone": "Europe/Paris",
+                        'app.timezone': 'Europe/Paris',
                     }),
             );
 
             const timezoneObject = container.make(TimezoneObject);
-            expect(timezoneObject.timezone).to.equal("Europe/Paris");
+            expect(timezoneObject.timezone).to.equal('Europe/Paris');
         });
 
         class TagTest {
-            public constructor(@Tag("numbers") public readonly integers: unknown) {}
+            public constructor(@Tag('numbers') public readonly integers: unknown) {}
         }
 
-        it("resolves a Tag()-attributed dependency into every tagged binding (adapted -- see class comment)", () => {
+        it('resolves a Tag()-attributed dependency into every tagged binding (adapted -- see class comment)', () => {
             // PHP: ContextualAttributeBindingTest::testTagAttribute
             const container = new Container();
-            container.bind("one", () => 1);
-            container.bind("two", () => 2);
-            container.tag(["one", "two"], "numbers");
+            container.bind('one', () => 1);
+            container.bind('two', () => 2);
+            container.tag(['one', 'two'], 'numbers');
 
             const classInstance = container.make(TagTest);
             const values = (classInstance.integers as { toArray(): Array<unknown> }).toArray();
@@ -370,30 +370,30 @@ export = (): void => {
 
             public get(key: string, defaultValue?: unknown): unknown {
                 this.getCallCount++;
-                expect(key).to.equal("foo");
+                expect(key).to.equal('foo');
                 expect(defaultValue).to.equal(undefined);
 
-                return "foo";
+                return 'foo';
             }
 
             public getHidden(key: string, defaultValue?: unknown): unknown {
                 this.getHiddenCallCount++;
-                expect(key).to.equal("bar");
+                expect(key).to.equal('bar');
                 expect(defaultValue).to.equal(undefined);
 
-                return "bar";
+                return 'bar';
             }
         }
 
         class ContextTest {
-            public constructor(@Context("foo") public readonly foo: string) {}
+            public constructor(@Context('foo') public readonly foo: string) {}
         }
 
         class ContextHiddenTest {
-            public constructor(@Context("bar", undefined, true) public readonly foo: string) {}
+            public constructor(@Context('bar', undefined, true) public readonly foo: string) {}
         }
 
-        it("resolves a Context()-attributed dependency", () => {
+        it('resolves a Context()-attributed dependency', () => {
             // PHP: ContextualAttributeBindingTest::testContextAttribute
             const container = new Container();
             const fake = new FakeContextRepository();
@@ -401,11 +401,11 @@ export = (): void => {
 
             const classInstance = container.make(ContextTest);
 
-            expect(classInstance.foo).to.equal("foo");
+            expect(classInstance.foo).to.equal('foo');
             expect(fake.getCallCount).to.equal(1);
         });
 
-        it("Context(hidden: true) reads from the hidden context instead", () => {
+        it('Context(hidden: true) reads from the hidden context instead', () => {
             // PHP: ContextualAttributeBindingTest::testContextAttributeInteractingWithHidden
             const container = new Container();
             const fake = new FakeContextRepository();
@@ -413,7 +413,7 @@ export = (): void => {
 
             const classInstance = container.make(ContextHiddenTest);
 
-            expect(classInstance.foo).to.equal("bar");
+            expect(classInstance.foo).to.equal('bar');
             expect(fake.getHiddenCallCount).to.equal(1);
             expect(fake.getCallCount).to.equal(0);
         });

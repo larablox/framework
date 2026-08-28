@@ -1,5 +1,5 @@
-import { wrapPipes } from "Illuminate/Pipeline/Pipes";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { wrapPipes } from 'Illuminate/Pipeline/Pipes';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Routing\Controller`.

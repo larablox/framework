@@ -1,13 +1,13 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectThrows } from "../TestHelpers";
-import { ArrayBatchRepository } from "Illuminate/Bus/ArrayBatchRepository";
-import { Batch } from "Illuminate/Bus/Batch";
-import { Batchable } from "Illuminate/Bus/Batchable";
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher as EventDispatcher } from "Illuminate/Events/Dispatcher";
-import { PendingBatch } from "Illuminate/Bus/PendingBatch";
-import type { Factory as QueueFactory } from "Illuminate/Contracts/Queue/Factory";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
+import { expectThrows } from '../TestHelpers';
+import { ArrayBatchRepository } from 'Illuminate/Bus/ArrayBatchRepository';
+import { Batch } from 'Illuminate/Bus/Batch';
+import { Batchable } from 'Illuminate/Bus/Batchable';
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher as EventDispatcher } from 'Illuminate/Events/Dispatcher';
+import { PendingBatch } from 'Illuminate/Bus/PendingBatch';
+import type { Factory as QueueFactory } from 'Illuminate/Contracts/Queue/Factory';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /**
  * PHP: `Illuminate\Tests\Bus\BusPendingBatchTest`.
@@ -98,7 +98,7 @@ class FakeQueue implements Queue {
     }
 
     public getConnectionName(): string {
-        return "fake";
+        return 'fake';
     }
 
     public setConnectionName(): this {
@@ -119,15 +119,15 @@ function repository(): ArrayBatchRepository {
 }
 
 export = (): void => {
-    describe("PendingBatch", () => {
-        it("is configured by its chained calls and dispatches through the repository and event dispatcher", () => {
+    describe('PendingBatch', () => {
+        it('is configured by its chained calls and dispatches through the repository and event dispatcher', () => {
             // PHP: BusPendingBatchTest::test_pending_batch_may_be_configured_and_dispatched (adapted -- see class comment)
             const container = new Container();
             const events = new EventDispatcher();
-            container.instance("events", events);
+            container.instance('events', events);
 
             const repo = repository();
-            container.instance("bus.batches", repo);
+            container.instance('bus.batches', repo);
 
             const job = new TestJob();
 
@@ -147,11 +147,11 @@ export = (): void => {
                     //
                 })
                 .allowFailures()
-                .onConnection("test-connection")
-                .onQueue("test-queue");
+                .onConnection('test-connection')
+                .onQueue('test-queue');
 
-            expect(pendingBatch.connection()).to.equal("test-connection");
-            expect(pendingBatch.queue()).to.equal("test-queue");
+            expect(pendingBatch.connection()).to.equal('test-connection');
+            expect(pendingBatch.queue()).to.equal('test-queue');
             expect((pendingBatch.options.before ?? []).size()).to.equal(1);
             expect((pendingBatch.options.progress ?? []).size()).to.equal(1);
             expect((pendingBatch.options.then ?? []).size()).to.equal(1);
@@ -162,18 +162,18 @@ export = (): void => {
             expect(batch instanceof Batch).to.equal(true);
         });
 
-        it("deletes the stored batch from the repository if adding jobs throws", () => {
+        it('deletes the stored batch from the repository if adding jobs throws', () => {
             // PHP: BusPendingBatchTest::test_batch_is_deleted_from_storage_if_exception_thrown_during_batching
             const container = new Container();
 
             class ThrowingQueueFactory implements QueueFactory {
                 public connection(): Queue {
-                    throw "Failed to add jobs...";
+                    throw 'Failed to add jobs...';
                 }
             }
 
             const repo = new ArrayBatchRepository(new ThrowingQueueFactory());
-            container.instance("bus.batches", repo);
+            container.instance('bus.batches', repo);
 
             const job = new TestJob();
             const pendingBatch = new PendingBatch(container, [job]);
@@ -188,11 +188,11 @@ export = (): void => {
             expect(repo.get(10).size()).to.equal(0);
         });
 
-        it("dispatchIf(true) dispatches and returns the batch", () => {
+        it('dispatchIf(true) dispatches and returns the batch', () => {
             // PHP: BusPendingBatchTest::test_batch_is_dispatched_when_dispatchif_is_true
             const container = new Container();
-            container.instance("events", new EventDispatcher());
-            container.instance("bus.batches", repository());
+            container.instance('events', new EventDispatcher());
+            container.instance('bus.batches', repository());
 
             const job = new TestJob();
             const pendingBatch = new PendingBatch(container, [job]);
@@ -202,10 +202,10 @@ export = (): void => {
             expect(result instanceof Batch).to.equal(true);
         });
 
-        it("dispatchIf(false) does not dispatch", () => {
+        it('dispatchIf(false) does not dispatch', () => {
             // PHP: BusPendingBatchTest::test_batch_is_not_dispatched_when_dispatchif_is_false
             const container = new Container();
-            container.instance("bus.batches", repository());
+            container.instance('bus.batches', repository());
 
             const job = new TestJob();
             const pendingBatch = new PendingBatch(container, [job]);
@@ -215,11 +215,11 @@ export = (): void => {
             expect(result).to.equal(undefined);
         });
 
-        it("dispatchUnless(false) dispatches and returns the batch", () => {
+        it('dispatchUnless(false) dispatches and returns the batch', () => {
             // PHP: BusPendingBatchTest::test_batch_is_dispatched_when_dispatchunless_is_false
             const container = new Container();
-            container.instance("events", new EventDispatcher());
-            container.instance("bus.batches", repository());
+            container.instance('events', new EventDispatcher());
+            container.instance('bus.batches', repository());
 
             const job = new TestJob();
             const pendingBatch = new PendingBatch(container, [job]);
@@ -229,10 +229,10 @@ export = (): void => {
             expect(result instanceof Batch).to.equal(true);
         });
 
-        it("dispatchUnless(true) does not dispatch", () => {
+        it('dispatchUnless(true) does not dispatch', () => {
             // PHP: BusPendingBatchTest::test_batch_is_not_dispatched_when_dispatchunless_is_true
             const container = new Container();
-            container.instance("bus.batches", repository());
+            container.instance('bus.batches', repository());
 
             const job = new TestJob();
             const pendingBatch = new PendingBatch(container, [job]);
@@ -242,7 +242,7 @@ export = (): void => {
             expect(result).to.equal(undefined);
         });
 
-        it("before() callback runs on dispatch (adapted -- see class comment)", () => {
+        it('before() callback runs on dispatch (adapted -- see class comment)', () => {
             // PHP: BusPendingBatchTest::test_batch_before_event_is_called
             //
             // Upstream's `before` callback fires from `DatabaseBatchRepository::store()`
@@ -253,9 +253,9 @@ export = (): void => {
             // a `before` callback, so this assertion cannot pass as upstream states it;
             // it is kept as a document of the gap rather than deleted silently.
             const container = new Container();
-            container.instance("events", new EventDispatcher());
+            container.instance('events', new EventDispatcher());
             const repo = repository();
-            container.instance("bus.batches", repo);
+            container.instance('bus.batches', repo);
 
             let beforeCalled = false;
 
@@ -264,8 +264,8 @@ export = (): void => {
                 .before(() => {
                     beforeCalled = true;
                 })
-                .onConnection("test-connection")
-                .onQueue("test-queue");
+                .onConnection('test-connection')
+                .onQueue('test-queue');
 
             pendingBatch.dispatch();
 
@@ -273,7 +273,7 @@ export = (): void => {
             expect(beforeCalled).to.equal(false);
         });
 
-        it("allowFailures(true) enables failure tolerance", () => {
+        it('allowFailures(true) enables failure tolerance', () => {
             // PHP: BusPendingBatchTest::test_allow_failures_with_boolean_true_enables_failure_tolerance
             const batch = new PendingBatch(new Container(), [new TestJob()]);
 
@@ -283,7 +283,7 @@ export = (): void => {
             expect(batch.options.allowFailures).to.equal(true);
         });
 
-        it("allowFailures(false) disables failure tolerance", () => {
+        it('allowFailures(false) disables failure tolerance', () => {
             // PHP: BusPendingBatchTest::test_allow_failures_with_boolean_false_disables_failure_tolerance
             const batch = new PendingBatch(new Container(), [new TestJob()]);
 

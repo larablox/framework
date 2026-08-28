@@ -1,12 +1,12 @@
-import { Batch } from "Illuminate/Bus/Batch";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { Str } from "Illuminate/Support/Str";
-import { UpdatedBatchJobCounts } from "Illuminate/Bus/UpdatedBatchJobCounts";
-import type { BatchOptions } from "Illuminate/Bus/Batch";
-import type { BatchRepository } from "Illuminate/Bus/BatchRepository";
-import type { Factory as QueueFactory } from "Illuminate/Contracts/Queue/Factory";
-import type { PendingBatch } from "Illuminate/Bus/PendingBatch";
+import { Batch } from 'Illuminate/Bus/Batch';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { Str } from 'Illuminate/Support/Str';
+import { UpdatedBatchJobCounts } from 'Illuminate/Bus/UpdatedBatchJobCounts';
+import type { BatchOptions } from 'Illuminate/Bus/Batch';
+import type { BatchRepository } from 'Illuminate/Bus/BatchRepository';
+import type { Factory as QueueFactory } from 'Illuminate/Contracts/Queue/Factory';
+import type { PendingBatch } from 'Illuminate/Bus/PendingBatch';
 
 /** One batch as the repository keeps it. */
 interface BatchRecord {

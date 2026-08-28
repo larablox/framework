@@ -1,4 +1,4 @@
-import type { Listener } from "Illuminate/Contracts/Events/Dispatcher";
+import type { Listener } from 'Illuminate/Contracts/Events/Dispatcher';
 
 /** PHP: `Illuminate\Contracts\Queue\Monitor`. */
 export interface Monitor {

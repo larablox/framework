@@ -1,8 +1,8 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { Util } from "Illuminate/Container/Util";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Repository as ConfigContract } from "Illuminate/Contracts/Config/Repository";
+import { Arr } from 'Illuminate/Support/Arr';
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { Util } from 'Illuminate/Container/Util';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Repository as ConfigContract } from 'Illuminate/Contracts/Config/Repository';
 
 /**
  * PHP: `Illuminate\Config\Repository`.
@@ -33,7 +33,7 @@ export class Repository implements ConfigContract {
         const config: ArrayAccessible = {};
 
         for (const entry of keys) {
-            const [key, defaultValue] = typeIs(entry, "string") ? [entry, undefined] : entry;
+            const [key, defaultValue] = typeIs(entry, 'string') ? [entry, undefined] : entry;
 
             config[key] = Arr.get(this.items, key, defaultValue);
         }
@@ -45,7 +45,7 @@ export class Repository implements ConfigContract {
     public string(key: string, defaultValue?: unknown): string {
         const value = this.get(key, defaultValue);
 
-        if (!typeIs(value, "string")) {
+        if (!typeIs(value, 'string')) {
             throw new InvalidArgumentException(
                 `Configuration value for key [${key}] must be a string, ${typeOf(value)} given.`,
             );
@@ -58,7 +58,7 @@ export class Repository implements ConfigContract {
     public integer(key: string, defaultValue?: unknown): number {
         const value = this.get(key, defaultValue);
 
-        if (!typeIs(value, "number") || math.floor(value) !== value) {
+        if (!typeIs(value, 'number') || math.floor(value) !== value) {
             throw new InvalidArgumentException(
                 `Configuration value for key [${key}] must be an integer, ${typeOf(value)} given.`,
             );
@@ -71,7 +71,7 @@ export class Repository implements ConfigContract {
     public boolean(key: string, defaultValue?: unknown): boolean {
         const value = this.get(key, defaultValue);
 
-        if (!typeIs(value, "boolean")) {
+        if (!typeIs(value, 'boolean')) {
             throw new InvalidArgumentException(
                 `Configuration value for key [${key}] must be a boolean, ${typeOf(value)} given.`,
             );

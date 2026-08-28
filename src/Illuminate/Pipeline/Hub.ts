@@ -1,10 +1,10 @@
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { Pipeline } from "Illuminate/Pipeline/Pipeline";
-import { ContainerContract } from "Illuminate/Contracts/Container/Container";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Hub as HubContract } from "Illuminate/Contracts/Pipeline/Hub";
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { Pipeline } from 'Illuminate/Pipeline/Pipeline';
+import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Hub as HubContract } from 'Illuminate/Contracts/Pipeline/Hub';
 
 /** PHP: the closure a pipeline is registered with. */
 export type PipelineBuilder = (pipeline: Pipeline, passable: unknown) => unknown;
@@ -19,7 +19,7 @@ export class Hub implements HubContract {
 
     /** Define the default named pipeline. */
     public defaults(callback: PipelineBuilder): void {
-        this.pipeline("default", callback);
+        this.pipeline('default', callback);
     }
 
     /** Define a new named pipeline. */
@@ -28,7 +28,7 @@ export class Hub implements HubContract {
     }
 
     /** Send an object through one of the available pipelines. */
-    public pipe(object: unknown, pipeline = "default"): unknown {
+    public pipe(object: unknown, pipeline = 'default'): unknown {
         const builder = this.pipelines.get(pipeline);
 
         if (builder === undefined) {

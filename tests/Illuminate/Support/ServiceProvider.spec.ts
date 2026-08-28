@@ -36,7 +36,7 @@
  * from the PHP reference" rule, so this file stays empty of `it()`s.
  */
 export = (): void => {
-    describe("ServiceProvider", () => {
+    describe('ServiceProvider', () => {
         // Intentionally no it() blocks -- see the file-level comment above.
     });
 };

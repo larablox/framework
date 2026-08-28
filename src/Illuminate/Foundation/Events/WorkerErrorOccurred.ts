@@ -1,4 +1,4 @@
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
 
 /**
  * PHP: `Laravel\Octane\Events\WorkerErrorOccurred`.

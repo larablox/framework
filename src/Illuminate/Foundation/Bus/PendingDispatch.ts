@@ -1,10 +1,10 @@
-import { Container } from "Illuminate/Container/Container";
-import { UniqueLock } from "Illuminate/Bus/UniqueLock";
-import { isShouldBeUnique } from "Illuminate/Contracts/Queue/ShouldBeUnique";
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Queueable } from "Illuminate/Bus/Queueable";
-import type { Repository as Cache } from "Illuminate/Cache/Repository";
+import { Container } from 'Illuminate/Container/Container';
+import { UniqueLock } from 'Illuminate/Bus/UniqueLock';
+import { isShouldBeUnique } from 'Illuminate/Contracts/Queue/ShouldBeUnique';
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Queueable } from 'Illuminate/Bus/Queueable';
+import type { Repository as Cache } from 'Illuminate/Cache/Repository';
 
 /**
  * PHP: `Illuminate\Foundation\Bus\PendingDispatch`.
@@ -98,11 +98,11 @@ export class PendingDispatch {
 
         const container = Container.getInstance();
 
-        if (!container.bound("cache.store")) {
+        if (!container.bound('cache.store')) {
             return true;
         }
 
-        return new UniqueLock(container.make<Cache>("cache.store")).acquire(this.job);
+        return new UniqueLock(container.make<Cache>('cache.store')).acquire(this.job);
     }
 
     /** Hand the job to the bus, now rather than at the end of the cycle. */

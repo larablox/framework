@@ -1,9 +1,9 @@
-import { Collection } from "Illuminate/Support/Collection";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Route } from "Illuminate/Routing/Route";
-import { Str } from "Illuminate/Support/Str";
-import { Util } from "Illuminate/Container/Util";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Collection } from 'Illuminate/Support/Collection';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Route } from 'Illuminate/Routing/Route';
+import { Str } from 'Illuminate/Support/Str';
+import { Util } from 'Illuminate/Container/Util';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Routing\SortedMiddleware`.
@@ -76,8 +76,8 @@ export class SortedMiddleware extends Collection<number, Pipe> {
         // A class with its arguments beside it answers for the class.
         const target = Util.isArray(middleware) ? (middleware as Array<Pipe>)[0] : middleware;
 
-        if (typeIs(target, "string")) {
-            names.push(Str.before(target, ":"));
+        if (typeIs(target, 'string')) {
+            names.push(Str.before(target, ':'));
 
             return names;
         }
@@ -86,7 +86,7 @@ export class SortedMiddleware extends Collection<number, Pipe> {
         // class *name* there. Here a class is a table, so that check becomes
         // "is it a class": a closure -- or any other bare value -- names
         // nothing and stays where it is.
-        if (!typeIs(target, "table")) {
+        if (!typeIs(target, 'table')) {
             return names;
         }
 

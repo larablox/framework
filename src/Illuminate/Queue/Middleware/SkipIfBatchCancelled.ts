@@ -1,5 +1,5 @@
-import type { Batchable } from "Illuminate/Bus/Batchable";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
+import type { Batchable } from 'Illuminate/Bus/Batchable';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
 
 /** PHP: `Illuminate\Queue\Middleware\SkipIfBatchCancelled`. */
 export class SkipIfBatchCancelled {

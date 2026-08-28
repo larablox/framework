@@ -1,9 +1,9 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectThrows } from "../TestHelpers";
-import { Container } from "Illuminate/Container/Container";
-import { Pipeline } from "Illuminate/Pipeline/Pipeline";
-import { RuntimeException } from "Illuminate/Exception";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
+import { expectThrows } from '../TestHelpers';
+import { Container } from 'Illuminate/Container/Container';
+import { Pipeline } from 'Illuminate/Pipeline/Pipeline';
+import { RuntimeException } from 'Illuminate/Exception';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Tests\Pipeline\PipelineTestPipeOne` (module-level, not a
@@ -83,8 +83,8 @@ class PipelineTestParameterPipe {
  * from the container" code path while still giving the test a handle to inspect.
  */
 export = (): void => {
-    describe("Pipeline", () => {
-        it("runs a class pipe resolved from the container, then a closure pipe", () => {
+    describe('Pipeline', () => {
+        it('runs a class pipe resolved from the container, then a closure pipe', () => {
             // PHP: PipelineTest::testPipelineBasicUsage
             const container = new Container();
             const pipeOne = new PipelineTestPipeOne();
@@ -98,54 +98,54 @@ export = (): void => {
             };
 
             const result = new Pipeline(container)
-                .send("foo")
+                .send('foo')
                 .through([PipelineTestPipeOne, pipeTwo])
                 .then((piped) => piped);
 
-            expect(result).to.equal("foo");
-            expect(pipeOne.received).to.equal("foo");
-            expect(pipeTwoReceived).to.equal("foo");
+            expect(result).to.equal('foo');
+            expect(pipeOne.received).to.equal('foo');
+            expect(pipeTwoReceived).to.equal('foo');
         });
 
-        it("runs an already-constructed pipe object", () => {
+        it('runs an already-constructed pipe object', () => {
             // PHP: PipelineTest::testPipelineUsageWithObjects
             const pipeOne = new PipelineTestPipeOne();
 
             const result = new Pipeline(new Container())
-                .send("foo")
+                .send('foo')
                 .through([pipeOne])
                 .then((piped) => piped);
 
-            expect(result).to.equal("foo");
-            expect(pipeOne.received).to.equal("foo");
+            expect(result).to.equal('foo');
+            expect(pipeOne.received).to.equal('foo');
         });
 
-        it("accepts a bare callable, wrapped in an array or passed directly", () => {
+        it('accepts a bare callable, wrapped in an array or passed directly', () => {
             // PHP: PipelineTest::testPipelineUsageWithCallable
             let pipeOneCalled: string | undefined;
             const fn = (piped: unknown, _next: Next) => {
-                pipeOneCalled = "foo";
+                pipeOneCalled = 'foo';
 
                 return _next(piped);
             };
 
             const result = new Pipeline(new Container())
-                .send("foo")
+                .send('foo')
                 .through([fn])
                 .then((piped) => piped);
 
-            expect(result).to.equal("foo");
-            expect(pipeOneCalled).to.equal("foo");
+            expect(result).to.equal('foo');
+            expect(pipeOneCalled).to.equal('foo');
 
             pipeOneCalled = undefined;
 
-            const result2 = new Pipeline(new Container()).send("bar").through(fn).thenReturn();
+            const result2 = new Pipeline(new Container()).send('bar').through(fn).thenReturn();
 
-            expect(result2).to.equal("bar");
-            expect(pipeOneCalled).to.equal("foo");
+            expect(result2).to.equal('bar');
+            expect(pipeOneCalled).to.equal('foo');
         });
 
-        it("pipe() appends pipes onto the ones set by through()", () => {
+        it('pipe() appends pipes onto the ones set by through()', () => {
             // PHP: PipelineTest::testPipelineUsageWithPipe
             const object = { value: 0 };
             const fn = (obj: typeof object, _next: Next) => {
@@ -164,7 +164,7 @@ export = (): void => {
             expect(object.value).to.equal(2);
         });
 
-        it("through() overwrites previously set and appended pipes", () => {
+        it('through() overwrites previously set and appended pipes', () => {
             // PHP: PipelineTest::testPipelineThroughMethodOverwritesPreviouslySetAndAppendedPipes
             const object = { value: 0 };
             const fn = (obj: typeof object, _next: Next) => {
@@ -184,34 +184,34 @@ export = (): void => {
             expect(object.value).to.equal(1);
         });
 
-        it("then() and the remaining pipes are not called once a pipe returns without calling next()", () => {
+        it('then() and the remaining pipes are not called once a pipe returns without calling next()', () => {
             // PHP: PipelineTest::testThenMethodIsNotCalledIfThePipeReturns
-            let thenCalled = "(*_*)";
-            let secondCalled = "(*_*)";
+            let thenCalled = '(*_*)';
+            let secondCalled = '(*_*)';
 
             const result = new Pipeline(new Container())
-                .send("foo")
-                .through([(): string => "m(-_-)m", (): string => (secondCalled = "m(-_-)m")])
+                .send('foo')
+                .through([(): string => 'm(-_-)m', (): string => (secondCalled = 'm(-_-)m')])
                 .then((piped) => {
-                    thenCalled = "(0_0)";
+                    thenCalled = '(0_0)';
 
                     return piped;
                 });
 
-            expect(result).to.equal("m(-_-)m");
-            expect(thenCalled).to.equal("(*_*)");
-            expect(secondCalled).to.equal("(*_*)");
+            expect(result).to.equal('m(-_-)m');
+            expect(thenCalled).to.equal('(*_*)');
+            expect(secondCalled).to.equal('(*_*)');
         });
 
-        it("then() receives whatever a pipe passed to next(), not the original passable", () => {
+        it('then() receives whatever a pipe passed to next(), not the original passable', () => {
             // PHP: PipelineTest::testThenMethodInputValue
             let thenArg: unknown;
 
             const result = new Pipeline(new Container())
-                .send("foo")
+                .send('foo')
                 .through([
                     (value: unknown, _next: Next) => {
-                        const returned = _next("::not_foo::");
+                        const returned = _next('::not_foo::');
 
                         return `pipe::${returned}`;
                     },
@@ -222,43 +222,43 @@ export = (): void => {
                     return `then${piped}`;
                 });
 
-            expect(result).to.equal("pipe::then::not_foo::");
-            expect(thenArg).to.equal("::not_foo::");
+            expect(result).to.equal('pipe::then::not_foo::');
+            expect(thenArg).to.equal('::not_foo::');
         });
 
-        it("resolves a string pipe with colon-separated parameters", () => {
+        it('resolves a string pipe with colon-separated parameters', () => {
             // PHP: PipelineTest::testPipelineUsageWithParameters (adapted -- see class comment)
             const container = new Container();
             const parameterPipe = new PipelineTestParameterPipe();
-            container.instance("parameter-pipe", parameterPipe);
+            container.instance('parameter-pipe', parameterPipe);
 
             const result = new Pipeline(container)
-                .send("foo")
-                .through("parameter-pipe:one,two")
+                .send('foo')
+                .through('parameter-pipe:one,two')
                 .then((piped) => piped);
 
-            expect(result).to.equal("foo");
-            expect(parameterPipe.parameters?.[0]).to.equal("one");
-            expect(parameterPipe.parameters?.[1]).to.equal("two");
+            expect(result).to.equal('foo');
+            expect(parameterPipe.parameters?.[0]).to.equal('one');
+            expect(parameterPipe.parameters?.[1]).to.equal('two');
         });
 
-        it("via() changes the method called on the pipes", () => {
+        it('via() changes the method called on the pipes', () => {
             // PHP: PipelineTest::testPipelineViaChangesTheMethodBeingCalledOnThePipes
             const pipelineInstance = new Pipeline(new Container());
             const result = pipelineInstance
-                .send("data")
+                .send('data')
                 .through(PipelineTestPipeOne)
-                .via("differentMethod")
+                .via('differentMethod')
                 .then((piped) => piped);
 
-            expect(result).to.equal("data");
+            expect(result).to.equal('data');
         });
 
-        it("throws when resolving a pipe without a container", () => {
+        it('throws when resolving a pipe without a container', () => {
             // PHP: PipelineTest::testPipelineThrowsExceptionOnResolveWithoutContainer
             const [ok, err] = pcall(() =>
                 new Pipeline()
-                    .send("data")
+                    .send('data')
                     .through(PipelineTestPipeOne)
                     .then((piped) => piped),
             );
@@ -266,23 +266,23 @@ export = (): void => {
             expect(ok).to.equal(false);
             expect(err instanceof RuntimeException).to.equal(true);
             expect((err as RuntimeException).getMessage()).to.equal(
-                "A container instance has not been passed to the Pipeline.",
+                'A container instance has not been passed to the Pipeline.',
             );
         });
 
-        it("thenReturn() runs the pipeline and returns the passable", () => {
+        it('thenReturn() runs the pipeline and returns the passable', () => {
             // PHP: PipelineTest::testPipelineThenReturnMethodRunsPipelineThenReturnsPassable
             const container = new Container();
             const pipeOne = new PipelineTestPipeOne();
             container.instance(PipelineTestPipeOne, pipeOne);
 
-            const result = new Pipeline(container).send("foo").through([PipelineTestPipeOne]).thenReturn();
+            const result = new Pipeline(container).send('foo').through([PipelineTestPipeOne]).thenReturn();
 
-            expect(result).to.equal("foo");
-            expect(pipeOne.received).to.equal("foo");
+            expect(result).to.equal('foo');
+            expect(pipeOne.received).to.equal('foo');
         });
 
-        it("finally() runs after then(), seeing the original passable", () => {
+        it('finally() runs after then(), seeing the original passable', () => {
             // PHP: PipelineTest::testPipelineFinally
             const container = new Container();
             const pipeOne = new PipelineTestPipeOne();
@@ -299,7 +299,7 @@ export = (): void => {
 
             let finallyReceived: unknown;
             const result = new Pipeline(container)
-                .send("foo")
+                .send('foo')
                 .through([PipelineTestPipeOne, pipeTwo])
                 .finally((piped) => {
                     finallyReceived = piped;
@@ -307,12 +307,12 @@ export = (): void => {
                 .then((piped) => piped);
 
             expect(result).to.equal(undefined);
-            expect(pipeOne.received).to.equal("foo");
-            expect(pipeTwoReceived).to.equal("foo");
-            expect(finallyReceived).to.equal("foo");
+            expect(pipeOne.received).to.equal('foo');
+            expect(pipeTwoReceived).to.equal('foo');
+            expect(finallyReceived).to.equal('foo');
         });
 
-        it("finally() still runs when a pipe stops the chain without calling _next()", () => {
+        it('finally() still runs when a pipe stops the chain without calling _next()', () => {
             // PHP: PipelineTest::testPipelineFinallyMethodWhenChainIsStopped
             const container = new Container();
             const pipeOne = new PipelineTestPipeOne();
@@ -325,7 +325,7 @@ export = (): void => {
 
             let finallyReceived: unknown;
             const result = new Pipeline(container)
-                .send("foo")
+                .send('foo')
                 .through([PipelineTestPipeOne, pipeTwo])
                 .finally((piped) => {
                     finallyReceived = piped;
@@ -333,12 +333,12 @@ export = (): void => {
                 .then((piped) => piped);
 
             expect(result).to.equal(undefined);
-            expect(pipeOne.received).to.equal("foo");
-            expect(pipeTwoReceived).to.equal("foo");
-            expect(finallyReceived).to.equal("foo");
+            expect(pipeOne.received).to.equal('foo');
+            expect(pipeTwoReceived).to.equal('foo');
+            expect(finallyReceived).to.equal('foo');
         });
 
-        it("finally() runs after every pipe and then(), in order", () => {
+        it('finally() runs after every pipe and then(), in order', () => {
             // PHP: PipelineTest::testPipelineFinallyOrder
             const std = { value: 0 };
 
@@ -373,7 +373,7 @@ export = (): void => {
             expect((result as typeof std).value).to.equal(4);
         });
 
-        it("finally() runs when a pipe throws, before the exception propagates", () => {
+        it('finally() runs when a pipe throws, before the exception propagates', () => {
             // PHP: PipelineTest::testPipelineFinallyWhenExceptionOccurs
             const std = { value: 0 };
 
@@ -403,21 +403,21 @@ export = (): void => {
 
                             return typed;
                         }),
-                "My Exception: 1",
+                'My Exception: 1',
             );
 
             expect(std.value).to.equal(2);
         });
 
-        it("routes what handleCarry() throws through handleException()", () => {
+        it('routes what handleCarry() throws through handleException()', () => {
             // No upstream twin: pins the port to PHP's `try` shape, where
             // `handleCarry()` runs inside it -- Routing overrides it with
             // `toResponse()`, and what that throws must become a rendered
             // response, not an exception through the stack.
             class CarryHandlingPipeline extends Pipeline {
                 protected handleCarry(carry: unknown): unknown {
-                    if (carry === "boom") {
-                        throw new RuntimeException("carry exploded");
+                    if (carry === 'boom') {
+                        throw new RuntimeException('carry exploded');
                     }
 
                     return carry;
@@ -426,16 +426,16 @@ export = (): void => {
                 protected handleException(_passable: unknown, e: unknown): unknown {
                     expect(e instanceof RuntimeException).to.equal(true);
 
-                    return "handled";
+                    return 'handled';
                 }
             }
 
             const result = new CarryHandlingPipeline()
-                .send("payload")
-                .through([() => "boom"])
+                .send('payload')
+                .through([() => 'boom'])
                 .then((passable: unknown) => passable);
 
-            expect(result).to.equal("handled");
+            expect(result).to.equal('handled');
         });
     });
 };

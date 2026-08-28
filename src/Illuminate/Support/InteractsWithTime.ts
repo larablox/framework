@@ -20,14 +20,14 @@ export type Delay = number | DateTime;
 export class InteractsWithTime {
     /** Get the number of seconds until the given DateTime. */
     public static secondsUntil(delay: Delay): number {
-        return typeIs(delay, "number")
+        return typeIs(delay, 'number')
             ? math.floor(delay)
             : math.max(0, delay.UnixTimestamp - InteractsWithTime.currentTime());
     }
 
     /** Get the "available at" UNIX timestamp. */
     public static availableAt(delay: Delay = 0): number {
-        return typeIs(delay, "number") ? InteractsWithTime.currentTime() + math.floor(delay) : delay.UnixTimestamp;
+        return typeIs(delay, 'number') ? InteractsWithTime.currentTime() + math.floor(delay) : delay.UnixTimestamp;
     }
 
     /** Get the current system time as a UNIX timestamp. */

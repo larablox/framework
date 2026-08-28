@@ -1,14 +1,14 @@
 /// <reference types="@rbxts/testez/globals" />
-import { ArrayStore } from "Illuminate/Cache/ArrayStore";
-import { CacheManager } from "Illuminate/Cache/CacheManager";
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { NullStore } from "Illuminate/Cache/NullStore";
-import { Repository } from "Illuminate/Cache/Repository";
-import { Repository as ConfigRepository } from "Illuminate/Config/Repository";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
+import { ArrayStore } from 'Illuminate/Cache/ArrayStore';
+import { CacheManager } from 'Illuminate/Cache/CacheManager';
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { NullStore } from 'Illuminate/Cache/NullStore';
+import { Repository } from 'Illuminate/Cache/Repository';
+import { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
 
 /**
  * PHP: `Illuminate\Tests\Cache\CacheManagerTest`.
@@ -46,13 +46,13 @@ import type { ArrayAccessible } from "Illuminate/Support/Arr";
 /** Builds an `Application` out of a real `Container`, config included. */
 function makeApp(config: ArrayAccessible): Application {
     const container = new Container();
-    container.singleton("config", () => new ConfigRepository(config));
+    container.singleton('config', () => new ConfigRepository(config));
 
     return container as unknown as Application;
 }
 
 export = (): void => {
-    describe("CacheManager", () => {
+    describe('CacheManager', () => {
         // PHP: CacheManagerTest::testCustomDriverClosureBoundObjectIsCacheManager
         // (adapted -- PHP asserts the closure is bound to the `CacheManager`
         // instance via `Closure::fromCallable($this)`; there is no `$this`
@@ -61,49 +61,49 @@ export = (): void => {
         // below already covers.)
         //
         // PHP: CacheManagerTest::testCustomDriverStaticClosure
-        it("a custom driver creator registered with extend() is used to build the store", () => {
+        it('a custom driver creator registered with extend() is used to build the store', () => {
             const app = makeApp({
-                cache: { stores: { custom: { driver: "custom" } } },
+                cache: { stores: { custom: { driver: 'custom' } } },
             });
             const manager = new CacheManager(app);
             const driver = { flag: true };
 
-            manager.extend("custom", () => driver as never);
+            manager.extend('custom', () => driver as never);
 
-            expect(manager.store("custom")).to.equal(driver);
+            expect(manager.store('custom')).to.equal(driver);
         });
 
         // PHP: CacheManagerTest::test_custom_driver_overrides_internal_drivers
-        it("a custom creator for a built-in driver name overrides the built-in driver", () => {
+        it('a custom creator for a built-in driver name overrides the built-in driver', () => {
             const app = makeApp({
-                cache: { stores: { my_store: { driver: "array" } } },
+                cache: { stores: { my_store: { driver: 'array' } } },
             });
             const manager = new CacheManager(app);
-            const myArrayDriver = { flag: "mm(u_u)mm" };
+            const myArrayDriver = { flag: 'mm(u_u)mm' };
 
-            manager.extend("array", () => myArrayDriver as never);
+            manager.extend('array', () => myArrayDriver as never);
 
-            expect(manager.store("my_store")).to.equal(myArrayDriver);
+            expect(manager.store('my_store')).to.equal(myArrayDriver);
         });
 
         // PHP: CacheManagerTest::testItCanBuildRepositories
-        it("build() builds a repository straight from a driver config, without a registered store", () => {
+        it('build() builds a repository straight from a driver config, without a registered store', () => {
             const app = makeApp({});
             const manager = new CacheManager(app);
 
-            const arrayCache = manager.build({ driver: "array" });
-            const nullCache = manager.build({ driver: "null" });
+            const arrayCache = manager.build({ driver: 'array' });
+            const nullCache = manager.build({ driver: 'null' });
 
             expect(arrayCache.getStore() instanceof ArrayStore).to.equal(true);
             expect(nullCache.getStore() instanceof NullStore).to.equal(true);
         });
 
         // PHP: CacheManagerTest::testItMakesRepositoryWhenContainerHasNoDispatcher
-        it("repository() has no event dispatcher when the container has none bound", () => {
+        it('repository() has no event dispatcher when the container has none bound', () => {
             const app = makeApp({
-                cache: { stores: { my_store: { driver: "array" } } },
+                cache: { stores: { my_store: { driver: 'array' } } },
             });
-            expect(app.bound("events")).to.equal(false);
+            expect(app.bound('events')).to.equal(false);
 
             let manager = new CacheManager(app);
             const theStore = new NullStore();
@@ -113,7 +113,7 @@ export = (): void => {
             expect(repo.getStore()).to.equal(theStore);
 
             // Binding a dispatcher after the repository's birth has no effect.
-            app.bind("events", () => new Dispatcher());
+            app.bind('events', () => new Dispatcher());
 
             expect(repo.getEventDispatcher()).to.equal(undefined);
 
@@ -124,122 +124,122 @@ export = (): void => {
         });
 
         // PHP: CacheManagerTest::testItSetsDefaultDriverChangesGlobalConfig
-        it("setDefaultDriver() writes cache.default in the shared config", () => {
+        it('setDefaultDriver() writes cache.default in the shared config', () => {
             const app = makeApp({
                 cache: {
-                    default: "store_1",
-                    stores: { store_1: { driver: "array" } },
+                    default: 'store_1',
+                    stores: { store_1: { driver: 'array' } },
                 },
             });
             const manager = new CacheManager(app);
 
-            manager.setDefaultDriver("><((((@>");
+            manager.setDefaultDriver('><((((@>');
 
-            expect(app.make<ConfigRepository>("config").get("cache.default")).to.equal("><((((@>");
+            expect(app.make<ConfigRepository>('config').get('cache.default')).to.equal('><((((@>');
         });
 
         // PHP: CacheManagerTest::testItPurgesMemoizedStoreObjects (adapted --
         // no MemoizedStore here, see class comment; asserts the same "purge()
         // drops only the named cached repository" contract)
-        it("purge() only drops the named cached repository, and the rest are memoized between store() calls", () => {
+        it('purge() only drops the named cached repository, and the rest are memoized between store() calls', () => {
             const app = makeApp({
                 cache: {
                     stores: {
-                        store_1: { driver: "array" },
-                        store_2: { driver: "null" },
+                        store_1: { driver: 'array' },
+                        store_2: { driver: 'null' },
                     },
                 },
             });
             const manager = new CacheManager(app);
 
-            const repo1 = manager.store("store_1");
-            const repo2 = manager.store("store_1");
-            const repo3 = manager.store("store_2");
-            const repo4 = manager.store("store_2");
+            const repo1 = manager.store('store_1');
+            const repo2 = manager.store('store_1');
+            const repo3 = manager.store('store_2');
+            const repo4 = manager.store('store_2');
 
             expect(repo1).to.equal(repo2);
             expect(repo3).to.equal(repo4);
             expect(repo1).never.to.equal(repo3);
 
-            manager.purge("store_1");
+            manager.purge('store_1');
 
-            const repo5 = manager.store("store_1");
+            const repo5 = manager.store('store_1');
             expect(repo5).never.to.equal(repo1);
 
-            const repo6 = manager.store("store_2");
+            const repo6 = manager.store('store_2');
             expect(repo6).to.equal(repo3);
         });
 
         // PHP: CacheManagerTest::testForgetDriverForgets
-        it("forgetDriver() drops the cached repository so a fresh one is built next time", () => {
+        it('forgetDriver() drops the cached repository so a fresh one is built next time', () => {
             const manager = new CacheManager(
                 makeApp({
-                    cache: { stores: { forget: { driver: "forget" } } },
+                    cache: { stores: { forget: { driver: 'forget' } } },
                 }),
             );
-            manager.extend("forget", () => new ArrayStore() as never);
+            manager.extend('forget', () => new ArrayStore() as never);
 
-            manager.store("forget").forever("foo", "bar");
-            expect(manager.store("forget").get("foo")).to.equal("bar");
+            manager.store('forget').forever('foo', 'bar');
+            expect(manager.store('forget').get('foo')).to.equal('bar');
 
-            manager.forgetDriver("forget");
+            manager.forgetDriver('forget');
 
-            expect(manager.store("forget").get("foo")).to.equal(undefined);
+            expect(manager.store('forget').get('foo')).to.equal(undefined);
         });
 
         // PHP: CacheManagerTest::testThrowExceptionWhenUnknownDriverIsUsed
-        it("resolving an unknown driver throws", () => {
+        it('resolving an unknown driver throws', () => {
             const manager = new CacheManager(
                 makeApp({
                     cache: {
                         stores: {
-                            my_store: { driver: "unknown_taxi_driver" },
+                            my_store: { driver: 'unknown_taxi_driver' },
                         },
                     },
                 }),
             );
 
-            const [ok, err] = pcall(() => manager.store("my_store"));
+            const [ok, err] = pcall(() => manager.store('my_store'));
 
             expect(ok).to.equal(false);
             expect(err instanceof InvalidArgumentException).to.equal(true);
         });
 
         // PHP: CacheManagerTest::testThrowExceptionWhenUnknownStoreIsUsed
-        it("resolving an undefined store throws", () => {
+        it('resolving an undefined store throws', () => {
             const manager = new CacheManager(
                 makeApp({
-                    cache: { stores: { my_store: { driver: "array" } } },
+                    cache: { stores: { my_store: { driver: 'array' } } },
                 }),
             );
 
-            const [ok, err] = pcall(() => manager.store("alien_store"));
+            const [ok, err] = pcall(() => manager.store('alien_store'));
 
             expect(ok).to.equal(false);
             expect(err instanceof InvalidArgumentException).to.equal(true);
         });
 
         // PHP: CacheManagerTest::testMakesRepositoryWithoutDispatcherWhenEventsDisabled
-        it("events: false in the store config skips the event dispatcher", () => {
+        it('events: false in the store config skips the event dispatcher', () => {
             const app = makeApp({
                 cache: {
                     stores: {
-                        my_store: { driver: "array" },
+                        my_store: { driver: 'array' },
                         my_store_without_events: {
-                            driver: "array",
+                            driver: 'array',
                             events: false,
                         },
                     },
                 },
             });
-            app.bind("events", () => new Dispatcher());
+            app.bind('events', () => new Dispatcher());
 
             const manager = new CacheManager(app);
 
-            const repo = manager.store("my_store") as Repository;
+            const repo = manager.store('my_store') as Repository;
             expect(repo.getEventDispatcher()).never.to.equal(undefined);
 
-            const repoWithoutEvents = manager.store("my_store_without_events") as Repository;
+            const repoWithoutEvents = manager.store('my_store_without_events') as Repository;
             expect(repoWithoutEvents.getEventDispatcher()).to.equal(undefined);
         });
     });

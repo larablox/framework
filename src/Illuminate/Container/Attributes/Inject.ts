@@ -1,10 +1,10 @@
-import { BindingResolutionException } from "Illuminate/Contracts/Container/BindingResolutionException";
-import { Reflector } from "Illuminate/Support/Reflector";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** The method key used for constructor parameters. */
-export const CONSTRUCTOR = "constructor";
+export const CONSTRUCTOR = 'constructor';
 
 /**
  * One attribute applied to a parameter: the decorator factory, which stands in
@@ -34,7 +34,7 @@ const injected = new Map<object, Map<string, Map<number, ParameterDependency>>>(
 
 /** Get, creating on the way, the record for one parameter. */
 function declarationFor(target: object, propertyKey: unknown, parameterIndex: number): ParameterDependency {
-    const method = typeIs(propertyKey, "string") ? propertyKey : CONSTRUCTOR;
+    const method = typeIs(propertyKey, 'string') ? propertyKey : CONSTRUCTOR;
 
     let methods = injected.get(target);
 
@@ -129,7 +129,7 @@ export function addParameterAttribute(
  * parent's dependencies -- annotate it to override them.
  */
 export function getInjectedDependencies(target: unknown, method: string = CONSTRUCTOR): Array<ParameterDependency> {
-    if (!typeIs(target, "table")) {
+    if (!typeIs(target, 'table')) {
         return [];
     }
 

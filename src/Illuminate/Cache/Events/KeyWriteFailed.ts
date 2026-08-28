@@ -1,4 +1,4 @@
-import { CacheEvent } from "Illuminate/Cache/Events/CacheEvent";
+import { CacheEvent } from 'Illuminate/Cache/Events/CacheEvent';
 
 /** PHP: `IlluminateCacheEvents${name}`. */
 export class KeyWriteFailed extends CacheEvent {

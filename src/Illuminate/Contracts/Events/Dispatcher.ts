@@ -1,4 +1,4 @@
-import type { Abstract } from "Illuminate/Container/Types";
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `string|object $event`. An event is named either by a plain string or by

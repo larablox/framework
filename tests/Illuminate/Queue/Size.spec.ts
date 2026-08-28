@@ -1,7 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { MemoryQueue } from "Illuminate/Queue/MemoryQueue";
-import { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
+import { Container } from 'Illuminate/Container/Container';
+import { MemoryQueue } from 'Illuminate/Queue/MemoryQueue';
+import { MemoryStoreQueue } from 'Illuminate/Queue/MemoryStoreQueue';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueSizeTest`.
@@ -16,7 +16,7 @@ import { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
  * out is reserved, not pending, and still counts towards `size()`.
  */
 
-const HttpService = game.GetService("HttpService");
+const HttpService = game.GetService('HttpService');
 /** Every queue this run made -- see `MemoryStoreQueue.spec.ts`'s `drain()`. */
 const made: Array<MemoryStoreQueue> = [];
 
@@ -37,42 +37,42 @@ function drain(): void {
  * reasoning at length.
  */
 function memoryStoreQueue(): MemoryStoreQueue {
-    const queue = new MemoryStoreQueue(HttpService.GenerateGUID(false), 60, 0, 30, "queue-test:");
+    const queue = new MemoryStoreQueue(HttpService.GenerateGUID(false), 60, 0, 30, 'queue-test:');
     made.push(queue);
 
     return queue;
 }
 
 export = (): void => {
-    describe("Size", () => {
+    describe('Size', () => {
         afterAll(drain);
 
         // PHP: QueueSizeTest::test_queue_size
-        it("size() counts jobs per queue on MemoryQueue", () => {
+        it('size() counts jobs per queue on MemoryQueue', () => {
             const queue = new MemoryQueue();
             queue.setContainer(new Container());
 
             expect(queue.size()).to.equal(0);
-            expect(queue.size("Q2")).to.equal(0);
+            expect(queue.size('Q2')).to.equal(0);
 
-            queue.push("TestJob1", []);
-            queue.push("TestJob2", []);
-            queue.push("TestJob1", [], "Q2");
+            queue.push('TestJob1', []);
+            queue.push('TestJob2', []);
+            queue.push('TestJob1', [], 'Q2');
 
             expect(queue.size()).to.equal(2);
-            expect(queue.size("Q2")).to.equal(1);
+            expect(queue.size('Q2')).to.equal(1);
         });
 
         // PHP: QueueSizeTest::test_queue_size, against the driver upstream's
         // `Queue::fake()` stands in for
-        it("size() counts pushed jobs on MemoryStoreQueue", () => {
+        it('size() counts pushed jobs on MemoryStoreQueue', () => {
             const queue = memoryStoreQueue();
             queue.setContainer(new Container());
 
             expect(queue.size()).to.equal(0);
 
-            queue.push("TestJob1", []);
-            queue.push("TestJob2", []);
+            queue.push('TestJob1', []);
+            queue.push('TestJob2', []);
 
             expect(queue.size()).to.equal(2);
             expect(queue.pendingSize()).to.equal(2);
@@ -83,11 +83,11 @@ export = (): void => {
         // `:reserved` sorted set, where `zcard` counts it; MemoryStore keeps
         // it in the same queue and only turns it invisible, so this pins down
         // that the two still report the same three numbers.
-        it("a popped job counts as reserved, not pending, and still counts towards size()", () => {
+        it('a popped job counts as reserved, not pending, and still counts towards size()', () => {
             const queue = memoryStoreQueue();
             queue.setContainer(new Container());
 
-            queue.push("TestJob1", []);
+            queue.push('TestJob1', []);
             queue.pop();
 
             expect(queue.size()).to.equal(1);
@@ -97,11 +97,11 @@ export = (): void => {
 
         // PHP: no direct equivalent -- `later()` writes to the `:delayed`
         // sorted set, counted separately from the list
-        it("a delayed job counts as delayed, not pending", () => {
+        it('a delayed job counts as delayed, not pending', () => {
             const queue = memoryStoreQueue();
             queue.setContainer(new Container());
 
-            queue.later(60, "TestJob1", []);
+            queue.later(60, 'TestJob1', []);
 
             expect(queue.delayedSize()).to.equal(1);
             expect(queue.pendingSize()).to.equal(0);

@@ -1,5 +1,5 @@
-import type { Dispatcher as DispatcherContract, EventName, Listener } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Abstract } from "Illuminate/Container/Types";
+import type { Dispatcher as DispatcherContract, EventName, Listener } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `Illuminate\Events\NullDispatcher`.

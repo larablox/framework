@@ -1,7 +1,7 @@
-import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
-import type { LogManager } from "Illuminate/Log/LogManager";
+import { addParameterAttribute } from 'Illuminate/Container/Attributes/Inject';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
+import type { LogManager } from 'Illuminate/Log/LogManager';
 
 /**
  * PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] class Log`.
@@ -19,7 +19,7 @@ export function Log(channel?: string) {
     const instance: Log = {
         channel,
         resolve: (attribute: never, container: Container) =>
-            container.make<LogManager>("log").channel((attribute as Log).channel),
+            container.make<LogManager>('log').channel((attribute as Log).channel),
     };
 
     return (owner: object, propertyKey: unknown, parameterIndex: number): void => {

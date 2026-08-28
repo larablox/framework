@@ -1,10 +1,10 @@
-import { MemoryStoreLock } from "Illuminate/Cache/MemoryStoreLock";
-import { Serializer } from "Illuminate/Support/Serializer";
-import type { Lock } from "Illuminate/Contracts/Cache/Lock";
-import type { LockProvider } from "Illuminate/Contracts/Cache/LockProvider";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import { MemoryStoreLock } from 'Illuminate/Cache/MemoryStoreLock';
+import { Serializer } from 'Illuminate/Support/Serializer';
+import type { Lock } from 'Illuminate/Contracts/Cache/Lock';
+import type { LockProvider } from 'Illuminate/Contracts/Cache/LockProvider';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
-const MemoryStoreService = game.GetService("MemoryStoreService");
+const MemoryStoreService = game.GetService('MemoryStoreService');
 
 /** The longest a MemoryStore item may live: 45 days. */
 export const MAX_EXPIRATION = 3_888_000;
@@ -27,8 +27,8 @@ export const MAX_EXPIRATION = 3_888_000;
 export class MemoryStoreStore implements Store, LockProvider {
     /** Create a new MemoryStore store. */
     public constructor(
-        protected readonly mapName = "cache",
-        protected readonly prefix = "",
+        protected readonly mapName = 'cache',
+        protected readonly prefix = '',
         protected readonly defaultExpiration = MAX_EXPIRATION,
     ) {}
 
@@ -165,12 +165,12 @@ export class MemoryStoreStore implements Store, LockProvider {
 
     /** Numbers travel as they are; everything else is serialised. */
     protected encode(value: unknown): unknown {
-        return typeIs(value, "number") ? value : Serializer.serialize(value);
+        return typeIs(value, 'number') ? value : Serializer.serialize(value);
     }
 
     /** Read a value back out of storage. */
     protected decode(value: unknown): unknown {
-        if (value === undefined || typeIs(value, "number")) {
+        if (value === undefined || typeIs(value, 'number')) {
             return value;
         }
 

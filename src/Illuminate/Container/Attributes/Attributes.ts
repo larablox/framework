@@ -27,7 +27,7 @@ export class Attributes {
 
     /** PHP: `(new ReflectionClass($target))->getAttributes($attribute)`. */
     public static get<T extends object>(target: unknown, attribute: Callback): Array<T> {
-        if (!typeIs(target, "table")) {
+        if (!typeIs(target, 'table')) {
             return [];
         }
 
@@ -55,7 +55,7 @@ export class Attributes {
 
     /** PHP: `(new ReflectionClass($target))->getAttributes()` with no filter. */
     public static all(target: unknown): Array<[Callback, object]> {
-        if (!typeIs(target, "table")) {
+        if (!typeIs(target, 'table')) {
             return [];
         }
 

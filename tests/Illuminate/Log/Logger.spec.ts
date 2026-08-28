@@ -1,14 +1,14 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectThrows } from "../TestHelpers";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { Logger } from "Illuminate/Log/Logger";
-import { MessageLogged } from "Illuminate/Log/Events/MessageLogged";
-import { NullHandler } from "@larablox/monolog/out/Monolog/Handler/NullHandler";
-import { TestHandler } from "@larablox/monolog/out/Monolog/Handler/TestHandler";
-import { Level } from "@larablox/monolog/out/Monolog/Level";
-import { Logger as Monolog } from "@larablox/monolog/out/Monolog/Logger";
-import type { Dispatcher as DispatcherContract, EventName, Listener } from "Illuminate/Contracts/Events/Dispatcher";
-import type { LogContext, LogLevel, Logger as LoggerContract } from "Illuminate/Contracts/Log/Logger";
+import { expectThrows } from '../TestHelpers';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { Logger } from 'Illuminate/Log/Logger';
+import { MessageLogged } from 'Illuminate/Log/Events/MessageLogged';
+import { NullHandler } from '@larablox/monolog/out/Monolog/Handler/NullHandler';
+import { TestHandler } from '@larablox/monolog/out/Monolog/Handler/TestHandler';
+import { Level } from '@larablox/monolog/out/Monolog/Level';
+import { Logger as Monolog } from '@larablox/monolog/out/Monolog/Logger';
+import type { Dispatcher as DispatcherContract, EventName, Listener } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { LogContext, LogLevel, Logger as LoggerContract } from 'Illuminate/Contracts/Log/Logger';
 
 /**
  * PHP: `Illuminate\Tests\Log\LogLoggerTest`.
@@ -56,35 +56,35 @@ class RecordingLogger implements LoggerContract {
     }
 
     public emergency(message: unknown, context: LogContext = {}): void {
-        this.log("emergency", message, context);
+        this.log('emergency', message, context);
     }
 
     public alert(message: unknown, context: LogContext = {}): void {
-        this.log("alert", message, context);
+        this.log('alert', message, context);
     }
 
     public critical(message: unknown, context: LogContext = {}): void {
-        this.log("critical", message, context);
+        this.log('critical', message, context);
     }
 
     public error(message: unknown, context: LogContext = {}): void {
-        this.log("error", message, context);
+        this.log('error', message, context);
     }
 
     public warning(message: unknown, context: LogContext = {}): void {
-        this.log("warning", message, context);
+        this.log('warning', message, context);
     }
 
     public notice(message: unknown, context: LogContext = {}): void {
-        this.log("notice", message, context);
+        this.log('notice', message, context);
     }
 
     public info(message: unknown, context: LogContext = {}): void {
-        this.log("info", message, context);
+        this.log('info', message, context);
     }
 
     public debug(message: unknown, context: LogContext = {}): void {
-        this.log("debug", message, context);
+        this.log('debug', message, context);
     }
 
     public log(level: LogLevel, message: unknown, context: LogContext = {}): void {
@@ -124,57 +124,57 @@ class RecordingDispatcher implements DispatcherContract {
 }
 
 export = (): void => {
-    describe("Logger", () => {
-        it("passes error() through to the underlying logger with an empty context", () => {
+    describe('Logger', () => {
+        it('passes error() through to the underlying logger with an empty context', () => {
             // PHP: LogLoggerTest::testMethodsPassErrorAdditionsToMonolog
             const monolog = new RecordingLogger();
             const writer = new Logger(monolog);
 
-            writer.error("foo");
+            writer.error('foo');
 
             expect(monolog.calls.size()).to.equal(1);
-            expect(monolog.calls[0].level).to.equal("error");
-            expect(monolog.calls[0].message).to.equal("foo");
+            expect(monolog.calls[0].level).to.equal('error');
+            expect(monolog.calls[0].message).to.equal('foo');
             expect(next(monolog.calls[0].context)[0]).to.equal(undefined);
         });
 
-        it("withContext() adds context to all subsequent logs", () => {
+        it('withContext() adds context to all subsequent logs', () => {
             // PHP: LogLoggerTest::testContextIsAddedToAllSubsequentLogs
             const monolog = new RecordingLogger();
             const writer = new Logger(monolog);
-            writer.withContext({ bar: "baz" });
+            writer.withContext({ bar: 'baz' });
 
-            writer.error("foo");
+            writer.error('foo');
 
-            expect(monolog.calls[0].context.bar).to.equal("baz");
+            expect(monolog.calls[0].context.bar).to.equal('baz');
         });
 
-        it("withoutContext() flushes the context", () => {
+        it('withoutContext() flushes the context', () => {
             // PHP: LogLoggerTest::testContextIsFlushed
             const monolog = new RecordingLogger();
             const writer = new Logger(monolog);
-            writer.withContext({ bar: "baz" });
+            writer.withContext({ bar: 'baz' });
             writer.withoutContext();
 
-            writer.error("foo");
+            writer.error('foo');
 
             expect(next(monolog.calls[0].context)[0]).to.equal(undefined);
         });
 
-        it("withoutContext(keys) removes only the given keys for subsequent logs", () => {
+        it('withoutContext(keys) removes only the given keys for subsequent logs', () => {
             // PHP: LogLoggerTest::testContextKeysCanBeRemovedForSubsequentLogs
             const monolog = new RecordingLogger();
             const writer = new Logger(monolog);
-            writer.withContext({ bar: "baz", forget: "me" });
-            writer.withoutContext(["forget"]);
+            writer.withContext({ bar: 'baz', forget: 'me' });
+            writer.withoutContext(['forget']);
 
-            writer.error("foo");
+            writer.error('foo');
 
-            expect(monolog.calls[0].context.bar).to.equal("baz");
+            expect(monolog.calls[0].context.bar).to.equal('baz');
             expect(monolog.calls[0].context.forget).to.equal(undefined);
         });
 
-        it("fires MessageLogged through the event dispatcher", () => {
+        it('fires MessageLogged through the event dispatcher', () => {
             // PHP: LogLoggerTest::testLoggerFiresEventsDispatcher
             const monolog = new RecordingLogger();
             const events = new Dispatcher();
@@ -190,26 +190,26 @@ export = (): void => {
                 context = event.context;
             });
 
-            writer.error("foo");
+            writer.error('foo');
 
-            expect(level).to.equal("error");
-            expect(message).to.equal("foo");
+            expect(level).to.equal('error');
+            expect(message).to.equal('foo');
             expect(next(context as LogContext)[0]).to.equal(undefined);
         });
 
-        it("listen() throws without a dispatcher set", () => {
+        it('listen() throws without a dispatcher set', () => {
             // PHP: LogLoggerTest::testListenShortcutFailsWithNoDispatcher
             const writer = new Logger(new RecordingLogger());
 
-            expectThrows(() => writer.listen(() => {}), "Events dispatcher has not been set.");
+            expectThrows(() => writer.listen(() => {}), 'Events dispatcher has not been set.');
         });
 
-        it("listen() shortcut registers the callback against MessageLogged", () => {
+        it('listen() shortcut registers the callback against MessageLogged', () => {
             // PHP: LogLoggerTest::testListenShortcut
             const events = new RecordingDispatcher();
             const writer = new Logger(new RecordingLogger(), events);
 
-            const callback = () => "success";
+            const callback = () => 'success';
             writer.listen(callback);
 
             expect(events.listenCalls.size()).to.equal(1);
@@ -217,61 +217,61 @@ export = (): void => {
             expect(events.listenCalls[0][1]).to.equal(callback);
         });
 
-        it("performs complex context manipulation across multiple withContext()/withoutContext() calls", () => {
+        it('performs complex context manipulation across multiple withContext()/withoutContext() calls', () => {
             // PHP: LogLoggerTest::testComplexContextManipulation
             const monolog = new RecordingLogger();
             const writer = new Logger(monolog);
 
-            writer.withContext({ user_id: 123, action: "login" });
-            writer.withContext({ ip: "127.0.0.1", timestamp: "1986-10-29" });
-            writer.withoutContext(["timestamp"]);
+            writer.withContext({ user_id: 123, action: 'login' });
+            writer.withContext({ ip: '127.0.0.1', timestamp: '1986-10-29' });
+            writer.withoutContext(['timestamp']);
 
-            writer.info("User action");
+            writer.info('User action');
 
             const context = monolog.calls[0].context;
 
             expect(context.user_id).to.equal(123);
-            expect(context.action).to.equal("login");
-            expect(context.ip).to.equal("127.0.0.1");
+            expect(context.action).to.equal('login');
+            expect(context.ip).to.equal('127.0.0.1');
             expect(context.timestamp).to.equal(undefined);
         });
 
-        it("does not call the underlying logger when the level is not handled", () => {
+        it('does not call the underlying logger when the level is not handled', () => {
             // Adapted from LogLoggerTest -- exercises writeLog()'s isHandling()
             // gate with a real Monolog logger + TestHandler, the same mechanic
             // testSkipsSerializationWhenLogLevelNotHandled exercised upstream
             // (its Arrayable-serialization half is not ported, see class
             // comment).
-            const monolog = new Monolog("test");
+            const monolog = new Monolog('test');
             const handler = new TestHandler(Level.Error);
             monolog.pushHandler(handler);
 
             const writer = new Logger(monolog);
-            writer.debug("test");
+            writer.debug('test');
 
             expect(handler.hasDebugRecords()).to.equal(false);
         });
 
-        it("calls through to the underlying logger when the level is handled", () => {
+        it('calls through to the underlying logger when the level is handled', () => {
             // Adapted from LogLoggerTest -- see the previous test's comment.
-            const monolog = new Monolog("test");
+            const monolog = new Monolog('test');
             const handler = new TestHandler(Level.Debug);
             monolog.pushHandler(handler);
 
             const writer = new Logger(monolog);
-            writer.debug("test");
+            writer.debug('test');
 
             expect(handler.hasDebugRecords()).to.equal(true);
         });
 
-        it("getLogger() returns the underlying logger", () => {
-            const monolog = new Monolog("test", [new NullHandler()]);
+        it('getLogger() returns the underlying logger', () => {
+            const monolog = new Monolog('test', [new NullHandler()]);
             const writer = new Logger(monolog);
 
             expect(writer.getLogger()).to.equal(monolog);
         });
 
-        it("getEventDispatcher()/setEventDispatcher() round-trip", () => {
+        it('getEventDispatcher()/setEventDispatcher() round-trip', () => {
             const writer = new Logger(new RecordingLogger());
 
             expect(writer.getEventDispatcher()).to.equal(undefined);

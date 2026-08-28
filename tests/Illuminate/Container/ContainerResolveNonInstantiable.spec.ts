@@ -1,7 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { Variadic } from "Illuminate/Container/Attributes/Variadic";
+import { Container } from 'Illuminate/Container/Container';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { Variadic } from 'Illuminate/Container/Attributes/Variadic';
 
 /**
  * PHP: `Illuminate\Tests\Container\ContainerResolveNonInstantiableTest`.
@@ -21,7 +21,7 @@ import { Variadic } from "Illuminate/Container/Attributes/Variadic";
  * an annotated, overridable `i`, which is exactly the unsupported case.
  */
 export = (): void => {
-    describe("Container resolve non-instantiable", () => {
+    describe('Container resolve non-instantiable', () => {
         abstract class TestInterface {}
 
         class ChildClass {
@@ -38,28 +38,28 @@ export = (): void => {
         class VariadicParentClass {
             public constructor(
                 @Inject(ChildClass) public readonly child: ChildClass,
-                @Inject("$i") public readonly i = 0,
+                @Inject('$i') public readonly i = 0,
             ) {}
         }
 
         class VariadicPrimitive {
             public readonly params: Array<unknown>;
 
-            public constructor(@Variadic("$params") ...params: Array<unknown>) {
+            public constructor(@Variadic('$params') ...params: Array<unknown>) {
                 this.params = params;
             }
         }
 
-        it("resolving a variadic non-instantiable dependency still resets the parameter stack", () => {
+        it('resolving a variadic non-instantiable dependency still resets the parameter stack', () => {
             // PHP: ContainerResolveNonInstantiableTest::testResolvingNonInstantiableWithVariadicRemovesWiths
             const container = new Container();
-            const parent = container.make(VariadicParentClass, new Map([["$i", 42]]));
+            const parent = container.make(VariadicParentClass, new Map([['$i', 42]]));
 
             expect(parent.child.objects.size()).to.equal(0);
             expect(parent.i).to.equal(42);
         });
 
-        it("a variadic primitive dependency with nothing bound resolves to an empty list", () => {
+        it('a variadic primitive dependency with nothing bound resolves to an empty list', () => {
             // PHP: ContainerResolveNonInstantiableTest::testResolveVariadicPrimitive
             const container = new Container();
             const parent = container.make(VariadicPrimitive);

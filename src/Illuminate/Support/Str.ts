@@ -1,15 +1,15 @@
-import { Collection } from "Illuminate/Support/Collection";
-import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
-import { Pluralizer } from "Illuminate/Support/Pluralizer";
-import { Tappable } from "Illuminate/Support/Traits/Tappable";
-import * as Unicode from "Illuminate/Support/Unicode";
-import { Util } from "Illuminate/Container/Util";
+import { Collection } from 'Illuminate/Support/Collection';
+import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
+import { Pluralizer } from 'Illuminate/Support/Pluralizer';
+import { Tappable } from 'Illuminate/Support/Traits/Tappable';
+import * as Unicode from 'Illuminate/Support/Unicode';
+import { Util } from 'Illuminate/Container/Util';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
-import type { JsonSerializable } from "Illuminate/Contracts/Support/JsonSerializable";
+import type { ConditionableShape } from 'Illuminate/Support/Traits/Conditionable';
+import type { JsonSerializable } from 'Illuminate/Contracts/Support/JsonSerializable';
 
 /** Characters Luau's pattern matcher treats as magic. */
-const MAGIC = "([%^%$%(%)%%%.%[%]%*%+%-%?])";
+const MAGIC = '([%^%$%(%)%%%.%[%]%*%+%-%?])';
 
 /**
  * `tonumber()`, but only for spellings PHP also reads as numeric.
@@ -52,14 +52,14 @@ const INVISIBLE_CODEPOINTS = new Set<number>([
     0x1d177, 0x1d178, 0x1d179, 0x1d17a, 0xe0020,
 ]);
 
-const LOWER_ALPHABET = "abcdefghijklmnopqrstuvwxyz";
-const UPPER_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const DIGITS = "0123456789";
-const SYMBOLS = "~!#$%^&*()-_.,<>?/\\{}[]|:;";
-const BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const LOWER_ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
+const UPPER_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const DIGITS = '0123456789';
+const SYMBOLS = '~!#$%^&*()-_.,<>?/\\{}[]|:;';
+const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 /** Crockford's base32, as ULID uses. */
-const CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 
 /**
  * A reduced transliteration table.
@@ -69,69 +69,69 @@ const CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
  * meets; anything else is dropped by `slug()` rather than transliterated.
  */
 const ASCII_TABLE: Array<[string, string]> = [
-    ["à", "a"],
-    ["á", "a"],
-    ["â", "a"],
-    ["ã", "a"],
-    ["ä", "a"],
-    ["å", "a"],
-    ["è", "e"],
-    ["é", "e"],
-    ["ê", "e"],
-    ["ë", "e"],
-    ["ì", "i"],
-    ["í", "i"],
-    ["î", "i"],
-    ["ï", "i"],
-    ["ò", "o"],
-    ["ó", "o"],
-    ["ô", "o"],
-    ["õ", "o"],
-    ["ö", "o"],
-    ["ø", "o"],
-    ["ù", "u"],
-    ["ú", "u"],
-    ["û", "u"],
-    ["ü", "u"],
-    ["ý", "y"],
-    ["ÿ", "y"],
-    ["ñ", "n"],
-    ["ç", "c"],
-    ["ß", "ss"],
-    ["æ", "ae"],
-    ["а", "a"],
-    ["б", "b"],
-    ["в", "v"],
-    ["г", "g"],
-    ["д", "d"],
-    ["е", "e"],
-    ["ё", "e"],
-    ["ж", "zh"],
-    ["з", "z"],
-    ["и", "i"],
-    ["й", "i"],
-    ["к", "k"],
-    ["л", "l"],
-    ["м", "m"],
-    ["н", "n"],
-    ["о", "o"],
-    ["п", "p"],
-    ["р", "r"],
-    ["с", "s"],
-    ["т", "t"],
-    ["у", "u"],
-    ["ф", "f"],
-    ["х", "h"],
-    ["ц", "ts"],
-    ["ч", "ch"],
-    ["ш", "sh"],
-    ["щ", "sch"],
-    ["ъ", ""],
-    ["ы", "y"],
-    ["ь", ""],
-    ["э", "e"],
-    ["ю", "yu"],
-    ["я", "ya"],
+    ['à', 'a'],
+    ['á', 'a'],
+    ['â', 'a'],
+    ['ã', 'a'],
+    ['ä', 'a'],
+    ['å', 'a'],
+    ['è', 'e'],
+    ['é', 'e'],
+    ['ê', 'e'],
+    ['ë', 'e'],
+    ['ì', 'i'],
+    ['í', 'i'],
+    ['î', 'i'],
+    ['ï', 'i'],
+    ['ò', 'o'],
+    ['ó', 'o'],
+    ['ô', 'o'],
+    ['õ', 'o'],
+    ['ö', 'o'],
+    ['ø', 'o'],
+    ['ù', 'u'],
+    ['ú', 'u'],
+    ['û', 'u'],
+    ['ü', 'u'],
+    ['ý', 'y'],
+    ['ÿ', 'y'],
+    ['ñ', 'n'],
+    ['ç', 'c'],
+    ['ß', 'ss'],
+    ['æ', 'ae'],
+    ['а', 'a'],
+    ['б', 'b'],
+    ['в', 'v'],
+    ['г', 'g'],
+    ['д', 'd'],
+    ['е', 'e'],
+    ['ё', 'e'],
+    ['ж', 'zh'],
+    ['з', 'z'],
+    ['и', 'i'],
+    ['й', 'i'],
+    ['к', 'k'],
+    ['л', 'l'],
+    ['м', 'm'],
+    ['н', 'n'],
+    ['о', 'o'],
+    ['п', 'p'],
+    ['р', 'r'],
+    ['с', 's'],
+    ['т', 't'],
+    ['у', 'u'],
+    ['ф', 'f'],
+    ['х', 'h'],
+    ['ц', 'ts'],
+    ['ч', 'ch'],
+    ['ш', 'sh'],
+    ['щ', 'sch'],
+    ['ъ', ''],
+    ['ы', 'y'],
+    ['ь', ''],
+    ['э', 'e'],
+    ['ю', 'yu'],
+    ['я', 'ya'],
 ];
 
 /**
@@ -164,7 +164,7 @@ export class Str {
     protected static studlyCache = new Map<string, string>();
 
     /** Get a new `Stringable` object from the given string. */
-    public static of(value: string | number | Stringable = ""): Stringable {
+    public static of(value: string | number | Stringable = ''): Stringable {
         return new Stringable(value);
     }
 
@@ -176,7 +176,7 @@ export class Str {
     public static length(value: string): number {
         const [count] = utf8.len(value);
 
-        return typeIs(count, "number") ? count : value.size();
+        return typeIs(count, 'number') ? count : value.size();
     }
 
     /** Returns the portion of the string specified by the start and length. */
@@ -191,14 +191,14 @@ export class Str {
                   : math.min(length, total - from);
 
         if (take <= 0) {
-            return "";
+            return '';
         }
 
         const startByte = utf8.offset(value, from + 1);
         const endByte = utf8.offset(value, from + take + 1);
 
         if (startByte === undefined) {
-            return "";
+            return '';
         }
 
         return value.sub(startByte, (endByte ?? value.size() + 1) - 1);
@@ -228,7 +228,7 @@ export class Str {
             characters.unshift(utf8.char(code));
         }
 
-        return characters.join("");
+        return characters.join('');
     }
 
     // -----------------------------------------------------------------
@@ -263,7 +263,7 @@ export class Str {
 
         const [characters] = utf8.len(haystack, 1, found - 1);
 
-        return typeIs(characters, "number") ? characters : found - 1;
+        return typeIs(characters, 'number') ? characters : found - 1;
     }
 
     /** Determine if a given string contains a given substring. */
@@ -276,7 +276,7 @@ export class Str {
             const search = ignoreCase ? Str.lower(needle) : needle;
             const [found] = subject.find(search, 1, true);
 
-            if (search !== "" && found !== undefined) {
+            if (search !== '' && found !== undefined) {
                 return true;
             }
         }
@@ -309,7 +309,7 @@ export class Str {
     /** Determine if a given string starts with a given substring. */
     public static startsWith(haystack: string, needles: string | Array<string>): boolean {
         for (const needle of Util.arrayWrap(needles)) {
-            if (needle !== "" && haystack.sub(1, needle.size()) === needle) {
+            if (needle !== '' && haystack.sub(1, needle.size()) === needle) {
                 return true;
             }
         }
@@ -325,7 +325,7 @@ export class Str {
     /** Determine if a given string ends with a given substring. */
     public static endsWith(haystack: string, needles: string | Array<string>): boolean {
         for (const needle of Util.arrayWrap(needles)) {
-            if (needle !== "" && needle.size() <= haystack.size() && haystack.sub(-needle.size()) === needle) {
+            if (needle !== '' && needle.size() <= haystack.size() && haystack.sub(-needle.size()) === needle) {
                 return true;
             }
         }
@@ -340,7 +340,7 @@ export class Str {
 
     /** Count the number of substring occurrences. */
     public static substrCount(haystack: string, needle: string): number {
-        if (needle === "") {
+        if (needle === '') {
             return 0;
         }
 
@@ -367,7 +367,7 @@ export class Str {
 
     /** Return the remainder of a string after the first occurrence. */
     public static after(subject: string, search: string): string {
-        if (search === "") {
+        if (search === '') {
             return subject;
         }
 
@@ -378,7 +378,7 @@ export class Str {
 
     /** Return the remainder of a string after the last occurrence. */
     public static afterLast(subject: string, search: string): string {
-        if (search === "") {
+        if (search === '') {
             return subject;
         }
 
@@ -389,7 +389,7 @@ export class Str {
 
     /** Get the portion of a string before the first occurrence. */
     public static before(subject: string, search: string): string {
-        if (search === "") {
+        if (search === '') {
             return subject;
         }
 
@@ -400,7 +400,7 @@ export class Str {
 
     /** Get the portion of a string before the last occurrence. */
     public static beforeLast(subject: string, search: string): string {
-        if (search === "") {
+        if (search === '') {
             return subject;
         }
 
@@ -411,7 +411,7 @@ export class Str {
 
     /** Get the portion of a string between two values. */
     public static between(subject: string, from: string, to: string): string {
-        if (from === "" || to === "") {
+        if (from === '' || to === '') {
             return subject;
         }
 
@@ -420,7 +420,7 @@ export class Str {
 
     /** Get the smallest possible portion of a string between two values. */
     public static betweenFirst(subject: string, from: string, to: string): string {
-        if (from === "" || to === "") {
+        if (from === '' || to === '') {
             return subject;
         }
 
@@ -428,9 +428,9 @@ export class Str {
     }
 
     /** Extract an excerpt from text that matches the first instance of a phrase. */
-    public static excerpt(text: string, phrase = "", radius = 100, omission = "..."): string | undefined {
+    public static excerpt(text: string, phrase = '', radius = 100, omission = '...'): string | undefined {
         const position =
-            phrase === ""
+            phrase === ''
                 ? 0
                 : // PHP matches with `/iu`, so the fold is the Unicode one.
                   // Simple case mapping is 1:1 on codepoints, which keeps the
@@ -453,7 +453,7 @@ export class Str {
         const start = Str.ltrim(Str.substr(startText, math.max(startLength - radius, 0), radius));
         const tail = Str.rtrim(Str.substr(endText, 0, radius));
 
-        return `${start === startText ? "" : omission}${start}${matched}${tail}${tail === endText ? "" : omission}`;
+        return `${start === startText ? '' : omission}${start}${matched}${tail}${tail === endText ? '' : omission}`;
     }
 
     // -----------------------------------------------------------------
@@ -467,7 +467,7 @@ export class Str {
         let result = subject;
 
         for (let index = 0; index < searches.size(); index++) {
-            const replacement = typeIs(replace, "string") ? (replace as string) : (replacements[index] ?? "");
+            const replacement = typeIs(replace, 'string') ? (replace as string) : (replacements[index] ?? '');
 
             result = Str.replaceAllPlain(result, searches[index], replacement);
         }
@@ -489,7 +489,7 @@ export class Str {
 
     /** Replace the first occurrence of a given value in the string. */
     public static replaceFirst(search: string, replace: string, subject: string): string {
-        if (search === "") {
+        if (search === '') {
             return subject;
         }
 
@@ -504,7 +504,7 @@ export class Str {
 
     /** Replace the first occurrence of the given value if it starts the string. */
     public static replaceStart(search: string, replace: string, subject: string): string {
-        if (search === "" || !Str.startsWith(subject, search)) {
+        if (search === '' || !Str.startsWith(subject, search)) {
             return subject;
         }
 
@@ -513,7 +513,7 @@ export class Str {
 
     /** Replace the last occurrence of a given value in the string. */
     public static replaceLast(search: string, replace: string, subject: string): string {
-        if (search === "") {
+        if (search === '') {
             return subject;
         }
 
@@ -528,7 +528,7 @@ export class Str {
 
     /** Replace the last occurrence of the given value if it ends the string. */
     public static replaceEnd(search: string, replace: string, subject: string): string {
-        if (search === "" || !Str.endsWith(subject, search)) {
+        if (search === '' || !Str.endsWith(subject, search)) {
             return subject;
         }
 
@@ -542,7 +542,7 @@ export class Str {
         subject: string,
         limit?: number,
     ): string {
-        const [result] = typeIs(replace, "function")
+        const [result] = typeIs(replace, 'function')
             ? subject.gsub(pattern, (match: string) => (replace as (match: string) => string)(match), limit)
             : subject.gsub(pattern, replace as string, limit);
 
@@ -551,7 +551,7 @@ export class Str {
 
     /** Remove any occurrence of the given string in the subject. */
     public static remove(search: string | Array<string>, subject: string): string {
-        return Str.replace(search, "", subject);
+        return Str.replace(search, '', subject);
     }
 
     /** Swap keys with their values within the given string. */
@@ -566,11 +566,11 @@ export class Str {
     }
 
     /** Replace consecutive instances of a given character with a single one. */
-    public static deduplicate(value: string, characters: string | Array<string> = " "): string {
+    public static deduplicate(value: string, characters: string | Array<string> = ' '): string {
         let result = value;
 
         for (const character of Util.arrayWrap(characters)) {
-            if (character !== "") {
+            if (character !== '') {
                 result = Str.collapseRuns(result, character);
             }
         }
@@ -600,7 +600,7 @@ export class Str {
             let cursor = index + prefix.size();
             let repeats = 0;
 
-            if (prefix === "" || value.sub(index, cursor - 1) === prefix) {
+            if (prefix === '' || value.sub(index, cursor - 1) === prefix) {
                 while (value.sub(cursor, cursor + last.size() - 1) === last) {
                     repeats += 1;
                     cursor += last.size();
@@ -616,7 +616,7 @@ export class Str {
             }
         }
 
-        return pieces.join("");
+        return pieces.join('');
     }
 
     // -----------------------------------------------------------------
@@ -630,7 +630,7 @@ export class Str {
      * quantify a group, so the repetition is peeled off in a loop.
      */
     public static start(value: string, prefix: string): string {
-        if (prefix === "") {
+        if (prefix === '') {
             return value;
         }
 
@@ -645,7 +645,7 @@ export class Str {
 
     /** Cap a string with a single instance of a given value. */
     public static finish(value: string, cap: string): string {
-        if (cap === "") {
+        if (cap === '') {
             return value;
         }
 
@@ -682,7 +682,7 @@ export class Str {
     /** Remove the given string(s) from the start of the subject. */
     public static chopStart(subject: string, needle: string | Array<string>): string {
         for (const candidate of Util.arrayWrap(needle)) {
-            if (candidate !== "" && Str.startsWith(subject, candidate)) {
+            if (candidate !== '' && Str.startsWith(subject, candidate)) {
                 return Str.substr(subject, Str.length(candidate));
             }
         }
@@ -693,7 +693,7 @@ export class Str {
     /** Remove the given string(s) from the end of the subject. */
     public static chopEnd(subject: string, needle: string | Array<string>): string {
         for (const candidate of Util.arrayWrap(needle)) {
-            if (candidate !== "" && Str.endsWith(subject, candidate)) {
+            if (candidate !== '' && Str.endsWith(subject, candidate)) {
                 return Str.substr(subject, 0, Str.length(subject) - Str.length(candidate));
             }
         }
@@ -702,7 +702,7 @@ export class Str {
     }
 
     /** Pad both sides of a string with another. */
-    public static padBoth(value: string, length: number, pad = " "): string {
+    public static padBoth(value: string, length: number, pad = ' '): string {
         const short = math.max(0, length - Str.length(value));
         const left = math.floor(short / 2);
 
@@ -710,12 +710,12 @@ export class Str {
     }
 
     /** Pad the left side of a string with another. */
-    public static padLeft(value: string, length: number, pad = " "): string {
+    public static padLeft(value: string, length: number, pad = ' '): string {
         return `${Str.buildPad(pad, math.max(0, length - Str.length(value)))}${value}`;
     }
 
     /** Pad the right side of a string with another. */
-    public static padRight(value: string, length: number, pad = " "): string {
+    public static padRight(value: string, length: number, pad = ' '): string {
         return `${value}${Str.buildPad(pad, math.max(0, length - Str.length(value)))}`;
     }
 
@@ -726,7 +726,7 @@ export class Str {
 
     /** Masks a portion of a string with a repeated character. */
     public static mask(value: string, character: string, index: number, length?: number): string {
-        if (character === "") {
+        if (character === '') {
             return value;
         }
 
@@ -734,7 +734,7 @@ export class Str {
         const startIndex = index < 0 ? (index < -total ? 0 : total + index) : index;
         const segment = Str.substr(value, startIndex, length);
 
-        if (segment === "") {
+        if (segment === '') {
             return value;
         }
 
@@ -768,11 +768,11 @@ export class Str {
 
         // PHP: `ltrim($value, '')` strips nothing. Letting an empty list reach
         // the pattern would build `^[]+`, which Luau rejects outright.
-        if (characters === "") {
+        if (characters === '') {
             return value;
         }
 
-        const [result] = value.gsub(`^[${Str.characterClass(characters)}]+`, "");
+        const [result] = value.gsub(`^[${Str.characterClass(characters)}]+`, '');
 
         return result;
     }
@@ -783,11 +783,11 @@ export class Str {
             return Str.trimInvisible(value, false, true);
         }
 
-        if (characters === "") {
+        if (characters === '') {
             return value;
         }
 
-        const [result] = value.gsub(`[${Str.characterClass(characters)}]+$`, "");
+        const [result] = value.gsub(`[${Str.characterClass(characters)}]+$`, '');
 
         return result;
     }
@@ -824,7 +824,7 @@ export class Str {
         }
 
         if (first > last) {
-            return "";
+            return '';
         }
 
         const from = offsets[first];
@@ -843,7 +843,7 @@ export class Str {
         for (const [, code] of utf8.codes(Str.trim(value))) {
             if (INVISIBLE_CODEPOINTS.has(code)) {
                 if (!inRun) {
-                    parts.push(" ");
+                    parts.push(' ');
                     inRun = true;
                 }
 
@@ -854,7 +854,7 @@ export class Str {
             inRun = false;
         }
 
-        return parts.join("");
+        return parts.join('');
     }
 
     // -----------------------------------------------------------------
@@ -872,12 +872,12 @@ export class Str {
     }
 
     /** Convert the given string to the given case. */
-    public static convertCase(value: string, mode: "lower" | "upper" | "title" = "lower"): string {
-        if (mode === "upper") {
+    public static convertCase(value: string, mode: 'lower' | 'upper' | 'title' = 'lower'): string {
+        if (mode === 'upper') {
             return Str.upper(value);
         }
 
-        if (mode === "title") {
+        if (mode === 'title') {
             return Str.title(value);
         }
 
@@ -900,7 +900,7 @@ export class Str {
             if (!isCased) {
                 // A separator ends the word; any other uncased character
                 // (punctuation, a symbol) simply carries through.
-                if (utf8.char(code).match("^[%s_-]$")[0] !== undefined) {
+                if (utf8.char(code).match('^[%s_-]$')[0] !== undefined) {
                     seenLetter = false;
                 }
 
@@ -913,7 +913,7 @@ export class Str {
             seenLetter = true;
         }
 
-        return parts.join("");
+        return parts.join('');
     }
 
     /** Make a string's first character lower case. */
@@ -927,7 +927,7 @@ export class Str {
     }
 
     /** Upper case the first character of each word. */
-    public static ucwords(value: string, separators = " \t\r\n\f\v"): string {
+    public static ucwords(value: string, separators = ' \t\r\n\f\v'): string {
         const set = Str.characterClass(separators);
         const characters = new Array<string>();
         let atBoundary = true;
@@ -939,26 +939,26 @@ export class Str {
             atBoundary = character.match(`[${set}]`)[0] !== undefined;
         }
 
-        return characters.join("");
+        return characters.join('');
     }
 
     /** Split a string into pieces by upper case characters. */
     public static ucsplit(value: string): Array<string> {
         const parts = new Array<string>();
-        let current = "";
+        let current = '';
 
         for (const [, code] of utf8.codes(value)) {
             const character = utf8.char(code);
 
-            if (Unicode.isUpperCodepoint(code) && current !== "") {
+            if (Unicode.isUpperCodepoint(code) && current !== '') {
                 parts.push(current);
-                current = "";
+                current = '';
             }
 
             current = `${current}${character}`;
         }
 
-        if (current !== "") {
+        if (current !== '') {
             parts.push(current);
         }
 
@@ -990,11 +990,11 @@ export class Str {
 
         const words = new Array<string>();
 
-        for (const [word] of Str.replace(["-", "_"], " ", value).gmatch("%S+")) {
+        for (const [word] of Str.replace(['-', '_'], ' ', value).gmatch('%S+')) {
             words.push(Str.ucfirst(word as string));
         }
 
-        const result = words.join("");
+        const result = words.join('');
 
         Str.studlyCache.set(value, result);
 
@@ -1031,7 +1031,7 @@ export class Str {
         for (const [, code] of utf8.codes(value)) {
             const character = utf8.char(code);
 
-            if (previous !== undefined && character.match("^[A-Z]$")[0] !== undefined) {
+            if (previous !== undefined && character.match('^[A-Z]$')[0] !== undefined) {
                 parts.push(delimiter);
             }
 
@@ -1039,7 +1039,7 @@ export class Str {
             parts.push(character);
         }
 
-        return parts.join("");
+        return parts.join('');
     }
 
     /**
@@ -1059,14 +1059,14 @@ export class Str {
             const character = utf8.char(code);
 
             parts.push(atBoundary ? character.upper() : character);
-            atBoundary = character.match("^[ \t\r\n\f\v]$")[0] !== undefined;
+            atBoundary = character.match('^[ \t\r\n\f\v]$')[0] !== undefined;
         }
 
-        return parts.join("");
+        return parts.join('');
     }
 
     /** Convert a string to snake case. */
-    public static snake(value: string, delimiter = "_"): string {
+    public static snake(value: string, delimiter = '_'): string {
         const key = `${value} ${delimiter}`;
         const cached = Str.snakeCache.get(key);
 
@@ -1078,8 +1078,8 @@ export class Str {
 
         // PHP: `! ctype_lower($value)` -- false for an empty string, and for
         // anything holding a character that is not an ASCII lower case letter.
-        if (value.match("^[a-z]+$")[0] === undefined) {
-            const [collapsed] = Str.asciiUcwords(value).gsub("%s+", "");
+        if (value.match('^[a-z]+$')[0] === undefined) {
+            const [collapsed] = Str.asciiUcwords(value).gsub('%s+', '');
 
             result = Str.lower(Str.delimitBeforeUpperAscii(collapsed, delimiter));
         }
@@ -1091,95 +1091,95 @@ export class Str {
 
     /** Convert a string to kebab case. */
     public static kebab(value: string): string {
-        return Str.snake(value, "-");
+        return Str.snake(value, '-');
     }
 
     /** Convert the given string to a headline. */
     public static headline(value: string): string {
         const words = new Array<string>();
 
-        for (const [word] of value.gmatch("%S+")) {
+        for (const [word] of value.gmatch('%S+')) {
             words.push(word as string);
         }
 
-        const parts = words.size() > 1 ? words : Str.ucsplit(words[0] ?? "");
+        const parts = words.size() > 1 ? words : Str.ucsplit(words[0] ?? '');
         const titled = new Array<string>();
 
         for (const part of parts) {
-            for (const [piece] of Str.replace(["-", "_"], " ", part).gmatch("%S+")) {
+            for (const [piece] of Str.replace(['-', '_'], ' ', part).gmatch('%S+')) {
                 titled.push(Str.title(piece as string));
             }
         }
 
-        return titled.join(" ");
+        return titled.join(' ');
     }
 
     /** Get the initials of the words in the given string. */
     public static initials(value: string, capitalize = false): string {
         const parts = new Array<string>();
 
-        for (const [word] of value.gmatch("%S+")) {
+        for (const [word] of value.gmatch('%S+')) {
             parts.push(Str.substr(word as string, 0, 1));
         }
 
-        const initials = parts.join("");
+        const initials = parts.join('');
 
         return capitalize ? Str.upper(initials) : initials;
     }
 
     /** Convert the given string to APA-style title case. */
     public static apa(value: string): string {
-        if (Str.trim(value) === "") {
+        if (Str.trim(value) === '') {
             return value;
         }
 
         const minorWords = [
-            "and",
-            "as",
-            "but",
-            "for",
-            "if",
-            "nor",
-            "or",
-            "so",
-            "yet",
-            "a",
-            "an",
-            "the",
-            "at",
-            "by",
-            "in",
-            "of",
-            "off",
-            "on",
-            "per",
-            "to",
-            "up",
-            "via",
+            'and',
+            'as',
+            'but',
+            'for',
+            'if',
+            'nor',
+            'or',
+            'so',
+            'yet',
+            'a',
+            'an',
+            'the',
+            'at',
+            'by',
+            'in',
+            'of',
+            'off',
+            'on',
+            'per',
+            'to',
+            'up',
+            'via',
         ];
-        const endPunctuation = [".", "!", "?", ":", "—", ","];
+        const endPunctuation = ['.', '!', '?', ':', '—', ','];
         const words = new Array<string>();
 
-        for (const [word] of value.gmatch("%S+")) {
+        for (const [word] of value.gmatch('%S+')) {
             words.push(word as string);
         }
 
         for (let index = 0; index < words.size(); index++) {
             const lowered = Str.lower(words[index]);
 
-            if (Str.contains(lowered, "-")) {
+            if (Str.contains(lowered, '-')) {
                 const pieces = new Array<string>();
 
-                for (const piece of lowered.split("-")) {
+                for (const piece of lowered.split('-')) {
                     pieces.push(minorWords.includes(piece) && Str.length(piece) <= 3 ? piece : Str.ucfirst(piece));
                 }
 
-                words[index] = pieces.join("-");
+                words[index] = pieces.join('-');
 
                 continue;
             }
 
-            const previous = index > 0 ? Str.substr(words[index - 1], -1) : "";
+            const previous = index > 0 ? Str.substr(words[index - 1], -1) : '';
 
             words[index] =
                 minorWords.includes(lowered) &&
@@ -1189,7 +1189,7 @@ export class Str {
                     : Str.ucfirst(lowered);
         }
 
-        return words.join(" ");
+        return words.join(' ');
     }
 
     // -----------------------------------------------------------------
@@ -1208,7 +1208,7 @@ export class Str {
      * ported -- there is no HTML on this runtime -- but the newline collapsing
      * and the outer trim beside it are.
      */
-    public static limit(value: string, limit = 100, last = "...", preserveWords = false): string {
+    public static limit(value: string, limit = 100, last = '...', preserveWords = false): string {
         if (Str.width(value) <= limit) {
             return value;
         }
@@ -1217,13 +1217,13 @@ export class Str {
             return `${Str.rtrim(Str.strimwidth(value, limit))}${last}`;
         }
 
-        const [collapsed] = value.gsub("[\n\r]+", " ");
+        const [collapsed] = value.gsub('[\n\r]+', ' ');
         const subject = Str.trim(collapsed);
         const trimmed = Str.rtrim(Str.strimwidth(subject, limit));
 
         // PHP indexes with `mb_substr()` here even though the cut above was by
         // width, so this reads a character offset, not a width offset.
-        if (Str.substr(subject, limit, 1) === " ") {
+        if (Str.substr(subject, limit, 1) === ' ') {
             return `${trimmed}${last}`;
         }
 
@@ -1234,7 +1234,7 @@ export class Str {
         let from = 1;
 
         while (true) {
-            const [found] = trimmed.find("%s", from);
+            const [found] = trimmed.find('%s', from);
 
             if (found === undefined) {
                 break;
@@ -1312,25 +1312,25 @@ export class Str {
      * match keeps is why `words(' Taylor Otwell ', 1)` answers `' Taylor...'`
      * rather than trimming both ends.
      */
-    public static words(value: string, words = 100, last = "..."): string {
+    public static words(value: string, words = 100, last = '...'): string {
         if (words < 1) {
             return value;
         }
 
         // `^\s*+`
-        const [, leading] = value.find("^%s*");
+        const [, leading] = value.find('^%s*');
         let cursor = (leading as number) + 1;
         let taken = 0;
 
         // `(?:\S++\s*+){1,$words}`
         while (taken < words) {
-            const [wordStart, wordEnd] = value.find("^%S+", cursor);
+            const [wordStart, wordEnd] = value.find('^%S+', cursor);
 
             if (wordStart === undefined) {
                 break;
             }
 
-            const [, spaceEnd] = value.find("^%s*", (wordEnd as number) + 1);
+            const [, spaceEnd] = value.find('^%s*', (wordEnd as number) + 1);
 
             cursor = (spaceEnd as number) + 1;
             taken += 1;
@@ -1354,7 +1354,7 @@ export class Str {
     public static wordCount(value: string): number {
         let count = 0;
 
-        for (const [] of value.gmatch("%S+")) {
+        for (const [] of value.gmatch('%S+')) {
             count += 1;
         }
 
@@ -1362,18 +1362,18 @@ export class Str {
     }
 
     /** Wrap a string to a given number of characters. */
-    public static wordWrap(value: string, characters = 75, brk = "\n", cutLongWords = false): string {
+    public static wordWrap(value: string, characters = 75, brk = '\n', cutLongWords = false): string {
         const lines = new Array<string>();
-        let current = "";
+        let current = '';
 
-        for (const [rawWord] of value.gmatch("%S+")) {
+        for (const [rawWord] of value.gmatch('%S+')) {
             let word = rawWord as string;
 
             if (cutLongWords) {
                 while (Str.length(word) > characters) {
-                    if (current !== "") {
+                    if (current !== '') {
                         lines.push(current);
-                        current = "";
+                        current = '';
                     }
 
                     lines.push(Str.substr(word, 0, characters));
@@ -1381,7 +1381,7 @@ export class Str {
                 }
             }
 
-            if (current === "") {
+            if (current === '') {
                 current = word;
             } else if (Str.length(current) + 1 + Str.length(word) <= characters) {
                 current = `${current} ${word}`;
@@ -1391,7 +1391,7 @@ export class Str {
             }
         }
 
-        if (current !== "") {
+        if (current !== '') {
             lines.push(current);
         }
 
@@ -1400,7 +1400,7 @@ export class Str {
 
     /** Remove all non-numeric characters from a string. */
     public static numbers(value: string): string {
-        const [result] = value.gsub("%D", "");
+        const [result] = value.gsub('%D', '');
 
         return result;
     }
@@ -1418,7 +1418,7 @@ export class Str {
         // from an empty object. That turns `is([], $value)` into a search for
         // one pattern that is itself a table. The parameter type already says
         // which of the two shapes this is, so ask it instead.
-        const list = typeIs(patterns, "string") ? [patterns] : patterns;
+        const list = typeIs(patterns, 'string') ? [patterns] : patterns;
 
         for (const raw of list) {
             const pattern = ignoreCase ? raw.lower() : raw;
@@ -1426,12 +1426,12 @@ export class Str {
             // If the given value is an exact match we can of course return true right
             // from the beginning. Otherwise, we will translate asterisks and do an
             // actual pattern match against the two strings to see if they match.
-            if (pattern === "*" || pattern === subject) {
+            if (pattern === '*' || pattern === subject) {
                 return true;
             }
 
-            const [quoted] = pattern.gsub(MAGIC, "%%%1");
-            const [expression] = quoted.gsub("%%%*", ".*");
+            const [quoted] = pattern.gsub(MAGIC, '%%%1');
+            const [expression] = quoted.gsub('%%%*', '.*');
             const [matched] = subject.match(`^${expression}$`);
 
             if (matched !== undefined) {
@@ -1446,7 +1446,7 @@ export class Str {
     public static match(pattern: string, subject: string): string {
         const [matched] = subject.match(pattern);
 
-        return matched !== undefined ? tostring(matched) : "";
+        return matched !== undefined ? tostring(matched) : '';
     }
 
     /** Determine if a given string matches a given Luau pattern. */
@@ -1475,19 +1475,19 @@ export class Str {
 
     /** Determine if the given string is 7-bit ASCII. */
     public static isAscii(value: string): boolean {
-        return value.match("^[\x00-\x7F]*$")[0] !== undefined;
+        return value.match('^[\x00-\x7F]*$')[0] !== undefined;
     }
 
     /** Determine if the given string is valid JSON. */
     public static isJson(value: string): boolean {
-        const [ok] = pcall(() => game.GetService("HttpService").JSONDecode(value));
+        const [ok] = pcall(() => game.GetService('HttpService').JSONDecode(value));
 
         return ok;
     }
 
     /** Determine if the given string looks like a URL. */
     public static isUrl(value: string, protocols: Array<string> = []): boolean {
-        const [scheme, rest] = value.match("^(%a[%w+.-]*)://(.+)$");
+        const [scheme, rest] = value.match('^(%a[%w+.-]*)://(.+)$');
 
         if (scheme === undefined || rest === undefined) {
             return false;
@@ -1497,13 +1497,13 @@ export class Str {
             return false;
         }
 
-        return tostring(rest).size() > 0 && Str.contains(tostring(rest), " ") === false;
+        return tostring(rest).size() > 0 && Str.contains(tostring(rest), ' ') === false;
     }
 
     /** Determine if the given string is a valid UUID. */
     public static isUuid(value: string): boolean {
         return (
-            value.match("^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$")[0] !== undefined
+            value.match('^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$')[0] !== undefined
         );
     }
 
@@ -1513,7 +1513,7 @@ export class Str {
             return false;
         }
 
-        return value.upper().match("^[0-9A-HJKMNP-TV-Z]+$")[0] !== undefined;
+        return value.upper().match('^[0-9A-HJKMNP-TV-Z]+$')[0] !== undefined;
     }
 
     // -----------------------------------------------------------------
@@ -1531,7 +1531,7 @@ export class Str {
             characters.push(alphabet.sub(at, at));
         }
 
-        return characters.join("");
+        return characters.join('');
     }
 
     /** Generate a random, secure password. */
@@ -1551,11 +1551,11 @@ export class Str {
         }
 
         if (spaces) {
-            pools.push(" ");
+            pools.push(' ');
         }
 
         if (pools.isEmpty()) {
-            return "";
+            return '';
         }
 
         const characters = new Array<string>();
@@ -1567,7 +1567,7 @@ export class Str {
             characters.push(pool.sub(at, at));
         }
 
-        const combined = pools.join("");
+        const combined = pools.join('');
 
         while (characters.size() < length) {
             const at = math.random(1, combined.size());
@@ -1583,12 +1583,12 @@ export class Str {
             characters[swap] = held;
         }
 
-        return characters.join("");
+        return characters.join('');
     }
 
     /** Generate a UUID (version 4). */
     public static uuid(): string {
-        return Str.lower(game.GetService("HttpService").GenerateGUID(false));
+        return Str.lower(game.GetService('HttpService').GenerateGUID(false));
     }
 
     /**
@@ -1599,8 +1599,8 @@ export class Str {
      */
     public static orderedUuid(): string {
         const milliseconds = math.floor(os.clock() * 1000) % 0xffffffffff;
-        const prefix = string.format("%012x", milliseconds);
-        const random = Str.remove("-", Str.uuid());
+        const prefix = string.format('%012x', milliseconds);
+        const random = Str.remove('-', Str.uuid());
 
         return `${prefix.sub(1, 8)}-${prefix.sub(9, 12)}-${random.sub(13, 16)}-${random.sub(17, 20)}-${random.sub(21, 32)}`;
     }
@@ -1623,7 +1623,7 @@ export class Str {
             characters.push(CROCKFORD.sub(at, at));
         }
 
-        return characters.join("");
+        return characters.join('');
     }
 
     // -----------------------------------------------------------------
@@ -1645,22 +1645,22 @@ export class Str {
             output.push(BASE64_ALPHABET.sub(bit32.extract(bits, 12, 6) + 1, bit32.extract(bits, 12, 6) + 1));
             output.push(
                 second === undefined
-                    ? "="
+                    ? '='
                     : BASE64_ALPHABET.sub(bit32.extract(bits, 6, 6) + 1, bit32.extract(bits, 6, 6) + 1),
             );
             output.push(
                 third === undefined
-                    ? "="
+                    ? '='
                     : BASE64_ALPHABET.sub(bit32.extract(bits, 0, 6) + 1, bit32.extract(bits, 0, 6) + 1),
             );
         }
 
-        return output.join("");
+        return output.join('');
     }
 
     /** Decode the given base64 encoded string. */
     public static fromBase64(value: string): string {
-        const [cleaned] = value.gsub("[^%w+/=]", "");
+        const [cleaned] = value.gsub('[^%w+/=]', '');
         const output = new Array<string>();
 
         for (let index = 0; index < cleaned.size(); index += 4) {
@@ -1671,7 +1671,7 @@ export class Str {
             for (let offset = 0; offset < 4; offset++) {
                 const character = chunk.sub(offset + 1, offset + 1);
 
-                if (character === "=" || character === "") {
+                if (character === '=' || character === '') {
                     padding += 1;
                     bits = bit32.lshift(bits, 6);
 
@@ -1690,7 +1690,7 @@ export class Str {
             }
         }
 
-        return output.join("");
+        return output.join('');
     }
 
     // -----------------------------------------------------------------
@@ -1705,18 +1705,18 @@ export class Str {
             result = Str.replaceAllPlain(result, from, to);
         }
 
-        const [stripped] = result.gsub("[\x80-\xFF]", "");
+        const [stripped] = result.gsub('[\x80-\xFF]', '');
 
         return stripped;
     }
 
     /** Generate a URL friendly "slug" from a given string. */
-    public static slug(title: string, separator = "-", dictionary: Array<[string, string]> = [["@", "at"]]): string {
+    public static slug(title: string, separator = '-', dictionary: Array<[string, string]> = [['@', 'at']]): string {
         let result = Str.ascii(title);
 
         // Convert all dashes/underscores into the separator.
-        const flip = separator === "-" ? "_" : "-";
-        const [quotedFlip] = flip.gsub(MAGIC, "%%%1");
+        const flip = separator === '-' ? '_' : '-';
+        const [quotedFlip] = flip.gsub(MAGIC, '%%%1');
         const [flipped] = result.gsub(`${quotedFlip}+`, separator);
 
         result = flipped;
@@ -1725,8 +1725,8 @@ export class Str {
             result = Str.replaceAllPlain(result, from, `${separator}${to}${separator}`);
         }
 
-        const [quotedSeparator] = separator.gsub(MAGIC, "%%%1");
-        const [cleaned] = Str.lower(result).gsub(`[^${quotedSeparator}%w%s]+`, "");
+        const [quotedSeparator] = separator.gsub(MAGIC, '%%%1');
+        const [cleaned] = Str.lower(result).gsub(`[^${quotedSeparator}%w%s]+`, '');
         const [collapsed] = cleaned.gsub(`[${quotedSeparator}%s]+`, separator);
 
         return Str.trim(collapsed, separator);
@@ -1756,7 +1756,7 @@ export class Str {
 
         const lastWord = parts.pop() as string;
 
-        return `${parts.join("")}${Str.plural(lastWord, count)}`;
+        return `${parts.join('')}${Str.plural(lastWord, count)}`;
     }
 
     /** Pluralize the last word of an English, pascal case string. */
@@ -1770,11 +1770,11 @@ export class Str {
 
     /** Parse a Class@method style callback into class and method. */
     public static parseCallback(callback: string, defaultMethod?: string): [string, string | undefined] {
-        if (!Str.contains(callback, "@")) {
+        if (!Str.contains(callback, '@')) {
             return [callback, defaultMethod];
         }
 
-        const segments = callback.split("@");
+        const segments = callback.split('@');
 
         return [segments[0], segments[1]];
     }
@@ -1815,7 +1815,7 @@ export class Str {
 
     /** Replace every plain (non-pattern) occurrence of a substring. */
     private static replaceAllPlain(subject: string, search: string, replace: string): string {
-        if (search === "") {
+        if (search === '') {
             return subject;
         }
 
@@ -1826,8 +1826,8 @@ export class Str {
 
     /** Build a pad of the given length out of the given filler. */
     private static buildPad(pad: string, length: number): string {
-        if (length <= 0 || pad === "") {
-            return "";
+        if (length <= 0 || pad === '') {
+            return '';
         }
 
         return Str.substr(pad.rep(math.ceil(length / Str.length(pad))), 0, length);
@@ -1835,7 +1835,7 @@ export class Str {
 
     /** Escape the given characters for use inside a Luau character class. */
     private static characterClass(characters: string): string {
-        const [escaped] = characters.gsub("([%%%]%^%-])", "%%%1");
+        const [escaped] = characters.gsub('([%%%]%^%-])', '%%%1');
 
         return escaped;
     }
@@ -1881,7 +1881,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     protected stringValue: string;
 
     /** Create a new instance of the class. */
-    public constructor(value: string | number | Stringable = "") {
+    public constructor(value: string | number | Stringable = '') {
         super();
 
         this.stringValue = tostring(value);
@@ -2000,7 +2000,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Extract an excerpt matching the first instance of a phrase. */
-    public excerpt(phrase = "", radius = 100, omission = "..."): string | undefined {
+    public excerpt(phrase = '', radius = 100, omission = '...'): string | undefined {
         return Str.excerpt(this.stringValue, phrase, radius, omission);
     }
 
@@ -2016,7 +2016,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
 
     /** Determine if the string is empty. */
     public isEmpty(): boolean {
-        return this.stringValue === "";
+        return this.stringValue === '';
     }
 
     /** Determine if the string is not empty. */
@@ -2099,7 +2099,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Replace consecutive instances of a given character with a single one. */
-    public deduplicate(characters: string | Array<string> = " "): Stringable {
+    public deduplicate(characters: string | Array<string> = ' '): Stringable {
         return new Stringable(Str.deduplicate(this.stringValue, characters));
     }
 
@@ -2138,17 +2138,17 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Pad both sides of the string with another. */
-    public padBoth(length: number, pad = " "): Stringable {
+    public padBoth(length: number, pad = ' '): Stringable {
         return new Stringable(Str.padBoth(this.stringValue, length, pad));
     }
 
     /** Pad the left side of the string with another. */
-    public padLeft(length: number, pad = " "): Stringable {
+    public padLeft(length: number, pad = ' '): Stringable {
         return new Stringable(Str.padLeft(this.stringValue, length, pad));
     }
 
     /** Pad the right side of the string with another. */
-    public padRight(length: number, pad = " "): Stringable {
+    public padRight(length: number, pad = ' '): Stringable {
         return new Stringable(Str.padRight(this.stringValue, length, pad));
     }
 
@@ -2169,12 +2169,12 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
 
     /** Append the given values to the string. */
     public append(...values: Array<string>): Stringable {
-        return new Stringable(`${this.stringValue}${values.join("")}`);
+        return new Stringable(`${this.stringValue}${values.join('')}`);
     }
 
     /** Prepend the given values to the string. */
     public prepend(...values: Array<string>): Stringable {
-        return new Stringable(`${values.join("")}${this.stringValue}`);
+        return new Stringable(`${values.join('')}${this.stringValue}`);
     }
 
     /**
@@ -2184,7 +2184,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
      * Roblox has one platform, and it ends a line with `\n`.
      */
     public newLine(count = 1): Stringable {
-        return this.append("\n".rep(count));
+        return this.append('\n'.rep(count));
     }
 
     // -----------------------------------------------------------------
@@ -2226,7 +2226,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Convert the case of the string. */
-    public convertCase(mode: "lower" | "upper" | "title" = "lower"): Stringable {
+    public convertCase(mode: 'lower' | 'upper' | 'title' = 'lower'): Stringable {
         return new Stringable(Str.convertCase(this.stringValue, mode));
     }
 
@@ -2261,7 +2261,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Make the first character of each word upper case. */
-    public ucwords(separators = " \t\r\n\f\v"): Stringable {
+    public ucwords(separators = ' \t\r\n\f\v'): Stringable {
         return new Stringable(Str.ucwords(this.stringValue, separators));
     }
 
@@ -2286,7 +2286,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Convert the string to snake case. */
-    public snake(delimiter = "_"): Stringable {
+    public snake(delimiter = '_'): Stringable {
         return new Stringable(Str.snake(this.stringValue, delimiter));
     }
 
@@ -2300,12 +2300,12 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     // -----------------------------------------------------------------
 
     /** Limit the number of characters in the string. */
-    public limit(limit = 100, last = "...", preserveWords = false): Stringable {
+    public limit(limit = 100, last = '...', preserveWords = false): Stringable {
         return new Stringable(Str.limit(this.stringValue, limit, last, preserveWords));
     }
 
     /** Limit the number of words in the string. */
-    public words(words = 100, last = "..."): Stringable {
+    public words(words = 100, last = '...'): Stringable {
         return new Stringable(Str.words(this.stringValue, words, last));
     }
 
@@ -2315,7 +2315,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Wrap the string to a given number of characters. */
-    public wordWrap(characters = 75, brk = "\n", cutLongWords = false): Stringable {
+    public wordWrap(characters = 75, brk = '\n', cutLongWords = false): Stringable {
         return new Stringable(Str.wordWrap(this.stringValue, characters, brk, cutLongWords));
     }
 
@@ -2409,7 +2409,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
      * empty piece is always kept.
      */
     public split(pattern: string | number, limit = -1): Collection<number, string> {
-        if (typeIs(pattern, "number")) {
+        if (typeIs(pattern, 'number')) {
             const chunks = new Array<string>();
             const size = math.max(pattern, 1);
             const total = Str.length(this.stringValue);
@@ -2499,7 +2499,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     }
 
     /** Generate a URL friendly "slug" from the string. */
-    public slug(separator = "-", dictionary: Array<[string, string]> = [["@", "at"]]): Stringable {
+    public slug(separator = '-', dictionary: Array<[string, string]> = [['@', 'at']]): Stringable {
         return new Stringable(Str.slug(this.stringValue, separator, dictionary));
     }
 
@@ -2692,7 +2692,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
     public toBoolean(): boolean {
         const normalized = Str.lower(Str.trim(this.stringValue));
 
-        return normalized === "1" || normalized === "true" || normalized === "on" || normalized === "yes";
+        return normalized === '1' || normalized === 'true' || normalized === 'on' || normalized === 'yes';
     }
 
     /** Specify data which should be serialized to JSON. */

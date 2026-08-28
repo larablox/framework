@@ -1,8 +1,8 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { InvalidPayloadException } from "Illuminate/Queue/InvalidPayloadException";
-import { MemoryStoreJob } from "Illuminate/Queue/Jobs/MemoryStoreJob";
-import { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
+import { Container } from 'Illuminate/Container/Container';
+import { InvalidPayloadException } from 'Illuminate/Queue/InvalidPayloadException';
+import { MemoryStoreJob } from 'Illuminate/Queue/Jobs/MemoryStoreJob';
+import { MemoryStoreQueue } from 'Illuminate/Queue/MemoryStoreQueue';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueRedisQueueTest`.
@@ -45,7 +45,7 @@ import { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
  * for every queue driver via `Queue.bulk()`.
  */
 
-const HttpService = game.GetService("HttpService");
+const HttpService = game.GetService('HttpService');
 
 class MyTestJob {
     public handle(): void {
@@ -67,7 +67,7 @@ class MyTestJob {
 const EXPIRATION = 30;
 
 function freshQueue(): MemoryStoreQueue {
-    const queue = new MemoryStoreQueue(HttpService.GenerateGUID(false), 60, 0, EXPIRATION, "queue-test:");
+    const queue = new MemoryStoreQueue(HttpService.GenerateGUID(false), 60, 0, EXPIRATION, 'queue-test:');
     queue.setContainer(new Container());
     made.push(queue);
 
@@ -92,43 +92,43 @@ function drain(): void {
 }
 
 export = (): void => {
-    describe("MemoryStoreQueue", () => {
+    describe('MemoryStoreQueue', () => {
         afterAll(drain);
 
         // PHP: QueueRedisQueueTest::testGetQueueRemainsUnchangedForNonCluster /
         // testGetRedisKeyReturnsPlainKeyForNonCluster (collapsed, no cluster key
         // to separately expose -- see class comment)
-        it("getQueue() falls back to the default queue name", () => {
-            const queue = new MemoryStoreQueue("default");
+        it('getQueue() falls back to the default queue name', () => {
+            const queue = new MemoryStoreQueue('default');
 
-            expect(queue.getQueue()).to.equal("default");
-            expect(queue.getQueue("emails")).to.equal("emails");
+            expect(queue.getQueue()).to.equal('default');
+            expect(queue.getQueue('emails')).to.equal('emails');
         });
 
         // PHP: QueueRedisQueueTest::testPushProperlyPushesJobOntoRedis
-        it("push() stores the job, and pop() reads it back", () => {
+        it('push() stores the job, and pop() reads it back', () => {
             const queue = freshQueue();
 
-            const id = queue.push("foo", ["data"]) as string;
+            const id = queue.push('foo', ['data']) as string;
 
-            expect(typeOf(id)).to.equal("string");
+            expect(typeOf(id)).to.equal('string');
 
             const job = queue.pop() as MemoryStoreJob;
 
             expect(job).to.be.ok();
-            expect(job.getRawBody().displayName).to.equal("foo");
-            expect((job.getRawBody().data as Array<unknown>)[0]).to.equal("data");
+            expect(job.getRawBody().displayName).to.equal('foo');
+            expect((job.getRawBody().data as Array<unknown>)[0]).to.equal('data');
         });
 
         // PHP: QueueRedisQueueTest::testPushProperlyPushesJobOntoRedisWithCustomPayloadHook /
         // testPushProperlyPushesJobOntoRedisWithTwoCustomPayloadHook
-        it("push() runs every registered createPayloadUsing() hook, in order", () => {
+        it('push() runs every registered createPayloadUsing() hook, in order', () => {
             const queue = freshQueue();
 
             MemoryStoreQueue.createPayloadUsing(() => ({ maxTries: 3 }) as never);
             MemoryStoreQueue.createPayloadUsing(() => ({ maxExceptions: 2 }) as never);
 
-            queue.push("foo", ["data"]);
+            queue.push('foo', ['data']);
 
             const job = queue.pop() as MemoryStoreJob;
 
@@ -139,7 +139,7 @@ export = (): void => {
         });
 
         // PHP: QueueRedisQueueTest::testPushPassesUnchangedQueueToCreatePayload
-        it("push() hands the payload hook the queue name unchanged", () => {
+        it('push() hands the payload hook the queue name unchanged', () => {
             const queue = freshQueue();
 
             let receivedQueue: string | undefined;
@@ -150,7 +150,7 @@ export = (): void => {
                 return {};
             });
 
-            queue.push("foo", ["data"]);
+            queue.push('foo', ['data']);
 
             expect(receivedQueue).to.equal(queue.getQueue());
 
@@ -158,32 +158,32 @@ export = (): void => {
         });
 
         // PHP: QueueRedisQueueTest::testDelayedPushProperlyPushesJobOntoRedis
-        it("later() holds the job until its delay has passed", () => {
+        it('later() holds the job until its delay has passed', () => {
             const queue = freshQueue();
 
             // Held with a delay long enough to be certain: `currentTime()`
             // counts whole seconds, so a one-second delay can come due purely
             // because a second boundary fell between `later()` and `pop()`.
-            queue.later(60, "held", ["data"]);
+            queue.later(60, 'held', ['data']);
 
             expect(queue.pop()).to.equal(undefined);
 
-            queue.later(1, "foo", ["data"]);
+            queue.later(1, 'foo', ['data']);
 
             task.wait(1.2);
 
             const job = queue.pop() as MemoryStoreJob;
 
             expect(job).to.be.ok();
-            expect(job.getRawBody().displayName).to.equal("foo");
+            expect(job.getRawBody().displayName).to.equal('foo');
         });
 
         // Not directly in the PHP suite -- exercises `pop()`/`release()`/
         // `delete()` end to end against the real MemoryStoreQueue, since
         // upstream never round-trips through a real Redis the way this does.
-        it("release() returns a popped job to the queue", () => {
+        it('release() returns a popped job to the queue', () => {
             const queue = freshQueue();
-            queue.push("foo", ["data"]);
+            queue.push('foo', ['data']);
 
             const job = queue.pop() as MemoryStoreJob;
             job.release(0);
@@ -194,9 +194,9 @@ export = (): void => {
             expect(again.attempts()).to.equal(2);
         });
 
-        it("delete() removes a popped job so it is not read again", () => {
+        it('delete() removes a popped job so it is not read again', () => {
             const queue = freshQueue();
-            queue.push("foo", ["data"]);
+            queue.push('foo', ['data']);
 
             const job = queue.pop() as MemoryStoreJob;
             job.delete();
@@ -207,10 +207,10 @@ export = (): void => {
         // PHP: no direct equivalent -- exercises the platform limit
         // `MemoryStoreQueue.ts`'s class comment documents: an item may not
         // exceed 32 KB, refused rather than silently truncated.
-        it("a payload larger than the 32 KB item limit is refused", () => {
+        it('a payload larger than the 32 KB item limit is refused', () => {
             const queue = freshQueue();
 
-            const [ok, err] = pcall(() => queue.push("foo", string.rep("x", 33 * 1024)));
+            const [ok, err] = pcall(() => queue.push('foo', string.rep('x', 33 * 1024)));
 
             expect(ok).to.equal(false);
             expect(err instanceof InvalidPayloadException).to.equal(true);
@@ -218,11 +218,11 @@ export = (): void => {
 
         // PHP: QueueRedisQueueTest asserts the Lua script `clear()` issues;
         // there is no script layer here, so this asserts the round trip.
-        it("clear() removes every pending and delayed job and reports how many", () => {
+        it('clear() removes every pending and delayed job and reports how many', () => {
             const queue = freshQueue();
-            queue.push("foo", ["data"]);
-            queue.push("bar", ["data"]);
-            queue.later(60, "baz", ["data"]);
+            queue.push('foo', ['data']);
+            queue.push('bar', ['data']);
+            queue.later(60, 'baz', ['data']);
 
             expect(queue.clear()).to.equal(3);
 
@@ -234,9 +234,9 @@ export = (): void => {
         // sorted set outright; MemoryStore has no call that takes an item
         // another reader is holding, so a popped job outlives `clear()` until
         // its invisibility timeout puts it back (see `clear()`'s comment).
-        it("clear() cannot reach a job that is reserved (divergence from upstream)", () => {
+        it('clear() cannot reach a job that is reserved (divergence from upstream)', () => {
             const queue = freshQueue();
-            queue.push("foo", ["data"]);
+            queue.push('foo', ['data']);
             queue.pop();
 
             expect(queue.clear()).to.equal(0);
@@ -248,7 +248,7 @@ export = (): void => {
         // `ReadAsync` is the only way to see a job and it reserves what it
         // reads (see class comment). The sizes are real -- `Size.spec.ts`
         // covers them -- and the listings are what the platform withholds.
-        it("the job listings answer empty even though the sizes count", () => {
+        it('the job listings answer empty even though the sizes count', () => {
             const queue = freshQueue();
             queue.push(new MyTestJob(), []);
 

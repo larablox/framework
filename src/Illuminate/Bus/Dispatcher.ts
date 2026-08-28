@@ -1,32 +1,32 @@
-import { Connection } from "Illuminate/Queue/Attributes/Connection";
-import { Delay } from "Illuminate/Queue/Attributes/Delay";
-import { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import { PendingBatch } from "Illuminate/Bus/PendingBatch";
-import { Pipeline } from "Illuminate/Pipeline/Pipeline";
-import { Queue as QueueAttribute } from "Illuminate/Queue/Attributes/Queue";
-import { ReadsClassAttributes } from "Illuminate/Support/Traits/ReadsClassAttributes";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { RuntimeException } from "Illuminate/Exception";
-import { SyncJob } from "Illuminate/Queue/Jobs/SyncJob";
-import { isShouldQueue } from "Illuminate/Contracts/Queue/ShouldQueue";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Delay as DelayValue } from "Illuminate/Support/InteractsWithTime";
-import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
-import type { Batch } from "Illuminate/Bus/Batch";
-import type { BatchRepository } from "Illuminate/Bus/BatchRepository";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
-import type { Batchable } from "Illuminate/Bus/Batchable";
-import type { QueueingDispatcher } from "Illuminate/Contracts/Bus/Dispatcher";
+import { Connection } from 'Illuminate/Queue/Attributes/Connection';
+import { Delay } from 'Illuminate/Queue/Attributes/Delay';
+import { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import { PendingBatch } from 'Illuminate/Bus/PendingBatch';
+import { Pipeline } from 'Illuminate/Pipeline/Pipeline';
+import { Queue as QueueAttribute } from 'Illuminate/Queue/Attributes/Queue';
+import { ReadsClassAttributes } from 'Illuminate/Support/Traits/ReadsClassAttributes';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { RuntimeException } from 'Illuminate/Exception';
+import { SyncJob } from 'Illuminate/Queue/Jobs/SyncJob';
+import { isShouldQueue } from 'Illuminate/Contracts/Queue/ShouldQueue';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Delay as DelayValue } from 'Illuminate/Support/InteractsWithTime';
+import type { JobPayload } from 'Illuminate/Contracts/Queue/Job';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
+import type { Batch } from 'Illuminate/Bus/Batch';
+import type { BatchRepository } from 'Illuminate/Bus/BatchRepository';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
+import type { Batchable } from 'Illuminate/Bus/Batchable';
+import type { QueueingDispatcher } from 'Illuminate/Contracts/Bus/Dispatcher';
 
 /** PHP: the `$queueResolver` closure the dispatcher is built with. */
 export type QueueResolver = (connection?: string) => Queue;
 
 /** The payload a synchronous job is handed when it has no real one. */
 const EMPTY_PAYLOAD: JobPayload = {
-    uuid: "",
-    job: "sync",
+    uuid: '',
+    job: 'sync',
     failOnTimeout: false,
     data: {},
     createdAt: 0,
@@ -78,12 +78,12 @@ export class Dispatcher implements QueueingDispatcher {
         if (
             this.queueResolver !== undefined &&
             this.commandShouldBeQueued(command) &&
-            typeIs(onConnection, "function")
+            typeIs(onConnection, 'function')
         ) {
             // Reached through the table rather than the method, so the receiver
             // is passed by hand: a dot call would leave `self` behind.
             return this.dispatchToQueue(
-                (onConnection as (self: object, connection: string) => object)(command, "sync"),
+                (onConnection as (self: object, connection: string) => object)(command, 'sync'),
             );
         }
 
@@ -93,7 +93,7 @@ export class Dispatcher implements QueueingDispatcher {
     /** Dispatch a command to its appropriate handler in the current process without using the synchronous queue. */
     public dispatchNow(command: object, handler?: object): unknown {
         if (Reflector.isInstanceOf(command, InteractsWithQueue) && (command as InteractsWithQueue).job === undefined) {
-            (command as InteractsWithQueue).setJob(new SyncJob(this.container, EMPTY_PAYLOAD, "sync", "sync"));
+            (command as InteractsWithQueue).setJob(new SyncJob(this.container, EMPTY_PAYLOAD, 'sync', 'sync'));
         }
 
         const resolved = handler ?? this.getCommandHandler(command);
@@ -110,7 +110,7 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** PHP: `method_exists($target, 'handle') ? 'handle' : '__invoke'`. */
     protected methodOf(target: object): string {
-        return typeIs((target as { handle?: unknown }).handle, "function") ? "handle" : "__invoke";
+        return typeIs((target as { handle?: unknown }).handle, 'function') ? 'handle' : '__invoke';
     }
 
     /** Determine if the given command has a handler. */
@@ -145,18 +145,18 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** Dispatch a command to its appropriate handler behind a queue. */
     public dispatchToQueue(command: object): unknown {
-        const connection = ReadsClassAttributes.getAttributeValue(command, Connection, "connection") as
+        const connection = ReadsClassAttributes.getAttributeValue(command, Connection, 'connection') as
             string | undefined;
 
         const queue = (this.queueResolver as QueueResolver)(connection);
 
         if (queue === undefined) {
-            throw new RuntimeException("Queue resolver did not return a Queue implementation.");
+            throw new RuntimeException('Queue resolver did not return a Queue implementation.');
         }
 
         const custom = (command as { queue?: unknown }).queue;
 
-        if (typeIs(custom, "function")) {
+        if (typeIs(custom, 'function')) {
             return (custom as (self: object, queue: Queue, command: object) => unknown)(command, queue, command);
         }
 
@@ -165,16 +165,16 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** Push the command onto the given queue instance. */
     protected pushCommandToQueue(queue: Queue, command: object): unknown {
-        const queueName = ReadsClassAttributes.getAttributeValue(command, QueueAttribute, "queue") as
+        const queueName = ReadsClassAttributes.getAttributeValue(command, QueueAttribute, 'queue') as
             string | undefined;
 
-        const delay = ReadsClassAttributes.getAttributeValue(command, Delay, "delaySeconds") as DelayValue | undefined;
+        const delay = ReadsClassAttributes.getAttributeValue(command, Delay, 'delaySeconds') as DelayValue | undefined;
 
         if (delay !== undefined) {
-            return queue.later(delay, command, "", queueName);
+            return queue.later(delay, command, '', queueName);
         }
 
-        return queue.push(command, "", queueName);
+        return queue.push(command, '', queueName);
     }
 
     /** Create a new batch of queueable jobs. */
@@ -184,7 +184,7 @@ export class Dispatcher implements QueueingDispatcher {
 
     /** Attempt to find the batch with the given ID. */
     public findBatch(batchId: string): Batch | undefined {
-        return this.container.make<BatchRepository>("bus.batches").find(batchId);
+        return this.container.make<BatchRepository>('bus.batches').find(batchId);
     }
 
     /** Set the pipes through which commands should be piped before dispatching. */

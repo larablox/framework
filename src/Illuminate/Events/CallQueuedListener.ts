@@ -1,13 +1,13 @@
-import { Container } from "Illuminate/Container/Container";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import { Queueable } from "Illuminate/Bus/Queueable";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { ShouldQueue } from "Illuminate/Contracts/Queue/ShouldQueue";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
-import type { EventPayload } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Job } from "Illuminate/Contracts/Queue/Job";
+import { Container } from 'Illuminate/Container/Container';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import { Queueable } from 'Illuminate/Bus/Queueable';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { ShouldQueue } from 'Illuminate/Contracts/Queue/ShouldQueue';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Container as ContainerContract } from 'Illuminate/Contracts/Container/Container';
+import type { EventPayload } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
 
 /**
  * PHP: `Illuminate\Events\CallQueuedListener`.
@@ -58,7 +58,7 @@ export class CallQueuedListener extends Queueable {
     }
 
     /** Handle the queued job. */
-    public handle(@Inject("app") container: ContainerContract): void {
+    public handle(@Inject('app') container: ContainerContract): void {
         const handler = this.setJobInstanceIfNecessary(this.job, container.make(this.listenerClass) as object);
 
         const callable = (handler as Record<string, unknown>)[this.method];
@@ -81,7 +81,7 @@ export class CallQueuedListener extends Queueable {
 
         const callable = handler.failed;
 
-        if (typeIs(callable, "function")) {
+        if (typeIs(callable, 'function')) {
             (callable as (self: object, ...args: Array<never>) => void)(
                 handler as unknown as object,
                 ...([...this.data, e] as Array<never>),

@@ -1,5 +1,5 @@
-import type { Abstract } from "Illuminate/Container/Types";
-import type { ParameterAttribute, ParameterDependency } from "Illuminate/Container/Attributes/Inject";
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { ParameterAttribute, ParameterDependency } from 'Illuminate/Container/Attributes/Inject';
 
 /**
  * @internal
@@ -14,7 +14,7 @@ export class Util {
      * value -- passing one where a list is expected is meaningless anyway.
      */
     public static isArray(value: unknown): value is Array<defined> {
-        return typeIs(value, "table") && (value as Array<defined>).size() > 0;
+        return typeIs(value, 'table') && (value as Array<defined>).size() > 0;
     }
 
     /**
@@ -27,7 +27,7 @@ export class Util {
             return [];
         }
 
-        if (!typeIs(value, "table")) {
+        if (!typeIs(value, 'table')) {
             return [value as T];
         }
 
@@ -50,7 +50,7 @@ export class Util {
      * carries entries, so a table with neither is the empty list.
      */
     public static isEmptyArray(value: unknown): boolean {
-        if (!typeIs(value, "table") || getmetatable(value as object) !== undefined) {
+        if (!typeIs(value, 'table') || getmetatable(value as object) !== undefined) {
             return false;
         }
 
@@ -67,7 +67,7 @@ export class Util {
      * From the global `value()` helper in Illuminate\Support.
      */
     public static unwrapIfClosure(value: unknown, ...args: Array<unknown>): unknown {
-        return typeIs(value, "function") ? (value as Callback)(...args) : value;
+        return typeIs(value, 'function') ? (value as Callback)(...args) : value;
     }
 
     /**
@@ -85,7 +85,7 @@ export class Util {
 
     /** True when the abstract is a class rather than a plain string key. */
     public static isClass(abstract: Abstract): boolean {
-        return typeIs(abstract, "table");
+        return typeIs(abstract, 'table');
     }
 
     /**
@@ -97,16 +97,16 @@ export class Util {
      * the same call `Util.isArray` makes.
      */
     public static truthy(value: unknown): boolean {
-        if (typeIs(value, "boolean")) {
+        if (typeIs(value, 'boolean')) {
             return value;
         }
 
-        if (typeIs(value, "number")) {
+        if (typeIs(value, 'number')) {
             return value !== 0;
         }
 
-        if (typeIs(value, "string")) {
-            return value !== "" && value !== "0";
+        if (typeIs(value, 'string')) {
+            return value !== '' && value !== '0';
         }
 
         return value !== undefined;

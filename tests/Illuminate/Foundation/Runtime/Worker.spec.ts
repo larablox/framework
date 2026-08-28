@@ -1,12 +1,12 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Application } from "Illuminate/Foundation/Application";
-import { expectThrows } from "../../TestHelpers";
-import { Kernel } from "Illuminate/Foundation/Http/Kernel";
-import { Request } from "Illuminate/Http/Request";
-import { Response } from "Illuminate/Http/Response";
-import { Router } from "Illuminate/Routing/Router";
-import { Worker } from "Illuminate/Foundation/Runtime/Worker";
-import type { Route } from "Illuminate/Routing/Route";
+import { Application } from 'Illuminate/Foundation/Application';
+import { expectThrows } from '../../TestHelpers';
+import { Kernel } from 'Illuminate/Foundation/Http/Kernel';
+import { Request } from 'Illuminate/Http/Request';
+import { Response } from 'Illuminate/Http/Response';
+import { Router } from 'Illuminate/Routing/Router';
+import { Worker } from 'Illuminate/Foundation/Runtime/Worker';
+import type { Route } from 'Illuminate/Routing/Route';
 
 /**
  * No PHP counterpart: `Laravel\Octane\Worker` has no test to port, and the
@@ -15,7 +15,7 @@ import type { Route } from "Illuminate/Routing/Route";
  * a remote handler is a coroutine and something can.
  */
 export = (): void => {
-    describe("Foundation.Runtime.Worker", () => {
+    describe('Foundation.Runtime.Worker', () => {
         /**
          * An application booted far enough to serve a request.
          *
@@ -31,7 +31,7 @@ export = (): void => {
 
             app.bootstrapWith([]);
 
-            app.make<Router>("router").get("t/{id}", (request: Request, id: string) => {
+            app.make<Router>('router').get('t/{id}', (request: Request, id: string) => {
                 // The route's container is this request's sandbox, so the
                 // callback is registered there and nowhere else. It fires
                 // only if that sandbox is the application terminated.
@@ -41,20 +41,20 @@ export = (): void => {
                     terminated.push(id);
                 });
 
-                return new Response("ok");
+                return new Response('ok');
             });
 
             return app;
         }
 
-        it("terminates the sandbox its own request ran on, not whatever the kernel points at now", () => {
+        it('terminates the sandbox its own request ran on, not whatever the kernel points at now', () => {
             const terminated = new Array<string>();
             const app = booted(terminated);
             const worker = app.make<Worker>(Worker);
 
             worker.boot([]);
 
-            worker.handle(new Request({} as Player, "GET", "t/one"));
+            worker.handle(new Request({} as Player, 'GET', 't/one'));
 
             // What every other request does to the shared kernel: `handle()`
             // points it at its own sandbox and `flushSandbox()` puts it back on
@@ -65,7 +65,7 @@ export = (): void => {
             task.wait();
 
             expect(terminated.size()).to.equal(1);
-            expect(terminated[0]).to.equal("one");
+            expect(terminated[0]).to.equal('one');
         });
 
         it("reports each request's own duration, even once another request has been handled", () => {
@@ -80,8 +80,8 @@ export = (): void => {
 
             const first = app.sandbox();
             const second = app.sandbox();
-            const one = new Request({} as Player, "GET", "t/one");
-            const two = new Request({} as Player, "GET", "t/two");
+            const one = new Request({} as Player, 'GET', 't/one');
+            const two = new Request({} as Player, 'GET', 't/two');
 
             // Overlapping without yielding: both are in flight before either
             // terminates, which is all it takes.
@@ -98,7 +98,7 @@ export = (): void => {
             expect(reported.size()).to.equal(2);
         });
 
-        it("stops serving once it has been terminated, and serves again once booted again", () => {
+        it('stops serving once it has been terminated, and serves again once booted again', () => {
             const app = booted(new Array<string>());
             const worker = app.make<Worker>(Worker);
 
@@ -108,23 +108,23 @@ export = (): void => {
             // `terminate()` dispatches `WorkerStopping`, so a listener has by
             // now let go of whatever it holds. A request answered after that
             // runs against services nobody is keeping any more.
-            expectThrows(() => worker.handle(new Request({} as Player, "GET", "t/one")), "not booted");
+            expectThrows(() => worker.handle(new Request({} as Player, 'GET', 't/one')), 'not booted');
 
             // Stopping is not the end of it: the worker is a singleton on an
             // application that outlives any number of stops.
             worker.boot([]);
 
-            expect(worker.handle(new Request({} as Player, "GET", "t/two")).content()).to.equal("ok");
+            expect(worker.handle(new Request({} as Player, 'GET', 't/two')).content()).to.equal('ok');
         });
 
-        it("terminates a request it has already answered, even once the worker has stopped", () => {
+        it('terminates a request it has already answered, even once the worker has stopped', () => {
             const terminated = new Array<string>();
             const app = booted(terminated);
             const worker = app.make<Worker>(Worker);
 
             worker.boot([]);
 
-            worker.handle(new Request({} as Player, "GET", "t/one"));
+            worker.handle(new Request({} as Player, 'GET', 't/one'));
 
             // The place shuts down in the gap termination is deferred into.
             // Refusing to serve is right; refusing to finish what was already
@@ -135,7 +135,7 @@ export = (): void => {
             task.wait();
 
             expect(terminated.size()).to.equal(1);
-            expect(terminated[0]).to.equal("one");
+            expect(terminated[0]).to.equal('one');
         });
     });
 };

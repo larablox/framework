@@ -1,4 +1,4 @@
-import { HttpClientException } from "Illuminate/Http/Client/HttpClientException";
+import { HttpClientException } from 'Illuminate/Http/Client/HttpClientException';
 
 /**
  * PHP: `Illuminate\Http\Client\ConnectionException`.

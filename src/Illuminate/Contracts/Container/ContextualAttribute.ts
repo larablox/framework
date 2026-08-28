@@ -1,4 +1,4 @@
-import type { Container } from "Illuminate/Contracts/Container/Container";
+import type { Container } from 'Illuminate/Contracts/Container/Container';
 
 /**
  * PHP: `interface Illuminate\Contracts\Container\ContextualAttribute`, an empty

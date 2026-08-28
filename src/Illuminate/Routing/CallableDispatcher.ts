@@ -1,9 +1,9 @@
-import { ResolvesRouteDependencies } from "Illuminate/Routing/ResolvesRouteDependencies";
-import type { CallableDispatcher as CallableDispatcherContract } from "Illuminate/Routing/Contracts/CallableDispatcher";
-import type { Container } from "Illuminate/Contracts/Container/Container";
+import { ResolvesRouteDependencies } from 'Illuminate/Routing/ResolvesRouteDependencies';
+import type { CallableDispatcher as CallableDispatcherContract } from 'Illuminate/Routing/Contracts/CallableDispatcher';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { ResolvesRouteDependenciesShape } from "Illuminate/Routing/ResolvesRouteDependencies";
-import type { Route } from "Illuminate/Routing/Route";
+import type { ResolvesRouteDependenciesShape } from 'Illuminate/Routing/ResolvesRouteDependencies';
+import type { Route } from 'Illuminate/Routing/Route';
 
 /**
  * PHP: `Illuminate\Routing\CallableDispatcher`.
@@ -41,8 +41,8 @@ export class CallableDispatcher extends ResolvesRouteDependencies() implements C
     protected resolveParameters(route: Route): Array<defined> {
         const values = new Array<defined>();
 
-        if (this.container.bound("request")) {
-            values.push(this.container.make("request") as defined);
+        if (this.container.bound('request')) {
+            values.push(this.container.make('request') as defined);
         }
 
         for (const value of route.parametersWithoutNulls().values()) {

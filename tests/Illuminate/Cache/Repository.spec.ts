@@ -1,7 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../TestHelpers";
-import { Repository } from "Illuminate/Cache/Repository";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import { expectDeepEqual } from '../TestHelpers';
+import { Repository } from 'Illuminate/Cache/Repository';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
 /**
  * A minimal `Store` implementation that records every call and lets a test
@@ -109,7 +109,7 @@ class FakeStore implements Store {
     }
 
     public getPrefix(): string {
-        return "";
+        return '';
     }
 }
 
@@ -184,28 +184,28 @@ class FakeStoreWithAdd extends FakeStore {
  * exception, each said so at the point of the assertion.
  */
 export = (): void => {
-    describe("Repository", () => {
+    describe('Repository', () => {
         // PHP: CacheRepositoryTest::testGetReturnsValueFromCache
-        it("get() returns the value from the store", () => {
+        it('get() returns the value from the store', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", "bar");
+            store.getReturns.set('foo', 'bar');
             const repo = new Repository(store);
 
-            expect(repo.get("foo")).to.equal("bar");
-            expectDeepEqual(store.getCalls, ["foo"]);
+            expect(repo.get('foo')).to.equal('bar');
+            expectDeepEqual(store.getCalls, ['foo']);
         });
 
         // PHP: CacheRepositoryTest::testDefaultValueIsReturned
-        it("get() falls back to the default value, or calls it if it is a function", () => {
+        it('get() falls back to the default value, or calls it if it is a function', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(repo.get("foo", "bar")).to.equal("bar");
-            expect(repo.get("boom", () => "baz")).to.equal("baz");
+            expect(repo.get('foo', 'bar')).to.equal('bar');
+            expect(repo.get('boom', () => 'baz')).to.equal('baz');
         });
 
         // PHP: CacheRepositoryTest::testSettingDefaultCacheTime
-        it("the default cache time can be set and read back", () => {
+        it('the default cache time can be set and read back', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
             repo.setDefaultCacheTime(10);
@@ -214,101 +214,101 @@ export = (): void => {
         });
 
         // PHP: CacheRepositoryTest::testHasMethod
-        it("has() is true whenever get() answers anything but undefined", () => {
+        it('has() is true whenever get() answers anything but undefined', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", undefined);
-            store.getReturns.set("bar", "bar");
-            store.getReturns.set("baz", false);
+            store.getReturns.set('foo', undefined);
+            store.getReturns.set('bar', 'bar');
+            store.getReturns.set('baz', false);
             const repo = new Repository(store);
 
-            expect(repo.has("bar")).to.equal(true);
-            expect(repo.has("foo")).to.equal(false);
-            expect(repo.has("baz")).to.equal(true);
+            expect(repo.has('bar')).to.equal(true);
+            expect(repo.has('foo')).to.equal(false);
+            expect(repo.has('baz')).to.equal(true);
         });
 
         // PHP: CacheRepositoryTest::testMissingMethod
-        it("missing() is the inverse of has()", () => {
+        it('missing() is the inverse of has()', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", undefined);
-            store.getReturns.set("bar", "bar");
+            store.getReturns.set('foo', undefined);
+            store.getReturns.set('bar', 'bar');
             const repo = new Repository(store);
 
-            expect(repo.missing("foo")).to.equal(true);
-            expect(repo.missing("bar")).to.equal(false);
+            expect(repo.missing('foo')).to.equal(true);
+            expect(repo.missing('bar')).to.equal(false);
         });
 
         // PHP: CacheRepositoryTest::testRememberMethodCallsPutAndReturnsDefault
         // ("Use a callable..." variant not ported: `Ttl` has no callable form,
         // see class comment)
-        it("remember() calls put() with the resolved seconds and returns the fresh value", () => {
+        it('remember() calls put() with the resolved seconds and returns the fresh value', () => {
             let store = new FakeStore();
             let repo = new Repository(store);
-            let result = repo.remember("foo", 10, () => "bar");
+            let result = repo.remember('foo', 10, () => 'bar');
 
-            expect(result).to.equal("bar");
+            expect(result).to.equal('bar');
             expect(store.putCalls.size()).to.equal(1);
-            expectDeepEqual(store.putCalls[0], ["foo", "bar", 10]);
+            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 10]);
 
             store = new FakeStore();
             repo = new Repository(store);
             const inTenMinutesTwoSeconds = DateTime.fromUnixTimestamp(os.time() + 602);
             const inTenMinutesLessTwoSeconds = DateTime.fromUnixTimestamp(os.time() + 598);
 
-            result = repo.remember("foo", inTenMinutesTwoSeconds, () => "bar");
-            expect(result).to.equal("bar");
+            result = repo.remember('foo', inTenMinutesTwoSeconds, () => 'bar');
+            expect(result).to.equal('bar');
 
-            const secondResult = repo.remember("baz", inTenMinutesLessTwoSeconds, () => "qux");
-            expect(secondResult).to.equal("qux");
+            const secondResult = repo.remember('baz', inTenMinutesLessTwoSeconds, () => 'qux');
+            expect(secondResult).to.equal('qux');
 
             expect(store.putCalls.size()).to.equal(2);
-            expectDeepEqual(store.putCalls[0], ["foo", "bar", 602]);
-            expectDeepEqual(store.putCalls[1], ["baz", "qux", 598]);
+            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 602]);
+            expectDeepEqual(store.putCalls[1], ['baz', 'qux', 598]);
         });
 
         // PHP: CacheRepositoryTest::testRememberForeverMethodCallsForeverAndReturnsDefault
-        it("rememberForever() calls forever() and returns the fresh value", () => {
+        it('rememberForever() calls forever() and returns the fresh value', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            const result = repo.rememberForever("foo", () => "bar");
+            const result = repo.rememberForever('foo', () => 'bar');
 
-            expect(result).to.equal("bar");
+            expect(result).to.equal('bar');
             expect(store.foreverCalls.size()).to.equal(1);
-            expectDeepEqual(store.foreverCalls[0], ["foo", "bar"]);
+            expectDeepEqual(store.foreverCalls[0], ['foo', 'bar']);
         });
 
         // PHP: CacheRepositoryTest::testPutWithNullTTLRemembersItemForever
-        it("put() with no TTL stores the item forever", () => {
+        it('put() with no TTL stores the item forever', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(repo.put("foo", "bar")).to.equal(true);
+            expect(repo.put('foo', 'bar')).to.equal(true);
             expect(store.foreverCalls.size()).to.equal(1);
-            expectDeepEqual(store.foreverCalls[0], ["foo", "bar"]);
+            expectDeepEqual(store.foreverCalls[0], ['foo', 'bar']);
         });
 
         // PHP: CacheRepositoryTest::testPutWithDatetimeInPastOrZeroSecondsRemovesOldItem
-        it("put() with a TTL in the past or at now removes the old item instead", () => {
+        it('put() with a TTL in the past or at now removes the old item instead', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
             const tenMinutesAgo = DateTime.fromUnixTimestamp(os.time() - 600);
             const now = DateTime.fromUnixTimestamp(os.time());
 
-            expect(repo.put("foo", "bar", tenMinutesAgo)).to.equal(true);
-            expect(repo.put("foo", "bar", now)).to.equal(true);
+            expect(repo.put('foo', 'bar', tenMinutesAgo)).to.equal(true);
+            expect(repo.put('foo', 'bar', now)).to.equal(true);
 
             expect(store.putCalls.size()).to.equal(0);
-            expectDeepEqual(store.forgetCalls, ["foo", "foo"]);
+            expectDeepEqual(store.forgetCalls, ['foo', 'foo']);
         });
 
         // PHP: CacheRepositoryTest::testAddWithStoreFailureReturnsFalse
-        it("add() falls back to get()+put() when the store has no add(), and fails when put() fails", () => {
+        it('add() falls back to get()+put() when the store has no add(), and fails when put() fails', () => {
             const store = new FakeStore();
             store.putReturn = false;
             const repo = new Repository(store);
 
-            expect(repo.add("foo", "bar", 60)).to.equal(false);
+            expect(repo.add('foo', 'bar', 60)).to.equal(false);
         });
 
         // PHP: CacheRepositoryTest::testCacheAddCallsRedisStoreAdd
@@ -316,9 +316,9 @@ export = (): void => {
             const store = new FakeStoreWithAdd();
             const repo = new Repository(store);
 
-            expect(repo.add("k", "v", 60)).to.equal(true);
+            expect(repo.add('k', 'v', 60)).to.equal(true);
             expect(store.addCalls.size()).to.equal(1);
-            expectDeepEqual(store.addCalls[0], ["k", "v", 60]);
+            expectDeepEqual(store.addCalls[0], ['k', 'v', 60]);
         });
 
         // PHP: CacheRepositoryTest::testAddMethodCanAcceptDateIntervals
@@ -326,45 +326,45 @@ export = (): void => {
         // for a plain-seconds TTL by the store-without-add half of this test)
         //
         // PHP: CacheRepositoryTest::testAddMethodCanAcceptDateTimeInterface
-        it("add() accepts a DateTime TTL, on a store with add() and one without", () => {
+        it('add() accepts a DateTime TTL, on a store with add() and one without', () => {
             const storeWithAdd = new FakeStoreWithAdd();
             const repoWithAdd = new Repository(storeWithAdd);
 
-            expect(repoWithAdd.add("k", "v", DateTime.fromUnixTimestamp(os.time() + 61))).to.equal(true);
+            expect(repoWithAdd.add('k', 'v', DateTime.fromUnixTimestamp(os.time() + 61))).to.equal(true);
             expect(storeWithAdd.addCalls.size()).to.equal(1);
-            expectDeepEqual(storeWithAdd.addCalls[0], ["k", "v", 61]);
+            expectDeepEqual(storeWithAdd.addCalls[0], ['k', 'v', 61]);
 
             const storeWithoutAdd = new FakeStore();
             const repoWithoutAdd = new Repository(storeWithoutAdd);
 
-            expect(repoWithoutAdd.add("k", "v", DateTime.fromUnixTimestamp(os.time() + 62))).to.equal(true);
-            expectDeepEqual(storeWithoutAdd.getCalls, ["k"]);
+            expect(repoWithoutAdd.add('k', 'v', DateTime.fromUnixTimestamp(os.time() + 62))).to.equal(true);
+            expectDeepEqual(storeWithoutAdd.getCalls, ['k']);
             expect(storeWithoutAdd.putCalls.size()).to.equal(1);
-            expectDeepEqual(storeWithoutAdd.putCalls[0], ["k", "v", 62]);
+            expectDeepEqual(storeWithoutAdd.putCalls[0], ['k', 'v', 62]);
         });
 
         // PHP: CacheRepositoryTest::testAddWithNullTTLRemembersItemForever
-        it("add() with no TTL stores the item forever when the key is absent", () => {
+        it('add() with no TTL stores the item forever when the key is absent', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(repo.add("foo", "bar")).to.equal(true);
-            expectDeepEqual(store.getCalls, ["foo"]);
+            expect(repo.add('foo', 'bar')).to.equal(true);
+            expectDeepEqual(store.getCalls, ['foo']);
             expect(store.foreverCalls.size()).to.equal(1);
-            expectDeepEqual(store.foreverCalls[0], ["foo", "bar"]);
+            expectDeepEqual(store.foreverCalls[0], ['foo', 'bar']);
         });
 
         // PHP: CacheRepositoryTest::testAddWithDatetimeInPastOrZeroSecondsReturnsImmediately
-        it("add() with a TTL in the past, at now, or negative returns false immediately", () => {
+        it('add() with a TTL in the past, at now, or negative returns false immediately', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
             const tenMinutesAgo = DateTime.fromUnixTimestamp(os.time() - 600);
             const now = DateTime.fromUnixTimestamp(os.time());
 
-            expect(repo.add("foo", "bar", tenMinutesAgo)).to.equal(false);
-            expect(repo.add("foo", "bar", now)).to.equal(false);
-            expect(repo.add("foo", "bar", -1)).to.equal(false);
+            expect(repo.add('foo', 'bar', tenMinutesAgo)).to.equal(false);
+            expect(repo.add('foo', 'bar', now)).to.equal(false);
+            expect(repo.add('foo', 'bar', -1)).to.equal(false);
 
             expect(store.getCalls.size()).to.equal(0);
             expect(store.putCalls.size()).to.equal(0);
@@ -374,54 +374,54 @@ export = (): void => {
         // `int`/`DateTime` cases port -- `DateTimeImmutable` exercises the
         // same `Delay` branch as `DateTime`, and `DateInterval` has no
         // counterpart, see class comment)
-        it("put() resolves a plain number of seconds and a DateTime the same way", () => {
+        it('put() resolves a plain number of seconds and a DateTime the same way', () => {
             let store = new FakeStore();
             let repo = new Repository(store);
-            repo.put("foo", "bar", 300);
+            repo.put('foo', 'bar', 300);
             expect(store.putCalls.size()).to.equal(1);
-            expectDeepEqual(store.putCalls[0], ["foo", "bar", 300]);
+            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 300]);
 
             store = new FakeStore();
             repo = new Repository(store);
-            repo.put("foo", "bar", DateTime.fromUnixTimestamp(os.time() + 300));
+            repo.put('foo', 'bar', DateTime.fromUnixTimestamp(os.time() + 300));
             expect(store.putCalls.size()).to.equal(1);
-            expectDeepEqual(store.putCalls[0], ["foo", "bar", 300]);
+            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 300]);
         });
 
         // PHP: CacheRepositoryTest::testForgettingCacheKey
-        it("forget() proxies to the store", () => {
+        it('forget() proxies to the store', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            repo.forget("a-key");
+            repo.forget('a-key');
 
-            expectDeepEqual(store.forgetCalls, ["a-key"]);
+            expectDeepEqual(store.forgetCalls, ['a-key']);
         });
 
         // PHP: CacheRepositoryTest::testRemovingCacheKey
-        it("delete() is an alias of forget()", () => {
+        it('delete() is an alias of forget()', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            repo.delete("a-key");
+            repo.delete('a-key');
 
-            expectDeepEqual(store.forgetCalls, ["a-key"]);
+            expectDeepEqual(store.forgetCalls, ['a-key']);
         });
 
         // PHP: CacheRepositoryTest::testSettingCache
-        it("set() proxies to put()", () => {
+        it('set() proxies to put()', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            const result = repo.set("foo", "bar", 1);
+            const result = repo.set('foo', 'bar', 1);
 
             expect(result).to.equal(true);
             expect(store.putCalls.size()).to.equal(1);
-            expectDeepEqual(store.putCalls[0], ["foo", "bar", 1]);
+            expectDeepEqual(store.putCalls[0], ['foo', 'bar', 1]);
         });
 
         // PHP: CacheRepositoryTest::testClearingWholeCache
-        it("clear() proxies to flush()", () => {
+        it('clear() proxies to flush()', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
@@ -431,25 +431,25 @@ export = (): void => {
         });
 
         // PHP: CacheRepositoryTest::testTouchWithSecondsTtlCorrectlyProxiesToStore
-        it("touch() with a seconds TTL proxies to the store", () => {
+        it('touch() with a seconds TTL proxies to the store', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(repo.touch("key", 60)).to.equal(true);
+            expect(repo.touch('key', 60)).to.equal(true);
             expect(store.touchCalls.size()).to.equal(1);
-            expectDeepEqual(store.touchCalls[0], ["key", 60]);
+            expectDeepEqual(store.touchCalls[0], ['key', 60]);
         });
 
         // PHP: CacheRepositoryTest::testTouchWithDatetimeTtlCorrectlyProxiesToStore
-        it("touch() with a DateTime TTL resolves it to seconds first", () => {
+        it('touch() with a DateTime TTL resolves it to seconds first', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
             const now = DateTime.fromUnixTimestamp(os.time());
 
-            expect(repo.touch("key", DateTime.fromUnixTimestamp(now.UnixTimestamp + 60))).to.equal(true);
+            expect(repo.touch('key', DateTime.fromUnixTimestamp(now.UnixTimestamp + 60))).to.equal(true);
             expect(store.touchCalls.size()).to.equal(1);
-            expectDeepEqual(store.touchCalls[0], ["key", 60]);
+            expectDeepEqual(store.touchCalls[0], ['key', 60]);
         });
 
         // PHP: CacheRepositoryTest::testTouchWithDateIntervalTtlCorrectlyProxiesToStore
@@ -463,152 +463,152 @@ export = (): void => {
         // whatever `getSeconds()` resolves to, zero included, rather than
         // falling back to `forget()`. The test below asserts what the code
         // actually does.)
-        it("touch() with a TTL in the past or at now calls store.touch() with zero seconds, rather than forgetting (divergence from upstream)", () => {
+        it('touch() with a TTL in the past or at now calls store.touch() with zero seconds, rather than forgetting (divergence from upstream)', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(repo.touch("key", DateTime.fromUnixTimestamp(os.time() - 60))).to.equal(true);
-            expect(repo.touch("key", 0)).to.equal(true);
+            expect(repo.touch('key', DateTime.fromUnixTimestamp(os.time() - 60))).to.equal(true);
+            expect(repo.touch('key', 0)).to.equal(true);
 
             expect(store.touchCalls.size()).to.equal(2);
-            expectDeepEqual(store.touchCalls[0], ["key", 0]);
-            expectDeepEqual(store.touchCalls[1], ["key", 0]);
+            expectDeepEqual(store.touchCalls[0], ['key', 0]);
+            expectDeepEqual(store.touchCalls[1], ['key', 0]);
             expect(store.forgetCalls.size()).to.equal(0);
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsString
-        it("string() reads back a string value", () => {
+        it('string() reads back a string value', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", "bar");
+            store.getReturns.set('foo', 'bar');
             const repo = new Repository(store);
 
-            expect(repo.string("foo")).to.equal("bar");
+            expect(repo.string('foo')).to.equal('bar');
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsStringWithDefault
-        it("string() falls back to the default value", () => {
+        it('string() falls back to the default value', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(repo.string("foo", "default")).to.equal("default");
+            expect(repo.string('foo', 'default')).to.equal('default');
         });
 
         // PHP: CacheRepositoryTest::testItThrowsExceptionWhenGettingNonStringAsString
         // (adapted -- `string()` here does not check the type, it just
         // `tostring()`s whatever it got; the test below asserts that.)
-        it("string() stringifies a non-string value instead of throwing (divergence from upstream)", () => {
+        it('string() stringifies a non-string value instead of throwing (divergence from upstream)', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", 123);
+            store.getReturns.set('foo', 123);
             const repo = new Repository(store);
 
-            expect(repo.string("foo")).to.equal("123");
+            expect(repo.string('foo')).to.equal('123');
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsInteger
-        it("integer() reads back a number value", () => {
+        it('integer() reads back a number value', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", 123);
+            store.getReturns.set('foo', 123);
             const repo = new Repository(store);
 
-            expect(repo.integer("foo")).to.equal(123);
+            expect(repo.integer('foo')).to.equal(123);
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsIntegerWithDefault
-        it("integer() falls back to the default value", () => {
+        it('integer() falls back to the default value', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(repo.integer("foo", 456)).to.equal(456);
+            expect(repo.integer('foo', 456)).to.equal(456);
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsIntegerFromNumericString
-        it("integer() parses a numeric string", () => {
+        it('integer() parses a numeric string', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", "123");
+            store.getReturns.set('foo', '123');
             const repo = new Repository(store);
 
-            expect(repo.integer("foo")).to.equal(123);
+            expect(repo.integer('foo')).to.equal(123);
         });
 
         // PHP: CacheRepositoryTest::testItThrowsExceptionWhenGettingNonIntegerAsInteger
         // (adapted -- `integer()` here does not check the type, it just
         // `tonumber() ?? 0`s whatever it got; the test below asserts that.)
-        it("integer() falls back to zero for a non-numeric value instead of throwing (divergence from upstream)", () => {
+        it('integer() falls back to zero for a non-numeric value instead of throwing (divergence from upstream)', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", "bar");
+            store.getReturns.set('foo', 'bar');
             const repo = new Repository(store);
 
-            expect(repo.integer("foo")).to.equal(0);
+            expect(repo.integer('foo')).to.equal(0);
         });
 
         // PHP: CacheRepositoryTest::testItThrowsExceptionWhenGettingFloatStringAsInteger
         // (adapted -- Luau has one numeric type, so there is no separate
         // "must be an integer, not a float" check; `integer()` parses the
         // numeric string and returns it as-is.)
-        it("integer() parses a non-integer numeric string as a number instead of throwing (divergence from upstream)", () => {
+        it('integer() parses a non-integer numeric string as a number instead of throwing (divergence from upstream)', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", "1.5");
+            store.getReturns.set('foo', '1.5');
             const repo = new Repository(store);
 
-            expect(repo.integer("foo")).to.equal(1.5);
+            expect(repo.integer('foo')).to.equal(1.5);
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsBoolean
-        it("boolean() reads back a boolean value", () => {
+        it('boolean() reads back a boolean value', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", true);
+            store.getReturns.set('foo', true);
             const repo = new Repository(store);
 
-            expect(repo.boolean("foo")).to.equal(true);
+            expect(repo.boolean('foo')).to.equal(true);
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsBooleanWithDefault
-        it("boolean() falls back to the default value", () => {
+        it('boolean() falls back to the default value', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expect(repo.boolean("foo", false)).to.equal(false);
+            expect(repo.boolean('foo', false)).to.equal(false);
         });
 
         // PHP: CacheRepositoryTest::testItThrowsExceptionWhenGettingNonBooleanAsBoolean
         // (adapted -- `boolean()` here does not check the type, it treats
         // anything that isn't `true`/`"true"`/`1` as false; the test below
         // asserts that.)
-        it("boolean() treats a non-boolean value as false instead of throwing (divergence from upstream)", () => {
+        it('boolean() treats a non-boolean value as false instead of throwing (divergence from upstream)', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", "bar");
+            store.getReturns.set('foo', 'bar');
             const repo = new Repository(store);
 
-            expect(repo.boolean("foo")).to.equal(false);
+            expect(repo.boolean('foo')).to.equal(false);
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsArray
-        it("array() reads back an array value", () => {
+        it('array() reads back an array value', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", ["bar", "baz"]);
+            store.getReturns.set('foo', ['bar', 'baz']);
             const repo = new Repository(store);
 
-            expectDeepEqual(repo.array("foo"), ["bar", "baz"]);
+            expectDeepEqual(repo.array('foo'), ['bar', 'baz']);
         });
 
         // PHP: CacheRepositoryTest::testItGetsAsArrayWithDefault
-        it("array() falls back to the default value", () => {
+        it('array() falls back to the default value', () => {
             const store = new FakeStore();
             const repo = new Repository(store);
 
-            expectDeepEqual(repo.array("foo", ["default"]), ["default"]);
+            expectDeepEqual(repo.array('foo', ['default']), ['default']);
         });
 
         // PHP: CacheRepositoryTest::testItThrowsExceptionWhenGettingNonArrayAsArray
         // (adapted -- `array()` here does not check the type, it answers an
         // empty array for anything that isn't a table; the test below
         // asserts that.)
-        it("array() answers an empty array for a non-array value instead of throwing (divergence from upstream)", () => {
+        it('array() answers an empty array for a non-array value instead of throwing (divergence from upstream)', () => {
             const store = new FakeStore();
-            store.getReturns.set("foo", "bar");
+            store.getReturns.set('foo', 'bar');
             const repo = new Repository(store);
 
-            expect(repo.array("foo").size()).to.equal(0);
+            expect(repo.array('foo').size()).to.equal(0);
         });
     });
 };

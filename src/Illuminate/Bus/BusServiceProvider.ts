@@ -1,10 +1,10 @@
-import { ArrayBatchRepository } from "Illuminate/Bus/ArrayBatchRepository";
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
-import type { Factory } from "Illuminate/Contracts/Queue/Factory";
+import { ArrayBatchRepository } from 'Illuminate/Bus/ArrayBatchRepository';
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import { DeferrableProvider } from 'Illuminate/Contracts/Support/DeferrableProvider';
+import type { Factory } from 'Illuminate/Contracts/Queue/Factory';
 
 /**
  * PHP: `Illuminate\Bus\BusServiceProvider`.
@@ -21,7 +21,7 @@ export class BusServiceProvider extends ServiceProvider implements DeferrablePro
 
         this.app.singleton(
             Dispatcher,
-            () => new Dispatcher(app, (connection?: string) => app.make<Factory>("queue").connection(connection)),
+            () => new Dispatcher(app, (connection?: string) => app.make<Factory>('queue').connection(connection)),
         );
 
         this.registerBatchServices();
@@ -31,11 +31,11 @@ export class BusServiceProvider extends ServiceProvider implements DeferrablePro
     protected registerBatchServices(): void {
         const app: Application = this.app;
 
-        this.app.singleton("bus.batches", () => new ArrayBatchRepository(app.make<Factory>("queue")));
+        this.app.singleton('bus.batches', () => new ArrayBatchRepository(app.make<Factory>('queue')));
     }
 
     /** Get the services provided by the provider. */
     public provides(): Array<Abstract> {
-        return [Dispatcher, "bus.batches"];
+        return [Dispatcher, 'bus.batches'];
     }
 }

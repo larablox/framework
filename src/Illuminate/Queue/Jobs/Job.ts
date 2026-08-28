@@ -1,10 +1,10 @@
-import { JobFailed } from "Illuminate/Queue/Events/JobFailed";
-import { JobName } from "Illuminate/Queue/Jobs/JobName";
-import { ManuallyFailedException } from "Illuminate/Queue/ManuallyFailedException";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Job as JobContract, JobHandler, JobPayload } from "Illuminate/Contracts/Queue/Job";
+import { JobFailed } from 'Illuminate/Queue/Events/JobFailed';
+import { JobName } from 'Illuminate/Queue/Jobs/JobName';
+import { ManuallyFailedException } from 'Illuminate/Queue/ManuallyFailedException';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Job as JobContract, JobHandler, JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 /**
  * PHP: `Illuminate\Queue\Jobs\Job`.
@@ -33,10 +33,10 @@ export abstract class Job {
     protected failed = false;
 
     /** The name of the connection the job belongs to. */
-    protected connectionName = "";
+    protected connectionName = '';
 
     /** The name of the queue the job belongs to. */
-    protected queue = "";
+    protected queue = '';
 
     /** Get the job identifier. */
     public abstract getJobId(): string;
@@ -128,7 +128,7 @@ export abstract class Job {
         } finally {
             // PHP resolves the `Dispatcher` contract; an interface is no key
             // here, and `events` is the alias the contract is bound under.
-            const events = this.container.make<Dispatcher>("events");
+            const events = this.container.make<Dispatcher>('events');
 
             events.dispatch(
                 new JobFailed(this.connectionName, this as unknown as JobContract, e ?? new ManuallyFailedException()),
@@ -146,7 +146,7 @@ export abstract class Job {
 
         const handler = (this.instance as Record<string, unknown>).failed;
 
-        if (typeIs(handler, "function")) {
+        if (typeIs(handler, 'function')) {
             (handler as (self: object, data: unknown, e: unknown, uuid: string, job: JobContract) => void)(
                 this.instance,
                 payload.data,

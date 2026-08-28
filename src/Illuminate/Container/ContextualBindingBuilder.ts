@@ -1,8 +1,8 @@
-import { Util } from "Illuminate/Container/Util";
-import type { Abstract, ContextualImplementation } from "Illuminate/Container/Types";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config/Repository";
-import type { ContextualBindingBuilder as ContextualBindingBuilderContract } from "Illuminate/Contracts/Container/ContextualBindingBuilder";
+import { Util } from 'Illuminate/Container/Util';
+import type { Abstract, ContextualImplementation } from 'Illuminate/Container/Types';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Repository as ConfigRepository } from 'Illuminate/Contracts/Config/Repository';
+import type { ContextualBindingBuilder as ContextualBindingBuilderContract } from 'Illuminate/Contracts/Container/ContextualBindingBuilder';
 
 export class ContextualBindingBuilder implements ContextualBindingBuilderContract {
     /** The abstract target. */
@@ -41,6 +41,6 @@ export class ContextualBindingBuilder implements ContextualBindingBuilderContrac
         // function, and roblox-ts compiles a call on one with a dot, which
         // drops the receiver. The contract declares `get` as a method, so the
         // call compiles to `config:get(...)`.
-        return this.give((container: Container) => container.make<ConfigRepository>("config").get(key, defaultValue));
+        return this.give((container: Container) => container.make<ConfigRepository>('config').get(key, defaultValue));
     }
 }

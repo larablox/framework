@@ -1,4 +1,4 @@
-import { Str } from "Illuminate/Support/Str";
+import { Str } from 'Illuminate/Support/Str';
 
 /**
  * PHP: `Illuminate\Routing\RouteUri`.
@@ -24,23 +24,23 @@ export class RouteUri {
     /** Parse the given URI, extracting the binding fields. */
     public static parse(uri: string): RouteUri {
         const bindingFields: Record<string, string> = {};
-        const segments = uri.split("/");
+        const segments = uri.split('/');
 
         for (let index = 0; index < segments.size(); index++) {
-            const [inner] = segments[index].match("^{(.*)}$");
+            const [inner] = segments[index].match('^{(.*)}$');
 
-            if (!typeIs(inner, "string") || !Str.contains(inner, ":")) {
+            if (!typeIs(inner, 'string') || !Str.contains(inner, ':')) {
                 continue;
             }
 
-            const optional = inner.sub(inner.size(), inner.size()) === "?";
+            const optional = inner.sub(inner.size(), inner.size()) === '?';
             const declaration = optional ? inner.sub(1, inner.size() - 1) : inner;
-            const [name, field] = declaration.split(":");
+            const [name, field] = declaration.split(':');
 
             bindingFields[name] = field;
-            segments[index] = `{${name}${optional ? "?" : ""}}`;
+            segments[index] = `{${name}${optional ? '?' : ''}}`;
         }
 
-        return new RouteUri(segments.join("/"), bindingFields);
+        return new RouteUri(segments.join('/'), bindingFields);
     }
 }

@@ -465,7 +465,7 @@ export function isLowerCodepoint(codepoint: number): boolean {
  * `string.lower`/`string.upper` are already correct and much faster.
  */
 function isAscii(value: string): boolean {
-    return value.find("[\x80-\xFF]")[0] === undefined;
+    return value.find('[\x80-\xFF]')[0] === undefined;
 }
 
 function convert(value: string, map: (codepoint: number) => number): string {
@@ -475,7 +475,7 @@ function convert(value: string, map: (codepoint: number) => number): string {
         parts.push(utf8.char(map(codepoint)));
     }
 
-    return parts.join("");
+    return parts.join('');
 }
 
 /** PHP: `mb_strtolower($value)`. */

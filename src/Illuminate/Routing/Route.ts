@@ -1,31 +1,31 @@
-import { wrapPipes } from "Illuminate/Pipeline/Pipes";
-import { CallableDispatcher } from "Illuminate/Routing/CallableDispatcher";
-import { CompiledRoute } from "Illuminate/Routing/CompiledRoute";
-import { Container } from "Illuminate/Container/Container";
-import { ControllerDispatcher } from "Illuminate/Routing/ControllerDispatcher";
-import { HttpResponseException } from "Illuminate/Http/Exceptions/HttpResponseException";
-import { LogicException } from "Illuminate/Exception";
-import { MethodValidator } from "Illuminate/Routing/Matching/MethodValidator";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { RouteAction } from "Illuminate/Routing/RouteAction";
-import { RouteParameterBinder } from "Illuminate/Routing/RouteParameterBinder";
-import { RouteUri } from "Illuminate/Routing/RouteUri";
-import { Str } from "Illuminate/Support/Str";
-import { TransportValidator } from "Illuminate/Routing/Matching/TransportValidator";
-import { UriValidator } from "Illuminate/Routing/Matching/UriValidator";
-import { Util } from "Illuminate/Container/Util";
-import type { ActionAttributes, ControllerAction } from "Illuminate/Routing/RouteAction";
-import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
-import type { CallableDispatcher as CallableDispatcherContract } from "Illuminate/Routing/Contracts/CallableDispatcher";
-import type { ControllerDispatcher as ControllerDispatcherContract } from "Illuminate/Routing/Contracts/ControllerDispatcher";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
-import type { Request } from "Illuminate/Http/Request";
-import type { Router } from "Illuminate/Routing/Router";
-import type { Transport } from "Illuminate/Http/Remote";
-import type { ValidatorInterface } from "Illuminate/Routing/Matching/ValidatorInterface";
+import { wrapPipes } from 'Illuminate/Pipeline/Pipes';
+import { CallableDispatcher } from 'Illuminate/Routing/CallableDispatcher';
+import { CompiledRoute } from 'Illuminate/Routing/CompiledRoute';
+import { Container } from 'Illuminate/Container/Container';
+import { ControllerDispatcher } from 'Illuminate/Routing/ControllerDispatcher';
+import { HttpResponseException } from 'Illuminate/Http/Exceptions/HttpResponseException';
+import { LogicException } from 'Illuminate/Exception';
+import { MethodValidator } from 'Illuminate/Routing/Matching/MethodValidator';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { RouteAction } from 'Illuminate/Routing/RouteAction';
+import { RouteParameterBinder } from 'Illuminate/Routing/RouteParameterBinder';
+import { RouteUri } from 'Illuminate/Routing/RouteUri';
+import { Str } from 'Illuminate/Support/Str';
+import { TransportValidator } from 'Illuminate/Routing/Matching/TransportValidator';
+import { UriValidator } from 'Illuminate/Routing/Matching/UriValidator';
+import { Util } from 'Illuminate/Container/Util';
+import type { ActionAttributes, ControllerAction } from 'Illuminate/Routing/RouteAction';
+import type { Container as ContainerContract } from 'Illuminate/Contracts/Container/Container';
+import type { CallableDispatcher as CallableDispatcherContract } from 'Illuminate/Routing/Contracts/CallableDispatcher';
+import type { ControllerDispatcher as ControllerDispatcherContract } from 'Illuminate/Routing/Contracts/ControllerDispatcher';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Router } from 'Illuminate/Routing/Router';
+import type { Transport } from 'Illuminate/Http/Remote';
+import type { ValidatorInterface } from 'Illuminate/Routing/Matching/ValidatorInterface';
 
 /** The transports an ordinary route answers on. */
-const DEFAULT_TRANSPORTS: Array<Transport> = ["call", "send"];
+const DEFAULT_TRANSPORTS: Array<Transport> = ['call', 'send'];
 
 /**
  * PHP: `Illuminate\Routing\Route`.
@@ -43,7 +43,7 @@ const DEFAULT_TRANSPORTS: Array<Transport> = ["call", "send"];
  */
 export class Route {
     /** PHP: `$uri`. */
-    protected uriPattern = "";
+    protected uriPattern = '';
 
     /** PHP: `$methods`. */
     protected httpMethods: Array<string>;
@@ -101,8 +101,8 @@ export class Route {
         // PHP: a route that answers GET answers HEAD too, whether or not the
         // caller listed it -- `Router::get()` passes both, but
         // `Router::match(['GET'], ...)` passes only GET.
-        if (this.httpMethods.includes("GET") && !this.httpMethods.includes("HEAD")) {
-            this.httpMethods.push("HEAD");
+        if (this.httpMethods.includes('GET') && !this.httpMethods.includes('HEAD')) {
+            this.httpMethods.push('HEAD');
         }
 
         // PHP drops the prefix off the action here and applies it through
@@ -116,7 +116,7 @@ export class Route {
         // would parse `foo/{bar:slug}` into `foo/{bar}` first, and `prefix()`
         // would then re-parse that -- losing every binding field.
         this.uriPattern = uri;
-        this.prefix(prefix ?? "");
+        this.prefix(prefix ?? '');
     }
 
     // -----------------------------------------------------------------
@@ -350,7 +350,7 @@ export class Route {
     /** Get the key / value list of parameters for the route. */
     public parameters(): OrderedMap<string, defined> {
         if (this.parameterValues === undefined) {
-            throw new LogicException("Route is not bound.");
+            throw new LogicException('Route is not bound.');
         }
 
         return this.parameterValues;
@@ -359,7 +359,7 @@ export class Route {
     /** Get the key / value list of original parameters for the route. */
     public originalParameters(): OrderedMap<string, defined> {
         if (this.originalParameterValues === undefined) {
-            throw new LogicException("Route is not bound.");
+            throw new LogicException('Route is not bound.');
         }
 
         return this.originalParameterValues;
@@ -449,7 +449,7 @@ export class Route {
 
     /** Parse arguments to the where method into an array. */
     protected parseWhere(name: string | Record<string, string>, expression?: string): Record<string, string> {
-        if (typeIs(name, "table")) {
+        if (typeIs(name, 'table')) {
             return name;
         }
 
@@ -463,24 +463,24 @@ export class Route {
 
     /** Specify that the given route parameters must be numeric. */
     public whereNumber(parameters: string | Array<string>): this {
-        return this.assignExpressionToParameters(parameters, "%d+");
+        return this.assignExpressionToParameters(parameters, '%d+');
     }
 
     /** Specify that the given route parameters must be alphabetic. */
     public whereAlpha(parameters: string | Array<string>): this {
-        return this.assignExpressionToParameters(parameters, "%a+");
+        return this.assignExpressionToParameters(parameters, '%a+');
     }
 
     /** Specify that the given route parameters must be alphanumeric. */
     public whereAlphaNumeric(parameters: string | Array<string>): this {
-        return this.assignExpressionToParameters(parameters, "%w+");
+        return this.assignExpressionToParameters(parameters, '%w+');
     }
 
     /** Specify that the given route parameters must be UUIDs. */
     public whereUuid(parameters: string | Array<string>): this {
         return this.assignExpressionToParameters(
             parameters,
-            "%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x",
+            '%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x',
         );
     }
 
@@ -492,7 +492,7 @@ export class Route {
      * are Crockford base32 in either case.
      */
     public whereUlid(parameters: string | Array<string>): this {
-        return this.assignExpressionToParameters(parameters, `[0-7]${"[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]".rep(25)}`);
+        return this.assignExpressionToParameters(parameters, `[0-7]${'[0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]'.rep(25)}`);
     }
 
     /** Apply the given expression to the given parameters. */
@@ -545,7 +545,7 @@ export class Route {
      * PHP: `httpsOnly()`.
      */
     public reliable(): this {
-        return this.setTransports(["call"]);
+        return this.setTransports(['call']);
     }
 
     /** Get the URI associated with the route. */
@@ -569,16 +569,16 @@ export class Route {
     public prefix(prefix: string): this {
         this.updatePrefixOnAction(prefix);
 
-        const uri = `${Str.rtrim(prefix, "/")}/${Str.ltrim(this.uriPattern, "/")}`;
+        const uri = `${Str.rtrim(prefix, '/')}/${Str.ltrim(this.uriPattern, '/')}`;
 
-        return this.setUri(uri !== "/" ? Str.trim(uri, "/") : uri);
+        return this.setUri(uri !== '/' ? Str.trim(uri, '/') : uri);
     }
 
     /** Update the "prefix" attribute on the action array. */
     protected updatePrefixOnAction(prefix: string): void {
-        const merged = Str.trim(`${Str.rtrim(prefix, "/")}/${Str.ltrim(this.action.prefix ?? "", "/")}`, "/");
+        const merged = Str.trim(`${Str.rtrim(prefix, '/')}/${Str.ltrim(this.action.prefix ?? '', '/')}`, '/');
 
-        if (merged !== "") {
+        if (merged !== '') {
             this.action.prefix = merged;
         }
     }
@@ -618,7 +618,7 @@ export class Route {
     }
 
     /** Set the handler for the route. */
-    public uses(action: ActionAttributes["uses"]): this {
+    public uses(action: ActionAttributes['uses']): this {
         return this.setAction({
             ...this.action,
             ...RouteAction.parse(this.uriPattern, action),
@@ -630,7 +630,7 @@ export class Route {
         const controller = this.action.controller;
 
         if (controller === undefined) {
-            return "Closure";
+            return 'Closure';
         }
 
         return `${tostring(controller[0])}@${controller[1]}`;
@@ -638,7 +638,7 @@ export class Route {
 
     /** Get the method name of the route action. */
     public getActionMethod(): string {
-        return this.isControllerAction() ? this.getControllerMethod() : "Closure";
+        return this.isControllerAction() ? this.getControllerMethod() : 'Closure';
     }
 
     /** Get the action array or one of its properties for the route. */

@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Queueable } from "Illuminate/Bus/Queueable";
+import { Queueable } from 'Illuminate/Bus/Queueable';
 
 /**
  * PHP: `Illuminate\Tests\Bus\QueueableTest`.
@@ -13,16 +13,16 @@ import { Queueable } from "Illuminate/Bus/Queueable";
 class FakeJob extends Queueable {}
 
 export = (): void => {
-    describe("Queueable", () => {
-        it("onConnection() sets the connection from a string", () => {
+    describe('Queueable', () => {
+        it('onConnection() sets the connection from a string', () => {
             // PHP: QueueableTest::testOnConnection ('uses string')
             const job = new FakeJob();
-            job.onConnection("redis");
+            job.onConnection('redis');
 
-            expect(job.connection).to.equal("redis");
+            expect(job.connection).to.equal('redis');
         });
 
-        it("onConnection() accepts undefined", () => {
+        it('onConnection() accepts undefined', () => {
             // PHP: QueueableTest::testOnConnection ('uses null')
             const job = new FakeJob();
             job.onConnection(undefined);
@@ -30,16 +30,16 @@ export = (): void => {
             expect(job.connection).to.equal(undefined);
         });
 
-        it("allOnConnection() sets both connection and chainConnection from a string", () => {
+        it('allOnConnection() sets both connection and chainConnection from a string', () => {
             // PHP: QueueableTest::testAllOnConnection ('uses string')
             const job = new FakeJob();
-            job.allOnConnection("redis");
+            job.allOnConnection('redis');
 
-            expect(job.connection).to.equal("redis");
-            expect(job.chainConnection).to.equal("redis");
+            expect(job.connection).to.equal('redis');
+            expect(job.chainConnection).to.equal('redis');
         });
 
-        it("allOnConnection() accepts undefined", () => {
+        it('allOnConnection() accepts undefined', () => {
             // PHP: QueueableTest::testAllOnConnection ('uses null')
             const job = new FakeJob();
             job.allOnConnection(undefined);
@@ -48,15 +48,15 @@ export = (): void => {
             expect(job.chainConnection).to.equal(undefined);
         });
 
-        it("onQueue() sets the queue from a string", () => {
+        it('onQueue() sets the queue from a string', () => {
             // PHP: QueueableTest::testOnQueue ('uses string')
             const job = new FakeJob();
-            job.onQueue("high");
+            job.onQueue('high');
 
-            expect(job.queue).to.equal("high");
+            expect(job.queue).to.equal('high');
         });
 
-        it("onQueue() accepts undefined", () => {
+        it('onQueue() accepts undefined', () => {
             // PHP: QueueableTest::testOnQueue ('uses null')
             const job = new FakeJob();
             job.onQueue(undefined);
@@ -64,16 +64,16 @@ export = (): void => {
             expect(job.queue).to.equal(undefined);
         });
 
-        it("allOnQueue() sets both queue and chainQueue from a string", () => {
+        it('allOnQueue() sets both queue and chainQueue from a string', () => {
             // PHP: QueueableTest::testAllOnQueue ('uses string')
             const job = new FakeJob();
-            job.allOnQueue("high");
+            job.allOnQueue('high');
 
-            expect(job.queue).to.equal("high");
-            expect(job.chainQueue).to.equal("high");
+            expect(job.queue).to.equal('high');
+            expect(job.chainQueue).to.equal('high');
         });
 
-        it("allOnQueue() accepts undefined", () => {
+        it('allOnQueue() accepts undefined', () => {
             // PHP: QueueableTest::testAllOnQueue ('uses null')
             const job = new FakeJob();
             job.allOnQueue(undefined);

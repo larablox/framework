@@ -1,7 +1,7 @@
-import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
-import type { Abstract, ParameterList } from "Illuminate/Container/Types";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { addParameterAttribute } from 'Illuminate/Container/Attributes/Inject';
+import type { Abstract, ParameterList } from 'Illuminate/Container/Types';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] class Give`. */
 export interface Give extends ContextualAttribute {

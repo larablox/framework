@@ -1,4 +1,4 @@
-import type { Request } from "Illuminate/Http/Request";
+import type { Request } from 'Illuminate/Http/Request';
 
 /** PHP: `Illuminate\Routing\Events\Routing`. */
 export class Routing {

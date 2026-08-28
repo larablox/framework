@@ -1,5 +1,5 @@
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
-import type { Route } from "Illuminate/Routing/Route";
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
+import type { Route } from 'Illuminate/Routing/Route';
 
 /** PHP: `Illuminate\Routing\Contracts\ControllerDispatcher`. */
 export interface ControllerDispatcher {

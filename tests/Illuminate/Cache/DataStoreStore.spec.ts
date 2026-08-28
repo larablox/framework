@@ -1,7 +1,7 @@
 ﻿/// <reference types="@rbxts/testez/globals" />
-import { DataStoreLock } from "Illuminate/Cache/DataStoreLock";
-import { DataStoreStore, MAX_KEY_LENGTH } from "Illuminate/Cache/DataStoreStore";
-import { InvalidArgumentException } from "Illuminate/Exception";
+import { DataStoreLock } from 'Illuminate/Cache/DataStoreLock';
+import { DataStoreStore, MAX_KEY_LENGTH } from 'Illuminate/Cache/DataStoreStore';
+import { InvalidArgumentException } from 'Illuminate/Exception';
 
 /**
  * PHP: `Illuminate\Tests\Cache\CacheDatabaseStoreTest`.
@@ -49,69 +49,69 @@ import { InvalidArgumentException } from "Illuminate/Exception";
  * there is no companion key to delete).
  */
 
-const HttpService = game.GetService("HttpService");
+const HttpService = game.GetService('HttpService');
 
 /** A fresh store, isolated from every other test by a random store name. */
-function freshStore(prefix = "prefix"): DataStoreStore {
+function freshStore(prefix = 'prefix'): DataStoreStore {
     return new DataStoreStore(HttpService.GenerateGUID(false), prefix);
 }
 
 export = (): void => {
-    describe("DataStoreStore", () => {
+    describe('DataStoreStore', () => {
         // PHP: CacheDatabaseStoreTest::testNullIsReturnedWhenItemNotFound
-        it("get() returns undefined for a key that was never set", () => {
+        it('get() returns undefined for a key that was never set', () => {
             const store = freshStore();
 
-            expect(store.get("foo")).to.equal(undefined);
+            expect(store.get('foo')).to.equal(undefined);
         });
 
         // PHP: CacheDatabaseStoreTest::testDecryptedValueIsReturnedWhenItemIsValid
-        it("a put() value round-trips through get()", () => {
+        it('a put() value round-trips through get()', () => {
             const store = freshStore();
 
-            expect(store.put("foo", "bar", 999_999)).to.equal(true);
-            expect(store.get("foo")).to.equal("bar");
+            expect(store.put('foo', 'bar', 999_999)).to.equal(true);
+            expect(store.get('foo')).to.equal('bar');
         });
 
         // PHP: CacheDatabaseStoreTest::testNullIsReturnedAndItemDeletedWhenItemIsExpired
-        it("get() returns undefined, and deletes the row, once the TTL has elapsed", () => {
+        it('get() returns undefined, and deletes the row, once the TTL has elapsed', () => {
             const store = freshStore();
-            store.put("foo", "bar", 1);
+            store.put('foo', 'bar', 1);
 
             task.wait(1.2);
 
-            expect(store.get("foo")).to.equal(undefined);
+            expect(store.get('foo')).to.equal(undefined);
         });
 
         // PHP: CacheDatabaseStoreTest::testForeverCallsStoreItemWithReallyLongTime
         // (adapted -- this port's `forever()` writes `expiresAt: 0`, meaning
         // "never", rather than PHP's finite-but-huge 315360000 seconds; see
         // `DataStoreStore.forever()`/`expiresAt()`.)
-        it("forever() stores the item with no expiration (divergence from upstream)", () => {
+        it('forever() stores the item with no expiration (divergence from upstream)', () => {
             const store = freshStore();
 
-            expect(store.forever("foo", "bar")).to.equal(true);
-            expect(store.get("foo")).to.equal("bar");
+            expect(store.forever('foo', 'bar')).to.equal(true);
+            expect(store.get('foo')).to.equal('bar');
         });
 
         // PHP: CacheDatabaseStoreTest::testItemsMayBeRemovedFromCache
-        it("forget() removes the item", () => {
+        it('forget() removes the item', () => {
             const store = freshStore();
-            store.put("foo", "bar", 999_999);
+            store.put('foo', 'bar', 999_999);
 
-            expect(store.forget("foo")).to.equal(true);
-            expect(store.get("foo")).to.equal(undefined);
+            expect(store.forget('foo')).to.equal(true);
+            expect(store.get('foo')).to.equal(undefined);
         });
 
         // PHP: CacheDatabaseStoreTest::testItemsMayBeFlushedFromCache
-        it("flush() removes every item under the prefix", () => {
+        it('flush() removes every item under the prefix', () => {
             const store = freshStore();
-            store.put("foo", "bar", 999_999);
-            store.put("baz", "boom", 999_999);
+            store.put('foo', 'bar', 999_999);
+            store.put('baz', 'boom', 999_999);
 
             expect(store.flush()).to.equal(true);
-            expect(store.get("foo")).to.equal(undefined);
-            expect(store.get("baz")).to.equal(undefined);
+            expect(store.get('foo')).to.equal(undefined);
+            expect(store.get('baz')).to.equal(undefined);
         });
 
         // PHP: CacheDatabaseStoreTest::testIncrementReturnsCorrectValues /
@@ -120,45 +120,45 @@ export = (): void => {
         // (see class comment) makes that unsafe here, so this is split: a
         // non-existing key increments from zero, a set key increments from
         // its stored value, each its own key.)
-        it("increment() on a non-existing key starts from zero", () => {
+        it('increment() on a non-existing key starts from zero', () => {
             const store = freshStore();
 
-            expect(store.increment("counter-a")).to.equal(1);
+            expect(store.increment('counter-a')).to.equal(1);
         });
 
-        it("increment()/decrement() add to and subtract from a stored numeric value", () => {
+        it('increment()/decrement() add to and subtract from a stored numeric value', () => {
             const store = freshStore();
-            store.put("counter-b", 2, 999_999);
+            store.put('counter-b', 2, 999_999);
 
-            expect(store.increment("counter-b", 1)).to.equal(3);
+            expect(store.increment('counter-b', 1)).to.equal(3);
         });
 
-        it("decrement() subtracts from a stored numeric value", () => {
+        it('decrement() subtracts from a stored numeric value', () => {
             const store = freshStore();
-            store.put("counter-c", 3, 999_999);
+            store.put('counter-c', 3, 999_999);
 
-            expect(store.decrement("counter-c")).to.equal(2);
+            expect(store.decrement('counter-c')).to.equal(2);
         });
 
         // PHP: CacheDatabaseStoreTest::testTouchExtendsTtl
-        it("touch() extends the TTL of a live item", () => {
+        it('touch() extends the TTL of a live item', () => {
             const store = freshStore();
-            store.put("key", "value", 1);
+            store.put('key', 'value', 1);
 
-            expect(store.touch("key", 60)).to.equal(true);
+            expect(store.touch('key', 60)).to.equal(true);
 
             task.wait(1.2);
 
-            expect(store.get("key")).to.equal("value");
+            expect(store.get('key')).to.equal('value');
         });
 
         // PHP: no direct equivalent -- exercises `itemKey()`'s length guard,
         // the platform limit `DataStoreStore.ts`'s class comment documents
         // (a key over `MAX_KEY_LENGTH` characters is refused rather than
         // truncated into a collision).
-        it("a key longer than MAX_KEY_LENGTH is refused rather than truncated", () => {
-            const store = freshStore("");
-            const tooLong = string.rep("k", MAX_KEY_LENGTH + 1);
+        it('a key longer than MAX_KEY_LENGTH is refused rather than truncated', () => {
+            const store = freshStore('');
+            const tooLong = string.rep('k', MAX_KEY_LENGTH + 1);
 
             const [ok, err] = pcall(() => store.itemKey(tooLong));
 
@@ -171,20 +171,20 @@ export = (): void => {
         // "add() only writes when the key is absent"; ported here too since
         // `DataStoreLock`/`DataStoreStore.add()` share the same
         // `UpdateAsync`-based mechanism as `DataStoreLock.acquire()`.
-        it("add() only writes when the key is absent", () => {
+        it('add() only writes when the key is absent', () => {
             const store = freshStore();
 
-            expect(store.add("foo", "first", 999_999)).to.equal(true);
-            expect(store.add("foo", "second", 999_999)).to.equal(false);
-            expect(store.get("foo")).to.equal("first");
+            expect(store.add('foo', 'first', 999_999)).to.equal(true);
+            expect(store.add('foo', 'second', 999_999)).to.equal(false);
+            expect(store.get('foo')).to.equal('first');
         });
 
         // PHP: no direct equivalent -- exercises `DataStoreLock`, the same
         // ownership contract `ArrayStore.spec.ts`'s lock cases exercise for
         // `ArrayLock`, over `DataStoreStore`'s `UpdateAsync`-based locks.
-        it("a lock cannot be acquired twice, and can be acquired again once released", () => {
+        it('a lock cannot be acquired twice, and can be acquired again once released', () => {
             const store = freshStore();
-            const lock = store.lock("a-lock", 999_999) as DataStoreLock;
+            const lock = store.lock('a-lock', 999_999) as DataStoreLock;
 
             expect(lock.acquire()).to.equal(true);
             expect(lock.acquire()).to.equal(false);

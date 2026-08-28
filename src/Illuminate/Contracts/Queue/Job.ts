@@ -1,4 +1,4 @@
-import type { Abstract } from "Illuminate/Container/Types";
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * PHP: the `job` entry of a payload, a `Class@method` string such as

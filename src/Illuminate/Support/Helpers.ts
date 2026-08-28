@@ -1,13 +1,13 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { Collection } from "Illuminate/Support/Collection";
-import { InvalidArgumentException, RuntimeException } from "Illuminate/Exception";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Str } from "Illuminate/Support/Str";
-import { Stringable } from "Illuminate/Support/Stringable";
-import { Util } from "Illuminate/Container/Util";
-import type { Constructor } from "Illuminate/Support/Traits/Trait";
-import type { Exception } from "Illuminate/Exception";
+import { Arr } from 'Illuminate/Support/Arr';
+import { Collection } from 'Illuminate/Support/Collection';
+import { InvalidArgumentException, RuntimeException } from 'Illuminate/Exception';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Str } from 'Illuminate/Support/Str';
+import { Stringable } from 'Illuminate/Support/Stringable';
+import { Util } from 'Illuminate/Container/Util';
+import type { Constructor } from 'Illuminate/Support/Traits/Trait';
+import type { Exception } from 'Illuminate/Exception';
 
 /**
  * PHP's global helpers, from `Illuminate/Support/helpers.php` and
@@ -96,7 +96,7 @@ export function transform<TValue extends defined, TReturn, TDefault>(
         return callback(value as TValue);
     }
 
-    if (typeIs(defaultValue, "function")) {
+    if (typeIs(defaultValue, 'function')) {
         return (defaultValue as (value: TValue | undefined) => TDefault)(value);
     }
 
@@ -124,7 +124,7 @@ export function when<TValue extends defined, TDefault extends defined>(
     value: TValue | ((condition: unknown) => TValue),
     defaultValue?: TDefault | ((condition: unknown) => TDefault),
 ): TValue | TDefault | undefined {
-    const resolved = typeIs(condition, "function") ? (condition as Callback)() : condition;
+    const resolved = typeIs(condition, 'function') ? (condition as Callback)() : condition;
 
     if (Util.truthy(resolved)) {
         return Util.unwrapIfClosure(value, resolved) as TValue;
@@ -150,11 +150,11 @@ export function blank(value: unknown): boolean {
         return true;
     }
 
-    if (typeIs(value, "string")) {
-        return Str.trim(value) === "";
+    if (typeIs(value, 'string')) {
+        return Str.trim(value) === '';
     }
 
-    if (typeIs(value, "number") || typeIs(value, "boolean")) {
+    if (typeIs(value, 'number') || typeIs(value, 'boolean')) {
         return false;
     }
 
@@ -167,7 +167,7 @@ export function blank(value: unknown): boolean {
     }
 
     if (value instanceof Stringable) {
-        return Str.trim((value as Stringable).toString()) === "";
+        return Str.trim((value as Stringable).toString()) === '';
     }
 
     // PHP falls through to `empty($value)`, and an object is never empty --
@@ -177,7 +177,7 @@ export function blank(value: unknown): boolean {
         return false;
     }
 
-    if (typeIs(value, "table")) {
+    if (typeIs(value, 'table')) {
         const [key] = next(value);
 
         return key === undefined;
@@ -219,9 +219,9 @@ export function throw_if<TValue>(
         return condition;
     }
 
-    const thrown = typeIs(exception, "function") ? (exception as Callback)(...parameters) : exception;
+    const thrown = typeIs(exception, 'function') ? (exception as Callback)(...parameters) : exception;
 
-    if (typeIs(thrown, "string")) {
+    if (typeIs(thrown, 'string')) {
         throw new RuntimeException(thrown);
     }
 
@@ -261,8 +261,8 @@ export function retry<TReturn>(
     sleepMilliseconds: number | ((attempts: number, exception: unknown) => number) = 0,
     when?: (exception: unknown) => boolean,
 ): TReturn {
-    const backoff = typeIs(times, "table") ? times : new Array<number>();
-    let remaining = typeIs(times, "table") ? times.size() + 1 : times;
+    const backoff = typeIs(times, 'table') ? times : new Array<number>();
+    let remaining = typeIs(times, 'table') ? times.size() + 1 : times;
     let attempts = 0;
 
     for (;;) {
@@ -283,7 +283,7 @@ export function retry<TReturn>(
 
             // `typeIs` narrows to Luau's `Callback`, whose return is `any`;
             // the cast keeps the delay a number.
-            const milliseconds: number = typeIs(configured, "function")
+            const milliseconds: number = typeIs(configured, 'function')
                 ? (configured as (attempts: number, e: unknown) => number)(attempts, exception)
                 : configured;
 
@@ -365,13 +365,13 @@ export function data_get(target: unknown, key: string | Array<string> | undefine
         return target;
     }
 
-    const parts = typeIs(key, "string") ? key.split(".") : key;
+    const parts = typeIs(key, 'string') ? key.split('.') : key;
     let current = target;
 
     for (let index = 0; index < parts.size(); index++) {
         const segment = parts[index];
 
-        if (segment === "*") {
+        if (segment === '*') {
             const items = itemsOf(current);
 
             if (items === undefined) {
@@ -389,7 +389,7 @@ export function data_get(target: unknown, key: string | Array<string> | undefine
                 }
             }
 
-            return rest.includes("*") ? Arr.collapse(result) : result;
+            return rest.includes('*') ? Arr.collapse(result) : result;
         }
 
         const found = resolveSegment(current, segment);
@@ -415,7 +415,7 @@ export function data_has(target: unknown, key: string | Array<string> | undefine
         return false;
     }
 
-    const parts = typeIs(key, "string") ? key.split(".") : key;
+    const parts = typeIs(key, 'string') ? key.split('.') : key;
 
     if (parts.size() === 0) {
         return false;
@@ -451,14 +451,14 @@ export function data_set(
     value: unknown,
     overwrite = true,
 ): DataTarget {
-    const rest = typeIs(key, "string") ? key.split(".") : [...key];
+    const rest = typeIs(key, 'string') ? key.split('.') : [...key];
     const segment = rest.remove(0) as string;
 
-    if (segment === "*") {
+    if (segment === '*') {
         const items = itemsOf(target);
 
         if (items === undefined) {
-            throw new InvalidArgumentException("A wildcard segment needs a target that holds items.");
+            throw new InvalidArgumentException('A wildcard segment needs a target that holds items.');
         }
 
         if (rest.size() > 0) {
@@ -477,7 +477,7 @@ export function data_set(
     if (rest.size() > 0) {
         let child = readKey(target, segment);
 
-        if (!typeIs(child, "table")) {
+        if (!typeIs(child, 'table')) {
             child = {} as Record<string, unknown>;
 
             writeKey(target, keyFor(target, segment), child);
@@ -507,10 +507,10 @@ export function data_fill(target: DataTarget, key: string | Array<string>, value
  * PHP, and a Luau array has no holes to leave.
  */
 export function data_forget(target: DataTarget, key: string | Array<string>): DataTarget {
-    const rest = typeIs(key, "string") ? key.split(".") : [...key];
+    const rest = typeIs(key, 'string') ? key.split('.') : [...key];
     const segment = rest.remove(0) as string;
 
-    if (segment === "*") {
+    if (segment === '*') {
         const items = rest.size() > 0 ? itemsOf(target) : undefined;
 
         if (items !== undefined) {
@@ -560,11 +560,11 @@ function readRawKey(target: unknown, key: string | number): unknown {
         return (target as OrderedMap<defined, defined>).get(key);
     }
 
-    if (!typeIs(target, "table")) {
+    if (!typeIs(target, 'table')) {
         return undefined;
     }
 
-    return typeIs(key, "number") ? (target as Array<defined>)[key] : (target as Record<string, unknown>)[key];
+    return typeIs(key, 'number') ? (target as Array<defined>)[key] : (target as Record<string, unknown>)[key];
 }
 
 /** A target that keeps its own keys, and can therefore hold numeric ones. */
@@ -598,20 +598,20 @@ function readKey(target: unknown, segment: string): unknown {
 
 /** PHP: the `match ($segment)` inside `data_get`. */
 function resolveSegment(target: unknown, segment: string): unknown {
-    if (segment === "\\*") {
-        return readKey(target, "*");
+    if (segment === '\\*') {
+        return readKey(target, '*');
     }
 
-    if (segment === "\\{first}") {
-        return readKey(target, "{first}");
+    if (segment === '\\{first}') {
+        return readKey(target, '{first}');
     }
 
-    if (segment === "\\{last}") {
-        return readKey(target, "{last}");
+    if (segment === '\\{last}') {
+        return readKey(target, '{last}');
     }
 
-    if (segment === "{first}" || segment === "{last}") {
-        const key = keyAt(target, segment === "{last}");
+    if (segment === '{first}' || segment === '{last}') {
+        const key = keyAt(target, segment === '{last}');
 
         return key === undefined ? undefined : readRawKey(target, key);
     }
@@ -633,11 +633,11 @@ function writeKey(target: unknown, key: string | number, value: unknown): void {
         return;
     }
 
-    if (!typeIs(target, "table")) {
+    if (!typeIs(target, 'table')) {
         return;
     }
 
-    if (typeIs(key, "number")) {
+    if (typeIs(key, 'number')) {
         (target as Array<defined>)[key] = value as defined;
 
         return;
@@ -660,11 +660,11 @@ function deleteKey(target: unknown, key: string | number): void {
         return;
     }
 
-    if (!typeIs(target, "table")) {
+    if (!typeIs(target, 'table')) {
         return;
     }
 
-    if (typeIs(key, "number")) {
+    if (typeIs(key, 'number')) {
         (target as Array<defined>).remove(key);
 
         return;
@@ -705,7 +705,7 @@ function itemsOf(target: unknown): Array<defined> | undefined {
         return target as Array<defined>;
     }
 
-    if (!typeIs(target, "table")) {
+    if (!typeIs(target, 'table')) {
         return undefined;
     }
 
@@ -740,7 +740,7 @@ function keysOf(target: unknown): Array<string | number> {
 
     const keys = new Array<string | number>();
 
-    if (typeIs(target, "table")) {
+    if (typeIs(target, 'table')) {
         for (const [each] of pairs(target as Record<string, defined>)) {
             keys.push(each as string);
         }

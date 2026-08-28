@@ -1,4 +1,4 @@
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /** PHP: `Illuminate\Contracts\Queue\Factory`. */
 export interface Factory {

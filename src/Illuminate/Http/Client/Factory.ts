@@ -1,7 +1,7 @@
-import { PendingRequest } from "Illuminate/Http/Client/PendingRequest";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { RequestException } from "Illuminate/Http/Client/RequestException";
-import type { Response } from "Illuminate/Http/Client/Response";
+import { PendingRequest } from 'Illuminate/Http/Client/PendingRequest';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { RequestException } from 'Illuminate/Http/Client/RequestException';
+import type { Response } from 'Illuminate/Http/Client/Response';
 
 /** PHP: `$sleepMilliseconds`, which may be a closure. */
 type RetryDelay = number | ((attempts: number, exception: unknown) => number);

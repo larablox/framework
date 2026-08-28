@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Collection } from "Illuminate/Support/Collection";
+import { Collection } from 'Illuminate/Support/Collection';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportCollectionTest` -- `contains`,
@@ -13,8 +13,8 @@ import { Collection } from "Illuminate/Support/Collection";
  * `doesntContainStrict`, `some()`'s equivalent overloads) are dropped.
  */
 export = (): void => {
-    describe("Collection aggregation", () => {
-        it("contains() / doesntContain() test for a value or a callback match", () => {
+    describe('Collection aggregation', () => {
+        it('contains() / doesntContain() test for a value or a callback match', () => {
             // PHP: SupportCollectionTest::testContains, ::testDoesntContain
             const c = new Collection([1, 3, 5]);
 
@@ -31,7 +31,7 @@ export = (): void => {
             expect(withSentinel.contains((value) => value === sentinel)).to.equal(true);
         });
 
-        it("every() tests whether every item passes a truth test", () => {
+        it('every() tests whether every item passes a truth test', () => {
             // PHP: SupportCollectionTest::testEvery (Collection-level analog;
             // the PHP method under this name lives on `Arr`/`Enumerable` for
             // the sequence case, ported here against `Collection` directly)
@@ -47,31 +47,31 @@ export = (): void => {
             // ::testCanSumValuesWithoutACallback,
             // ::testGettingSumFromEmptyCollection
             const c = new Collection([{ foo: 50 }, { foo: 50 }]);
-            expect(c.sum("foo")).to.equal(100);
+            expect(c.sum('foo')).to.equal(100);
             expect(c.sum((item) => item.foo)).to.equal(100);
 
             expect(new Collection([1, 2, 3, 4, 5]).sum()).to.equal(15);
-            expect(new Collection<number, { foo: number }>().sum("foo")).to.equal(0);
+            expect(new Collection<number, { foo: number }>().sum('foo')).to.equal(0);
         });
 
-        it("avg() / average() compute the mean, of the whole collection or a key", () => {
+        it('avg() / average() compute the mean, of the whole collection or a key', () => {
             // PHP: SupportCollectionTest::testGettingAvgItemsFromCollection
             const c = new Collection([{ foo: 10 }, { foo: 20 }]);
-            expect(c.avg("foo")).to.equal(15);
+            expect(c.avg('foo')).to.equal(15);
             expect(c.avg((item) => item.foo)).to.equal(15);
-            expect(c.average("foo")).to.equal(15);
+            expect(c.average('foo')).to.equal(15);
 
             expect(new Collection([1, 2, 3, 4, 5]).avg()).to.equal(3);
             expect(new Collection<number, number>().avg()).to.equal(undefined);
         });
 
-        it("min() / max() find the extreme value, of the whole collection or a key", () => {
+        it('min() / max() find the extreme value, of the whole collection or a key', () => {
             // PHP: SupportCollectionTest::testGettingMaxItemsFromCollection,
             // ::testGettingMinItemsFromCollection
             const c = new Collection([{ foo: 10 }, { foo: 20 }]);
-            expect(c.max("foo")).to.equal(20);
+            expect(c.max('foo')).to.equal(20);
             expect(c.max((item) => item.foo)).to.equal(20);
-            expect(c.min("foo")).to.equal(10);
+            expect(c.min('foo')).to.equal(10);
             expect(c.min((item) => item.foo)).to.equal(10);
 
             expect(new Collection([1, 2, 3, 4, 5]).max()).to.equal(5);
@@ -81,7 +81,7 @@ export = (): void => {
             expect(new Collection<number, number>().min()).to.equal(undefined);
         });
 
-        it("reduce() folds the collection down to a single value", () => {
+        it('reduce() folds the collection down to a single value', () => {
             // PHP: SupportCollectionTest::testReduce
             const data = new Collection([1, 2, 3]);
             expect(data.reduce((carry, element) => carry + element, 0)).to.equal(6);
@@ -90,8 +90,8 @@ export = (): void => {
             // fold reads keys in iteration order, and `pairs()` does not
             // define the order of a literal's keys (laravel-parity.md,
             // "Collection: ключи и объём").
-            const keyed = new Collection<string, string>().put("foo", "bar").put("baz", "qux");
-            expect(keyed.reduce((carry, element, key) => carry + key + element, "")).to.equal("foobarbazqux");
+            const keyed = new Collection<string, string>().put('foo', 'bar').put('baz', 'qux');
+            expect(keyed.reduce((carry, element, key) => carry + key + element, '')).to.equal('foobarbazqux');
         });
     });
 };

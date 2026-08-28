@@ -1,5 +1,5 @@
-import { HttpClientException } from "Illuminate/Http/Client/HttpClientException";
-import type { Response } from "Illuminate/Http/Client/Response";
+import { HttpClientException } from 'Illuminate/Http/Client/HttpClientException';
+import type { Response } from 'Illuminate/Http/Client/Response';
 
 /**
  * PHP: `Illuminate\Http\Client\RequestException`.

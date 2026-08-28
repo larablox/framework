@@ -1,8 +1,8 @@
-import { Handler } from "Illuminate/Foundation/Exceptions/Handler";
-import { Pipeline as BasePipeline } from "Illuminate/Pipeline/Pipeline";
-import { Request } from "Illuminate/Http/Request";
-import { isResponsable } from "Illuminate/Contracts/Support/Responsable";
-import type { Passable } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Handler } from 'Illuminate/Foundation/Exceptions/Handler';
+import { Pipeline as BasePipeline } from 'Illuminate/Pipeline/Pipeline';
+import { Request } from 'Illuminate/Http/Request';
+import { isResponsable } from 'Illuminate/Contracts/Support/Responsable';
+import type { Passable } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Routing\Pipeline`.
@@ -19,7 +19,7 @@ import type { Passable } from "Illuminate/Contracts/Pipeline/Pipeline";
 export class Pipeline extends BasePipeline {
     /** Handle the value returned from each pipe before passing it to the next. */
     protected handleCarry(carry: unknown): unknown {
-        return isResponsable(carry) ? carry.toResponse(this.getContainer().make<Request>("request")) : carry;
+        return isResponsable(carry) ? carry.toResponse(this.getContainer().make<Request>('request')) : carry;
     }
 
     /** Handle the given exception. */

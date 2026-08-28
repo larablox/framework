@@ -1,9 +1,9 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { MemoryStoreJob } from "Illuminate/Queue/Jobs/MemoryStoreJob";
-import { Serializer } from "Illuminate/Support/Serializer";
-import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type { MemoryStoreQueue } from "Illuminate/Queue/MemoryStoreQueue";
+import { Container } from 'Illuminate/Container/Container';
+import { MemoryStoreJob } from 'Illuminate/Queue/Jobs/MemoryStoreJob';
+import { Serializer } from 'Illuminate/Support/Serializer';
+import type { JobPayload } from 'Illuminate/Contracts/Queue/Job';
+import type { MemoryStoreQueue } from 'Illuminate/Queue/MemoryStoreQueue';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueRedisJobTest`.
@@ -43,11 +43,11 @@ class FooHandler {
 function getJob(memoryStore: FakeMemoryStoreQueue): [MemoryStoreJob, FooHandler] {
     const container = new Container();
     const handler = new FooHandler();
-    container.instance("foo", handler);
+    container.instance('foo', handler);
 
     const payload: Partial<JobPayload> = {
-        job: "foo",
-        data: ["data"],
+        job: 'foo',
+        data: ['data'],
         attempts: 1,
     };
 
@@ -55,18 +55,18 @@ function getJob(memoryStore: FakeMemoryStoreQueue): [MemoryStoreJob, FooHandler]
         container,
         memoryStore as unknown as MemoryStoreQueue,
         Serializer.serialize(payload),
-        "reserved-id",
-        "connection-name",
-        "default",
+        'reserved-id',
+        'connection-name',
+        'default',
     );
 
     return [job, handler];
 }
 
 export = (): void => {
-    describe("MemoryStoreJob", () => {
+    describe('MemoryStoreJob', () => {
         // PHP: QueueRedisJobTest::testFireProperlyCallsTheJobHandler
-        it("fire() resolves the handler and calls it with the job and data", () => {
+        it('fire() resolves the handler and calls it with the job and data', () => {
             const memoryStore = new FakeMemoryStoreQueue();
             const [job, handler] = getJob(memoryStore);
 
@@ -74,30 +74,30 @@ export = (): void => {
 
             expect(handler.called).to.be.ok();
             expect(handler.called![0]).to.equal(job);
-            expect((handler.called![1] as Array<unknown>)[0]).to.equal("data");
+            expect((handler.called![1] as Array<unknown>)[0]).to.equal('data');
         });
 
         // PHP: QueueRedisJobTest::testDeleteRemovesTheJobFromRedis
-        it("delete() tells the queue to delete the reserved job", () => {
+        it('delete() tells the queue to delete the reserved job', () => {
             const memoryStore = new FakeMemoryStoreQueue();
             const [job] = getJob(memoryStore);
 
             job.delete();
 
             expect(memoryStore.deleteReservedCalls.size()).to.equal(1);
-            expect(memoryStore.deleteReservedCalls[0][0]).to.equal("default");
+            expect(memoryStore.deleteReservedCalls[0][0]).to.equal('default');
             expect(memoryStore.deleteReservedCalls[0][1]).to.equal(job);
         });
 
         // PHP: QueueRedisJobTest::testReleaseProperlyReleasesJobOntoRedis
-        it("release() tells the queue to delete and release the job", () => {
+        it('release() tells the queue to delete and release the job', () => {
             const memoryStore = new FakeMemoryStoreQueue();
             const [job] = getJob(memoryStore);
 
             job.release(1);
 
             expect(memoryStore.deleteAndReleaseCalls.size()).to.equal(1);
-            expect(memoryStore.deleteAndReleaseCalls[0][0]).to.equal("default");
+            expect(memoryStore.deleteAndReleaseCalls[0][0]).to.equal('default');
             expect(memoryStore.deleteAndReleaseCalls[0][1]).to.equal(job);
             expect(memoryStore.deleteAndReleaseCalls[0][2]).to.equal(1);
         });

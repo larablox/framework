@@ -1,7 +1,7 @@
-import { DataStoreRequest } from "Illuminate/Support/DataStoreRequest";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { Lock } from "Illuminate/Cache/Lock";
-import type { DataStoreStore } from "Illuminate/Cache/DataStoreStore";
+import { DataStoreRequest } from 'Illuminate/Support/DataStoreRequest';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { Lock } from 'Illuminate/Cache/Lock';
+import type { DataStoreStore } from 'Illuminate/Cache/DataStoreStore';
 
 /** A lock as the store writes it. */
 interface LockRecord {

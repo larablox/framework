@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Str } from "Illuminate/Support/Str";
+import { Str } from 'Illuminate/Support/Str';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportStrTest` (matching methods: `is`,
@@ -28,74 +28,74 @@ import { Str } from "Illuminate/Support/Str";
  * is dropped wholesale rather than partially ported into a different claim.
  */
 export = (): void => {
-    describe("Str matching", () => {
-        it("is() matches strings against wildcard patterns", () => {
+    describe('Str matching', () => {
+        it('is() matches strings against wildcard patterns', () => {
             // PHP: SupportStrTest::testIs (adapted -- see class comment)
-            expect(Str.is("/", "/")).to.equal(true);
-            expect(Str.is("/", " /")).to.equal(false);
-            expect(Str.is("/", "/a")).to.equal(false);
-            expect(Str.is("foo/*", "foo/bar/baz")).to.equal(true);
+            expect(Str.is('/', '/')).to.equal(true);
+            expect(Str.is('/', ' /')).to.equal(false);
+            expect(Str.is('/', '/a')).to.equal(false);
+            expect(Str.is('foo/*', 'foo/bar/baz')).to.equal(true);
 
-            expect(Str.is("*@*", "App\\Class@method")).to.equal(true);
-            expect(Str.is("*@*", "app\\Class@")).to.equal(true);
-            expect(Str.is("*@*", "@method")).to.equal(true);
+            expect(Str.is('*@*', 'App\\Class@method')).to.equal(true);
+            expect(Str.is('*@*', 'app\\Class@')).to.equal(true);
+            expect(Str.is('*@*', '@method')).to.equal(true);
 
             // is case sensitive
-            expect(Str.is("*BAZ*", "foo/bar/baz")).to.equal(false);
-            expect(Str.is("*FOO*", "foo/bar/baz")).to.equal(false);
-            expect(Str.is("A", "a")).to.equal(false);
+            expect(Str.is('*BAZ*', 'foo/bar/baz')).to.equal(false);
+            expect(Str.is('*FOO*', 'foo/bar/baz')).to.equal(false);
+            expect(Str.is('A', 'a')).to.equal(false);
 
             // is not case sensitive
-            expect(Str.is("A", "a", true)).to.equal(true);
-            expect(Str.is("*BAZ*", "foo/bar/baz", true)).to.equal(true);
-            expect(Str.is(["A*", "B*"], "a/", true)).to.equal(true);
-            expect(Str.is(["A*", "B*"], "f/", true)).to.equal(false);
-            expect(Str.is("FOO", "foo", true)).to.equal(true);
-            expect(Str.is("*FOO*", "foo/bar/baz", true)).to.equal(true);
-            expect(Str.is("foo/*", "FOO/bar", true)).to.equal(true);
+            expect(Str.is('A', 'a', true)).to.equal(true);
+            expect(Str.is('*BAZ*', 'foo/bar/baz', true)).to.equal(true);
+            expect(Str.is(['A*', 'B*'], 'a/', true)).to.equal(true);
+            expect(Str.is(['A*', 'B*'], 'f/', true)).to.equal(false);
+            expect(Str.is('FOO', 'foo', true)).to.equal(true);
+            expect(Str.is('*FOO*', 'foo/bar/baz', true)).to.equal(true);
+            expect(Str.is('foo/*', 'FOO/bar', true)).to.equal(true);
 
             // Accepts array of patterns
-            expect(Str.is(["a*", "b*"], "a/")).to.equal(true);
-            expect(Str.is(["a*", "b*"], "b/")).to.equal(true);
-            expect(Str.is(["a*", "b*"], "f/")).to.equal(false);
+            expect(Str.is(['a*', 'b*'], 'a/')).to.equal(true);
+            expect(Str.is(['a*', 'b*'], 'b/')).to.equal(true);
+            expect(Str.is(['a*', 'b*'], 'f/')).to.equal(false);
 
-            expect(Str.is("*/foo", "blah/baz/foo")).to.equal(true);
+            expect(Str.is('*/foo', 'blah/baz/foo')).to.equal(true);
 
             // empty patterns
-            expect(Str.is([], "test")).to.equal(false);
+            expect(Str.is([], 'test')).to.equal(false);
         });
 
-        it("match() returns the first match, or empty string", () => {
+        it('match() returns the first match, or empty string', () => {
             // PHP: SupportStrTest::testMatch (PCRE delimiters and capture
             // groups translated to Luau patterns)
-            expect(Str.match("bar", "foo bar")).to.equal("bar");
-            expect(Str.match("foo (.*)", "foo bar")).to.equal("bar");
-            expect(Str.match("nothing", "foo bar")).to.equal("");
+            expect(Str.match('bar', 'foo bar')).to.equal('bar');
+            expect(Str.match('foo (.*)', 'foo bar')).to.equal('bar');
+            expect(Str.match('nothing', 'foo bar')).to.equal('');
 
-            expect(Str.match("pattern", "")).to.equal("");
+            expect(Str.match('pattern', '')).to.equal('');
         });
 
-        it("matchAll() returns every match as a collection", () => {
+        it('matchAll() returns every match as a collection', () => {
             // PHP: SupportStrTest::testMatch
-            expect(arraysEqual(Str.matchAll("bar", "bar foo bar").all(), ["bar", "bar"])).to.equal(true);
+            expect(arraysEqual(Str.matchAll('bar', 'bar foo bar').all(), ['bar', 'bar'])).to.equal(true);
 
-            expect(arraysEqual(Str.matchAll("f(%w*)", "bar fun bar fly").all(), ["un", "ly"])).to.equal(true);
+            expect(arraysEqual(Str.matchAll('f(%w*)', 'bar fun bar fly').all(), ['un', 'ly'])).to.equal(true);
 
-            expect(Str.matchAll("nothing", "bar fun bar fly").isEmpty()).to.equal(true);
+            expect(Str.matchAll('nothing', 'bar fun bar fly').isEmpty()).to.equal(true);
 
-            expect(Str.matchAll("pattern", "").isEmpty()).to.equal(true);
+            expect(Str.matchAll('pattern', '').isEmpty()).to.equal(true);
         });
 
-        it("isMatch() reports whether any of the given patterns matched", () => {
+        it('isMatch() reports whether any of the given patterns matched', () => {
             // PHP: SupportStrTest::testIsMatch (adapted to Luau patterns --
             // see class comment)
-            expect(Str.isMatch("bar", "Hello, Laravel!")).to.equal(false);
-            expect(Str.isMatch("Laravel", "Hello, Laravel!")).to.equal(true);
-            expect(Str.isMatch("^Hello", "Hello, Laravel!")).to.equal(true);
-            expect(Str.isMatch("nope!", "Hello, Laravel!")).to.equal(false);
+            expect(Str.isMatch('bar', 'Hello, Laravel!')).to.equal(false);
+            expect(Str.isMatch('Laravel', 'Hello, Laravel!')).to.equal(true);
+            expect(Str.isMatch('^Hello', 'Hello, Laravel!')).to.equal(true);
+            expect(Str.isMatch('nope!', 'Hello, Laravel!')).to.equal(false);
 
-            expect(Str.isMatch(["nope!", "Laravel"], "Hello, Laravel!")).to.equal(true);
-            expect(Str.isMatch(["nope!", "also nope"], "Hello, Laravel!")).to.equal(false);
+            expect(Str.isMatch(['nope!', 'Laravel'], 'Hello, Laravel!')).to.equal(true);
+            expect(Str.isMatch(['nope!', 'also nope'], 'Hello, Laravel!')).to.equal(false);
         });
     });
 };

@@ -1,5 +1,5 @@
-import { Lock } from "Illuminate/Cache/Lock";
-import type { MemoryStoreStore } from "Illuminate/Cache/MemoryStoreStore";
+import { Lock } from 'Illuminate/Cache/Lock';
+import type { MemoryStoreStore } from 'Illuminate/Cache/MemoryStoreStore';
 
 /**
  * PHP: `Illuminate\Cache\RedisLock`.

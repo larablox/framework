@@ -1,4 +1,4 @@
-import type { Job } from "Illuminate/Contracts/Queue/Job";
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
 
 /** PHP: `IlluminateQueueEventsJobTimedOut`. */
 export class JobTimedOut {

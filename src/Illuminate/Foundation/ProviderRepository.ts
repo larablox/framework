@@ -1,8 +1,8 @@
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { Abstract, Constructor } from "Illuminate/Container/Types";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { ServiceProvider } from "Illuminate/Support/ServiceProvider";
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { Abstract, Constructor } from 'Illuminate/Container/Types';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
 
 /** PHP: the compiled service manifest. */
 export interface ProviderManifest {
@@ -54,7 +54,7 @@ export class ProviderRepository {
             return;
         }
 
-        this.app.make<Dispatcher>("events").listen(events, () => this.app.register(provider));
+        this.app.make<Dispatcher>('events').listen(events, () => this.app.register(provider));
     }
 
     /** Compile the application service manifest. */

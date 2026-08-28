@@ -1,4 +1,4 @@
-import type { Lock } from "Illuminate/Contracts/Cache/Lock";
+import type { Lock } from 'Illuminate/Contracts/Cache/Lock';
 
 /** PHP: `Illuminate\Contracts\Cache\LockProvider`. */
 export interface LockProvider {

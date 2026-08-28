@@ -1,13 +1,13 @@
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { Limit } from "Illuminate/Cache/RateLimiting/Limit";
-import { RateLimiter } from "Illuminate/Cache/RateLimiter";
-import { Response } from "Illuminate/Http/Response";
-import { ThrottleRequestsException } from "Illuminate/Http/Exceptions/ThrottleRequestsException";
-import { Unlimited } from "Illuminate/Cache/RateLimiting/Unlimited";
-import { Util } from "Illuminate/Container/Util";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
-import type { Request } from "Illuminate/Http/Request";
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { Limit } from 'Illuminate/Cache/RateLimiting/Limit';
+import { RateLimiter } from 'Illuminate/Cache/RateLimiter';
+import { Response } from 'Illuminate/Http/Response';
+import { ThrottleRequestsException } from 'Illuminate/Http/Exceptions/ThrottleRequestsException';
+import { Unlimited } from 'Illuminate/Cache/RateLimiting/Unlimited';
+import { Util } from 'Illuminate/Container/Util';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
+import type { Request } from 'Illuminate/Http/Request';
 
 /** One limit as the middleware works with it. */
 interface ResolvedLimit {
@@ -43,9 +43,9 @@ export class ThrottleRequests {
         _next: Next,
         maxAttempts: number | string = 60,
         decayMinutes: number | string = 1,
-        prefix = "",
+        prefix = '',
     ): unknown {
-        const named = typeIs(maxAttempts, "string") && this.limiter.limiter(maxAttempts) !== undefined;
+        const named = typeIs(maxAttempts, 'string') && this.limiter.limiter(maxAttempts) !== undefined;
 
         if (named) {
             return this.handleRequestUsingNamedLimiter(request, _next, maxAttempts as string);
@@ -132,7 +132,7 @@ export class ThrottleRequests {
     protected buildException(key: string, maxAttempts: number): ThrottleRequestsException {
         const retryAfter = this.getTimeUntilNextRetry(key);
 
-        return new ThrottleRequestsException("Too Many Attempts.", this.getHeaders(maxAttempts, 0, retryAfter));
+        return new ThrottleRequestsException('Too Many Attempts.', this.getHeaders(maxAttempts, 0, retryAfter));
     }
 
     /** Get the number of seconds until the next retry. */
@@ -153,13 +153,13 @@ export class ThrottleRequests {
     /** Get the limit headers information. */
     protected getHeaders(maxAttempts: number, remainingAttempts: number, retryAfter?: number): Record<string, string> {
         const headers: Record<string, string> = {
-            ["X-RateLimit-Limit"]: tostring(maxAttempts),
-            ["X-RateLimit-Remaining"]: tostring(remainingAttempts),
+            ['X-RateLimit-Limit']: tostring(maxAttempts),
+            ['X-RateLimit-Remaining']: tostring(remainingAttempts),
         };
 
         if (retryAfter !== undefined) {
-            headers["Retry-After"] = tostring(retryAfter);
-            headers["X-RateLimit-Reset"] = tostring(InteractsWithTime.availableAt(retryAfter));
+            headers['Retry-After'] = tostring(retryAfter);
+            headers['X-RateLimit-Reset'] = tostring(InteractsWithTime.availableAt(retryAfter));
         }
 
         return headers;

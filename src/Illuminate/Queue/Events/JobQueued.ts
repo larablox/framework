@@ -1,5 +1,5 @@
-import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type { JobTarget } from "Illuminate/Contracts/Queue/Queue";
+import type { JobPayload } from 'Illuminate/Contracts/Queue/Job';
+import type { JobTarget } from 'Illuminate/Contracts/Queue/Queue';
 
 /** PHP: `Illuminate\Queue\Events\JobQueued`. */
 export class JobQueued {

@@ -1,12 +1,12 @@
-import { Collection } from "Illuminate/Support/Collection";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { MemoryJob } from "Illuminate/Queue/Jobs/MemoryJob";
-import { Queue } from "Illuminate/Queue/Queue";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { ClearableQueue } from "Illuminate/Contracts/Queue/ClearableQueue";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type { JobTarget, Queue as QueueContract } from "Illuminate/Contracts/Queue/Queue";
+import { Collection } from 'Illuminate/Support/Collection';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { MemoryJob } from 'Illuminate/Queue/Jobs/MemoryJob';
+import { Queue } from 'Illuminate/Queue/Queue';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { ClearableQueue } from 'Illuminate/Contracts/Queue/ClearableQueue';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Job, JobPayload } from 'Illuminate/Contracts/Queue/Job';
+import type { JobTarget, Queue as QueueContract } from 'Illuminate/Contracts/Queue/Queue';
 
 /**
  * One row of the table `DatabaseQueue` keeps, held in memory.
@@ -55,7 +55,7 @@ export class MemoryQueue extends Queue implements QueueContract, ClearableQueue 
 
     /** Create a new memory queue instance. */
     public constructor(
-        protected readonly defaultQueue = "default",
+        protected readonly defaultQueue = 'default',
         protected readonly retryAfter = 60,
         protected readonly blockFor = 0,
         dispatchAfterCommit = false,
@@ -136,7 +136,7 @@ export class MemoryQueue extends Queue implements QueueContract, ClearableQueue 
     }
 
     /** Push a new job onto the queue. */
-    public push(job: JobTarget, data: unknown = "", queue?: string): unknown {
+    public push(job: JobTarget, data: unknown = '', queue?: string): unknown {
         return this.enqueueUsing(
             job,
             this.createPayload(job, this.getQueue(queue), data),
@@ -157,7 +157,7 @@ export class MemoryQueue extends Queue implements QueueContract, ClearableQueue 
     }
 
     /** Push a new job onto the queue after (n) seconds. */
-    public later(delay: Delay, job: JobTarget, data: unknown = "", queue?: string): unknown {
+    public later(delay: Delay, job: JobTarget, data: unknown = '', queue?: string): unknown {
         return this.enqueueUsing(
             job,
             this.createPayload(job, this.getQueue(queue), data, delay),

@@ -1,4 +1,4 @@
-import type { Job } from "Illuminate/Contracts/Queue/Job";
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
 
 /** PHP: `IlluminateQueueEventsJobPopped`. */
 export class JobPopped {

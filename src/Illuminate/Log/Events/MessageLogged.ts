@@ -1,4 +1,4 @@
-import type { LogContext, LogLevel } from "Illuminate/Contracts/Log/Logger";
+import type { LogContext, LogLevel } from 'Illuminate/Contracts/Log/Logger';
 
 export class MessageLogged {
     /** Create a new event instance. */

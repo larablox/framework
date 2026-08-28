@@ -1,10 +1,10 @@
-import { Container } from "Illuminate/Container/Container";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { Reflector } from "Illuminate/Support/Reflector";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
-import type { Repository as Cache } from "Illuminate/Cache/Repository";
+import { Container } from 'Illuminate/Container/Container';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
+import type { Repository as Cache } from 'Illuminate/Cache/Repository';
 
 /**
  * PHP: `Illuminate\Queue\Middleware\WithoutOverlapping`.
@@ -18,7 +18,7 @@ import type { Repository as Cache } from "Illuminate/Cache/Repository";
  */
 export class WithoutOverlapping {
     /** The prefix of the lock key. */
-    public prefix = "laravel-queue-overlap:";
+    public prefix = 'laravel-queue-overlap:';
 
     /** Indicates whether the lock key should be shared across job classes. */
     public shareKey = false;
@@ -28,7 +28,7 @@ export class WithoutOverlapping {
 
     /** Create a new middleware instance. */
     public constructor(
-        public key = "",
+        public key = '',
         public releaseAfterSeconds: number | undefined = 0,
         expiresAfter: Delay = 0,
     ) {
@@ -37,7 +37,7 @@ export class WithoutOverlapping {
 
     /** Process the job. */
     public handle(job: InteractsWithQueue, _next: Next): unknown {
-        const lock = Container.getInstance().make<Cache>("cache.store").lock(this.getLockKey(job), this.expiresAfter);
+        const lock = Container.getInstance().make<Cache>('cache.store').lock(this.getLockKey(job), this.expiresAfter);
 
         if (lock.get() === true) {
             try {

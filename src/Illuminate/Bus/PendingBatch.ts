@@ -1,9 +1,9 @@
-import { BatchDispatched } from "Illuminate/Bus/Events/BatchDispatched";
-import type { Batch, BatchCallback, BatchOptions } from "Illuminate/Bus/Batch";
-import type { BatchRepository } from "Illuminate/Bus/BatchRepository";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Batchable } from "Illuminate/Bus/Batchable";
+import { BatchDispatched } from 'Illuminate/Bus/Events/BatchDispatched';
+import type { Batch, BatchCallback, BatchOptions } from 'Illuminate/Bus/Batch';
+import type { BatchRepository } from 'Illuminate/Bus/BatchRepository';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Batchable } from 'Illuminate/Bus/Batchable';
 
 /**
  * PHP: `Illuminate\Bus\PendingBatch`.
@@ -15,7 +15,7 @@ import type { Batchable } from "Illuminate/Bus/Batchable";
  */
 export class PendingBatch {
     /** The batch name. */
-    public batchName = "";
+    public batchName = '';
 
     /** The batch options. */
     public options: BatchOptions = {};
@@ -37,27 +37,27 @@ export class PendingBatch {
 
     /** Add a callback to be executed when the batch is stored. */
     public before(callback: BatchCallback): this {
-        return this.registerCallback("before", callback);
+        return this.registerCallback('before', callback);
     }
 
     /** Add a callback to be executed after a job in the batch has executed. */
     public progress(callback: BatchCallback): this {
-        return this.registerCallback("progress", callback);
+        return this.registerCallback('progress', callback);
     }
 
     /** Add a callback to be executed after all jobs have executed successfully. */
     public then(callback: BatchCallback): this {
-        return this.registerCallback("then", callback);
+        return this.registerCallback('then', callback);
     }
 
     /** Add a callback to be executed after the first failing job. */
     public catch(callback: BatchCallback): this {
-        return this.registerCallback("catch", callback);
+        return this.registerCallback('catch', callback);
     }
 
     /** Add a callback to be executed after the batch has finished executing. */
     public finally(callback: BatchCallback): this {
-        return this.registerCallback("finally", callback);
+        return this.registerCallback('finally', callback);
     }
 
     /** Indicate that the batch should not be cancelled when a job within it fails. */
@@ -105,7 +105,7 @@ export class PendingBatch {
 
     /** Dispatch the batch. */
     public dispatch(): Batch {
-        const repository = this.container.make<BatchRepository>("bus.batches");
+        const repository = this.container.make<BatchRepository>('bus.batches');
 
         const stored = repository.store(this);
 
@@ -119,8 +119,8 @@ export class PendingBatch {
 
         const batch = (result as Batch | undefined) ?? stored;
 
-        if (this.container.bound("events")) {
-            this.container.make<Dispatcher>("events").dispatch(new BatchDispatched(batch));
+        if (this.container.bound('events')) {
+            this.container.make<Dispatcher>('events').dispatch(new BatchDispatched(batch));
         }
 
         return batch;
@@ -138,7 +138,7 @@ export class PendingBatch {
 
     /** Record one of the callbacks against the batch. */
     protected registerCallback(
-        kind: "before" | "progress" | "then" | "catch" | "finally",
+        kind: 'before' | 'progress' | 'then' | 'catch' | 'finally',
         callback: BatchCallback,
     ): this {
         const registered = this.options[kind] ?? new Array<BatchCallback>();

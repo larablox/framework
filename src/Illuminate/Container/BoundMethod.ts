@@ -1,11 +1,11 @@
-import { BindingResolutionException } from "Illuminate/Contracts/Container/BindingResolutionException";
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Util } from "Illuminate/Container/Util";
-import { getInjectedDependencies } from "Illuminate/Container/Attributes/Inject";
-import type { ParameterDependency } from "Illuminate/Container/Attributes/Inject";
-import type { Abstract, CallableTarget, ParameterOverrides } from "Illuminate/Container/Types";
-import type { Container } from "Illuminate/Container/Container";
+import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Util } from 'Illuminate/Container/Util';
+import { getInjectedDependencies } from 'Illuminate/Container/Attributes/Inject';
+import type { ParameterDependency } from 'Illuminate/Container/Attributes/Inject';
+import type { Abstract, CallableTarget, ParameterOverrides } from 'Illuminate/Container/Types';
+import type { Container } from 'Illuminate/Container/Container';
 
 export class BoundMethod {
     /** Call the given Closure / class@method and inject its dependencies. */
@@ -15,7 +15,7 @@ export class BoundMethod {
         parameters: ParameterOverrides = new Map(),
         defaultMethod?: string,
     ): unknown {
-        if (typeIs(callback, "string") && (BoundMethod.isCallableWithAtSign(callback) || defaultMethod !== undefined)) {
+        if (typeIs(callback, 'string') && (BoundMethod.isCallableWithAtSign(callback) || defaultMethod !== undefined)) {
             return BoundMethod.callClass(container, callback, parameters, defaultMethod);
         }
 
@@ -31,7 +31,7 @@ export class BoundMethod {
         parameters: ParameterOverrides,
         defaultMethod?: string,
     ): unknown {
-        const segments = target.split("@");
+        const segments = target.split('@');
 
         // We will assume an @ sign is used to delimit the class name from the method
         // name. We will split on this @ sign and then build a callable array that
@@ -39,7 +39,7 @@ export class BoundMethod {
         const method = segments.size() === 2 ? segments[1] : defaultMethod;
 
         if (method === undefined) {
-            throw new InvalidArgumentException("Method not provided.");
+            throw new InvalidArgumentException('Method not provided.');
         }
 
         return BoundMethod.call(container, [container.make(segments[0]) as object, method], parameters);
@@ -77,7 +77,7 @@ export class BoundMethod {
 
     /** The class a callable's first element refers to, if it can be determined. */
     private static classOfTarget(target: object | Abstract): object | undefined {
-        if (typeIs(target, "string")) {
+        if (typeIs(target, 'string')) {
             return undefined;
         }
 
@@ -152,7 +152,7 @@ export class BoundMethod {
         const leftovers = new Array<[number, defined]>();
 
         for (const [key, value] of parameters) {
-            if (!consumed.has(key) && typeIs(key, "number")) {
+            if (!consumed.has(key) && typeIs(key, 'number')) {
                 leftovers.push([key, value as defined]);
             }
         }
@@ -193,7 +193,7 @@ export class BoundMethod {
         const [target, method] = callback as [object, string];
         const fn = (target as unknown as Record<string, unknown>)[method];
 
-        if (!typeIs(fn, "function")) {
+        if (!typeIs(fn, 'function')) {
             throw new BindingResolutionException(
                 `Method [${method}] does not exist on [${Reflector.className(
                     Reflector.isInstance(target) ? Reflector.classOf(target) : target,
@@ -206,7 +206,7 @@ export class BoundMethod {
 
     /** Determine if the given string is in Class@method syntax. */
     private static isCallableWithAtSign(callback: string): boolean {
-        const [position] = callback.find("@", 1, true);
+        const [position] = callback.find('@', 1, true);
 
         return position !== undefined;
     }

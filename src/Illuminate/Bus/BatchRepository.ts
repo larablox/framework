@@ -1,6 +1,6 @@
-import type { Batch } from "Illuminate/Bus/Batch";
-import type { PendingBatch } from "Illuminate/Bus/PendingBatch";
-import type { UpdatedBatchJobCounts } from "Illuminate/Bus/UpdatedBatchJobCounts";
+import type { Batch } from 'Illuminate/Bus/Batch';
+import type { PendingBatch } from 'Illuminate/Bus/PendingBatch';
+import type { UpdatedBatchJobCounts } from 'Illuminate/Bus/UpdatedBatchJobCounts';
 
 /**
  * PHP: `Illuminate\Bus\BatchRepository`.

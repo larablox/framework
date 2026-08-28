@@ -1,7 +1,7 @@
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { Limit } from "Illuminate/Cache/RateLimiting/Limit";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { Repository as Cache } from "Illuminate/Cache/Repository";
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { Limit } from 'Illuminate/Cache/RateLimiting/Limit';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { Repository as Cache } from 'Illuminate/Cache/Repository';
 
 /** PHP: the closure registered with `RateLimiter::for()`. */
 export type LimiterCallback = (...args: Array<never>) => Limit | Array<Limit> | undefined;

@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { RewindableGenerator } from "Illuminate/Container/RewindableGenerator";
+import { RewindableGenerator } from 'Illuminate/Container/RewindableGenerator';
 
 /**
  * PHP: `Illuminate\Tests\Container\RewindableGeneratorTest`.
@@ -8,23 +8,23 @@ import { RewindableGenerator } from "Illuminate/Container/RewindableGenerator";
  * `Countable` maps straight onto the port's own `count()` method.
  */
 export = (): void => {
-    describe("RewindableGenerator", () => {
-        it("count() uses the provided value", () => {
+    describe('RewindableGenerator', () => {
+        it('count() uses the provided value', () => {
             // PHP: RewindableGeneratorTest::testCountUsesProvidedValue
             const generator = new RewindableGenerator<string>(function* () {
-                yield "foo";
+                yield 'foo';
             }, 999);
 
             expect(generator.count()).to.equal(999);
         });
 
-        it("count() uses the provided value as a callback, called lazily and only once", () => {
+        it('count() uses the provided value as a callback, called lazily and only once', () => {
             // PHP: RewindableGeneratorTest::testCountUsesProvidedValueAsCallback
             let called = 0;
 
             const generator = new RewindableGenerator<string>(
                 function* () {
-                    yield "foo";
+                    yield 'foo';
                 },
                 () => {
                     called++;

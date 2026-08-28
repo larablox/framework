@@ -1,4 +1,4 @@
-import type { Abstract } from "Illuminate/Container/Types";
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /** PHP: `Illuminate\Contracts\Bus\Dispatcher`. */
 export interface Dispatcher {

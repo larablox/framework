@@ -1,4 +1,4 @@
-import type { Route } from "Illuminate/Routing/Route";
+import type { Route } from 'Illuminate/Routing/Route';
 
 /** PHP: `Illuminate\Routing\Contracts\CallableDispatcher`. */
 export interface CallableDispatcher {

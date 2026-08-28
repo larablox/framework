@@ -1,5 +1,5 @@
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Contract } from "Illuminate/Container/Contract";
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Contract } from 'Illuminate/Container/Contract';
 
 /**
  * A concrete, instantiable class.

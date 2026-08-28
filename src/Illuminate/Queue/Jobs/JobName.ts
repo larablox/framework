@@ -1,7 +1,7 @@
-import { Str } from "Illuminate/Support/Str";
-import { Util } from "Illuminate/Container/Util";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { JobHandler, JobPayload } from "Illuminate/Contracts/Queue/Job";
+import { Str } from 'Illuminate/Support/Str';
+import { Util } from 'Illuminate/Container/Util';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { JobHandler, JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 /** PHP: `Illuminate\Queue\Jobs\JobName`. */
 export class JobName {
@@ -13,10 +13,10 @@ export class JobName {
      * are accepted and a plain string still goes through `Str::parseCallback`.
      */
     public static parse(job: JobHandler): [Abstract, string] {
-        if (typeIs(job, "string")) {
-            const [klass, method] = Str.parseCallback(job, "fire");
+        if (typeIs(job, 'string')) {
+            const [klass, method] = Str.parseCallback(job, 'fire');
 
-            return [klass, method ?? "fire"];
+            return [klass, method ?? 'fire'];
         }
 
         if (Util.isArray(job)) {
@@ -25,14 +25,14 @@ export class JobName {
             return [klass, method];
         }
 
-        return [job as Abstract, "fire"];
+        return [job as Abstract, 'fire'];
     }
 
     /** Get the resolved name of the queued job class. */
     public static resolve(name: JobHandler, payload: JobPayload): string {
         const displayName = payload.displayName;
 
-        if (displayName !== undefined && displayName !== "") {
+        if (displayName !== undefined && displayName !== '') {
             return displayName;
         }
 

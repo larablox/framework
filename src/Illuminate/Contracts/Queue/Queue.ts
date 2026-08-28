@@ -1,7 +1,7 @@
-import type { Abstract } from "Illuminate/Container/Types";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Job, JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 /**
  * PHP: `\Closure|string|object $job` -- what may be pushed onto a queue.

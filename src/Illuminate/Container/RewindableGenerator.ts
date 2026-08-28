@@ -38,7 +38,7 @@ export class RewindableGenerator<T extends defined = defined> {
     /** PHP: `count(): int`. */
     public count(): number {
         if (this.resolvedCount === undefined) {
-            this.resolvedCount = typeIs(this.counter, "function") ? this.counter() : this.counter;
+            this.resolvedCount = typeIs(this.counter, 'function') ? this.counter() : this.counter;
         }
 
         return this.resolvedCount;

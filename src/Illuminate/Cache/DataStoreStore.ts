@@ -1,14 +1,14 @@
-import { DataStoreLock } from "Illuminate/Cache/DataStoreLock";
-import { Concurrency } from "Illuminate/Support/Concurrency";
-import { DataStoreRequest } from "Illuminate/Support/DataStoreRequest";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { Serializer } from "Illuminate/Support/Serializer";
-import type { Lock } from "Illuminate/Contracts/Cache/Lock";
-import type { LockProvider } from "Illuminate/Contracts/Cache/LockProvider";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import { DataStoreLock } from 'Illuminate/Cache/DataStoreLock';
+import { Concurrency } from 'Illuminate/Support/Concurrency';
+import { DataStoreRequest } from 'Illuminate/Support/DataStoreRequest';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { Serializer } from 'Illuminate/Support/Serializer';
+import type { Lock } from 'Illuminate/Contracts/Cache/Lock';
+import type { LockProvider } from 'Illuminate/Contracts/Cache/LockProvider';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
-const DataStoreService = game.GetService("DataStoreService");
+const DataStoreService = game.GetService('DataStoreService');
 
 /** The longest key DataStore accepts. */
 export const MAX_KEY_LENGTH = 50;
@@ -55,8 +55,8 @@ type Transform = (held?: DataStoreItem) => DataStoreItem | undefined;
 export class DataStoreStore implements Store, LockProvider {
     /** Create a new DataStore store. */
     public constructor(
-        protected readonly storeName = "cache",
-        protected readonly prefix = "",
+        protected readonly storeName = 'cache',
+        protected readonly prefix = '',
         protected readonly scope?: string,
     ) {}
 
@@ -269,12 +269,12 @@ export class DataStoreStore implements Store, LockProvider {
 
     /** Numbers travel as they are; everything else is serialised. */
     protected encode(value: unknown): unknown {
-        return typeIs(value, "number") ? value : Serializer.serialize(value);
+        return typeIs(value, 'number') ? value : Serializer.serialize(value);
     }
 
     /** Read a value back out of storage. */
     protected decode(value: unknown): unknown {
-        if (value === undefined || typeIs(value, "number")) {
+        if (value === undefined || typeIs(value, 'number')) {
             return value;
         }
 

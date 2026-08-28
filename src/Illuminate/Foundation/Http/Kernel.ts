@@ -1,27 +1,27 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { BootProviders } from "Illuminate/Foundation/Bootstrap/BootProviders";
-import { Handler } from "Illuminate/Foundation/Exceptions/Handler";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { LoadConfiguration } from "Illuminate/Foundation/Bootstrap/LoadConfiguration";
-import { Pipeline } from "Illuminate/Routing/Pipeline";
-import { RegisterFacades } from "Illuminate/Foundation/Bootstrap/RegisterFacades";
-import { RegisterProviders } from "Illuminate/Foundation/Bootstrap/RegisterProviders";
-import { RequestHandled } from "Illuminate/Foundation/Http/Events/RequestHandled";
-import { SubstituteBindings } from "Illuminate/Routing/Middleware/SubstituteBindings";
-import { Terminating } from "Illuminate/Foundation/Events/Terminating";
-import { ThrottleRequests } from "Illuminate/Routing/Middleware/ThrottleRequests";
-import { Util } from "Illuminate/Container/Util";
-import type { Abstract, Constructor } from "Illuminate/Container/Types";
-import type { Application, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Kernel as KernelContract } from "Illuminate/Contracts/Http/Kernel";
-import type { Passable } from "Illuminate/Contracts/Pipeline/Pipeline";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
-import type { Request } from "Illuminate/Http/Request";
-import type { Response } from "Illuminate/Http/Response";
-import type { Route } from "Illuminate/Routing/Route";
-import type { Router } from "Illuminate/Routing/Router";
+import { Arr } from 'Illuminate/Support/Arr';
+import { BootProviders } from 'Illuminate/Foundation/Bootstrap/BootProviders';
+import { Handler } from 'Illuminate/Foundation/Exceptions/Handler';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { LoadConfiguration } from 'Illuminate/Foundation/Bootstrap/LoadConfiguration';
+import { Pipeline } from 'Illuminate/Routing/Pipeline';
+import { RegisterFacades } from 'Illuminate/Foundation/Bootstrap/RegisterFacades';
+import { RegisterProviders } from 'Illuminate/Foundation/Bootstrap/RegisterProviders';
+import { RequestHandled } from 'Illuminate/Foundation/Http/Events/RequestHandled';
+import { SubstituteBindings } from 'Illuminate/Routing/Middleware/SubstituteBindings';
+import { Terminating } from 'Illuminate/Foundation/Events/Terminating';
+import { ThrottleRequests } from 'Illuminate/Routing/Middleware/ThrottleRequests';
+import { Util } from 'Illuminate/Container/Util';
+import type { Abstract, Constructor } from 'Illuminate/Container/Types';
+import type { Application, Bootstrapper } from 'Illuminate/Contracts/Foundation/Application';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Kernel as KernelContract } from 'Illuminate/Contracts/Http/Kernel';
+import type { Passable } from 'Illuminate/Contracts/Pipeline/Pipeline';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Response } from 'Illuminate/Http/Response';
+import type { Route } from 'Illuminate/Routing/Route';
+import type { Router } from 'Illuminate/Routing/Router';
 
 /**
  * The container key the request's start time is bound under.
@@ -99,8 +99,8 @@ export class Kernel implements KernelContract {
 
     /** Create a new HTTP kernel instance. */
     public constructor(
-        @Inject("app") protected app: Application,
-        @Inject("router") protected readonly router: Router,
+        @Inject('app') protected app: Application,
+        @Inject('router') protected readonly router: Router,
     ) {
         this.syncMiddlewareToRouter();
     }
@@ -137,7 +137,7 @@ export class Kernel implements KernelContract {
 
     /** Send the given request through the middleware / router. */
     protected sendRequestThroughRouter(request: Request, app: Application): Response {
-        app.instance("request", request);
+        app.instance('request', request);
 
         // PHP also clears the `Request` facade's resolved instance; there is no
         // request facade here to clear.
@@ -160,7 +160,7 @@ export class Kernel implements KernelContract {
 
     /** Get the route dispatcher callback. */
     protected dispatchToRouter(request: Request, app: Application): Response {
-        app.instance("request", request);
+        app.instance('request', request);
 
         // The router is a singleton built on the root application and holds it;
         // `app` is the sandbox this request runs on, and it is the one the
@@ -225,7 +225,7 @@ export class Kernel implements KernelContract {
             const instance = app.make(name) as Record<string, unknown>;
             const terminate = instance.terminate;
 
-            if (typeIs(terminate, "function")) {
+            if (typeIs(terminate, 'function')) {
                 (terminate as (self: object, request: Request, response: Response) => void)(
                     instance,
                     request,
@@ -278,37 +278,37 @@ export class Kernel implements KernelContract {
             return [list[0] as Abstract, parameters];
         }
 
-        if (!typeIs(middleware, "string")) {
+        if (!typeIs(middleware, 'string')) {
             return [middleware as Abstract, []];
         }
 
-        const separator = middleware.find(":")[0];
+        const separator = middleware.find(':')[0];
 
         if (separator === undefined) {
             return [middleware, []];
         }
 
-        return [middleware.sub(1, separator - 1), middleware.sub(separator + 1).split(",")];
+        return [middleware.sub(1, separator - 1), middleware.sub(separator + 1).split(',')];
     }
 
     /** Determine whether the container can resolve the given middleware by name. */
     protected resolvable(middleware: Pipe): boolean {
         const [name] = this.parseMiddleware(middleware);
 
-        if (typeIs(name, "string")) {
+        if (typeIs(name, 'string')) {
             return true;
         }
 
         // A class table is a class waiting to be resolved; an instance of one
         // has already been built and PHP would have skipped it.
-        return typeIs(name, "table") && !this.isInstance(name);
+        return typeIs(name, 'table') && !this.isInstance(name);
     }
 
     /** Tell an instance apart from a class waiting to be resolved. */
     protected isInstance(value: object): boolean {
         const metatable = getmetatable(value) as object | undefined;
 
-        return metatable !== undefined && rawget(metatable, "__index") === metatable;
+        return metatable !== undefined && rawget(metatable, '__index') === metatable;
     }
 
     // -----------------------------------------------------------------
@@ -525,7 +525,7 @@ export class Kernel implements KernelContract {
 
     /** The event dispatcher, which PHP reaches as `$this->app['events']`. */
     protected events(app: Application = this.app): Dispatcher {
-        return app.make<Dispatcher>("events");
+        return app.make<Dispatcher>('events');
     }
 
     /** Get the application instance. */

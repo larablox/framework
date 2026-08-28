@@ -1,5 +1,5 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import { Reflector } from "Illuminate/Support/Reflector";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import { Reflector } from 'Illuminate/Support/Reflector';
 
 /**
  * PHP: `interface ShouldQueue`, whose presence tells the bus to queue a job
@@ -26,7 +26,7 @@ export function ShouldQueue() {
 
 /** PHP: `$job instanceof ShouldQueue`. */
 export function isShouldQueue(job: unknown): job is ShouldQueue {
-    if (!typeIs(job, "table")) {
+    if (!typeIs(job, 'table')) {
         return false;
     }
 

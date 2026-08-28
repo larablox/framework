@@ -1,6 +1,6 @@
-import { RuntimeException } from "Illuminate/Exception";
-import { Trait } from "Illuminate/Support/Traits/Trait";
-import type { Constructor } from "Illuminate/Support/Traits/Trait";
+import { RuntimeException } from 'Illuminate/Exception';
+import { Trait } from 'Illuminate/Support/Traits/Trait';
+import type { Constructor } from 'Illuminate/Support/Traits/Trait';
 
 /**
  * PHP: `trait Illuminate\Http\Client\Concerns\DeterminesStatusCode`.
@@ -16,12 +16,12 @@ export function DeterminesStatusCode<TBase extends Constructor>(Base: TBase = Tr
     return class extends Base {
         /** PHP: provided by the class using the trait. */
         public status(): number {
-            throw new RuntimeException("A class using DeterminesStatusCode must implement status().");
+            throw new RuntimeException('A class using DeterminesStatusCode must implement status().');
         }
 
         /** PHP: provided by the class using the trait. */
         public body(): unknown {
-            throw new RuntimeException("A class using DeterminesStatusCode must implement body().");
+            throw new RuntimeException('A class using DeterminesStatusCode must implement body().');
         }
 
         /** Determine if the response code was 200 "OK" response. */

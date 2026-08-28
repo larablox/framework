@@ -1,5 +1,5 @@
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
 /** PHP: `\DateTimeInterface|\DateInterval|int|null $ttl`. */
 export type Ttl = Delay | undefined;

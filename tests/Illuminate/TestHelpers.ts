@@ -33,8 +33,8 @@ function compare(
     seen: Map<object, Set<object>>,
     depth: number,
 ): void {
-    if (typeIs(expected, "table")) {
-        if (!typeIs(actual, "table")) {
+    if (typeIs(expected, 'table')) {
+        if (!typeIs(actual, 'table')) {
             error(`${path}: expected a table, got ${describeValue(actual)}`, 0);
         }
 
@@ -96,7 +96,7 @@ function compare(
  * rather than printing two table addresses.
  */
 export function expectDeepEqual(actual: unknown, expected: unknown): void {
-    compare(actual, expected, "value", new Map<object, Set<object>>(), 0);
+    compare(actual, expected, 'value', new Map<object, Set<object>>(), 0);
 }
 
 /** An `Illuminate/Exception` subclass, as passed to `expectThrows()`. */
@@ -118,14 +118,14 @@ export function expectThrows(fn: () => unknown, expected?: string | ExceptionCla
     const [ok, thrown] = pcall(fn);
 
     if (ok) {
-        error("expected the call to throw, but it returned normally", 0);
+        error('expected the call to throw, but it returned normally', 0);
     }
 
     if (expected === undefined) {
         return;
     }
 
-    if (typeIs(expected, "string")) {
+    if (typeIs(expected, 'string')) {
         const text = tostring(thrown);
 
         if (string.find(text, expected, 1, true)[0] === undefined) {

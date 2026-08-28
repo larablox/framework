@@ -1,7 +1,7 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import { LogicException } from "Illuminate/Exception";
-import { Reflector } from "Illuminate/Support/Reflector";
-import type { Abstract } from "Illuminate/Container/Types";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import { LogicException } from 'Illuminate/Exception';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `interface DeferrableProvider`, whose presence marks a provider as
@@ -32,7 +32,7 @@ export function DeferrableProvider() {
         let current: object | undefined = target;
 
         while (current !== undefined && Reflector.parentClass(current) !== undefined) {
-            if (rawget(current, "provides") !== undefined) {
+            if (rawget(current, 'provides') !== undefined) {
                 declaresProvides = true;
                 break;
             }

@@ -1,5 +1,5 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import { Reflector } from "Illuminate/Support/Reflector";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import { Reflector } from 'Illuminate/Support/Reflector';
 
 /**
  * PHP: `interface ShouldBeUnique`, which keeps a second copy of a job off the
@@ -28,7 +28,7 @@ export function ShouldBeUnique() {
 
 /** PHP: `$job instanceof ShouldBeUnique`. */
 export function isShouldBeUnique(job: unknown): job is ShouldBeUnique {
-    if (!typeIs(job, "table")) {
+    if (!typeIs(job, 'table')) {
         return false;
     }
 

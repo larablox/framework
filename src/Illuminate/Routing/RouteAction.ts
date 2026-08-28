@@ -1,7 +1,7 @@
-import { LogicException } from "Illuminate/Exception";
-import { Util } from "Illuminate/Container/Util";
-import type { AbstractClass } from "Illuminate/Container/Types";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { LogicException } from 'Illuminate/Exception';
+import { Util } from 'Illuminate/Container/Util';
+import type { AbstractClass } from 'Illuminate/Container/Types';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `[Controller::class, 'method']`.
@@ -62,7 +62,7 @@ export class RouteAction {
             return RouteAction.missingAction(uri);
         }
 
-        if (typeIs(action, "function")) {
+        if (typeIs(action, 'function')) {
             return { uses: action };
         }
 
@@ -98,7 +98,7 @@ export class RouteAction {
 
         const pair = action as Array<unknown>;
 
-        return pair.size() === 2 && typeIs(pair[1], "string");
+        return pair.size() === 2 && typeIs(pair[1], 'string');
     }
 
     /** Get an action for a route that has no action. */

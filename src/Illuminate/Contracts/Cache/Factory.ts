@@ -1,4 +1,4 @@
-import type { Repository } from "Illuminate/Contracts/Cache/Repository";
+import type { Repository } from 'Illuminate/Contracts/Cache/Repository';
 
 /** PHP: `Illuminate\Contracts\Cache\Factory`. */
 export interface Factory {

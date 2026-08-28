@@ -16,7 +16,7 @@
 export class WorkerOptions {
     /** Create a new worker options instance. */
     public constructor(
-        public name = "default",
+        public name = 'default',
         public backoff: number | string = 0,
         public memory = 0,
         public timeout = 0,

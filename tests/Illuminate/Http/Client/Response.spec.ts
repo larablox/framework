@@ -1,7 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { RequestException } from "Illuminate/Http/Client/RequestException";
-import { Response } from "Illuminate/Http/Client/Response";
-import type { ResponseEnvelope } from "Illuminate/Http/Remote";
+import { RequestException } from 'Illuminate/Http/Client/RequestException';
+import { Response } from 'Illuminate/Http/Client/Response';
+import type { ResponseEnvelope } from 'Illuminate/Http/Remote';
 
 /**
  * PHP: `Illuminate\Tests\Http\HttpClientTest` (the parts about
@@ -84,113 +84,113 @@ function response(envelope: ResponseEnvelope): Response {
 }
 
 export = (): void => {
-    describe("Http.Client.Response", () => {
+    describe('Http.Client.Response', () => {
         // PHP: HttpClientTest::testCreatedRequest
-        it("created()", () => {
+        it('created()', () => {
             expect(response({ status: 201 }).created()).to.equal(true);
             expect(response({ status: 200 }).created()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testStatusCodeShorthand, testNoContentRequest
-        it("noContent()", () => {
+        it('noContent()', () => {
             expect(response({ status: 204 }).noContent()).to.equal(true);
             expect(response({ status: 200 }).noContent()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testAcceptedRequest
-        it("accepted()", () => {
+        it('accepted()', () => {
             expect(response({ status: 202 }).accepted()).to.equal(true);
             expect(response({ status: 200 }).accepted()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testMovedPermanentlyRequest
-        it("movedPermanently()", () => {
+        it('movedPermanently()', () => {
             expect(response({ status: 301 }).movedPermanently()).to.equal(true);
             expect(response({ status: 200 }).movedPermanently()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testFoundRequest
-        it("found()", () => {
+        it('found()', () => {
             expect(response({ status: 302 }).found()).to.equal(true);
             expect(response({ status: 200 }).found()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testNotModifiedRequest
-        it("notModified()", () => {
+        it('notModified()', () => {
             expect(response({ status: 304 }).notModified()).to.equal(true);
             expect(response({ status: 200 }).notModified()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testBadRequestRequest
-        it("badRequest()", () => {
+        it('badRequest()', () => {
             expect(response({ status: 400 }).badRequest()).to.equal(true);
             expect(response({ status: 200 }).badRequest()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testPaymentRequiredRequest
-        it("paymentRequired()", () => {
+        it('paymentRequired()', () => {
             expect(response({ status: 402 }).paymentRequired()).to.equal(true);
             expect(response({ status: 200 }).paymentRequired()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testRequestTimeoutRequest
-        it("requestTimeout()", () => {
+        it('requestTimeout()', () => {
             expect(response({ status: 408 }).requestTimeout()).to.equal(true);
             expect(response({ status: 200 }).requestTimeout()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testConflictResponseRequest
-        it("conflict()", () => {
+        it('conflict()', () => {
             expect(response({ status: 409 }).conflict()).to.equal(true);
             expect(response({ status: 200 }).conflict()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testUnprocessableContentRequest
-        it("unprocessableContent()", () => {
+        it('unprocessableContent()', () => {
             expect(response({ status: 422 }).unprocessableContent()).to.equal(true);
             expect(response({ status: 200 }).unprocessableContent()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testUnprocessableEntityRequest
-        it("unprocessableEntity() is an alias for unprocessableContent()", () => {
+        it('unprocessableEntity() is an alias for unprocessableContent()', () => {
             expect(response({ status: 422 }).unprocessableEntity()).to.equal(true);
             expect(response({ status: 200 }).unprocessableEntity()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testTooManyRequestsRequest
-        it("tooManyRequests()", () => {
+        it('tooManyRequests()', () => {
             expect(response({ status: 429 }).tooManyRequests()).to.equal(true);
             expect(response({ status: 200 }).tooManyRequests()).to.equal(false);
         });
 
         // PHP: HttpClientTest::testUnauthorizedRequest
-        it("unauthorized()", () => {
+        it('unauthorized()', () => {
             expect(response({ status: 401 }).unauthorized()).to.equal(true);
         });
 
         // PHP: HttpClientTest::testForbiddenRequest
-        it("forbidden()", () => {
+        it('forbidden()', () => {
             expect(response({ status: 403 }).forbidden()).to.equal(true);
         });
 
         // PHP: HttpClientTest::testNotFoundResponse
-        it("notFound()", () => {
+        it('notFound()', () => {
             expect(response({ status: 404 }).notFound()).to.equal(true);
         });
 
         // PHP: HttpClientTest::testExceptionAccessorOnSuccess
-        it("toException() answers undefined for a successful response", () => {
+        it('toException() answers undefined for a successful response', () => {
             expect(response({ status: 200 }).toException()).to.equal(undefined);
         });
 
         // PHP: HttpClientTest::testExceptionAccessorOnFailure
-        it("toException() answers a RequestException for a failed response", () => {
+        it('toException() answers a RequestException for a failed response', () => {
             const failed = response({
                 status: 403,
                 data: {
                     error: {
                         code: 403,
-                        message: "The Request can not be completed",
+                        message: 'The Request can not be completed',
                     },
                 },
             });
@@ -209,11 +209,11 @@ export = (): void => {
         it("RequestException's message stops at the status code", () => {
             const exception = new RequestException(response({ status: 403 }));
 
-            expect(exception.getMessage()).to.equal("HTTP request returned status code 403");
+            expect(exception.getMessage()).to.equal('HTTP request returned status code 403');
         });
 
         // PHP: HttpClientTest::testOnErrorDoesntCallClosureOnInformational
-        it("onError() does not call the closure on an informational response", () => {
+        it('onError() does not call the closure on an informational response', () => {
             let status = 0;
             response({ status: 101 }).onError((r) => {
                 status = r.status();
@@ -223,7 +223,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testOnErrorDoesntCallClosureOnSuccess
-        it("onError() does not call the closure on a successful response", () => {
+        it('onError() does not call the closure on a successful response', () => {
             let status = 0;
             response({ status: 201 }).onError((r) => {
                 status = r.status();
@@ -233,7 +233,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testOnErrorDoesntCallClosureOnRedirection
-        it("onError() does not call the closure on a redirection response", () => {
+        it('onError() does not call the closure on a redirection response', () => {
             let status = 0;
             response({ status: 301 }).onError((r) => {
                 status = r.status();
@@ -243,7 +243,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testOnErrorCallsClosureOnClientError
-        it("onError() calls the closure on a client error", () => {
+        it('onError() calls the closure on a client error', () => {
             let status = 0;
             response({ status: 401 }).onError((r) => {
                 status = r.status();
@@ -253,7 +253,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testOnErrorCallsClosureOnServerError
-        it("onError() calls the closure on a server error", () => {
+        it('onError() calls the closure on a server error', () => {
             let status = 0;
             response({ status: 501 }).onError((r) => {
                 status = r.status();
@@ -263,7 +263,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrownIfTheRequestFails
-        it("throw() raises RequestException when the response failed", () => {
+        it('throw() raises RequestException when the response failed', () => {
             let thrown: unknown;
 
             try {
@@ -277,7 +277,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrownWithCallbackIfTheRequestFails
-        it("throw() runs the callback before raising", () => {
+        it('throw() runs the callback before raising', () => {
             let flag = false;
             let thrown: unknown;
 
@@ -294,17 +294,17 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsNotThrownIfTheRequestDoesNotFail
-        it("throw() is a no-op for a successful response", () => {
+        it('throw() is a no-op for a successful response', () => {
             const successful = response({
                 status: 200,
-                data: { result: { foo: "bar" } },
+                data: { result: { foo: 'bar' } },
             });
 
             expect(successful.throw().body()).to.equal(successful.body());
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrowIfConditionIsSatisfied
-        it("throwIf() raises when the boolean condition is true", () => {
+        it('throwIf() raises when the boolean condition is true', () => {
             let thrown: unknown;
 
             try {
@@ -317,17 +317,17 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsNotThrownIfConditionIsNotSatisfied
-        it("throwIf() does nothing when the boolean condition is false", () => {
+        it('throwIf() does nothing when the boolean condition is false', () => {
             const failed = response({
                 status: 400,
-                data: { result: { foo: "bar" } },
+                data: { result: { foo: 'bar' } },
             });
 
             expect(failed.throwIf(false).body()).to.equal(failed.body());
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrowIfConditionClosureIsSatisfied
-        it("throwIf() raises when the closure condition returns true, and runs the callback", () => {
+        it('throwIf() raises when the closure condition returns true, and runs the callback', () => {
             let thrown: unknown;
             let hitThrowCallback = false;
 
@@ -349,11 +349,11 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsNotThrownIfConditionClosureIsNotSatisfied
-        it("throwIf() does not raise when the closure condition returns false", () => {
+        it('throwIf() does not raise when the closure condition returns false', () => {
             let hitThrowCallback = false;
             const failed = response({
                 status: 400,
-                data: { result: { foo: "bar" } },
+                data: { result: { foo: 'bar' } },
             });
 
             const result = failed.throwIf(
@@ -372,7 +372,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrownIfStatusCodeIsSatisfied
-        it("throwIfStatus() raises when the status matches the given code", () => {
+        it('throwIfStatus() raises when the status matches the given code', () => {
             let thrown: unknown;
 
             try {
@@ -385,7 +385,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrownIfStatusCodeIsSatisfiedWithClosure
-        it("throwIfStatus() raises when the closure matches the status", () => {
+        it('throwIfStatus() raises when the closure matches the status', () => {
             let thrown: unknown;
 
             try {
@@ -398,7 +398,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsNotThrownIfStatusCodeIsNotSatisfied
-        it("throwIfStatus() does nothing when the status does not match", () => {
+        it('throwIfStatus() does nothing when the status does not match', () => {
             let thrown: unknown;
 
             try {
@@ -411,7 +411,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testThrowIfStatusWorksWithNonErrorStatusCodes
-        it("throwIfStatus() also matches a non-error status code", () => {
+        it('throwIfStatus() also matches a non-error status code', () => {
             let thrown: unknown;
 
             try {
@@ -424,7 +424,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrownUnlessStatusCodeIsSatisfied
-        it("throwUnlessStatus() raises when the status does not match the given code", () => {
+        it('throwUnlessStatus() raises when the status does not match the given code', () => {
             let thrown: unknown;
 
             try {
@@ -437,7 +437,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testThrowUnlessStatusWorksWithNonErrorStatusCodes
-        it("throwUnlessStatus() also matches a non-error status code", () => {
+        it('throwUnlessStatus() also matches a non-error status code', () => {
             let thrown: unknown;
 
             try {
@@ -460,7 +460,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrownIfIsClientError
-        it("throwIfClientError() only raises for a 4xx response", () => {
+        it('throwIfClientError() only raises for a 4xx response', () => {
             expect(
                 (() => {
                     try {
@@ -499,7 +499,7 @@ export = (): void => {
         });
 
         // PHP: HttpClientTest::testRequestExceptionIsThrownIfIsServerError
-        it("throwIfServerError() only raises for a 5xx response", () => {
+        it('throwIfServerError() only raises for a 5xx response', () => {
             expect(
                 (() => {
                     try {

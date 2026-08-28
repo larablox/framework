@@ -1,4 +1,4 @@
-import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
+import type { JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 /** A failed job as a provider hands it back. */
 export interface FailedJobRecord {

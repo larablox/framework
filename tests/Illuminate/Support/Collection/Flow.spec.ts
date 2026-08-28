@@ -1,7 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../../TestHelpers";
-import { Collection } from "Illuminate/Support/Collection";
-import { VarDumper } from "Illuminate/Support/VarDumper";
+import { expectDeepEqual } from '../../TestHelpers';
+import { Collection } from 'Illuminate/Support/Collection';
+import { VarDumper } from 'Illuminate/Support/VarDumper';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportCollectionTest` -- `tap`, `pipe`,
@@ -20,8 +20,8 @@ import { VarDumper } from "Illuminate/Support/VarDumper";
  * return-value substitution PHP's version does.
  */
 export = (): void => {
-    describe("Collection flow", () => {
-        it("tap() passes the collection to a callback and returns it unchanged", () => {
+    describe('Collection flow', () => {
+        it('tap() passes the collection to a callback and returns it unchanged', () => {
             // PHP: SupportCollectionTest::testTap
             const data = new Collection([1, 2, 3]);
 
@@ -38,65 +38,65 @@ export = (): void => {
             expectDeepEqual(data.toArray(), [1, 2, 3]);
         });
 
-        it("pipe() passes the collection to a callback and returns its result", () => {
+        it('pipe() passes the collection to a callback and returns its result', () => {
             // PHP: SupportCollectionTest::testPipe
             const data = new Collection([1, 2, 3]);
 
             expect(data.pipe((collection) => collection.sum())).to.equal(6);
         });
 
-        it("when() runs a callback only if the condition is true, with an otherwise", () => {
+        it('when() runs a callback only if the condition is true, with an otherwise', () => {
             // PHP: SupportCollectionTest::testWhen, ::testWhenDefault
-            const data = new Collection(["michael", "tom"]);
-            data.when(true, (collection) => collection.push("adam"));
-            expectDeepEqual(data.toArray(), ["michael", "tom", "adam"]);
+            const data = new Collection(['michael', 'tom']);
+            data.when(true, (collection) => collection.push('adam'));
+            expectDeepEqual(data.toArray(), ['michael', 'tom', 'adam']);
 
-            const untouched = new Collection(["michael", "tom"]);
-            untouched.when(false, (collection) => collection.push("adam"));
-            expectDeepEqual(untouched.toArray(), ["michael", "tom"]);
+            const untouched = new Collection(['michael', 'tom']);
+            untouched.when(false, (collection) => collection.push('adam'));
+            expectDeepEqual(untouched.toArray(), ['michael', 'tom']);
 
-            const withOtherwise = new Collection(["michael", "tom"]);
+            const withOtherwise = new Collection(['michael', 'tom']);
             withOtherwise.when(
                 false,
-                (collection) => collection.push("adam"),
-                (collection) => collection.push("taylor"),
+                (collection) => collection.push('adam'),
+                (collection) => collection.push('taylor'),
             );
-            expectDeepEqual(withOtherwise.toArray(), ["michael", "tom", "taylor"]);
+            expectDeepEqual(withOtherwise.toArray(), ['michael', 'tom', 'taylor']);
         });
 
-        it("unless() runs a callback only if the condition is false, with an otherwise", () => {
+        it('unless() runs a callback only if the condition is false, with an otherwise', () => {
             // PHP: SupportCollectionTest::testUnless, ::testUnlessDefault
-            const data = new Collection(["michael", "tom"]);
-            data.unless(false, (collection) => collection.push("caleb"));
-            expectDeepEqual(data.toArray(), ["michael", "tom", "caleb"]);
+            const data = new Collection(['michael', 'tom']);
+            data.unless(false, (collection) => collection.push('caleb'));
+            expectDeepEqual(data.toArray(), ['michael', 'tom', 'caleb']);
 
-            const untouched = new Collection(["michael", "tom"]);
-            untouched.unless(true, (collection) => collection.push("caleb"));
-            expectDeepEqual(untouched.toArray(), ["michael", "tom"]);
+            const untouched = new Collection(['michael', 'tom']);
+            untouched.unless(true, (collection) => collection.push('caleb'));
+            expectDeepEqual(untouched.toArray(), ['michael', 'tom']);
         });
 
         it("whenEmpty() / whenNotEmpty() branch on the collection's emptiness", () => {
             // PHP: SupportCollectionTest::testWhenEmpty, ::testWhenNotEmpty
-            const data = new Collection(["michael", "tom"]);
+            const data = new Collection(['michael', 'tom']);
             data.whenEmpty(() => {
-                throw "whenEmpty() should not trigger on a non-empty collection";
+                throw 'whenEmpty() should not trigger on a non-empty collection';
             });
-            expectDeepEqual(data.toArray(), ["michael", "tom"]);
+            expectDeepEqual(data.toArray(), ['michael', 'tom']);
 
             const empty = new Collection<number, string>();
-            empty.whenEmpty((collection) => collection.push("adam"));
-            expectDeepEqual(empty.toArray(), ["adam"]);
+            empty.whenEmpty((collection) => collection.push('adam'));
+            expectDeepEqual(empty.toArray(), ['adam']);
 
-            const notEmpty = new Collection(["michael", "tom"]);
-            notEmpty.whenNotEmpty((collection) => collection.push("adam"));
-            expectDeepEqual(notEmpty.toArray(), ["michael", "tom", "adam"]);
+            const notEmpty = new Collection(['michael', 'tom']);
+            notEmpty.whenNotEmpty((collection) => collection.push('adam'));
+            expectDeepEqual(notEmpty.toArray(), ['michael', 'tom', 'adam']);
 
             const stillEmpty = new Collection<number, string>();
-            stillEmpty.whenNotEmpty((collection) => collection.push("adam"));
+            stillEmpty.whenNotEmpty((collection) => collection.push('adam'));
             expectDeepEqual(stillEmpty.toArray(), []);
         });
 
-        it("dump() dumps the items, then each extra argument, and returns the collection unchanged", () => {
+        it('dump() dumps the items, then each extra argument, and returns the collection unchanged', () => {
             // PHP: SupportCollectionTest::testDump
             // `defined`, not `unknown`: a Luau table cannot hold a nil,
             // so an array is typed as never holding one either.
@@ -111,12 +111,12 @@ export = (): void => {
             });
 
             const data = new Collection([1, 2, 3]);
-            const returned = data.dump("one", "two");
+            const returned = data.dump('one', 'two');
 
             VarDumper.setHandler();
 
             expect(returned).to.equal(data);
-            expectDeepEqual(log, [[1, 2, 3], "one", "two"]);
+            expectDeepEqual(log, [[1, 2, 3], 'one', 'two']);
             expectDeepEqual(data.toArray(), [1, 2, 3]);
         });
     });

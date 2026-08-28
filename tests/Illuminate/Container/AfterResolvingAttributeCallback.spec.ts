@@ -1,9 +1,9 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { Container } from 'Illuminate/Container/Container';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { addParameterAttribute } from 'Illuminate/Container/Attributes/Inject';
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /**
  * PHP: `Illuminate\Tests\Container\AfterResolvingAttributeCallbackTest`.
@@ -23,12 +23,12 @@ import type { ContextualAttribute } from "Illuminate/Contracts/Container/Context
  * split this port already uses for `Abstract`.
  */
 export = (): void => {
-    describe("After resolving attribute callbacks", () => {
-        type Tenant = "TenantA" | "TenantB";
+    describe('After resolving attribute callbacks', () => {
+        type Tenant = 'TenantA' | 'TenantB';
 
         const Tenant = {
-            TenantA: "TenantA" as Tenant,
-            TenantB: "TenantB" as Tenant,
+            TenantA: 'TenantA' as Tenant,
+            TenantB: 'TenantB' as Tenant,
         };
 
         /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] final readonly class ContainerTestOnTenant`. */
@@ -82,9 +82,9 @@ export = (): void => {
             readonly value: string;
         }
 
-        @ContainerTestConfiguresClass("the-right-value")
+        @ContainerTestConfiguresClass('the-right-value')
         class ContainerTestHasSelfConfiguringAttributeAndConstructor {
-            public constructor(@Inject("$value") public value: string) {}
+            public constructor(@Inject('$value') public value: string) {}
         }
 
         /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] final class ContainerTestBootable`. */
@@ -103,7 +103,7 @@ export = (): void => {
             }
         }
 
-        it("afterResolvingAttribute() runs after the annotated dependency resolves", () => {
+        it('afterResolvingAttribute() runs after the annotated dependency resolves', () => {
             // PHP: AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterDependencyResolutionWithAttribute
             const container = new Container();
 
@@ -123,15 +123,15 @@ export = (): void => {
             expect(hasTenantB.property.tenant).to.equal(Tenant.TenantB);
         });
 
-        it("afterResolvingAttribute() runs after the class carrying the attribute itself resolves", () => {
+        it('afterResolvingAttribute() runs after the class carrying the attribute itself resolves', () => {
             // PHP: AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterClassWithAttributeIsResolved
             const container = new Container();
 
             container.afterResolvingAttribute(
                 ContainerTestBootable,
                 (_attribute: unknown, instance: ContainerTestHasBootable, c) => {
-                    if (typeIs(instance.booting, "function")) {
-                        c.call([instance, "booting"]);
+                    if (typeIs(instance.booting, 'function')) {
+                        c.call([instance, 'booting']);
                     }
                 },
             );
@@ -142,7 +142,7 @@ export = (): void => {
             expect(instance.hasBooted).to.equal(true);
         });
 
-        it("afterResolvingAttribute() runs after a class with both a constructor and the attribute resolves", () => {
+        it('afterResolvingAttribute() runs after a class with both a constructor and the attribute resolves', () => {
             // PHP: AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterClassWithConstructorAndAttributeIsResolved
             const container = new Container();
 
@@ -158,13 +158,13 @@ export = (): void => {
 
             container
                 .when(ContainerTestHasSelfConfiguringAttributeAndConstructor)
-                .needs("$value")
-                .give("no-the-right-value");
+                .needs('$value')
+                .give('no-the-right-value');
 
             const instance = container.make(ContainerTestHasSelfConfiguringAttributeAndConstructor);
 
             expect(instance instanceof ContainerTestHasSelfConfiguringAttributeAndConstructor).to.equal(true);
-            expect(instance.value).to.equal("the-right-value");
+            expect(instance.value).to.equal('the-right-value');
         });
     });
 };

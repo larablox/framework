@@ -1,13 +1,13 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Backoff } from "Illuminate/Queue/Attributes/Backoff";
-import { Connection } from "Illuminate/Queue/Attributes/Connection";
-import { Delay } from "Illuminate/Queue/Attributes/Delay";
-import { FailOnTimeout } from "Illuminate/Queue/Attributes/FailOnTimeout";
-import { MaxExceptions } from "Illuminate/Queue/Attributes/MaxExceptions";
-import { Queue } from "Illuminate/Queue/Attributes/Queue";
-import { ReadsClassAttributes } from "Illuminate/Support/Traits/ReadsClassAttributes";
-import { Timeout } from "Illuminate/Queue/Attributes/Timeout";
-import { Tries } from "Illuminate/Queue/Attributes/Tries";
+import { Backoff } from 'Illuminate/Queue/Attributes/Backoff';
+import { Connection } from 'Illuminate/Queue/Attributes/Connection';
+import { Delay } from 'Illuminate/Queue/Attributes/Delay';
+import { FailOnTimeout } from 'Illuminate/Queue/Attributes/FailOnTimeout';
+import { MaxExceptions } from 'Illuminate/Queue/Attributes/MaxExceptions';
+import { Queue } from 'Illuminate/Queue/Attributes/Queue';
+import { ReadsClassAttributes } from 'Illuminate/Support/Traits/ReadsClassAttributes';
+import { Timeout } from 'Illuminate/Queue/Attributes/Timeout';
+import { Tries } from 'Illuminate/Queue/Attributes/Tries';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueAttributesTest`.
@@ -63,63 +63,63 @@ class JobWithOnlyAttribute {}
 class JobWithNothing {}
 
 export = (): void => {
-    describe("Attributes", () => {
+    describe('Attributes', () => {
         // PHP: QueueAttributesTest::test_queue_attribute_keeps_string_as_string
-        it("Queue() records the queue name", () => {
-            @Queue("high")
+        it('Queue() records the queue name', () => {
+            @Queue('high')
             class Job {}
 
-            expect(ReadsClassAttributes.getAttributeValue(new Job(), Queue, "queue")).to.equal("high");
+            expect(ReadsClassAttributes.getAttributeValue(new Job(), Queue, 'queue')).to.equal('high');
         });
 
         // PHP: QueueAttributesTest::test_connection_attribute_keeps_string_as_string
-        it("Connection() records the connection name", () => {
-            @Connection("redis")
+        it('Connection() records the connection name', () => {
+            @Connection('redis')
             class Job {}
 
-            expect(ReadsClassAttributes.getAttributeValue(new Job(), Connection, "connection")).to.equal("redis");
+            expect(ReadsClassAttributes.getAttributeValue(new Job(), Connection, 'connection')).to.equal('redis');
         });
 
-        it("Delay() records the delay", () => {
+        it('Delay() records the delay', () => {
             @Delay(15)
             class Job {}
 
-            expect(ReadsClassAttributes.getAttributeValue(new Job(), Delay, "delay")).to.equal(15);
+            expect(ReadsClassAttributes.getAttributeValue(new Job(), Delay, 'delay')).to.equal(15);
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testPushUsesPropertiesDeclaredOnChildClassOverInheritedAttributes
-        it("an instance property on a child class wins over an attribute declared on its parent", () => {
+        it('an instance property on a child class wins over an attribute declared on its parent', () => {
             const job = new ChildJobWithPropertiesOverridingParentAttributes();
 
-            expect(ReadsClassAttributes.getAttributeValue(job, Timeout, "timeout")).to.equal(1700);
-            expect(ReadsClassAttributes.getAttributeValue(job, Tries, "tries")).to.equal(7);
-            expect(ReadsClassAttributes.getAttributeValue(job, Backoff, "backoff")).to.equal(13);
-            expect(ReadsClassAttributes.getAttributeValue(job, MaxExceptions, "maxExceptions")).to.equal(11);
-            expect(ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, "failOnTimeout")).to.equal(false);
+            expect(ReadsClassAttributes.getAttributeValue(job, Timeout, 'timeout')).to.equal(1700);
+            expect(ReadsClassAttributes.getAttributeValue(job, Tries, 'tries')).to.equal(7);
+            expect(ReadsClassAttributes.getAttributeValue(job, Backoff, 'backoff')).to.equal(13);
+            expect(ReadsClassAttributes.getAttributeValue(job, MaxExceptions, 'maxExceptions')).to.equal(11);
+            expect(ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, 'failOnTimeout')).to.equal(false);
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testPushStillUsesAttributesDeclaredOnSameClassOverDefaultProperties
-        it("a property declared on the same class as the attribute still wins", () => {
+        it('a property declared on the same class as the attribute still wins', () => {
             const job = new JobWithAttributesAndDefaultProperties();
 
-            expect(ReadsClassAttributes.getAttributeValue(job, Timeout, "timeout")).to.equal(1700);
-            expect(ReadsClassAttributes.getAttributeValue(job, Tries, "tries")).to.equal(7);
-            expect(ReadsClassAttributes.getAttributeValue(job, Backoff, "backoff")).to.equal(13);
-            expect(ReadsClassAttributes.getAttributeValue(job, MaxExceptions, "maxExceptions")).to.equal(11);
-            expect(ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, "failOnTimeout")).to.equal(false);
+            expect(ReadsClassAttributes.getAttributeValue(job, Timeout, 'timeout')).to.equal(1700);
+            expect(ReadsClassAttributes.getAttributeValue(job, Tries, 'tries')).to.equal(7);
+            expect(ReadsClassAttributes.getAttributeValue(job, Backoff, 'backoff')).to.equal(13);
+            expect(ReadsClassAttributes.getAttributeValue(job, MaxExceptions, 'maxExceptions')).to.equal(11);
+            expect(ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, 'failOnTimeout')).to.equal(false);
         });
 
         // Not directly in the PHP suite -- exercises `getAttributeValue()`
         // falling through to the attribute when no property shadows it.
-        it("falls back to the attribute when no instance property is set", () => {
-            expect(ReadsClassAttributes.getAttributeValue(new JobWithOnlyAttribute(), Timeout, "timeout")).to.equal(40);
+        it('falls back to the attribute when no instance property is set', () => {
+            expect(ReadsClassAttributes.getAttributeValue(new JobWithOnlyAttribute(), Timeout, 'timeout')).to.equal(40);
         });
 
         // Not directly in the PHP suite -- exercises the default answer when
         // neither a property nor an attribute is present.
-        it("falls back to the given default when nothing is declared", () => {
-            expect(ReadsClassAttributes.getAttributeValue(new JobWithNothing(), Timeout, "timeout", 99)).to.equal(99);
-            expect(ReadsClassAttributes.getAttributeValue(new JobWithNothing(), Timeout, "timeout")).to.equal(
+        it('falls back to the given default when nothing is declared', () => {
+            expect(ReadsClassAttributes.getAttributeValue(new JobWithNothing(), Timeout, 'timeout', 99)).to.equal(99);
+            expect(ReadsClassAttributes.getAttributeValue(new JobWithNothing(), Timeout, 'timeout')).to.equal(
                 undefined,
             );
         });

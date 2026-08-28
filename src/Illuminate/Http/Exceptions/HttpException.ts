@@ -1,4 +1,4 @@
-import { RuntimeException } from "Illuminate/Exception";
+import { RuntimeException } from 'Illuminate/Exception';
 
 /**
  * PHP: `Symfony\Component\HttpKernel\Exception\HttpException`.
@@ -14,7 +14,7 @@ export class HttpException extends RuntimeException {
     /** Create a new HTTP exception instance. */
     public constructor(
         protected readonly statusCode: number,
-        message = "",
+        message = '',
         protected readonly headers: Record<string, string> = {},
     ) {
         super(message, statusCode);
@@ -33,21 +33,21 @@ export class HttpException extends RuntimeException {
 
 /** PHP: `Symfony\Component\HttpKernel\Exception\NotFoundHttpException`. */
 export class NotFoundHttpException extends HttpException {
-    public constructor(message = "") {
+    public constructor(message = '') {
         super(404, message);
     }
 }
 
 /** PHP: `Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException`. */
 export class MethodNotAllowedHttpException extends HttpException {
-    public constructor(allowed: Array<string>, message = "") {
-        super(405, message, { Allow: allowed.join(",") });
+    public constructor(allowed: Array<string>, message = '') {
+        super(405, message, { Allow: allowed.join(',') });
     }
 }
 
 /** PHP: `Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException`. */
 export class TooManyRequestsHttpException extends HttpException {
-    public constructor(retryAfter?: number, message = "", headers: Record<string, string> = {}) {
+    public constructor(retryAfter?: number, message = '', headers: Record<string, string> = {}) {
         super(429, message, TooManyRequestsHttpException.withRetryAfter(headers, retryAfter));
     }
 
@@ -62,7 +62,7 @@ export class TooManyRequestsHttpException extends HttpException {
         const merged = table.clone(headers);
 
         if (retryAfter !== undefined) {
-            merged["Retry-After"] = tostring(retryAfter);
+            merged['Retry-After'] = tostring(retryAfter);
         }
 
         return merged;

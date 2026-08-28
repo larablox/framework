@@ -1,6 +1,6 @@
-import { Factory } from "Illuminate/Http/Client/Factory";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type { Abstract, Concrete } from "Illuminate/Container/Types";
+import { Factory } from 'Illuminate/Http/Client/Factory';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Abstract, Concrete } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `Illuminate\Foundation\Providers\FoundationServiceProvider`.

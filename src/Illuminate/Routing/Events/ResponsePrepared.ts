@@ -1,5 +1,5 @@
-import type { Request } from "Illuminate/Http/Request";
-import type { Response } from "Illuminate/Http/Response";
+import type { Request } from 'Illuminate/Http/Request';
+import type { Response } from 'Illuminate/Http/Response';
 
 /** PHP: `Illuminate\Routing\Events\ResponsePrepared`. */
 export class ResponsePrepared {

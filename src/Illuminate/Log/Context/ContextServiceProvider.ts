@@ -1,7 +1,7 @@
-import { ContextLogProcessor } from "Illuminate/Log/Context/ContextLogProcessor";
-import { ContextLogProcessor as ContextLogProcessorContract } from "Illuminate/Contracts/Log/ContextLogProcessor";
-import { Repository } from "Illuminate/Log/Context/Repository";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
+import { ContextLogProcessor } from 'Illuminate/Log/Context/ContextLogProcessor';
+import { ContextLogProcessor as ContextLogProcessorContract } from 'Illuminate/Contracts/Log/ContextLogProcessor';
+import { Repository } from 'Illuminate/Log/Context/Repository';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
 
 /**
  * PHP: `Illuminate\Log\Context\ContextServiceProvider`.

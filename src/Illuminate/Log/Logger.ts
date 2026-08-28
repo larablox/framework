@@ -1,8 +1,8 @@
-import { MessageLogged } from "Illuminate/Log/Events/MessageLogged";
-import { RuntimeException } from "Illuminate/Exception";
-import { Util } from "Illuminate/Container/Util";
-import type { LogContext, LogLevel, Logger as LoggerContract } from "Illuminate/Contracts/Log/Logger";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
+import { MessageLogged } from 'Illuminate/Log/Events/MessageLogged';
+import { RuntimeException } from 'Illuminate/Exception';
+import { Util } from 'Illuminate/Container/Util';
+import type { LogContext, LogLevel, Logger as LoggerContract } from 'Illuminate/Contracts/Log/Logger';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
 
 /**
  * PHP: `Illuminate\Log\Logger`.
@@ -25,42 +25,42 @@ export class Logger implements LoggerContract {
 
     /** Log an emergency message to the logs. */
     public emergency(message: unknown, context?: LogContext): void {
-        this.writeLog("emergency", message, context);
+        this.writeLog('emergency', message, context);
     }
 
     /** Log an alert message to the logs. */
     public alert(message: unknown, context?: LogContext): void {
-        this.writeLog("alert", message, context);
+        this.writeLog('alert', message, context);
     }
 
     /** Log a critical message to the logs. */
     public critical(message: unknown, context?: LogContext): void {
-        this.writeLog("critical", message, context);
+        this.writeLog('critical', message, context);
     }
 
     /** Log an error message to the logs. */
     public error(message: unknown, context?: LogContext): void {
-        this.writeLog("error", message, context);
+        this.writeLog('error', message, context);
     }
 
     /** Log a warning message to the logs. */
     public warning(message: unknown, context?: LogContext): void {
-        this.writeLog("warning", message, context);
+        this.writeLog('warning', message, context);
     }
 
     /** Log a notice to the logs. */
     public notice(message: unknown, context?: LogContext): void {
-        this.writeLog("notice", message, context);
+        this.writeLog('notice', message, context);
     }
 
     /** Log an informational message to the logs. */
     public info(message: unknown, context?: LogContext): void {
-        this.writeLog("info", message, context);
+        this.writeLog('info', message, context);
     }
 
     /** Log a debug message to the logs. */
     public debug(message: unknown, context?: LogContext): void {
-        this.writeLog("debug", message, context);
+        this.writeLog('debug', message, context);
     }
 
     /** Log a message to the logs. */
@@ -79,7 +79,7 @@ export class Logger implements LoggerContract {
             isHandling?: (self: unknown, level: LogLevel) => boolean;
         };
 
-        if (typeIs(handler.isHandling, "function") && !handler.isHandling(this.logger, level)) {
+        if (typeIs(handler.isHandling, 'function') && !handler.isHandling(this.logger, level)) {
             return;
         }
 
@@ -118,7 +118,7 @@ export class Logger implements LoggerContract {
     /** Register a new callback handler for when a log event is triggered. */
     public listen(callback: Callback): void {
         if (this.dispatcher === undefined) {
-            throw new RuntimeException("Events dispatcher has not been set.");
+            throw new RuntimeException('Events dispatcher has not been set.');
         }
 
         this.dispatcher.listen(MessageLogged, callback);
@@ -131,7 +131,7 @@ export class Logger implements LoggerContract {
 
     /** Format the parameters for the logger. */
     protected formatMessage(message: unknown): string {
-        if (typeIs(message, "string")) {
+        if (typeIs(message, 'string')) {
             return message;
         }
 
@@ -142,7 +142,7 @@ export class Logger implements LoggerContract {
                 parts.push(tostring(value));
             }
 
-            return `[${parts.join(", ")}]`;
+            return `[${parts.join(', ')}]`;
         }
 
         return tostring(message);

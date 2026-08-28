@@ -1,8 +1,8 @@
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher as BusDispatcher } from "Illuminate/Bus/Dispatcher";
-import { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import { Serializer } from "Illuminate/Support/Serializer";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher as BusDispatcher } from 'Illuminate/Bus/Dispatcher';
+import { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import { Serializer } from 'Illuminate/Support/Serializer';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
 
 /**
  * PHP: `Illuminate\Bus\Queueable`.
@@ -110,7 +110,7 @@ export class Queueable extends InteractsWithQueue {
      */
     public through(middleware: unknown | Array<unknown>): this {
         this.middleware =
-            typeIs(middleware, "table") && getmetatable(middleware as object) === undefined
+            typeIs(middleware, 'table') && getmetatable(middleware as object) === undefined
                 ? (middleware as Array<unknown>)
                 : [middleware];
 

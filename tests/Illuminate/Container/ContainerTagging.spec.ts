@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
+import { Container } from 'Illuminate/Container/Container';
 
 /**
  * PHP: `Illuminate\Tests\Container\ContainerTaggingTest`.
@@ -13,7 +13,7 @@ import { Container } from "Illuminate/Container/Container";
  * consumed, which is exactly what "lazy loaded" means here.
  */
 export = (): void => {
-    describe("Container tagging", () => {
+    describe('Container tagging', () => {
         // PHP's `IContainerTaggedContractStub` interface is not reproduced: it
         // has no runtime trace in Luau and neither of these two tests actually
         // checks against it, only against the concrete classes.
@@ -21,34 +21,34 @@ export = (): void => {
 
         class ContainerImplementationTaggedStubTwo {}
 
-        it("tag()/tagged() group bindings and resolve every tagged entry", () => {
+        it('tag()/tagged() group bindings and resolve every tagged entry', () => {
             // PHP: ContainerTaggingTest::testContainerTags
             const container = new Container();
-            container.tag(ContainerImplementationTaggedStub, ["foo", "bar"]);
-            container.tag(ContainerImplementationTaggedStubTwo, ["foo"]);
+            container.tag(ContainerImplementationTaggedStub, ['foo', 'bar']);
+            container.tag(ContainerImplementationTaggedStubTwo, ['foo']);
 
-            expect(container.tagged("bar").count()).to.equal(1);
-            expect(container.tagged("foo").count()).to.equal(2);
+            expect(container.tagged('bar').count()).to.equal(1);
+            expect(container.tagged('foo').count()).to.equal(2);
 
-            const fooResults = container.tagged("foo").toArray();
-            const barResults = container.tagged("bar").toArray();
+            const fooResults = container.tagged('foo').toArray();
+            const barResults = container.tagged('bar').toArray();
 
             expect(fooResults[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
             expect(barResults[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
             expect(fooResults[1] instanceof ContainerImplementationTaggedStubTwo).to.equal(true);
 
             const container2 = new Container();
-            container2.tag([ContainerImplementationTaggedStub, ContainerImplementationTaggedStubTwo], ["foo"]);
-            expect(container2.tagged("foo").count()).to.equal(2);
+            container2.tag([ContainerImplementationTaggedStub, ContainerImplementationTaggedStubTwo], ['foo']);
+            expect(container2.tagged('foo').count()).to.equal(2);
 
-            const fooResults2 = container2.tagged("foo").toArray();
+            const fooResults2 = container2.tagged('foo').toArray();
             expect(fooResults2[0] instanceof ContainerImplementationTaggedStub).to.equal(true);
             expect(fooResults2[1] instanceof ContainerImplementationTaggedStubTwo).to.equal(true);
 
-            expect(container2.tagged("this_tag_does_not_exist").count()).to.equal(0);
+            expect(container2.tagged('this_tag_does_not_exist').count()).to.equal(0);
         });
 
-        it("tagged() only builds an entry once iteration actually reaches it", () => {
+        it('tagged() only builds an entry once iteration actually reaches it', () => {
             // PHP: ContainerTaggingTest::testTaggedServicesAreLazyLoaded (adapted -- see class comment)
             const container = new Container();
 
@@ -60,10 +60,10 @@ export = (): void => {
                 builtCount++;
             });
 
-            container.tag(ContainerImplementationTaggedStub, ["foo"]);
-            container.tag(ContainerImplementationTaggedStubTwo, ["foo"]);
+            container.tag(ContainerImplementationTaggedStub, ['foo']);
+            container.tag(ContainerImplementationTaggedStubTwo, ['foo']);
 
-            const tagged = container.tagged("foo");
+            const tagged = container.tagged('foo');
 
             const fooResults = new Array<unknown>();
             for (const foo of tagged.getIterator()) {
@@ -76,13 +76,13 @@ export = (): void => {
             expect(builtCount).to.equal(1);
         });
 
-        it("a lazily loaded tagged sequence can be iterated multiple times", () => {
+        it('a lazily loaded tagged sequence can be iterated multiple times', () => {
             // PHP: ContainerTaggingTest::testLazyLoadedTaggedServicesCanBeLoopedOverMultipleTimes
             const container = new Container();
-            container.tag(ContainerImplementationTaggedStub, "foo");
-            container.tag(ContainerImplementationTaggedStubTwo, ["foo"]);
+            container.tag(ContainerImplementationTaggedStub, 'foo');
+            container.tag(ContainerImplementationTaggedStubTwo, ['foo']);
 
-            const services = container.tagged("foo");
+            const services = container.tagged('foo');
 
             const firstPass = new Array<unknown>();
             for (const foo of services.getIterator()) {

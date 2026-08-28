@@ -1,13 +1,13 @@
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { Serializer } from "Illuminate/Support/Serializer";
-import { Concurrency } from "Illuminate/Support/Concurrency";
-import { DataStoreRequest } from "Illuminate/Support/DataStoreRequest";
-import { Str } from "Illuminate/Support/Str";
-import type { JobPayload, JobPayloadData } from "Illuminate/Contracts/Queue/Job";
-import type { FailedJobProviderInterface, FailedJobRecord } from "Illuminate/Queue/Failed/FailedJobProviderInterface";
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { Serializer } from 'Illuminate/Support/Serializer';
+import { Concurrency } from 'Illuminate/Support/Concurrency';
+import { DataStoreRequest } from 'Illuminate/Support/DataStoreRequest';
+import { Str } from 'Illuminate/Support/Str';
+import type { JobPayload, JobPayloadData } from 'Illuminate/Contracts/Queue/Job';
+import type { FailedJobProviderInterface, FailedJobRecord } from 'Illuminate/Queue/Failed/FailedJobProviderInterface';
 
-const DataStoreService = game.GetService("DataStoreService");
+const DataStoreService = game.GetService('DataStoreService');
 
 /** The longest key DataStore accepts, and the length of an id. */
 const MAX_KEY_LENGTH = 50;
@@ -45,8 +45,8 @@ interface StoredFailure {
 export class DataStoreFailedJobProvider implements FailedJobProviderInterface {
     /** Create a new DataStore failed job provider. */
     public constructor(
-        protected readonly storeName = "failed_jobs",
-        protected readonly prefix = "",
+        protected readonly storeName = 'failed_jobs',
+        protected readonly prefix = '',
     ) {
         if (prefix.size() + ID_LENGTH > MAX_KEY_LENGTH) {
             throw new InvalidArgumentException(

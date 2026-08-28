@@ -1,4 +1,4 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
 
 /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] final class Scoped`. */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

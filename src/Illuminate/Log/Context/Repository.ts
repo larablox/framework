@@ -1,9 +1,9 @@
-import { ContextDehydrating } from "Illuminate/Log/Context/Events/ContextDehydrating";
-import { ContextHydrated } from "Illuminate/Log/Context/Events/ContextHydrated";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { RuntimeException } from "Illuminate/Exception";
-import { Util } from "Illuminate/Container/Util";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
+import { ContextDehydrating } from 'Illuminate/Log/Context/Events/ContextDehydrating';
+import { ContextHydrated } from 'Illuminate/Log/Context/Events/ContextHydrated';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { RuntimeException } from 'Illuminate/Exception';
+import { Util } from 'Illuminate/Container/Util';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
 
 /** The shape a repository dehydrates into. */
 export interface ContextSnapshot {
@@ -31,7 +31,7 @@ export class Repository {
     protected hidden: Record<string, unknown> = {};
 
     /** Create a new Context instance. */
-    public constructor(@Inject("events") protected readonly events: Dispatcher) {}
+    public constructor(@Inject('events') protected readonly events: Dispatcher) {}
 
     /** Determine if the given key exists. */
     public has(key: string): boolean {
@@ -113,7 +113,7 @@ export class Repository {
 
     /** Add a context value. */
     public add(key: string | Record<string, unknown>, value?: unknown): this {
-        if (typeIs(key, "string")) {
+        if (typeIs(key, 'string')) {
             this.data[key] = value;
 
             return this;
@@ -128,7 +128,7 @@ export class Repository {
 
     /** Add a hidden context value. */
     public addHidden(key: string | Record<string, unknown>, value?: unknown): this {
-        if (typeIs(key, "string")) {
+        if (typeIs(key, 'string')) {
             this.hidden[key] = value;
 
             return this;
@@ -418,7 +418,7 @@ export class Repository {
         }
 
         for (const item of stack) {
-            const matches = typeIs(value, "function")
+            const matches = typeIs(value, 'function')
                 ? ((value as (item: defined) => boolean)(item) as boolean)
                 : item === value;
 

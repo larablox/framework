@@ -1,7 +1,7 @@
-import { NullQueue } from "Illuminate/Queue/NullQueue";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { ConnectorInterface } from "Illuminate/Queue/Connectors/ConnectorInterface";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
+import { NullQueue } from 'Illuminate/Queue/NullQueue';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { ConnectorInterface } from 'Illuminate/Queue/Connectors/ConnectorInterface';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /** PHP: `Illuminate\Queue\Connectors\NullConnector`. */
 export class NullConnector implements ConnectorInterface {

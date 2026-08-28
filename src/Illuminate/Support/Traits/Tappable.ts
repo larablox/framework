@@ -1,5 +1,5 @@
-import { Trait } from "Illuminate/Support/Traits/Trait";
-import type { Constructor } from "Illuminate/Support/Traits/Trait";
+import { Trait } from 'Illuminate/Support/Traits/Trait';
+import type { Constructor } from 'Illuminate/Support/Traits/Trait';
 
 /**
  * PHP: `trait Illuminate\Support\Traits\Tappable`.

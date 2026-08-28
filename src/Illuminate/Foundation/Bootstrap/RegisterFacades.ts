@@ -1,5 +1,5 @@
-import { Facade } from "Illuminate/Support/Facades/Facade";
-import type { Application, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
+import { Facade } from 'Illuminate/Support/Facades/Facade';
+import type { Application, Bootstrapper } from 'Illuminate/Contracts/Foundation/Application';
 
 /**
  * PHP: `Illuminate\Foundation\Bootstrap\RegisterFacades`.

@@ -1,7 +1,7 @@
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Queueable } from "Illuminate/Bus/Queueable";
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Queueable } from 'Illuminate/Bus/Queueable';
 
 /**
  * PHP: `Illuminate\Foundation\Bus\PendingChain`.

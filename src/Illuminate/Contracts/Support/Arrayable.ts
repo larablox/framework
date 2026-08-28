@@ -1,4 +1,4 @@
-import type { OrderedMap } from "Illuminate/Support/OrderedMap";
+import type { OrderedMap } from 'Illuminate/Support/OrderedMap';
 
 /**
  * PHP: `interface Arrayable`.
@@ -20,5 +20,5 @@ export interface Arrayable<TKey extends defined = defined, TValue extends define
  * ever required -- the same trade `DeferrableProvider` makes.
  */
 export function isArrayable(value: unknown): value is Arrayable {
-    return typeIs(value, "table") && typeIs((value as Arrayable).toArray, "function");
+    return typeIs(value, 'table') && typeIs((value as Arrayable).toArray, 'function');
 }

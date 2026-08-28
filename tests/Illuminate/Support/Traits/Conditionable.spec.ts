@@ -1,6 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../../TestHelpers";
-import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
+import { expectDeepEqual } from '../../TestHelpers';
+import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportConditionableTest`.
@@ -12,7 +12,7 @@ import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
  * that proxy form end to end and have nothing to port from.
  */
 export = (): void => {
-    describe("Conditionable", () => {
+    describe('Conditionable', () => {
         class ConditionableLogger extends Conditionable() {
             public values = new Array<unknown>();
 
@@ -29,112 +29,112 @@ export = (): void => {
             }
         }
 
-        it("when() invokes the callback for a truthy static or callback condition", () => {
+        it('when() invokes the callback for a truthy static or callback condition', () => {
             // PHP: SupportConditionableTest::testWhenConditionCallback
             const logger = new ConditionableLogger().when(
                 2,
                 (l, condition) => {
-                    return l.log("when", condition);
+                    return l.log('when', condition);
                 },
                 (l, condition) => {
-                    return l.log("default", condition);
+                    return l.log('default', condition);
                 },
             );
 
-            expectDeepEqual(logger.values, ["when", 2]);
+            expectDeepEqual(logger.values, ['when', 2]);
 
-            const logger2 = new ConditionableLogger().log("init").when(
-                (l) => l.has("init"),
+            const logger2 = new ConditionableLogger().log('init').when(
+                (l) => l.has('init'),
                 (l, condition) => {
-                    return l.log("when", condition);
+                    return l.log('when', condition);
                 },
                 (l, condition) => {
-                    return l.log("default", condition);
+                    return l.log('default', condition);
                 },
             );
 
-            expectDeepEqual(logger2.values, ["init", "when", true]);
+            expectDeepEqual(logger2.values, ['init', 'when', true]);
         });
 
-        it("when() invokes the default callback for a falsy condition", () => {
+        it('when() invokes the default callback for a falsy condition', () => {
             // PHP: SupportConditionableTest::testWhenDefaultCallback
             const logger = new ConditionableLogger().when(
                 undefined as number | undefined,
                 (l, condition) => {
-                    return l.log("when", condition);
+                    return l.log('when', condition);
                 },
                 (l, condition) => {
-                    return l.log("default", condition);
+                    return l.log('default', condition);
                 },
             );
 
-            expectDeepEqual(logger.values, ["default", undefined]);
+            expectDeepEqual(logger.values, ['default', undefined]);
 
             const logger2 = new ConditionableLogger().when(
-                (l) => l.has("missing"),
+                (l) => l.has('missing'),
                 (l, condition) => {
-                    return l.log("when", condition);
+                    return l.log('when', condition);
                 },
                 (l, condition) => {
-                    return l.log("default", condition);
+                    return l.log('default', condition);
                 },
             );
 
-            expectDeepEqual(logger2.values, ["default", false]);
+            expectDeepEqual(logger2.values, ['default', false]);
         });
 
-        it("unless() invokes the callback for a falsy static or callback condition", () => {
+        it('unless() invokes the callback for a falsy static or callback condition', () => {
             // PHP: SupportConditionableTest::testUnlessConditionCallback
             const logger = new ConditionableLogger().unless(
                 undefined as number | undefined,
                 (l, condition) => {
-                    return l.log("unless", condition);
+                    return l.log('unless', condition);
                 },
                 (l, condition) => {
-                    return l.log("default", condition);
+                    return l.log('default', condition);
                 },
             );
 
-            expectDeepEqual(logger.values, ["unless", undefined]);
+            expectDeepEqual(logger.values, ['unless', undefined]);
 
             const logger2 = new ConditionableLogger().unless(
-                (l) => l.has("missing"),
+                (l) => l.has('missing'),
                 (l, condition) => {
-                    return l.log("unless", condition);
+                    return l.log('unless', condition);
                 },
                 (l, condition) => {
-                    return l.log("default", condition);
+                    return l.log('default', condition);
                 },
             );
 
-            expectDeepEqual(logger2.values, ["unless", false]);
+            expectDeepEqual(logger2.values, ['unless', false]);
         });
 
-        it("unless() invokes the default callback for a truthy condition", () => {
+        it('unless() invokes the default callback for a truthy condition', () => {
             // PHP: SupportConditionableTest::testUnlessDefaultCallback
             const logger = new ConditionableLogger().unless(
                 2,
                 (l, condition) => {
-                    return l.log("unless", condition);
+                    return l.log('unless', condition);
                 },
                 (l, condition) => {
-                    return l.log("default", condition);
+                    return l.log('default', condition);
                 },
             );
 
-            expectDeepEqual(logger.values, ["default", 2]);
+            expectDeepEqual(logger.values, ['default', 2]);
 
-            const logger2 = new ConditionableLogger().log("init").unless(
-                (l) => l.has("init"),
+            const logger2 = new ConditionableLogger().log('init').unless(
+                (l) => l.has('init'),
                 (l, condition) => {
-                    return l.log("unless", condition);
+                    return l.log('unless', condition);
                 },
                 (l, condition) => {
-                    return l.log("default", condition);
+                    return l.log('default', condition);
                 },
             );
 
-            expectDeepEqual(logger2.values, ["init", "default", true]);
+            expectDeepEqual(logger2.values, ['init', 'default', true]);
         });
     });
 };

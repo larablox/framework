@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Pluralizer } from "Illuminate/Support/Pluralizer";
+import { Pluralizer } from 'Illuminate/Support/Pluralizer';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportPluralizerTest`.
@@ -42,34 +42,34 @@ import { Pluralizer } from "Illuminate/Support/Pluralizer";
  *   count of 1 doesn't) is unchanged.
  */
 export = (): void => {
-    describe("Pluralizer", () => {
+    describe('Pluralizer', () => {
         // PHP: SupportPluralizerTest::testBasicSingular
-        it("singular() inflects a plain English word", () => {
-            expect(Pluralizer.singular("children")).to.equal("child");
+        it('singular() inflects a plain English word', () => {
+            expect(Pluralizer.singular('children')).to.equal('child');
         });
 
         // PHP: SupportPluralizerTest::testBasicPlural
-        it("plural() inflects a plain English word", () => {
-            expect(Pluralizer.plural("child")).to.equal("children");
+        it('plural() inflects a plain English word', () => {
+            expect(Pluralizer.plural('child')).to.equal('children');
             // "cod" dropped -- not in this port's UNCOUNTABLE list, see class
             // comment; Pluralizer.plural("cod") actually returns "cods" here.
-            expect(Pluralizer.plural("The word")).to.equal("The words");
-            expect(Pluralizer.plural("Bouqueté")).to.equal("Bouquetés");
+            expect(Pluralizer.plural('The word')).to.equal('The words');
+            expect(Pluralizer.plural('Bouqueté')).to.equal('Bouquetés');
         });
 
         // PHP: SupportPluralizerTest::testCaseSensitiveSingularUsage
-        it("singular() preserves the case of the input", () => {
-            expect(Pluralizer.singular("Children")).to.equal("Child");
-            expect(Pluralizer.singular("CHILDREN")).to.equal("CHILD");
-            expect(Pluralizer.singular("Tests")).to.equal("Test");
+        it('singular() preserves the case of the input', () => {
+            expect(Pluralizer.singular('Children')).to.equal('Child');
+            expect(Pluralizer.singular('CHILDREN')).to.equal('CHILD');
+            expect(Pluralizer.singular('Tests')).to.equal('Test');
         });
 
         // PHP: SupportPluralizerTest::testCaseSensitiveSingularPlural
-        it("plural() preserves the case of the input", () => {
-            expect(Pluralizer.plural("Child")).to.equal("Children");
-            expect(Pluralizer.plural("CHILD")).to.equal("CHILDREN");
-            expect(Pluralizer.plural("Test")).to.equal("Tests");
-            expect(Pluralizer.plural("cHiLd")).to.equal("children");
+        it('plural() preserves the case of the input', () => {
+            expect(Pluralizer.plural('Child')).to.equal('Children');
+            expect(Pluralizer.plural('CHILD')).to.equal('CHILDREN');
+            expect(Pluralizer.plural('Test')).to.equal('Tests');
+            expect(Pluralizer.plural('cHiLd')).to.equal('children');
         });
 
         // PHP: SupportPluralizerTest::testIfEndOfWordPlural -- dropped in
@@ -82,11 +82,11 @@ export = (): void => {
         // tests above.
 
         // PHP: SupportPluralizerTest::testPluralWithNegativeCount
-        it("plural() takes the absolute value of the count", () => {
-            expect(Pluralizer.plural("test", 1)).to.equal("test");
-            expect(Pluralizer.plural("test", 2)).to.equal("tests");
-            expect(Pluralizer.plural("test", -1)).to.equal("test");
-            expect(Pluralizer.plural("test", -2)).to.equal("tests");
+        it('plural() takes the absolute value of the count', () => {
+            expect(Pluralizer.plural('test', 1)).to.equal('test');
+            expect(Pluralizer.plural('test', 2)).to.equal('tests');
+            expect(Pluralizer.plural('test', -1)).to.equal('test');
+            expect(Pluralizer.plural('test', -2)).to.equal('tests');
         });
 
         // PHP: SupportPluralizerTest::testPluralStudly,
@@ -101,10 +101,10 @@ export = (): void => {
         // returns `"Alien.s"`, not `"Alien."`.
 
         // PHP: SupportPluralizerTest::testPluralAppliedForStringEndingWithNumericCharacter
-        it("plural() inflects a word ending in a digit", () => {
-            expect(Pluralizer.plural("User1")).to.equal("User1s");
-            expect(Pluralizer.plural("User2")).to.equal("User2s");
-            expect(Pluralizer.plural("User3")).to.equal("User3s");
+        it('plural() inflects a word ending in a digit', () => {
+            expect(Pluralizer.plural('User1')).to.equal('User1s');
+            expect(Pluralizer.plural('User2')).to.equal('User2s');
+            expect(Pluralizer.plural('User3')).to.equal('User3s');
         });
 
         // PHP: SupportPluralizerTest::testPluralSupportsArrays,
@@ -114,10 +114,10 @@ export = (): void => {
         // class comment), which collapses both PHP tests into one adapted
         // scenario: an empty array/collection is size 0, a one-item one is
         // size 1, a two-item one is size 2.
-        it("plural() pluralizes by a count standing in for an array/collection size", () => {
-            expect(Pluralizer.plural("user", 0)).to.equal("users");
-            expect(Pluralizer.plural("user", 1)).to.equal("user");
-            expect(Pluralizer.plural("user", 2)).to.equal("users");
+        it('plural() pluralizes by a count standing in for an array/collection size', () => {
+            expect(Pluralizer.plural('user', 0)).to.equal('users');
+            expect(Pluralizer.plural('user', 1)).to.equal('user');
+            expect(Pluralizer.plural('user', 2)).to.equal('users');
         });
     });
 };

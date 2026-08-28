@@ -1,4 +1,4 @@
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
 
 /**
  * PHP: `Illuminate\Http\Response` plus the parts of `ResponseTrait` and of
@@ -94,7 +94,7 @@ export class Response {
      * with the headers of a GET and no body at all.
      */
     public prepare(request: { method(): string }): this {
-        if (request.method() === "HEAD") {
+        if (request.method() === 'HEAD') {
             this.setContent(undefined);
         }
 

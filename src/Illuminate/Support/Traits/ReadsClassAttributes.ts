@@ -1,5 +1,5 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import { Reflector } from "Illuminate/Support/Reflector";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import { Reflector } from 'Illuminate/Support/Reflector';
 
 /**
  * PHP: `Illuminate\Support\Traits\ReadsClassAttributes`.
@@ -17,7 +17,7 @@ export class ReadsClassAttributes {
     public static getAttributeValue(target: object, attribute: Callback, property?: string, dflt?: unknown): unknown {
         const value = property !== undefined ? (target as Record<string, unknown>)[property] : undefined;
 
-        if (value !== undefined && !typeIs(value, "function")) {
+        if (value !== undefined && !typeIs(value, 'function')) {
             return value;
         }
 

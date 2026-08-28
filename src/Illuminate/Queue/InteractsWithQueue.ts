@@ -1,7 +1,7 @@
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { ManuallyFailedException } from "Illuminate/Queue/ManuallyFailedException";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Job } from "Illuminate/Contracts/Queue/Job";
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { ManuallyFailedException } from 'Illuminate/Queue/ManuallyFailedException';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
 
 /**
  * PHP: `Illuminate\Queue\InteractsWithQueue`.
@@ -31,7 +31,7 @@ export class InteractsWithQueue {
 
     /** Fail the job from the queue. */
     public fail(exception?: unknown): void {
-        const failure = typeIs(exception, "string") ? new ManuallyFailedException(exception) : exception;
+        const failure = typeIs(exception, 'string') ? new ManuallyFailedException(exception) : exception;
 
         if (this.job !== undefined) {
             this.job.fail(failure);

@@ -1,6 +1,6 @@
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { Request } from "Illuminate/Http/Request";
-import type { Response } from "Illuminate/Http/Response";
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Response } from 'Illuminate/Http/Response';
 
 /**
  * PHP: `Laravel\Octane\Events\RequestTerminated`.

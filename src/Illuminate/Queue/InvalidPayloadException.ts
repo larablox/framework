@@ -1,4 +1,4 @@
-import { InvalidArgumentException } from "Illuminate/Exception";
+import { InvalidArgumentException } from 'Illuminate/Exception';
 
 /** PHP: `Illuminate\Queue\InvalidPayloadException`. */
 export class InvalidPayloadException extends InvalidArgumentException {

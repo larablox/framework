@@ -1,5 +1,5 @@
-import { addVariadicDependency } from "Illuminate/Container/Attributes/Inject";
-import type { Abstract } from "Illuminate/Container/Types";
+import { addVariadicDependency } from 'Illuminate/Container/Attributes/Inject';
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * Declare a rest parameter and the abstract its elements come from.

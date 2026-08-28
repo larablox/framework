@@ -1,9 +1,9 @@
-import { CallableDispatcher } from "Illuminate/Routing/CallableDispatcher";
-import { ControllerDispatcher } from "Illuminate/Routing/ControllerDispatcher";
-import { Router } from "Illuminate/Routing/Router";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
+import { CallableDispatcher } from 'Illuminate/Routing/CallableDispatcher';
+import { ControllerDispatcher } from 'Illuminate/Routing/ControllerDispatcher';
+import { Router } from 'Illuminate/Routing/Router';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
 
 /**
  * PHP: `Illuminate\Routing\RoutingServiceProvider`.
@@ -24,8 +24,8 @@ export class RoutingServiceProvider extends ServiceProvider {
     /** Register the router instance. */
     protected registerRouter(): void {
         this.app.singleton(
-            "router",
-            (container: Container) => new Router(container.make<Dispatcher>("events"), container),
+            'router',
+            (container: Container) => new Router(container.make<Dispatcher>('events'), container),
         );
     }
 

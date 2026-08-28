@@ -11,5 +11,5 @@ export interface Jsonable {
 
 /** PHP: `$value instanceof Jsonable`. Interfaces are erased; see `isArrayable`. */
 export function isJsonable(value: unknown): value is Jsonable {
-    return typeIs(value, "table") && typeIs((value as Jsonable).toJson, "function");
+    return typeIs(value, 'table') && typeIs((value as Jsonable).toJson, 'function');
 }

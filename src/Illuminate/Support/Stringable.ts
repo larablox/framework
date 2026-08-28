@@ -8,5 +8,5 @@
  * `agent_docs/roblox-ts-constraints.md`). One module holds both classes, and
  * this one keeps the import path PHP would use.
  */
-export { Stringable } from "Illuminate/Support/Str";
-export type { WhenCallback } from "Illuminate/Support/Str";
+export { Stringable } from 'Illuminate/Support/Str';
+export type { WhenCallback } from 'Illuminate/Support/Str';

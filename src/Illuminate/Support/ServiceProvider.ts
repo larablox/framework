@@ -1,8 +1,8 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import { DeferrableProvider } from "Illuminate/Contracts/Support/DeferrableProvider";
-import { Reflector } from "Illuminate/Support/Reflector";
-import type { Abstract, Concrete, ResolvingCallback } from "Illuminate/Container/Types";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import { DeferrableProvider } from 'Illuminate/Contracts/Support/DeferrableProvider';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import type { Abstract, Concrete, ResolvingCallback } from 'Illuminate/Container/Types';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
 
 /**
  * PHP: `Illuminate\Support\ServiceProvider`.

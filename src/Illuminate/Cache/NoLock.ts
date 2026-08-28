@@ -1,4 +1,4 @@
-import { Lock } from "Illuminate/Cache/Lock";
+import { Lock } from 'Illuminate/Cache/Lock';
 
 /** PHP: `Illuminate\Cache\NoLock`. */
 export class NoLock extends Lock {

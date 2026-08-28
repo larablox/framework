@@ -1,6 +1,6 @@
-import { Str } from "Illuminate/Support/Str";
-import type { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Str } from 'Illuminate/Support/Str';
+import type { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Routing\MiddlewareNameResolver`.
@@ -16,13 +16,13 @@ export class MiddlewareNameResolver {
         map: OrderedMap<string, Pipe>,
         middlewareGroups: OrderedMap<string, Array<Pipe>>,
     ): Pipe | Array<Pipe> {
-        if (!typeIs(name, "string")) {
+        if (!typeIs(name, 'string')) {
             return name;
         }
 
         const aliased = map.get(name);
 
-        if (aliased !== undefined && typeIs(aliased, "function")) {
+        if (aliased !== undefined && typeIs(aliased, 'function')) {
             return aliased;
         }
 
@@ -41,8 +41,8 @@ export class MiddlewareNameResolver {
         // there. An alias here usually maps to the class itself, which cannot
         // carry a suffix -- so the arguments travel beside it in a list, which
         // is the shape `Pipeline::parsePipeString()` reads.
-        if (!typeIs(resolved, "string")) {
-            return [resolved, ...parameters.split(",")] as Pipe;
+        if (!typeIs(resolved, 'string')) {
+            return [resolved, ...parameters.split(',')] as Pipe;
         }
 
         return `${resolved}:${parameters}`;
@@ -57,7 +57,7 @@ export class MiddlewareNameResolver {
         const results = new Array<Pipe>();
 
         for (const middleware of middlewareGroups.get(name) ?? []) {
-            if (typeIs(middleware, "string") && middlewareGroups.has(middleware)) {
+            if (typeIs(middleware, 'string') && middlewareGroups.has(middleware)) {
                 for (const nested of MiddlewareNameResolver.parseMiddlewareGroup(middleware, map, middlewareGroups)) {
                     results.push(nested);
                 }
@@ -75,10 +75,10 @@ export class MiddlewareNameResolver {
 
     /** PHP: `array_pad(explode(':', $name, 2), 2, null)`. */
     protected static split(name: string): [string, string | undefined] {
-        if (!Str.contains(name, ":")) {
+        if (!Str.contains(name, ':')) {
             return [name, undefined];
         }
 
-        return [Str.before(name, ":"), Str.after(name, ":")];
+        return [Str.before(name, ':'), Str.after(name, ':')];
     }
 }

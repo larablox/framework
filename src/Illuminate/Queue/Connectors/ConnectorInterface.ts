@@ -1,5 +1,5 @@
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /** PHP: `Illuminate\Queue\Connectors\ConnectorInterface`. */
 export interface ConnectorInterface {

@@ -1,4 +1,4 @@
-import { RuntimeException } from "Illuminate/Exception";
+import { RuntimeException } from 'Illuminate/Exception';
 
 /**
  * The type of a method as forwarded by a facade.
@@ -29,12 +29,12 @@ export function Forwards() {
         const metatable = getmetatable(target) as object | undefined;
 
         if (metatable === undefined) {
-            throw new RuntimeException("A facade must extend Facade to forward calls.");
+            throw new RuntimeException('A facade must extend Facade to forward calls.');
         }
 
-        const inherited = rawget(metatable, "__index") as Record<string, unknown> | undefined;
+        const inherited = rawget(metatable, '__index') as Record<string, unknown> | undefined;
 
-        rawset(metatable, "__index", (_receiver: unknown, key: string) => {
+        rawset(metatable, '__index', (_receiver: unknown, key: string) => {
             const owned = inherited?.[key];
 
             // Anything the facade or Facade itself declares wins; only the rest
@@ -50,12 +50,12 @@ export function Forwards() {
                 const root = facade.getFacadeRoot(target) as Record<string, unknown> | undefined;
 
                 if (root === undefined) {
-                    throw new RuntimeException("A facade root has not been set.");
+                    throw new RuntimeException('A facade root has not been set.');
                 }
 
                 const method = root[key];
 
-                if (!typeIs(method, "function")) {
+                if (!typeIs(method, 'function')) {
                     throw new RuntimeException(`Method [${key}] does not exist on the facade root.`);
                 }
 

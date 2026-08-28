@@ -1,5 +1,5 @@
-import { MaxAttemptsExceededException } from "Illuminate/Queue/MaxAttemptsExceededException";
-import type { Job } from "Illuminate/Contracts/Queue/Job";
+import { MaxAttemptsExceededException } from 'Illuminate/Queue/MaxAttemptsExceededException';
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
 
 /** PHP: `Illuminate\Queue\TimeoutExceededException`. */
 export class TimeoutExceededException extends MaxAttemptsExceededException {

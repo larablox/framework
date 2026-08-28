@@ -7,7 +7,7 @@
     },
     "Pipeline/Hub.php#Hub#defaults": {
         "php_hash": "5c5482f0aa53f8190af7505be42baff2ad7f39ae",
-        "ts_hash": "bc3c487d2689d744fb4ba7b0374563a82da614c3",
+        "ts_hash": "f3ed63e9efd6688997a1224cf52bce6a736e12f6",
         "approved_at": "2026-08-28"
     },
     "Pipeline/Hub.php#Hub#getContainer": {
@@ -17,7 +17,7 @@
     },
     "Pipeline/Hub.php#Hub#pipe": {
         "php_hash": "6db20cba62ad99d077d1d407f9650024c17847db",
-        "ts_hash": "b82dd7eb42073059c98093e2f314bebf0b0a7fd8",
+        "ts_hash": "5773c5b2e5f1dc260d56533869d22fa1f9f138eb",
         "approved_at": "2026-08-28",
         "note": "PHP ?: treats an empty-string name as default; the port only defaults on nil -- pathological input only"
     },
@@ -48,7 +48,7 @@
     },
     "Pipeline/Pipeline.php#Pipeline#getContainer": {
         "php_hash": "a1034a6d82aef39051bd7aa74916c8de1117d36a",
-        "ts_hash": "93684f406361a205624dcb4edc4c349149a0ec40",
+        "ts_hash": "283312e850cc839d40619dc45db40cf929753154",
         "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#handleCarry": {
@@ -63,7 +63,7 @@
     },
     "Pipeline/Pipeline.php#Pipeline#parsePipeString": {
         "php_hash": "fbf5a45239c080d0160e8962f12d35b7aa4b1724",
-        "ts_hash": "4cb7fa0a82fa7b153a6b34648c649919352392c2",
+        "ts_hash": "3a018ae9acae2f7a0b8a46a520b07dcae0532ffe",
         "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#pipe": {
@@ -114,12 +114,12 @@
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
-        "ts_hash": "1519a4fcaa1e90689842c1e33f01b946947d1230",
+        "ts_hash": "a38f5239fad77b779cef5818a0976fb08a32e22f",
         "approved_at": "2026-08-28"
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {
         "php_hash": "e577fa7f0c27b7a7950f092c98b0e615cd62cc92",
-        "ts_hash": "d4e9c527023b6b8aa8721883fa9fb8660ab58424",
+        "ts_hash": "ac9aa4a807313b24d93d57d48443b5c0af4178e9",
         "approved_at": "2026-08-28",
         "note": "mirrors upstream line for line: contract token as key, Hub class as concrete; the container builds Hub through its @Inject metadata"
     }

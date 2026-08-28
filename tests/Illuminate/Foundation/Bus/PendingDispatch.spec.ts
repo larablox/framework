@@ -1,7 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../../TestHelpers";
-import { PendingDispatch } from "Illuminate/Foundation/Bus/PendingDispatch";
-import { Queueable } from "Illuminate/Bus/Queueable";
+import { expectDeepEqual } from '../../TestHelpers';
+import { PendingDispatch } from 'Illuminate/Foundation/Bus/PendingDispatch';
+import { Queueable } from 'Illuminate/Bus/Queueable';
 
 /**
  * PHP: `Illuminate\Tests\Bus\BusPendingDispatchTest`.
@@ -100,48 +100,48 @@ class PendingDispatchWithoutSend extends PendingDispatch {
 }
 
 export = (): void => {
-    describe("PendingDispatch", () => {
-        it("onConnection() forwards to the job", () => {
+    describe('PendingDispatch', () => {
+        it('onConnection() forwards to the job', () => {
             // PHP: BusPendingDispatchTest::testOnConnection
             const job = new FakeJob();
             const pendingDispatch = new PendingDispatchWithoutSend(job);
 
-            pendingDispatch.onConnection("test-connection");
+            pendingDispatch.onConnection('test-connection');
 
-            expectDeepEqual(job.onConnectionCalls, ["test-connection"]);
+            expectDeepEqual(job.onConnectionCalls, ['test-connection']);
         });
 
-        it("onQueue() forwards to the job", () => {
+        it('onQueue() forwards to the job', () => {
             // PHP: BusPendingDispatchTest::testOnQueue
             const job = new FakeJob();
             const pendingDispatch = new PendingDispatchWithoutSend(job);
 
-            pendingDispatch.onQueue("test-queue");
+            pendingDispatch.onQueue('test-queue');
 
-            expectDeepEqual(job.onQueueCalls, ["test-queue"]);
+            expectDeepEqual(job.onQueueCalls, ['test-queue']);
         });
 
-        it("allOnConnection() forwards to the job", () => {
+        it('allOnConnection() forwards to the job', () => {
             // PHP: BusPendingDispatchTest::testAllOnConnection
             const job = new FakeJob();
             const pendingDispatch = new PendingDispatchWithoutSend(job);
 
-            pendingDispatch.allOnConnection("test-connection");
+            pendingDispatch.allOnConnection('test-connection');
 
-            expectDeepEqual(job.allOnConnectionCalls, ["test-connection"]);
+            expectDeepEqual(job.allOnConnectionCalls, ['test-connection']);
         });
 
-        it("allOnQueue() forwards to the job", () => {
+        it('allOnQueue() forwards to the job', () => {
             // PHP: BusPendingDispatchTest::testAllOnQueue
             const job = new FakeJob();
             const pendingDispatch = new PendingDispatchWithoutSend(job);
 
-            pendingDispatch.allOnQueue("test-queue");
+            pendingDispatch.allOnQueue('test-queue');
 
-            expectDeepEqual(job.allOnQueueCalls, ["test-queue"]);
+            expectDeepEqual(job.allOnQueueCalls, ['test-queue']);
         });
 
-        it("delay() forwards to the job", () => {
+        it('delay() forwards to the job', () => {
             // PHP: BusPendingDispatchTest::testDelay
             const job = new FakeJob();
             const pendingDispatch = new PendingDispatchWithoutSend(job);
@@ -151,7 +151,7 @@ export = (): void => {
             expectDeepEqual(job.delayCalls, [60]);
         });
 
-        it("withoutDelay() forwards to the job", () => {
+        it('withoutDelay() forwards to the job', () => {
             // PHP: BusPendingDispatchTest::testWithoutDelay
             const job = new FakeJob();
             const pendingDispatch = new PendingDispatchWithoutSend(job);
@@ -161,7 +161,7 @@ export = (): void => {
             expect(job.withoutDelayCalls).to.equal(1);
         });
 
-        it("chain() forwards to the job", () => {
+        it('chain() forwards to the job', () => {
             // PHP: BusPendingDispatchTest::testChain
             const job = new FakeJob();
             const pendingDispatch = new PendingDispatchWithoutSend(job);
@@ -173,7 +173,7 @@ export = (): void => {
             expect(job.chainCalls[0]).to.equal(chain);
         });
 
-        it("getJob() returns the underlying job instance", () => {
+        it('getJob() returns the underlying job instance', () => {
             // PHP: BusPendingDispatchTest::testGetJob
             const job = new FakeJob();
             const pendingDispatch = new PendingDispatchWithoutSend(job);

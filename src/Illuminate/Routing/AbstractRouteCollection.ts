@@ -1,7 +1,7 @@
-import { MethodNotAllowedHttpException, NotFoundHttpException } from "Illuminate/Http/Exceptions/HttpException";
-import { Response } from "Illuminate/Http/Response";
-import { Route } from "Illuminate/Routing/Route";
-import type { Request } from "Illuminate/Http/Request";
+import { MethodNotAllowedHttpException, NotFoundHttpException } from 'Illuminate/Http/Exceptions/HttpException';
+import { Response } from 'Illuminate/Http/Response';
+import { Route } from 'Illuminate/Routing/Route';
+import type { Request } from 'Illuminate/Http/Request';
 
 /**
  * PHP: `Illuminate\Routing\AbstractRouteCollection`.
@@ -104,7 +104,7 @@ export abstract class AbstractRouteCollection {
      * imports the collection back.
      */
     protected alternateVerbOrder(): Array<string> {
-        const verbs = ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"];
+        const verbs = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
         const registered = this.registeredMethods();
 
         return [
@@ -115,11 +115,11 @@ export abstract class AbstractRouteCollection {
 
     /** Get a route (if necessary) that responds when other available methods are present. */
     protected getRouteForMethods(request: Request, methods: Array<string>): Route {
-        if (request.isMethod("OPTIONS")) {
-            return new Route("OPTIONS", request.path(), {
+        if (request.isMethod('OPTIONS')) {
+            return new Route('OPTIONS', request.path(), {
                 uses: () =>
                     new Response(undefined, Response.HTTP_OK, {
-                        Allow: methods.join(","),
+                        Allow: methods.join(','),
                     }),
             }).bind(request);
         }
@@ -131,7 +131,7 @@ export abstract class AbstractRouteCollection {
     protected requestMethodNotAllowed(request: Request, others: Array<string>, method: string): never {
         throw new MethodNotAllowedHttpException(
             others,
-            `The ${method} method is not supported for route ${request.path()}. Supported methods: ${others.join(", ")}.`,
+            `The ${method} method is not supported for route ${request.path()}. Supported methods: ${others.join(', ')}.`,
         );
     }
 }

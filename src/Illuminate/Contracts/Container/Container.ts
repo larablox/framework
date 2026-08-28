@@ -1,4 +1,4 @@
-import type { RewindableGenerator } from "Illuminate/Container/RewindableGenerator";
+import type { RewindableGenerator } from 'Illuminate/Container/RewindableGenerator';
 import type {
     Abstract,
     AbstractClass,
@@ -12,9 +12,9 @@ import type {
     MethodBindingClosure,
     ParameterList,
     ResolvingCallback,
-} from "Illuminate/Container/Types";
-import type { ContextualBindingBuilder } from "Illuminate/Contracts/Container/ContextualBindingBuilder";
-import { Contract } from "Illuminate/Container/Contract";
+} from 'Illuminate/Container/Types';
+import type { ContextualBindingBuilder } from 'Illuminate/Contracts/Container/ContextualBindingBuilder';
+import { Contract } from 'Illuminate/Container/Contract';
 
 export interface Container {
     /** Resolve the given type from the container. */
@@ -103,4 +103,4 @@ export interface Container {
 }
 
 /** PHP: `Container::class` -- the interface name as a container key. */
-export const ContainerContract = new Contract<Container>("Illuminate\\Contracts\\Container\\Container");
+export const ContainerContract = new Contract<Container>('Illuminate\\Contracts\\Container\\Container');

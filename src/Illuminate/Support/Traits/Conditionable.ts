@@ -1,6 +1,6 @@
-import { Trait } from "Illuminate/Support/Traits/Trait";
-import { Util } from "Illuminate/Container/Util";
-import type { AssertNoExtraMembers, AssertTrue, Constructor } from "Illuminate/Support/Traits/Trait";
+import { Trait } from 'Illuminate/Support/Traits/Trait';
+import { Util } from 'Illuminate/Container/Util';
+import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/Support/Traits/Trait';
 
 /**
  * The instance type `Conditionable()` mixes in.
@@ -115,7 +115,7 @@ function conditionable<TBase extends Constructor>(Base: TBase) {
         private resolveCondition<TValue extends defined>(
             value: TValue | ((target: this) => TValue) | undefined,
         ): TValue | undefined {
-            return typeIs(value, "function") ? (value as (target: this) => TValue)(this) : value;
+            return typeIs(value, 'function') ? (value as (target: this) => TValue)(this) : value;
         }
     } satisfies Constructor<ConditionablePublicShape>;
 }

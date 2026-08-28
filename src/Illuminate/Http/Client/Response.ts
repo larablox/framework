@@ -1,12 +1,12 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { Collection } from "Illuminate/Support/Collection";
-import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
-import { DeterminesStatusCode } from "Illuminate/Http/Client/Concerns/DeterminesStatusCode";
-import { RequestException } from "Illuminate/Http/Client/RequestException";
-import { data_get } from "Illuminate/Support/Helpers";
+import { Arr } from 'Illuminate/Support/Arr';
+import { Collection } from 'Illuminate/Support/Collection';
+import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
+import { DeterminesStatusCode } from 'Illuminate/Http/Client/Concerns/DeterminesStatusCode';
+import { RequestException } from 'Illuminate/Http/Client/RequestException';
+import { data_get } from 'Illuminate/Support/Helpers';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
-import type { ResponseEnvelope } from "Illuminate/Http/Remote";
+import type { ConditionableShape } from 'Illuminate/Support/Traits/Conditionable';
+import type { ResponseEnvelope } from 'Illuminate/Http/Remote';
 
 /**
  * PHP: `Illuminate\Http\Client\Response`.
@@ -53,7 +53,7 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
 
     /** Get a header from the response. */
     public header(header: string): string {
-        return this.envelope.headers?.[header] ?? "";
+        return this.envelope.headers?.[header] ?? '';
     }
 
     /** Get the headers from the response. */
@@ -122,7 +122,7 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
         condition: boolean | ((response: this) => boolean),
         callback?: (response: this, exception: RequestException) => void,
     ): this {
-        const met: boolean = typeIs(condition, "function")
+        const met: boolean = typeIs(condition, 'function')
             ? (condition as (response: this) => boolean)(this)
             : condition;
 
@@ -131,7 +131,7 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
 
     /** Throw an exception if the response status code matches the given code. */
     public throwIfStatus(status: number | ((status: number, response: this) => boolean)): this {
-        const met: boolean = typeIs(status, "function")
+        const met: boolean = typeIs(status, 'function')
             ? (status as (status: number, response: this) => boolean)(this.status(), this)
             : this.status() === status;
 
@@ -147,7 +147,7 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
 
     /** Throw an exception unless the response status code matches the given code. */
     public throwUnlessStatus(status: number | ((status: number, response: this) => boolean)): this {
-        const met: boolean = typeIs(status, "function")
+        const met: boolean = typeIs(status, 'function')
             ? (status as (status: number, response: this) => boolean)(this.status(), this)
             : this.status() === status;
 

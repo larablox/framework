@@ -1,17 +1,17 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../../TestHelpers";
-import { Container } from "Illuminate/Container/Container";
-import { Controller } from "Illuminate/Routing/Controller";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { HttpResponseException } from "Illuminate/Http/Exceptions/HttpResponseException";
-import { LogicException } from "Illuminate/Exception";
-import { NotFoundHttpException } from "Illuminate/Http/Exceptions/HttpException";
-import { Request } from "Illuminate/Http/Request";
-import { Response } from "Illuminate/Http/Response";
-import { Route } from "Illuminate/Routing/Route";
-import { Router } from "Illuminate/Routing/Router";
-import { Str } from "Illuminate/Support/Str";
-import { SubstituteBindings } from "Illuminate/Routing/Middleware/SubstituteBindings";
+import { expectDeepEqual } from '../../TestHelpers';
+import { Container } from 'Illuminate/Container/Container';
+import { Controller } from 'Illuminate/Routing/Controller';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { HttpResponseException } from 'Illuminate/Http/Exceptions/HttpResponseException';
+import { LogicException } from 'Illuminate/Exception';
+import { NotFoundHttpException } from 'Illuminate/Http/Exceptions/HttpException';
+import { Request } from 'Illuminate/Http/Request';
+import { Response } from 'Illuminate/Http/Response';
+import { Route } from 'Illuminate/Routing/Route';
+import { Router } from 'Illuminate/Routing/Router';
+import { Str } from 'Illuminate/Support/Str';
+import { SubstituteBindings } from 'Illuminate/Routing/Middleware/SubstituteBindings';
 
 /**
  * PHP: `Illuminate\Tests\Routing\RoutingRouteTest`, the dispatch- and
@@ -69,181 +69,181 @@ function router(): Router {
     const container = new Container();
     const built = new Router(new Dispatcher(), container);
 
-    container.instance("router", built);
+    container.instance('router', built);
 
     return built;
 }
 
 export = (): void => {
-    describe("Routing.Route.Matching", () => {
+    describe('Routing.Route.Matching', () => {
         // PHP: RoutingRouteTest::testBasicDispatchingOfRoutes (data inlined, non-domain cases)
-        it("dispatches a GET route to its closure", () => {
+        it('dispatches a GET route to its closure', () => {
             const r = router();
-            r.get("foo/bar", () => "hello");
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("hello");
+            r.get('foo/bar', () => 'hello');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('hello');
         });
 
-        it("HttpResponseException thrown from the action short-circuits to its response", () => {
+        it('HttpResponseException thrown from the action short-circuits to its response', () => {
             const r = router();
-            r.get("foo/bar", () => {
-                throw new HttpResponseException(new Response("hello"));
+            r.get('foo/bar', () => {
+                throw new HttpResponseException(new Response('hello'));
             });
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("hello");
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('hello');
         });
 
-        it("GET and POST on the same URI dispatch to different routes", () => {
+        it('GET and POST on the same URI dispatch to different routes', () => {
             const r = router();
-            r.get("foo/bar", () => "hello");
-            r.post("foo/bar", () => "post hello");
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("hello");
-            expect(r.dispatch(new Request({} as Player, "POST", "foo/bar")).content()).to.equal("post hello");
+            r.get('foo/bar', () => 'hello');
+            r.post('foo/bar', () => 'post hello');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('hello');
+            expect(r.dispatch(new Request({} as Player, 'POST', 'foo/bar')).content()).to.equal('post hello');
         });
 
         it("a required parameter fills the closure's first argument", () => {
             const r = router();
-            r.get("foo/{bar}", (name: string) => name);
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/taylor")).content()).to.equal("taylor");
+            r.get('foo/{bar}', (name: string) => name);
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/taylor')).content()).to.equal('taylor');
         });
 
         it("a trailing optional parameter falls back to the closure's default", () => {
             const r = router();
-            r.get("foo/{bar}/{baz?}", (name: string, age = 25) => `${name}${age}`);
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/taylor")).content()).to.equal("taylor25");
+            r.get('foo/{bar}/{baz?}', (name: string, age = 25) => `${name}${age}`);
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/taylor')).content()).to.equal('taylor25');
         });
 
-        it("several trailing optional parameters each fall back independently", () => {
+        it('several trailing optional parameters each fall back independently', () => {
             const r = router();
             r.get(
-                "foo/{name}/boom/{age?}/{location?}",
-                (name: string, age = 25, location = "AR") => `${name}${age}${location}`,
+                'foo/{name}/boom/{age?}/{location?}',
+                (name: string, age = 25, location = 'AR') => `${name}${age}${location}`,
             );
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/taylor/boom/30")).content()).to.equal("taylor30AR");
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/taylor/boom/30')).content()).to.equal('taylor30AR');
         });
 
-        it("a leading required parameter with a trailing optional one", () => {
+        it('a leading required parameter with a trailing optional one', () => {
             const r = router();
-            r.get("{bar}/{baz?}", (name: string, age = 25) => `${name}${age}`);
-            expect(r.dispatch(new Request({} as Player, "GET", "taylor")).content()).to.equal("taylor25");
+            r.get('{bar}/{baz?}', (name: string, age = 25) => `${name}${age}`);
+            expect(r.dispatch(new Request({} as Player, 'GET', 'taylor')).content()).to.equal('taylor25');
         });
 
-        it("a single optional parameter matches the root and one segment", () => {
+        it('a single optional parameter matches the root and one segment', () => {
             const r = router();
-            r.get("{baz?}", (age = 25) => tostring(age));
-            expect(r.dispatch(new Request({} as Player, "GET", "/")).content()).to.equal("25");
-            expect(r.dispatch(new Request({} as Player, "GET", "30")).content()).to.equal("30");
+            r.get('{baz?}', (age = 25) => tostring(age));
+            expect(r.dispatch(new Request({} as Player, 'GET', '/')).content()).to.equal('25');
+            expect(r.dispatch(new Request({} as Player, 'GET', '30')).content()).to.equal('30');
         });
 
-        it("two leading optional parameters, and Router::currentRouteNamed()/is()", () => {
+        it('two leading optional parameters, and Router::currentRouteNamed()/is()', () => {
             const r = router();
-            r.get("{foo?}/{baz?}", {
-                as: "foo",
-                uses: (name = "taylor", age = 25) => `${name}${age}`,
+            r.get('{foo?}/{baz?}', {
+                as: 'foo',
+                uses: (name = 'taylor', age = 25) => `${name}${age}`,
             });
 
-            expect(r.dispatch(new Request({} as Player, "GET", "/")).content()).to.equal("taylor25");
-            expect(r.dispatch(new Request({} as Player, "GET", "fred")).content()).to.equal("fred25");
-            expect(r.dispatch(new Request({} as Player, "GET", "fred/30")).content()).to.equal("fred30");
-            expect(r.currentRouteNamed("foo")).to.equal(true);
-            expect(r.currentRouteNamed("fo*")).to.equal(true);
-            expect(r.is("foo")).to.equal(true);
-            expect(r.is("foo", "bar")).to.equal(true);
-            expect(r.is("bar")).to.equal(false);
+            expect(r.dispatch(new Request({} as Player, 'GET', '/')).content()).to.equal('taylor25');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'fred')).content()).to.equal('fred25');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'fred/30')).content()).to.equal('fred30');
+            expect(r.currentRouteNamed('foo')).to.equal(true);
+            expect(r.currentRouteNamed('fo*')).to.equal(true);
+            expect(r.is('foo')).to.equal(true);
+            expect(r.is('foo', 'bar')).to.equal(true);
+            expect(r.is('bar')).to.equal(false);
         });
 
         // PHP: RoutingRouteTest::testBasicDispatchingOfRoutes, the PATCH/currentRouteName case
         it("Router::currentRouteName() reports the dispatched route's name", () => {
             const r = router();
-            r.patch("foo/bar", { as: "foo", uses: () => "bar" });
-            expect(r.dispatch(new Request({} as Player, "PATCH", "foo/bar")).content()).to.equal("bar");
-            expect(r.currentRouteName()).to.equal("foo");
+            r.patch('foo/bar', { as: 'foo', uses: () => 'bar' });
+            expect(r.dispatch(new Request({} as Player, 'PATCH', 'foo/bar')).content()).to.equal('bar');
+            expect(r.currentRouteName()).to.equal('foo');
         });
 
-        it("HEAD carries no body, whether the route is GET or ANY", () => {
+        it('HEAD carries no body, whether the route is GET or ANY', () => {
             let r = router();
-            r.get("foo/bar", () => "hello");
-            expect(r.dispatch(new Request({} as Player, "HEAD", "foo/bar")).content()).to.equal(undefined);
+            r.get('foo/bar', () => 'hello');
+            expect(r.dispatch(new Request({} as Player, 'HEAD', 'foo/bar')).content()).to.equal(undefined);
 
             r = router();
-            r.any("foo/bar", () => "hello");
-            expect(r.dispatch(new Request({} as Player, "HEAD", "foo/bar")).content()).to.equal(undefined);
+            r.any('foo/bar', () => 'hello');
+            expect(r.dispatch(new Request({} as Player, 'HEAD', 'foo/bar')).content()).to.equal(undefined);
         });
 
-        it("of two routes for the same URI and verb, the one registered last wins", () => {
+        it('of two routes for the same URI and verb, the one registered last wins', () => {
             const r = router();
-            r.get("foo/bar", () => "first");
-            r.get("foo/bar", () => "second");
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("second");
+            r.get('foo/bar', () => 'first');
+            r.get('foo/bar', () => 'second');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('second');
         });
 
         // PHP: RoutingRouteTest::testOptionsResponsesAreGeneratedByDefault
-        it("OPTIONS answers 200 and lists the Allow header from every matching route", () => {
+        it('OPTIONS answers 200 and lists the Allow header from every matching route', () => {
             const r = router();
-            r.get("foo/bar", () => "hello");
-            r.post("foo/bar", () => "hello");
-            const response = r.dispatch(new Request({} as Player, "OPTIONS", "foo/bar"));
+            r.get('foo/bar', () => 'hello');
+            r.post('foo/bar', () => 'hello');
+            const response = r.dispatch(new Request({} as Player, 'OPTIONS', 'foo/bar'));
 
             expect(response.status()).to.equal(200);
-            expect(response.getHeaders().get("Allow")).to.equal("GET,HEAD,POST");
+            expect(response.getHeaders().get('Allow')).to.equal('GET,HEAD,POST');
         });
 
         // PHP: RoutingRouteTest::testHeadDispatcher
-        it("OPTIONS/HEAD are synthesized for whatever verbs a URI was registered under", () => {
+        it('OPTIONS/HEAD are synthesized for whatever verbs a URI was registered under', () => {
             let r = router();
-            r.match(["GET", "POST"], "foo", () => "bar");
+            r.match(['GET', 'POST'], 'foo', () => 'bar');
 
-            let response = r.dispatch(new Request({} as Player, "OPTIONS", "foo"));
+            let response = r.dispatch(new Request({} as Player, 'OPTIONS', 'foo'));
             expect(response.status()).to.equal(200);
-            expect(response.getHeaders().get("Allow")).to.equal("GET,HEAD,POST");
+            expect(response.getHeaders().get('Allow')).to.equal('GET,HEAD,POST');
 
-            response = r.dispatch(new Request({} as Player, "HEAD", "foo"));
+            response = r.dispatch(new Request({} as Player, 'HEAD', 'foo'));
             expect(response.status()).to.equal(200);
             expect(response.content()).to.equal(undefined);
 
             r = router();
-            r.match(["GET"], "foo", () => "bar");
-            response = r.dispatch(new Request({} as Player, "OPTIONS", "foo"));
-            expect(response.getHeaders().get("Allow")).to.equal("GET,HEAD");
+            r.match(['GET'], 'foo', () => 'bar');
+            response = r.dispatch(new Request({} as Player, 'OPTIONS', 'foo'));
+            expect(response.getHeaders().get('Allow')).to.equal('GET,HEAD');
 
             r = router();
-            r.match(["POST"], "foo", () => "bar");
-            response = r.dispatch(new Request({} as Player, "OPTIONS", "foo"));
-            expect(response.getHeaders().get("Allow")).to.equal("POST");
+            r.match(['POST'], 'foo', () => 'bar');
+            response = r.dispatch(new Request({} as Player, 'OPTIONS', 'foo'));
+            expect(response.getHeaders().get('Allow')).to.equal('POST');
         });
 
         // PHP: RoutingRouteTest::testNonGreedyMatches, the parameter-bag assertions
         // (adapted to a segment-friendly URI -- see this file's header)
-        it("Route::parameter() reads matched segments, with matches() and bind()", () => {
-            const route = new Route("GET", "images/{id}/{ext}", {
+        it('Route::parameter() reads matched segments, with matches() and bind()', () => {
+            const route = new Route('GET', 'images/{id}/{ext}', {
                 uses: () => {},
             });
 
-            const request1 = new Request({} as Player, "GET", "images/1/png");
+            const request1 = new Request({} as Player, 'GET', 'images/1/png');
             expect(route.matches(request1)).to.equal(true);
             route.bind(request1);
-            expect(route.hasParameter("id")).to.equal(true);
-            expect(route.hasParameter("foo")).to.equal(false);
-            expect(route.parameter("id")).to.equal("1");
-            expect(route.parameter("ext")).to.equal("png");
+            expect(route.hasParameter('id')).to.equal(true);
+            expect(route.hasParameter('foo')).to.equal(false);
+            expect(route.parameter('id')).to.equal('1');
+            expect(route.parameter('ext')).to.equal('png');
 
-            const request2 = new Request({} as Player, "GET", "images/12/png");
+            const request2 = new Request({} as Player, 'GET', 'images/12/png');
             expect(route.matches(request2)).to.equal(true);
             route.bind(request2);
-            expect(route.parameter("id")).to.equal("12");
-            expect(route.parameter("ext")).to.equal("png");
+            expect(route.parameter('id')).to.equal('12');
+            expect(route.parameter('ext')).to.equal('png');
 
-            const optional = new Route("GET", "foo/{foo?}", { uses: () => {} });
-            const request3 = new Request({} as Player, "GET", "foo");
+            const optional = new Route('GET', 'foo/{foo?}', { uses: () => {} });
+            const request3 = new Request({} as Player, 'GET', 'foo');
             expect(optional.matches(request3)).to.equal(true);
             optional.bind(request3);
-            expect(optional.parameter("foo", "bar")).to.equal("bar");
+            expect(optional.parameter('foo', 'bar')).to.equal('bar');
         });
 
         // PHP: RoutingRouteTest::testHasParameters (adapted URI, see this file's header)
-        it("Route::hasParameters() is false until the route is bound", () => {
-            const route = new Route("GET", "images/{id}/{ext}", {
+        it('Route::hasParameters() is false until the route is bound', () => {
+            const route = new Route('GET', 'images/{id}/{ext}', {
                 uses: () => {},
             });
-            const request = new Request({} as Player, "GET", "images/1/png");
+            const request = new Request({} as Player, 'GET', 'images/1/png');
             expect(route.hasParameters()).to.equal(false);
             expect(route.matches(request)).to.equal(true);
             route.bind(request);
@@ -251,89 +251,89 @@ export = (): void => {
         });
 
         // PHP: RoutingRouteTest::testForgetParameter (adapted URI, see this file's header)
-        it("Route::forgetParameter() removes one bound parameter only", () => {
-            const route = new Route("GET", "images/{id}/{ext}", {
+        it('Route::forgetParameter() removes one bound parameter only', () => {
+            const route = new Route('GET', 'images/{id}/{ext}', {
                 uses: () => {},
             });
-            const request = new Request({} as Player, "GET", "images/1/png");
+            const request = new Request({} as Player, 'GET', 'images/1/png');
             route.bind(request);
-            expect(route.hasParameter("id")).to.equal(true);
-            expect(route.hasParameter("ext")).to.equal(true);
-            route.forgetParameter("id");
-            expect(route.hasParameter("id")).to.equal(false);
-            expect(route.hasParameter("ext")).to.equal(true);
+            expect(route.hasParameter('id')).to.equal(true);
+            expect(route.hasParameter('ext')).to.equal(true);
+            route.forgetParameter('id');
+            expect(route.hasParameter('id')).to.equal(false);
+            expect(route.hasParameter('ext')).to.equal(true);
         });
 
         // PHP: RoutingRouteTest::testParameterNames (adapted URI, see this file's header)
-        it("Route::parameterNames() lists them in URI order", () => {
-            let route = new Route("GET", "images/{id}/{ext}", {
+        it('Route::parameterNames() lists them in URI order', () => {
+            let route = new Route('GET', 'images/{id}/{ext}', {
                 uses: () => {},
             });
-            expectDeepEqual(route.parameterNames(), ["id", "ext"]);
+            expectDeepEqual(route.parameterNames(), ['id', 'ext']);
 
-            route = new Route("GET", "foo/{bar?}", { uses: () => {} });
-            expectDeepEqual(route.parameterNames(), ["bar"]);
+            route = new Route('GET', 'foo/{bar?}', { uses: () => {} });
+            expectDeepEqual(route.parameterNames(), ['bar']);
 
-            route = new Route("GET", "/", { uses: () => {} });
+            route = new Route('GET', '/', { uses: () => {} });
             expectDeepEqual(route.parameterNames(), []);
         });
 
         // PHP: RoutingRouteTest::testParametersWithoutNulls
-        it("Route::parametersWithoutNulls() is parameters(), since a Luau table has no nulls", () => {
-            let route = new Route("GET", "users/{id?}/{name?}/", {
+        it('Route::parametersWithoutNulls() is parameters(), since a Luau table has no nulls', () => {
+            let route = new Route('GET', 'users/{id?}/{name?}/', {
                 uses: () => {},
             });
-            let request = new Request({} as Player, "GET", "users/12/amir");
+            let request = new Request({} as Player, 'GET', 'users/12/amir');
             route.bind(request);
-            expect(route.parametersWithoutNulls().get("id")).to.equal("12");
-            expect(route.parametersWithoutNulls().get("name")).to.equal("amir");
+            expect(route.parametersWithoutNulls().get('id')).to.equal('12');
+            expect(route.parametersWithoutNulls().get('name')).to.equal('amir');
 
-            route = new Route("GET", "users/{id?}/{name?}/", {
+            route = new Route('GET', 'users/{id?}/{name?}/', {
                 uses: () => {},
             });
-            request = new Request({} as Player, "GET", "users/12");
+            request = new Request({} as Player, 'GET', 'users/12');
             route.bind(request);
-            expect(route.parametersWithoutNulls().get("id")).to.equal("12");
-            expect(route.parametersWithoutNulls().has("name")).to.equal(false);
+            expect(route.parametersWithoutNulls().get('id')).to.equal('12');
+            expect(route.parametersWithoutNulls().has('name')).to.equal(false);
 
-            route = new Route("GET", "users/{id?}/{name?}/", {
+            route = new Route('GET', 'users/{id?}/{name?}/', {
                 uses: () => {},
             });
-            request = new Request({} as Player, "GET", "users/");
+            request = new Request({} as Player, 'GET', 'users/');
             route.bind(request);
             expect(route.parametersWithoutNulls().size()).to.equal(0);
         });
 
         // PHP: RoutingRouteTest::testRouteParametersDefaultValue
-        it("Route::defaults() fills a parameter the URI left out", () => {
+        it('Route::defaults() fills a parameter the URI left out', () => {
             const r = router();
 
             class RouteTestControllerWithParameterStub extends Controller {
-                public returnParameter(bar = ""): string {
+                public returnParameter(bar = ''): string {
                     return bar;
                 }
             }
 
-            r.get("foo/{bar?}", {
-                uses: [RouteTestControllerWithParameterStub, "returnParameter"],
-            }).defaults("bar", "foo");
-            expect(r.dispatch(new Request({} as Player, "GET", "foo")).content()).to.equal("foo");
+            r.get('foo/{bar?}', {
+                uses: [RouteTestControllerWithParameterStub, 'returnParameter'],
+            }).defaults('bar', 'foo');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo')).content()).to.equal('foo');
 
-            r.get("foo/{bar?}", {
-                uses: [RouteTestControllerWithParameterStub, "returnParameter"],
-            }).defaults("bar", "foo");
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("bar");
+            r.get('foo/{bar?}', {
+                uses: [RouteTestControllerWithParameterStub, 'returnParameter'],
+            }).defaults('bar', 'foo');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('bar');
 
-            r.get("foo/{bar?}", (bar = "") => bar).defaults("bar", "foo");
-            expect(r.dispatch(new Request({} as Player, "GET", "foo")).content()).to.equal("foo");
+            r.get('foo/{bar?}', (bar = '') => bar).defaults('bar', 'foo');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo')).content()).to.equal('foo');
         });
 
         // PHP: RoutingRouteTest::testRoutesDontMatchNonMatchingPathsWithLeadingOptionals
-        it("an optional-only route still refuses a path with extra segments", () => {
+        it('an optional-only route still refuses a path with extra segments', () => {
             const r = router();
-            r.get("{baz?}", (age = 25) => tostring(age));
+            r.get('{baz?}', (age = 25) => tostring(age));
 
-            const [ok, err] = pcall(() => r.dispatch(new Request({} as Player, "GET", "foo/bar")));
+            const [ok, err] = pcall(() => r.dispatch(new Request({} as Player, 'GET', 'foo/bar')));
 
             expect(ok).to.equal(false);
             expect(err instanceof NotFoundHttpException).to.equal(true);
@@ -342,12 +342,12 @@ export = (): void => {
         // PHP: RoutingRouteTest::testFluentRouteNamingWithinAGroup
         it("a name set inside a group prefixes onto the route's own name()", () => {
             const r = router();
-            r.group({ as: "foo." }, () => {
-                r.get("bar", () => "bar").name("bar");
+            r.group({ as: 'foo.' }, () => {
+                r.get('bar', () => 'bar').name('bar');
             });
 
-            expect(r.dispatch(new Request({} as Player, "GET", "bar")).content()).to.equal("bar");
-            expect(r.currentRouteName()).to.equal("foo.bar");
+            expect(r.dispatch(new Request({} as Player, 'GET', 'bar')).content()).to.equal('bar');
+            expect(r.currentRouteName()).to.equal('foo.bar');
         });
 
         // PHP: RoutingRouteTest::testRouteGetAction
@@ -356,52 +356,52 @@ export = (): void => {
         // action array's `key` argument -- `getAction()` here takes none
         // (`Route.ts`): `ActionAttributes` is a fixed shape (`RouteAction.ts`),
         // so there is no arbitrary key to probe.
-        it("Route::getAction() is the raw action array, carrying the name that was set", () => {
+        it('Route::getAction() is the raw action array, carrying the name that was set', () => {
             const r = router();
-            const route = r.get("foo", () => "foo").name("foo");
+            const route = r.get('foo', () => 'foo').name('foo');
 
-            expect(route.getAction().as).to.equal("foo");
+            expect(route.getAction().as).to.equal('foo');
         });
 
         // PHP: RoutingRouteTest::testRouteGetControllerClass
-        it("Route::getControllerClass() is undefined for a closure route", () => {
+        it('Route::getControllerClass() is undefined for a closure route', () => {
             const r = router();
 
             class RouteTestControllerStub extends Controller {
                 public index(): string {
-                    return "Hello World";
+                    return 'Hello World';
                 }
             }
 
-            const controllerRoute = r.get("foo/bar", [RouteTestControllerStub, "index"]);
-            const closureRoute = r.get("foo", () => "foo");
+            const controllerRoute = r.get('foo/bar', [RouteTestControllerStub, 'index']);
+            const closureRoute = r.get('foo', () => 'foo');
 
             expect(controllerRoute.getControllerClass()).to.equal(RouteTestControllerStub);
             expect(closureRoute.isControllerAction()).to.equal(false);
         });
 
         // PHP: RoutingRouteTest::testResolvingBindingParameters
-        it("Route::bindingFieldFor() reads the field a {param:field} URI declared", () => {
+        it('Route::bindingFieldFor() reads the field a {param:field} URI declared', () => {
             const r = router();
 
-            let route = r.get("foo/{bar:slug}", () => "foo").name("foo");
-            expect(route.bindingFieldFor("bar")).to.equal("slug");
+            let route = r.get('foo/{bar:slug}', () => 'foo').name('foo');
+            expect(route.bindingFieldFor('bar')).to.equal('slug');
 
-            route = r.get("foo/{bar:slug}/{baz}", () => "foo").name("foo");
-            expect(route.bindingFieldFor("baz")).to.equal(undefined);
+            route = r.get('foo/{bar:slug}/{baz}', () => 'foo').name('foo');
+            expect(route.bindingFieldFor('baz')).to.equal(undefined);
         });
 
         // PHP: RoutingRouteTest::testFluentRouting
-        it("a route with no action throws LogicException when it is finally dispatched", () => {
+        it('a route with no action throws LogicException when it is finally dispatched', () => {
             const r = router();
-            r.get("foo/bar").uses(() => "hello");
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("hello");
+            r.get('foo/bar').uses(() => 'hello');
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('hello');
 
-            r.post("foo/bar").uses(() => "hello");
-            expect(r.dispatch(new Request({} as Player, "POST", "foo/bar")).content()).to.equal("hello");
+            r.post('foo/bar').uses(() => 'hello');
+            expect(r.dispatch(new Request({} as Player, 'POST', 'foo/bar')).content()).to.equal('hello');
 
-            r.get("foo/bar");
-            const [ok, err] = pcall(() => r.dispatch(new Request({} as Player, "GET", "foo/bar")));
+            r.get('foo/bar');
+            const [ok, err] = pcall(() => r.dispatch(new Request({} as Player, 'GET', 'foo/bar')));
 
             expect(ok).to.equal(false);
             expect(err instanceof LogicException).to.equal(true);
@@ -415,55 +415,55 @@ export = (): void => {
         // "Conditional" case (`Route::when()`/`whereIn()` on a subdomain
         // parameter) is skipped twice over: neither method is ported, and hosts
         // are not ported either.
-        it("Route::where() rejects a segment that fails the pattern, required or optional", () => {
-            let route = new Route("GET", "foo/{bar}", { uses: () => {} }).where("bar", "[0-9]+");
-            expect(route.matches(new Request({} as Player, "GET", "foo/123"))).to.equal(true);
-            expect(route.matches(new Request({} as Player, "GET", "foo/123abc"))).to.equal(false);
+        it('Route::where() rejects a segment that fails the pattern, required or optional', () => {
+            let route = new Route('GET', 'foo/{bar}', { uses: () => {} }).where('bar', '[0-9]+');
+            expect(route.matches(new Request({} as Player, 'GET', 'foo/123'))).to.equal(true);
+            expect(route.matches(new Request({} as Player, 'GET', 'foo/123abc'))).to.equal(false);
 
-            route = new Route("GET", "foo/{bar}", {
-                where: { bar: "[0-9]+" },
-            }).where("bar", "[0-9]+");
-            expect(route.matches(new Request({} as Player, "GET", "foo/123abc"))).to.equal(false);
+            route = new Route('GET', 'foo/{bar}', {
+                where: { bar: '[0-9]+' },
+            }).where('bar', '[0-9]+');
+            expect(route.matches(new Request({} as Player, 'GET', 'foo/123abc'))).to.equal(false);
 
-            route = new Route("GET", "foo/{bar?}", { uses: () => {} }).where("bar", "[0-9]+");
-            expect(route.matches(new Request({} as Player, "GET", "foo/123"))).to.equal(true);
+            route = new Route('GET', 'foo/{bar?}', { uses: () => {} }).where('bar', '[0-9]+');
+            expect(route.matches(new Request({} as Player, 'GET', 'foo/123'))).to.equal(true);
 
-            route = new Route("GET", "foo/{bar?}", {
-                where: { bar: "[0-9]+" },
-            }).where("bar", "[0-9]+");
-            expect(route.matches(new Request({} as Player, "GET", "foo/123"))).to.equal(true);
+            route = new Route('GET', 'foo/{bar?}', {
+                where: { bar: '[0-9]+' },
+            }).where('bar', '[0-9]+');
+            expect(route.matches(new Request({} as Player, 'GET', 'foo/123'))).to.equal(true);
 
-            route = new Route("GET", "foo/{bar?}/{baz?}", {
+            route = new Route('GET', 'foo/{bar?}/{baz?}', {
                 uses: () => {},
-            }).where("bar", "[0-9]+");
-            expect(route.matches(new Request({} as Player, "GET", "foo/123"))).to.equal(true);
-            expect(route.matches(new Request({} as Player, "GET", "foo/123/foo"))).to.equal(true);
+            }).where('bar', '[0-9]+');
+            expect(route.matches(new Request({} as Player, 'GET', 'foo/123'))).to.equal(true);
+            expect(route.matches(new Request({} as Player, 'GET', 'foo/123/foo'))).to.equal(true);
 
-            route = new Route("GET", "foo/{bar?}", { uses: () => {} }).where("bar", "[0-9]+");
-            expect(route.matches(new Request({} as Player, "GET", "foo/123abc"))).to.equal(false);
+            route = new Route('GET', 'foo/{bar?}', { uses: () => {} }).where('bar', '[0-9]+');
+            expect(route.matches(new Request({} as Player, 'GET', 'foo/123abc'))).to.equal(false);
         });
 
         // PHP: RoutingRouteTest::testRouteBinding, the `Router::bind()` closure form
         // (`RouteClassBinding`/`RouteClassMethodBinding` take a class or a
         // `'Class@method'` string, neither of which `bind()` accepts here --
         // `Router.ts`'s `bind()` takes a `BinderCallback` only)
-        it("Router::bind() runs the closure over the matched segment before dispatch", () => {
+        it('Router::bind() runs the closure over the matched segment before dispatch', () => {
             const r = router();
-            r.get("foo/{bar}", {
-                middleware: ["substitute"],
+            r.get('foo/{bar}', {
+                middleware: ['substitute'],
                 uses: (name: string) => name,
             });
-            r.aliasMiddleware("substitute", (request: Request, _next: (request: Request) => unknown) => {
+            r.aliasMiddleware('substitute', (request: Request, _next: (request: Request) => unknown) => {
                 r.substituteBindings(request.route() as Route);
                 return _next(request);
             });
-            r.bind("bar", (value: string) => Str.upper(value));
+            r.bind('bar', (value: string) => Str.upper(value));
 
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/taylor")).content()).to.equal("TAYLOR");
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/taylor')).content()).to.equal('TAYLOR');
         });
 
         // PHP: RoutingRouteTest::testMiddlewarePrioritySorting
-        it("Router::gatherRouteMiddleware() sorts by middlewarePriority", () => {
+        it('Router::gatherRouteMiddleware() sorts by middlewarePriority', () => {
             class Placeholder1 {
                 public handle(request: Request, _next: Callback): unknown {
                     return _next(request);
@@ -507,7 +507,7 @@ export = (): void => {
             const r = router();
             r.middlewarePriority = [ExampleMiddleware, Authenticate, SubstituteBindings];
 
-            const route = r.get("foo", {
+            const route = r.get('foo', {
                 middleware,
                 uses: (name: string) => name,
             });
@@ -528,39 +528,39 @@ export = (): void => {
 
             class RouteTestControllerStub extends Controller {
                 public index(): string {
-                    return "Hello World";
+                    return 'Hello World';
                 }
             }
 
-            r.get("foo/bar", {
-                as: "foo.bar",
-                uses: [RouteTestControllerStub, "index"],
+            r.get('foo/bar', {
+                as: 'foo.bar',
+                uses: [RouteTestControllerStub, 'index'],
             });
 
             expect(r.currentRouteAction()).to.equal(undefined);
 
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/bar")).content()).to.equal("Hello World");
-            expect(r.uses("*RouteTestControllerStub*")).to.equal(true);
-            expect(r.uses("*RouteTestControllerStub@index")).to.equal(true);
-            expect(r.uses("*RouteTestControllerStub*", "*FooController*")).to.equal(true);
-            expect(r.uses("*BarController*", "*FooController*", "*RouteTestControllerStub@index")).to.equal(true);
-            expect(r.uses("*BarController*", "*FooController*")).to.equal(false);
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/bar')).content()).to.equal('Hello World');
+            expect(r.uses('*RouteTestControllerStub*')).to.equal(true);
+            expect(r.uses('*RouteTestControllerStub@index')).to.equal(true);
+            expect(r.uses('*RouteTestControllerStub*', '*FooController*')).to.equal(true);
+            expect(r.uses('*BarController*', '*FooController*', '*RouteTestControllerStub@index')).to.equal(true);
+            expect(r.uses('*BarController*', '*FooController*')).to.equal(false);
 
-            expect(r.currentRouteAction()).to.equal("RouteTestControllerStub@index");
-            expect(r.uses("RouteTestControllerStub@index")).to.equal(true);
+            expect(r.currentRouteAction()).to.equal('RouteTestControllerStub@index');
+            expect(r.uses('RouteTestControllerStub@index')).to.equal(true);
         });
 
         // PHP: RoutingRouteTest::testRouterPatternSetting
-        it("Router::pattern()/patterns() record global patterns via getPatterns()", () => {
+        it('Router::pattern()/patterns() record global patterns via getPatterns()', () => {
             let r = router();
-            r.pattern("test", "pattern");
-            expectDeepEqual(r.getPatterns(), { test: "pattern" });
+            r.pattern('test', 'pattern');
+            expectDeepEqual(r.getPatterns(), { test: 'pattern' });
 
             r = router();
-            r.patterns({ test: "pattern", test2: "pattern2" });
+            r.patterns({ test: 'pattern', test2: 'pattern2' });
             expectDeepEqual(r.getPatterns(), {
-                test: "pattern",
-                test2: "pattern2",
+                test: 'pattern',
+                test2: 'pattern2',
             });
         });
 
@@ -572,18 +572,18 @@ export = (): void => {
         // as-is), which is what makes `JsonResponse` redundant here (see its
         // class comment) -- there is only ever the one `Response` class, and an
         // array action result comes back as the array itself, unencoded.
-        it("both a plain value and an array action result come back as an unencoded Response", () => {
+        it('both a plain value and an array action result come back as an unencoded Response', () => {
             let r = router();
-            r.get("foo/bar", () => "hello");
-            let response = r.dispatch(new Request({} as Player, "GET", "foo/bar"));
-            expect(response).to.be.a("table");
-            expect(response.content()).to.equal("hello");
+            r.get('foo/bar', () => 'hello');
+            let response = r.dispatch(new Request({} as Player, 'GET', 'foo/bar'));
+            expect(response).to.be.a('table');
+            expect(response.content()).to.equal('hello');
 
             r = router();
-            r.get("foo/bar", () => ["foo", "bar"]);
-            response = r.dispatch(new Request({} as Player, "GET", "foo/bar"));
-            expect(response).to.be.a("table");
-            expectDeepEqual(response.content(), ["foo", "bar"]);
+            r.get('foo/bar', () => ['foo', 'bar']);
+            response = r.dispatch(new Request({} as Player, 'GET', 'foo/bar'));
+            expect(response).to.be.a('table');
+            expectDeepEqual(response.content(), ['foo', 'bar']);
         });
 
         // PHP: RoutingRouteTest::testRouteFlushController
@@ -606,7 +606,7 @@ export = (): void => {
         // request a copy carrying no controller, so every dispatch builds its
         // own and `flushController()` has nothing left to drop. It stays on the
         // class for parity with PHP.
-        it("gives every dispatch its own controller, leaving flushController() nothing to drop (diverges -- see comment)", () => {
+        it('gives every dispatch its own controller, leaving flushController() nothing to drop (diverges -- see comment)', () => {
             let constructCount = 0;
 
             class ActionCountStub extends Controller {
@@ -624,8 +624,8 @@ export = (): void => {
             }
 
             const r = router();
-            r.get("count", [ActionCountStub, "index"]);
-            const request = new Request({} as Player, "GET", "count");
+            r.get('count', [ActionCountStub, 'index']);
+            const request = new Request({} as Player, 'GET', 'count');
 
             expect(r.dispatch(request).content()).to.equal(1);
             expect(constructCount).to.equal(1);
@@ -643,25 +643,25 @@ export = (): void => {
         });
 
         // PHP: RoutingRouteTest::testRoutePreservingOriginalParametersState
-        it("Route::originalParameter()/originalParameters() survive a binder rewriting the parameter", () => {
+        it('Route::originalParameter()/originalParameters() survive a binder rewriting the parameter', () => {
             const r = router();
-            r.bind("bar", (value: string) => Str.length(value));
-            r.get("foo/{bar}", {
+            r.bind('bar', (value: string) => Str.length(value));
+            r.get('foo/{bar}', {
                 middleware: [SubstituteBindings],
                 uses: (bar: number) => {
                     // The binder above has already rewritten `bar` by the time
                     // the action runs; the original is what the route kept.
                     const route = r.getCurrentRoute()!;
 
-                    expect(route.originalParameter("bar")).to.equal("taylor");
-                    expect(route.originalParameter("unexisting", "default")).to.equal("default");
-                    expect(route.originalParameters().get("bar")).to.equal("taylor");
+                    expect(route.originalParameter('bar')).to.equal('taylor');
+                    expect(route.originalParameter('unexisting', 'default')).to.equal('default');
+                    expect(route.originalParameters().get('bar')).to.equal('taylor');
 
                     return bar;
                 },
             });
 
-            expect(r.dispatch(new Request({} as Player, "GET", "foo/taylor")).content()).to.equal(6);
+            expect(r.dispatch(new Request({} as Player, 'GET', 'foo/taylor')).content()).to.equal(6);
         });
     });
 };

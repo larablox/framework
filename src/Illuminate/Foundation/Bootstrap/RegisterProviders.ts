@@ -1,7 +1,7 @@
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type { Application, Bootstrapper } from "Illuminate/Contracts/Foundation/Application";
-import type { Constructor } from "Illuminate/Container/Types";
-import type { Repository as ConfigRepository } from "Illuminate/Contracts/Config/Repository";
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Application, Bootstrapper } from 'Illuminate/Contracts/Foundation/Application';
+import type { Constructor } from 'Illuminate/Container/Types';
+import type { Repository as ConfigRepository } from 'Illuminate/Contracts/Config/Repository';
 
 /**
  * PHP: `Illuminate\Foundation\Bootstrap\RegisterProviders`.
@@ -23,9 +23,9 @@ export class RegisterProviders implements Bootstrapper {
 
     /** Merge the additional configured providers into the configuration. */
     protected mergeAdditionalProviders(app: Application): void {
-        const config = app.make<ConfigRepository>("config");
+        const config = app.make<ConfigRepository>('config');
 
-        const providers = (config.get("app.providers", []) ?? []) as Array<Constructor<ServiceProvider>>;
+        const providers = (config.get('app.providers', []) ?? []) as Array<Constructor<ServiceProvider>>;
 
         for (const provider of RegisterProviders.merged) {
             if (!providers.includes(provider)) {
@@ -33,7 +33,7 @@ export class RegisterProviders implements Bootstrapper {
             }
         }
 
-        config.set("app.providers", providers);
+        config.set('app.providers', providers);
     }
 
     /** Merge the given providers into the provider configuration before registration. */

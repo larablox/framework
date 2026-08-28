@@ -1,8 +1,8 @@
-import { Util } from "Illuminate/Container/Util";
-import type { ActionAttributes, ActionTarget } from "Illuminate/Routing/RouteAction";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
-import type { Route } from "Illuminate/Routing/Route";
-import type { Router } from "Illuminate/Routing/Router";
+import { Util } from 'Illuminate/Container/Util';
+import type { ActionAttributes, ActionTarget } from 'Illuminate/Routing/RouteAction';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
+import type { Route } from 'Illuminate/Routing/Route';
+import type { Router } from 'Illuminate/Routing/Router';
 
 /**
  * PHP: `Illuminate\Routing\RouteRegistrar`.
@@ -36,7 +36,7 @@ export class RouteRegistrar {
             merged.push(entry);
         }
 
-        return this.attribute("middleware", merged);
+        return this.attribute('middleware', merged);
     }
 
     /** Specify middleware that should be removed from the routes. */
@@ -47,12 +47,12 @@ export class RouteRegistrar {
             merged.push(entry);
         }
 
-        return this.attribute("excluded_middleware", merged);
+        return this.attribute('excluded_middleware', merged);
     }
 
     /** Set the name prefix for the routes. */
     public as(name: string): this {
-        return this.attribute("as", name);
+        return this.attribute('as', name);
     }
 
     /** Set the name prefix for the routes. */
@@ -62,12 +62,12 @@ export class RouteRegistrar {
 
     /** Set the URI prefix for the routes. */
     public prefix(prefix: string): this {
-        return this.attribute("prefix", prefix);
+        return this.attribute('prefix', prefix);
     }
 
     /** Set the constraints for the routes. */
     public where(where: Record<string, string>): this {
-        return this.attribute("where", where);
+        return this.attribute('where', where);
     }
 
     /** Create a route group with shared attributes. */

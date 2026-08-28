@@ -1,19 +1,19 @@
-import { Client } from "Illuminate/Foundation/Runtime/Client";
-import { Exceptions as ExceptionsConfiguration } from "Illuminate/Foundation/Configuration/Exceptions";
-import { Handler } from "Illuminate/Foundation/Exceptions/Handler";
-import { Kernel } from "Illuminate/Foundation/Http/Kernel";
-import { RemoteGateway } from "Illuminate/Http/RemoteGateway";
-import { Server } from "Illuminate/Foundation/Runtime/Server";
-import { LoadConfiguration } from "Illuminate/Foundation/Bootstrap/LoadConfiguration";
-import { Middleware as MiddlewareConfiguration } from "Illuminate/Foundation/Configuration/Middleware";
-import { RegisterProviders } from "Illuminate/Foundation/Bootstrap/RegisterProviders";
-import { Util } from "Illuminate/Container/Util";
-import { Worker } from "Illuminate/Foundation/Runtime/Worker";
-import type { Abstract, Concrete, Constructor } from "Illuminate/Container/Types";
-import type { Application } from "Illuminate/Foundation/Application";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Router } from "Illuminate/Routing/Router";
-import type { ServiceProvider } from "Illuminate/Support/ServiceProvider";
+import { Client } from 'Illuminate/Foundation/Runtime/Client';
+import { Exceptions as ExceptionsConfiguration } from 'Illuminate/Foundation/Configuration/Exceptions';
+import { Handler } from 'Illuminate/Foundation/Exceptions/Handler';
+import { Kernel } from 'Illuminate/Foundation/Http/Kernel';
+import { RemoteGateway } from 'Illuminate/Http/RemoteGateway';
+import { Server } from 'Illuminate/Foundation/Runtime/Server';
+import { LoadConfiguration } from 'Illuminate/Foundation/Bootstrap/LoadConfiguration';
+import { Middleware as MiddlewareConfiguration } from 'Illuminate/Foundation/Configuration/Middleware';
+import { RegisterProviders } from 'Illuminate/Foundation/Bootstrap/RegisterProviders';
+import { Util } from 'Illuminate/Container/Util';
+import { Worker } from 'Illuminate/Foundation/Runtime/Worker';
+import type { Abstract, Concrete, Constructor } from 'Illuminate/Container/Types';
+import type { Application } from 'Illuminate/Foundation/Application';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Router } from 'Illuminate/Routing/Router';
+import type { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
 
 /**
  * PHP: `Illuminate\Foundation\Configuration\ApplicationBuilder`.
@@ -51,14 +51,14 @@ export class ApplicationBuilder {
      */
     public withRouting(using: (router: Router) => void): this {
         this.booting((app: Application) => {
-            using(app.make<Router>("router"));
+            using(app.make<Router>('router'));
         });
 
         // A route is added to the collection before `->name()` runs on it, so
         // the look-ups are rebuilt once the routes are all in -- which is what
         // PHP's `RouteServiceProvider` does, and for the same reason.
         return this.booted((app: Application) => {
-            const routes = app.make<Router>("router").getRoutes();
+            const routes = app.make<Router>('router').getRoutes();
 
             routes.refreshNameLookups();
             routes.refreshActionLookups();

@@ -1,11 +1,11 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import { Queueable } from "Illuminate/Bus/Queueable";
-import { ShouldQueue } from "Illuminate/Contracts/Queue/ShouldQueue";
-import type { Delay as DelayValue } from "Illuminate/Support/InteractsWithTime";
-import type { Job } from "Illuminate/Contracts/Queue/Job";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import { Queueable } from 'Illuminate/Bus/Queueable';
+import { ShouldQueue } from 'Illuminate/Contracts/Queue/ShouldQueue';
+import type { Delay as DelayValue } from 'Illuminate/Support/InteractsWithTime';
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueDelayTest`.
@@ -43,7 +43,7 @@ class FakeQueue {
     }
 
     public getConnectionName(): string {
-        return "fake";
+        return 'fake';
     }
 
     public setConnectionName(): this {
@@ -65,7 +65,7 @@ class TestJob extends Queueable {
 }
 
 export = (): void => {
-    describe("Delay", () => {
+    describe('Delay', () => {
         // PHP: QueueDelayTest::test_queue_delay
         it("a job's own delay() carries through to the queue", () => {
             const container = new Container();
@@ -81,7 +81,7 @@ export = (): void => {
         });
 
         // PHP: QueueDelayTest::test_queue_without_delay
-        it("withoutDelay() zeroes out a previously declared delay", () => {
+        it('withoutDelay() zeroes out a previously declared delay', () => {
             const container = new Container();
             const queue = new FakeQueue();
             const dispatcher = new Dispatcher(container, () => queue as unknown as Queue);
@@ -98,7 +98,7 @@ export = (): void => {
         // there is no `PendingDispatch` wrapper here; `withoutDelay()` is
         // called directly on the job, as above, since `dispatch()` returns
         // nothing to chain off of in this port)
-        it("withoutDelay() applies regardless of when it is called relative to dispatch", () => {
+        it('withoutDelay() applies regardless of when it is called relative to dispatch', () => {
             const container = new Container();
             const queue = new FakeQueue();
             const dispatcher = new Dispatcher(container, () => queue as unknown as Queue);

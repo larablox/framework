@@ -1,24 +1,24 @@
-import { Backoff } from "Illuminate/Queue/Attributes/Backoff";
-import { CallQueuedHandler } from "Illuminate/Queue/CallQueuedHandler";
-import { Collection } from "Illuminate/Support/Collection";
-import { DeleteWhenMissingModels } from "Illuminate/Queue/Attributes/DeleteWhenMissingModels";
-import { FailOnTimeout } from "Illuminate/Queue/Attributes/FailOnTimeout";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { JobQueued } from "Illuminate/Queue/Events/JobQueued";
-import { JobQueueing } from "Illuminate/Queue/Events/JobQueueing";
-import { MaxExceptions } from "Illuminate/Queue/Attributes/MaxExceptions";
-import { ReadsClassAttributes } from "Illuminate/Support/Traits/ReadsClassAttributes";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Str } from "Illuminate/Support/Str";
-import { Timeout } from "Illuminate/Queue/Attributes/Timeout";
-import { Tries } from "Illuminate/Queue/Attributes/Tries";
-import { Util } from "Illuminate/Container/Util";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type { JobTarget } from "Illuminate/Contracts/Queue/Queue";
+import { Backoff } from 'Illuminate/Queue/Attributes/Backoff';
+import { CallQueuedHandler } from 'Illuminate/Queue/CallQueuedHandler';
+import { Collection } from 'Illuminate/Support/Collection';
+import { DeleteWhenMissingModels } from 'Illuminate/Queue/Attributes/DeleteWhenMissingModels';
+import { FailOnTimeout } from 'Illuminate/Queue/Attributes/FailOnTimeout';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { JobQueued } from 'Illuminate/Queue/Events/JobQueued';
+import { JobQueueing } from 'Illuminate/Queue/Events/JobQueueing';
+import { MaxExceptions } from 'Illuminate/Queue/Attributes/MaxExceptions';
+import { ReadsClassAttributes } from 'Illuminate/Support/Traits/ReadsClassAttributes';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Str } from 'Illuminate/Support/Str';
+import { Timeout } from 'Illuminate/Queue/Attributes/Timeout';
+import { Tries } from 'Illuminate/Queue/Attributes/Tries';
+import { Util } from 'Illuminate/Container/Util';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Job, JobPayload } from 'Illuminate/Contracts/Queue/Job';
+import type { JobTarget } from 'Illuminate/Contracts/Queue/Queue';
 
 /** PHP: the `callable` registered through `Queue::createPayloadUsing()`. */
 export type CreatePayloadCallback = (
@@ -52,7 +52,7 @@ export abstract class Queue {
     protected container!: Container;
 
     /** The connection name for the queue. */
-    protected connectionName = "";
+    protected connectionName = '';
 
     /** The original configuration for the queue. */
     protected config: ArrayAccessible = {};
@@ -73,24 +73,24 @@ export abstract class Queue {
     public abstract pop(queue?: string): Job | undefined;
 
     /** Push a new job onto the queue. */
-    public pushOn(queue: string, job: JobTarget, data: unknown = ""): unknown {
+    public pushOn(queue: string, job: JobTarget, data: unknown = ''): unknown {
         return this.push(job, data, queue);
     }
 
     /** Push a new job onto a specific queue after (n) seconds. */
-    public laterOn(queue: string, delay: Delay, job: JobTarget, data: unknown = ""): unknown {
+    public laterOn(queue: string, delay: Delay, job: JobTarget, data: unknown = ''): unknown {
         return this.later(delay, job, data, queue);
     }
 
     /** Push an array of jobs onto the queue. */
-    public bulk(jobs: JobTarget | Array<JobTarget>, data: unknown = "", queue?: string): void {
+    public bulk(jobs: JobTarget | Array<JobTarget>, data: unknown = '', queue?: string): void {
         for (const job of Util.isArray(jobs) ? (jobs as Array<JobTarget>) : [jobs as JobTarget]) {
             this.push(job, data, queue);
         }
     }
 
     /** Create a payload from the given job and data. */
-    protected createPayload(job: JobTarget, queue: string | undefined, data: unknown = "", delay?: Delay): JobPayload {
+    protected createPayload(job: JobTarget, queue: string | undefined, data: unknown = '', delay?: Delay): JobPayload {
         const value = this.createPayloadArray(job, queue, data);
 
         value.delay = delay !== undefined ? InteractsWithTime.secondsUntil(delay) : undefined;
@@ -99,7 +99,7 @@ export abstract class Queue {
     }
 
     /** Create a payload array from the given job and data. */
-    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ""): JobPayload {
+    protected createPayloadArray(job: JobTarget, queue: string | undefined, data: unknown = ''): JobPayload {
         return Reflector.isInstance(job)
             ? this.createObjectPayload(job as object, queue)
             : this.createStringPayload(job, queue, data);
@@ -110,18 +110,18 @@ export abstract class Queue {
         const payload = this.withCreatePayloadHooks(queue, {
             uuid: Str.uuid(),
             displayName: this.getDisplayName(job),
-            job: [CallQueuedHandler, "call"],
+            job: [CallQueuedHandler, 'call'],
             maxTries: this.getJobTries(job) as number | undefined,
-            maxExceptions: ReadsClassAttributes.getAttributeValue(job, MaxExceptions, "maxExceptions") as
+            maxExceptions: ReadsClassAttributes.getAttributeValue(job, MaxExceptions, 'maxExceptions') as
                 number | undefined,
             failOnTimeout:
-                (ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, "failOnTimeout") as boolean | undefined) ??
+                (ReadsClassAttributes.getAttributeValue(job, FailOnTimeout, 'failOnTimeout') as boolean | undefined) ??
                 false,
             backoff: this.getJobBackoff(job),
-            timeout: ReadsClassAttributes.getAttributeValue(job, Timeout, "timeout") as number | undefined,
+            timeout: ReadsClassAttributes.getAttributeValue(job, Timeout, 'timeout') as number | undefined,
             retryUntil: this.getJobExpiration(job),
             deleteWhenMissingModels:
-                (ReadsClassAttributes.getAttributeValue(job, DeleteWhenMissingModels, "deleteWhenMissingModels") as
+                (ReadsClassAttributes.getAttributeValue(job, DeleteWhenMissingModels, 'deleteWhenMissingModels') as
                     boolean | undefined) ?? false,
             data: {
                 commandName: Reflector.classOf(job) ?? Reflector.className(job),
@@ -137,7 +137,7 @@ export abstract class Queue {
         // still has something to resolve.
         const data: Record<string, unknown> = {};
 
-        if (typeIs(payload.data, "table")) {
+        if (typeIs(payload.data, 'table')) {
             for (const [key, value] of pairs(payload.data as Record<string, defined>)) {
                 data[key as string] = value;
             }
@@ -155,18 +155,18 @@ export abstract class Queue {
     protected getDisplayName(job: object): string {
         const displayName = (job as { displayName?: unknown }).displayName;
 
-        return typeIs(displayName, "function")
+        return typeIs(displayName, 'function')
             ? (displayName as (self: object) => string)(job)
             : Reflector.className(Reflector.classOf(job));
     }
 
     /** Get the maximum number of attempts for an object-based queue handler. */
     public getJobTries(job: object): unknown {
-        let tries = ReadsClassAttributes.getAttributeValue(job, Tries, "tries");
+        let tries = ReadsClassAttributes.getAttributeValue(job, Tries, 'tries');
 
         const method = (job as { tries?: unknown }).tries;
 
-        if (typeIs(method, "function")) {
+        if (typeIs(method, 'function')) {
             tries = (method as (self: object) => number)(job);
         }
 
@@ -175,11 +175,11 @@ export abstract class Queue {
 
     /** Get the backoff for an object-based queue handler. */
     public getJobBackoff(job: object): string | undefined {
-        let backoff = ReadsClassAttributes.getAttributeValue(job, Backoff, "backoff");
+        let backoff = ReadsClassAttributes.getAttributeValue(job, Backoff, 'backoff');
 
         const method = (job as { backoff?: unknown }).backoff;
 
-        if (typeIs(method, "function")) {
+        if (typeIs(method, 'function')) {
             backoff = (method as (self: object) => unknown)(job);
         }
 
@@ -188,8 +188,8 @@ export abstract class Queue {
         }
 
         return Collection.wrap(backoff as defined)
-            .map((entry) => (typeIs(entry, "number") ? entry : InteractsWithTime.secondsUntil(entry as Delay)))
-            .implode(",");
+            .map((entry) => (typeIs(entry, 'number') ? entry : InteractsWithTime.secondsUntil(entry as Delay)))
+            .implode(',');
     }
 
     /** Get the expiration timestamp for an object-based queue handler. */
@@ -200,17 +200,17 @@ export abstract class Queue {
             return undefined;
         }
 
-        const expiration = typeIs(retryUntil, "function") ? (retryUntil as (self: object) => unknown)(job) : retryUntil;
+        const expiration = typeIs(retryUntil, 'function') ? (retryUntil as (self: object) => unknown)(job) : retryUntil;
 
-        return typeIs(expiration, "number") ? expiration : (expiration as DateTime).UnixTimestamp;
+        return typeIs(expiration, 'number') ? expiration : (expiration as DateTime).UnixTimestamp;
     }
 
     /** Create a typical, string based queue payload array. */
     protected createStringPayload(job: JobTarget, queue: string | undefined, data: unknown): JobPayload {
         return this.withCreatePayloadHooks(queue, {
             uuid: Str.uuid(),
-            displayName: typeIs(job, "string") ? Str.parseCallback(job)[0] : undefined,
-            job: job as JobPayload["job"],
+            displayName: typeIs(job, 'string') ? Str.parseCallback(job)[0] : undefined,
+            job: job as JobPayload['job'],
             maxTries: undefined,
             maxExceptions: undefined,
             failOnTimeout: false,
@@ -267,7 +267,7 @@ export abstract class Queue {
 
     /** Determine if the job should be dispatched after all database transactions have committed. */
     protected shouldDispatchAfterCommit(job: JobTarget): boolean {
-        if (typeIs(job, "table")) {
+        if (typeIs(job, 'table')) {
             const afterCommit = (job as { afterCommit?: boolean }).afterCommit;
 
             if (afterCommit !== undefined) {
@@ -285,9 +285,9 @@ export abstract class Queue {
         payload: JobPayload,
         delay: Delay | undefined,
     ): void {
-        if (this.container.bound("events")) {
+        if (this.container.bound('events')) {
             this.container
-                .make<Dispatcher>("events")
+                .make<Dispatcher>('events')
                 .dispatch(
                     new JobQueueing(
                         this.connectionName,
@@ -308,9 +308,9 @@ export abstract class Queue {
         payload: JobPayload,
         delay: Delay | undefined,
     ): void {
-        if (this.container.bound("events")) {
+        if (this.container.bound('events')) {
             this.container
-                .make<Dispatcher>("events")
+                .make<Dispatcher>('events')
                 .dispatch(
                     new JobQueued(
                         this.connectionName,

@@ -1,5 +1,5 @@
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { Request } from "Illuminate/Http/Request";
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { Request } from 'Illuminate/Http/Request';
 
 /**
  * PHP: `Laravel\Octane\Events\RequestReceived`.

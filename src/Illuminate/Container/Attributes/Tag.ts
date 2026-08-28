@@ -1,6 +1,6 @@
-import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { addParameterAttribute } from 'Illuminate/Container/Attributes/Inject';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] final class Tag`. */
 export interface Tag extends ContextualAttribute {

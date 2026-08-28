@@ -10,34 +10,34 @@ export class Limit {
 
     /** Create a new limit instance. */
     public constructor(
-        public key: string = "",
+        public key: string = '',
         public maxAttempts = 60,
         public decaySeconds = 60,
     ) {}
 
     /** Create a new rate limit. */
     public static perSecond(maxAttempts: number, decaySeconds = 1): Limit {
-        return new Limit("", maxAttempts, decaySeconds);
+        return new Limit('', maxAttempts, decaySeconds);
     }
 
     /** Create a new rate limit. */
     public static perMinute(maxAttempts: number, decayMinutes = 1): Limit {
-        return new Limit("", maxAttempts, 60 * decayMinutes);
+        return new Limit('', maxAttempts, 60 * decayMinutes);
     }
 
     /** Create a new rate limit using minutes as the decay time. */
     public static perMinutes(decayMinutes: number, maxAttempts: number): Limit {
-        return new Limit("", maxAttempts, 60 * decayMinutes);
+        return new Limit('', maxAttempts, 60 * decayMinutes);
     }
 
     /** Create a new rate limit using hours as the decay time. */
     public static perHour(maxAttempts: number, decayHours = 1): Limit {
-        return new Limit("", maxAttempts, 60 * 60 * decayHours);
+        return new Limit('', maxAttempts, 60 * 60 * decayHours);
     }
 
     /** Create a new rate limit using days as the decay time. */
     public static perDay(maxAttempts: number, decayDays = 1): Limit {
-        return new Limit("", maxAttempts, 60 * 60 * 24 * decayDays);
+        return new Limit('', maxAttempts, 60 * 60 * 24 * decayDays);
     }
 
     /** Set the key of the rate limit. */
@@ -56,7 +56,7 @@ export class Limit {
 
     /** Get the fallback key, used when two limits collide. */
     public fallbackKey(): string {
-        const prefix = this.key !== "" ? `${this.key}:` : "";
+        const prefix = this.key !== '' ? `${this.key}:` : '';
 
         return `${prefix}attempts:${this.maxAttempts}:decay:${this.decaySeconds}`;
     }

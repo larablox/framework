@@ -35,7 +35,7 @@ export type Constructor<T = object> = new (...args: Array<any>) => T;
 export type AssertNoExtraMembers<TKeys> = [TKeys] extends [never]
     ? true
     : {
-          error: "this member is public on the trait but missing from its declared shape";
+          error: 'this member is public on the trait but missing from its declared shape';
           member: TKeys;
       };
 

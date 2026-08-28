@@ -1,6 +1,6 @@
-import { LockTimeoutException } from "Illuminate/Contracts/Cache/LockTimeoutException";
-import { Str } from "Illuminate/Support/Str";
-import type { Lock as LockContract } from "Illuminate/Contracts/Cache/Lock";
+import { LockTimeoutException } from 'Illuminate/Contracts/Cache/LockTimeoutException';
+import { Str } from 'Illuminate/Support/Str';
+import type { Lock as LockContract } from 'Illuminate/Contracts/Cache/Lock';
 
 /**
  * PHP: `Illuminate\Cache\Lock`.

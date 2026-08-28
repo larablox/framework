@@ -1,8 +1,8 @@
 /// <reference types="@rbxts/testez/globals" />
-import { DataStoreFailedJobProvider } from "Illuminate/Queue/Failed/DataStoreFailedJobProvider";
-import { RuntimeException } from "Illuminate/Exception";
-import { Str } from "Illuminate/Support/Str";
-import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
+import { DataStoreFailedJobProvider } from 'Illuminate/Queue/Failed/DataStoreFailedJobProvider';
+import { RuntimeException } from 'Illuminate/Exception';
+import { Str } from 'Illuminate/Support/Str';
+import type { JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 /**
  * PHP: `Illuminate\Tests\Queue\DatabaseFailedJobProviderTest` and
@@ -35,10 +35,10 @@ import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
  * schema to build against `DataStoreService`.
  */
 
-const HttpService = game.GetService("HttpService");
+const HttpService = game.GetService('HttpService');
 
 function freshProvider(): DataStoreFailedJobProvider {
-    return new DataStoreFailedJobProvider(HttpService.GenerateGUID(false), "");
+    return new DataStoreFailedJobProvider(HttpService.GenerateGUID(false), '');
 }
 
 /**
@@ -53,16 +53,16 @@ function payloadFor(uuid: string): JobPayload {
 }
 
 export = (): void => {
-    describe("DataStoreFailedJobProvider", () => {
+    describe('DataStoreFailedJobProvider', () => {
         // PHP: DatabaseFailedJobProviderTest::testCanGetAllFailedJobIds /
         // DatabaseUuidFailedJobProviderTest::testGettingIdsOfAllFailedJobs
-        it("ids() lists every logged failure, newest last", () => {
+        it('ids() lists every logged failure, newest last', () => {
             const provider = freshProvider();
 
             expect(provider.ids().size()).to.equal(0);
 
-            const first = provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException("one"));
-            const second = provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException("two"));
+            const first = provider.log('database', 'default', payloadFor(Str.uuid()), new RuntimeException('one'));
+            const second = provider.log('database', 'default', payloadFor(Str.uuid()), new RuntimeException('two'));
 
             const ids = provider.ids();
 
@@ -73,59 +73,59 @@ export = (): void => {
 
         // PHP: DatabaseUuidFailedJobProviderTest::testGettingIdsOfAllFailedJobs
         // (the queue-filtered branch)
-        it("ids(queue) narrows the listing to one queue", () => {
+        it('ids(queue) narrows the listing to one queue', () => {
             const provider = freshProvider();
 
-            provider.log("connection-1", "queue-1", payloadFor(Str.uuid()), new RuntimeException());
-            provider.log("connection-2", "queue-2", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-1', 'queue-1', payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-2', 'queue-2', payloadFor(Str.uuid()), new RuntimeException());
 
-            expect(provider.ids("queue-1").size()).to.equal(1);
-            expect(provider.ids("queue-2").size()).to.equal(1);
+            expect(provider.ids('queue-1').size()).to.equal(1);
+            expect(provider.ids('queue-2').size()).to.equal(1);
         });
 
         // PHP: DatabaseFailedJobProviderTest::testCanGetAllFailedJobs /
         // DatabaseUuidFailedJobProviderTest::testGettingAllFailedJobs
-        it("all() returns every failure with its connection and queue", () => {
+        it('all() returns every failure with its connection and queue', () => {
             const provider = freshProvider();
 
             expect(provider.all().size()).to.equal(0);
 
-            provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
-            provider.log("database", "emails", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('database', 'default', payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('database', 'emails', payloadFor(Str.uuid()), new RuntimeException());
 
             const all = provider.all();
 
             // `all()` is newest-first (PHP: `orderBy('id', 'desc')`), so the
             // second failure logged comes back first.
             expect(all.size()).to.equal(2);
-            expect(all[0].queue).to.equal("emails");
-            expect(all[1].queue).to.equal("default");
+            expect(all[0].queue).to.equal('emails');
+            expect(all[1].queue).to.equal('default');
         });
 
         // PHP: DatabaseFailedJobProviderTest::testCanRetrieveFailedJobsById /
         // DatabaseUuidFailedJobProviderTest::testFindingFailedJobsById
-        it("find() returns a logged failure by id, and undefined for an unknown one", () => {
+        it('find() returns a logged failure by id, and undefined for an unknown one', () => {
             const provider = freshProvider();
 
-            const id = provider.log("connection-1", "queue-1", payloadFor("uuid-1"), new RuntimeException());
+            const id = provider.log('connection-1', 'queue-1', payloadFor('uuid-1'), new RuntimeException());
 
             const found = provider.find(id);
 
             expect(found).to.be.ok();
             expect(found!.id).to.equal(id);
-            expect(found!.queue).to.equal("queue-1");
-            expect(found!.connection).to.equal("connection-1");
-            expect(provider.find("not-an-id")).to.equal(undefined);
+            expect(found!.queue).to.equal('queue-1');
+            expect(found!.connection).to.equal('connection-1');
+            expect(provider.find('not-an-id')).to.equal(undefined);
         });
 
         // PHP: DatabaseFailedJobProviderTest::testCanRemoveFailedJobsById /
         // DatabaseUuidFailedJobProviderTest::testRemovingJobsById
-        it("forget() removes a failure and reports whether it existed", () => {
+        it('forget() removes a failure and reports whether it existed', () => {
             const provider = freshProvider();
 
-            const id = provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
+            const id = provider.log('database', 'default', payloadFor(Str.uuid()), new RuntimeException());
 
-            expect(provider.forget("not-an-id")).to.equal(false);
+            expect(provider.forget('not-an-id')).to.equal(false);
             expect(provider.find(id)).to.be.ok();
             expect(provider.forget(id)).to.equal(true);
             expect(provider.find(id)).to.equal(undefined);
@@ -133,11 +133,11 @@ export = (): void => {
 
         // PHP: DatabaseFailedJobProviderTest::testCanFlushFailedJobs /
         // DatabaseUuidFailedJobProviderTest::testRemovingAllFailedJobs
-        it("flush() with no argument removes every failure", () => {
+        it('flush() with no argument removes every failure', () => {
             const provider = freshProvider();
 
-            provider.log("connection-1", "queue-1", payloadFor("uuid-1"), new RuntimeException());
-            provider.log("connection-2", "queue-2", payloadFor("uuid-2"), new RuntimeException());
+            provider.log('connection-1', 'queue-1', payloadFor('uuid-1'), new RuntimeException());
+            provider.log('connection-2', 'queue-2', payloadFor('uuid-2'), new RuntimeException());
 
             expect(provider.all().size()).to.equal(2);
 
@@ -147,10 +147,10 @@ export = (): void => {
         });
 
         // PHP: DatabaseFailedJobProviderTest::testCanFlushFailedJobs (hours branch)
-        it("flush(hours) only removes failures older than the cutoff", () => {
+        it('flush(hours) only removes failures older than the cutoff', () => {
             const provider = freshProvider();
 
-            provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('database', 'default', payloadFor(Str.uuid()), new RuntimeException());
 
             provider.flush(24);
 
@@ -159,11 +159,11 @@ export = (): void => {
 
         // PHP: DatabaseFailedJobProviderTest::testCanPruneFailedJobs /
         // DatabaseUuidFailedJobProviderTest::testPruningFailedJobs
-        it("prune() removes failures logged before the given timestamp", () => {
+        it('prune() removes failures logged before the given timestamp', () => {
             const provider = freshProvider();
 
-            provider.log("connection-1", "queue-1", payloadFor("uuid-1"), new RuntimeException());
-            provider.log("connection-2", "queue-2", payloadFor("uuid-2"), new RuntimeException());
+            provider.log('connection-1', 'queue-1', payloadFor('uuid-1'), new RuntimeException());
+            provider.log('connection-2', 'queue-2', payloadFor('uuid-2'), new RuntimeException());
 
             // `all()` is newest-first, so the *last* entry is the oldest.
             // Upstream freezes the clock; without one, the two failures can
@@ -181,61 +181,61 @@ export = (): void => {
 
         // PHP: DatabaseFailedJobProviderTest::testJobsCanBeCounted /
         // DatabaseUuidFailedJobProviderTest::testJobsCanBeCounted
-        it("count() counts every failure", () => {
+        it('count() counts every failure', () => {
             const provider = freshProvider();
 
             expect(provider.count()).to.equal(0);
 
-            provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('database', 'default', payloadFor(Str.uuid()), new RuntimeException());
             expect(provider.count()).to.equal(1);
 
-            provider.log("database", "default", payloadFor(Str.uuid()), new RuntimeException());
-            provider.log("another-connection", "another-queue", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('database', 'default', payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('another-connection', 'another-queue', payloadFor(Str.uuid()), new RuntimeException());
             expect(provider.count()).to.equal(3);
         });
 
         // PHP: DatabaseFailedJobProviderTest::testJobsCanBeCountedByConnection /
         // DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByConnection
-        it("count(connection) narrows the count to one connection", () => {
+        it('count(connection) narrows the count to one connection', () => {
             const provider = freshProvider();
 
-            provider.log("connection-1", "default", payloadFor(Str.uuid()), new RuntimeException());
-            provider.log("connection-2", "default", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-1', 'default', payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-2', 'default', payloadFor(Str.uuid()), new RuntimeException());
 
-            expect(provider.count("connection-1")).to.equal(1);
-            expect(provider.count("connection-2")).to.equal(1);
+            expect(provider.count('connection-1')).to.equal(1);
+            expect(provider.count('connection-2')).to.equal(1);
 
-            provider.log("connection-1", "default", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-1', 'default', payloadFor(Str.uuid()), new RuntimeException());
 
-            expect(provider.count("connection-1")).to.equal(2);
-            expect(provider.count("connection-2")).to.equal(1);
+            expect(provider.count('connection-1')).to.equal(2);
+            expect(provider.count('connection-2')).to.equal(1);
         });
 
         // PHP: DatabaseFailedJobProviderTest::testJobsCanBeCountedByQueue /
         // DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByQueue
-        it("count(undefined, queue) narrows the count to one queue", () => {
+        it('count(undefined, queue) narrows the count to one queue', () => {
             const provider = freshProvider();
 
-            provider.log("database", "queue-1", payloadFor(Str.uuid()), new RuntimeException());
-            provider.log("database", "queue-2", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('database', 'queue-1', payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('database', 'queue-2', payloadFor(Str.uuid()), new RuntimeException());
 
-            expect(provider.count(undefined, "queue-1")).to.equal(1);
-            expect(provider.count(undefined, "queue-2")).to.equal(1);
+            expect(provider.count(undefined, 'queue-1')).to.equal(1);
+            expect(provider.count(undefined, 'queue-2')).to.equal(1);
         });
 
         // PHP: DatabaseFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection /
         // DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
-        it("count(connection, queue) narrows by both", () => {
+        it('count(connection, queue) narrows by both', () => {
             const provider = freshProvider();
 
-            provider.log("connection-1", "queue-99", payloadFor(Str.uuid()), new RuntimeException());
-            provider.log("connection-1", "queue-99", payloadFor(Str.uuid()), new RuntimeException());
-            provider.log("connection-2", "queue-99", payloadFor(Str.uuid()), new RuntimeException());
-            provider.log("connection-1", "queue-1", payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-1', 'queue-99', payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-1', 'queue-99', payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-2', 'queue-99', payloadFor(Str.uuid()), new RuntimeException());
+            provider.log('connection-1', 'queue-1', payloadFor(Str.uuid()), new RuntimeException());
 
-            expect(provider.count("connection-1", "queue-99")).to.equal(2);
-            expect(provider.count("connection-2", "queue-99")).to.equal(1);
-            expect(provider.count("connection-1", "queue-1")).to.equal(1);
+            expect(provider.count('connection-1', 'queue-99')).to.equal(2);
+            expect(provider.count('connection-2', 'queue-99')).to.equal(1);
+            expect(provider.count('connection-1', 'queue-1')).to.equal(1);
         });
     });
 };

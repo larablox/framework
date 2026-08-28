@@ -1,7 +1,7 @@
-import { Repository } from "Illuminate/Log/Context/Repository";
-import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { Repository } from 'Illuminate/Log/Context/Repository';
+import { addParameterAttribute } from 'Illuminate/Container/Attributes/Inject';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] class Context`. */
 export interface Context extends ContextualAttribute {

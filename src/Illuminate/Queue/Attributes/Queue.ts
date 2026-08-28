@@ -1,4 +1,4 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
 
 /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] class Queue`. */
 export interface Queue {

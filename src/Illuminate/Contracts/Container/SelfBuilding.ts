@@ -1,4 +1,4 @@
-import type { Constructor } from "Illuminate/Container/Types";
+import type { Constructor } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `interface SelfBuilding` with a `@method static newInstance(): static`.
@@ -16,5 +16,5 @@ export type SelfBuildingClass = Constructor & {
 
 /** PHP: `is_a($concrete, SelfBuilding::class, true) && method_exists(...)`. */
 export function isSelfBuilding(concrete: unknown): concrete is SelfBuildingClass {
-    return typeIs(concrete, "table") && typeIs((concrete as { newInstance?: unknown }).newInstance, "function");
+    return typeIs(concrete, 'table') && typeIs((concrete as { newInstance?: unknown }).newInstance, 'function');
 }

@@ -1,27 +1,27 @@
-import { JobAttempted } from "Illuminate/Queue/Events/JobAttempted";
-import { JobExceptionOccurred } from "Illuminate/Queue/Events/JobExceptionOccurred";
-import { JobPopped } from "Illuminate/Queue/Events/JobPopped";
-import { JobPopping } from "Illuminate/Queue/Events/JobPopping";
-import { JobProcessed } from "Illuminate/Queue/Events/JobProcessed";
-import { JobProcessing } from "Illuminate/Queue/Events/JobProcessing";
-import { JobReleasedAfterException } from "Illuminate/Queue/Events/JobReleasedAfterException";
-import { JobTimedOut } from "Illuminate/Queue/Events/JobTimedOut";
-import { Looping } from "Illuminate/Queue/Events/Looping";
-import { MaxAttemptsExceededException } from "Illuminate/Queue/MaxAttemptsExceededException";
-import { TimeoutExceededException } from "Illuminate/Queue/TimeoutExceededException";
-import { WorkerIdle } from "Illuminate/Queue/Events/WorkerIdle";
-import { WorkerStarting } from "Illuminate/Queue/Events/WorkerStarting";
-import { WorkerStopReason } from "Illuminate/Queue/WorkerStopReason";
-import { WorkerStopping } from "Illuminate/Queue/Events/WorkerStopping";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import type { Dispatcher } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Factory } from "Illuminate/Contracts/Queue/Factory";
-import type { Repository as Cache } from "Illuminate/Contracts/Cache/Repository";
-import type { Job } from "Illuminate/Contracts/Queue/Job";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
-import type { WorkerOptions } from "Illuminate/Queue/WorkerOptions";
+import { JobAttempted } from 'Illuminate/Queue/Events/JobAttempted';
+import { JobExceptionOccurred } from 'Illuminate/Queue/Events/JobExceptionOccurred';
+import { JobPopped } from 'Illuminate/Queue/Events/JobPopped';
+import { JobPopping } from 'Illuminate/Queue/Events/JobPopping';
+import { JobProcessed } from 'Illuminate/Queue/Events/JobProcessed';
+import { JobProcessing } from 'Illuminate/Queue/Events/JobProcessing';
+import { JobReleasedAfterException } from 'Illuminate/Queue/Events/JobReleasedAfterException';
+import { JobTimedOut } from 'Illuminate/Queue/Events/JobTimedOut';
+import { Looping } from 'Illuminate/Queue/Events/Looping';
+import { MaxAttemptsExceededException } from 'Illuminate/Queue/MaxAttemptsExceededException';
+import { TimeoutExceededException } from 'Illuminate/Queue/TimeoutExceededException';
+import { WorkerIdle } from 'Illuminate/Queue/Events/WorkerIdle';
+import { WorkerStarting } from 'Illuminate/Queue/Events/WorkerStarting';
+import { WorkerStopReason } from 'Illuminate/Queue/WorkerStopReason';
+import { WorkerStopping } from 'Illuminate/Queue/Events/WorkerStopping';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Factory } from 'Illuminate/Contracts/Queue/Factory';
+import type { Repository as Cache } from 'Illuminate/Contracts/Cache/Repository';
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
+import type { WorkerOptions } from 'Illuminate/Queue/WorkerOptions';
 
-const Stats = game.GetService("Stats");
+const Stats = game.GetService('Stats');
 
 /**
  * PHP: `ExceptionHandler::report()`.
@@ -63,7 +63,7 @@ export class Worker {
     public static frameBudget = 0.004;
 
     /** The name of the worker. */
-    protected name = "default";
+    protected name = 'default';
 
     /** Indicates if the worker should exit. */
     protected shouldQuit = false;
@@ -228,7 +228,7 @@ export class Worker {
         this.raiseBeforeJobPopEvent(connection.getConnectionName(), queue);
 
         const [ok, result] = pcall(() => {
-            for (const name of queue.split(",")) {
+            for (const name of queue.split(',')) {
                 const job = connection.pop(name);
 
                 if (job !== undefined) {
@@ -456,7 +456,7 @@ export class Worker {
     protected markJobAsFailedIfItShouldFailOnTimeout(connectionName: string, job: Job, e: unknown): void {
         const shouldFail = (job as { shouldFailOnTimeout?: unknown }).shouldFailOnTimeout;
 
-        if (typeIs(shouldFail, "function") && (shouldFail as (self: Job) => boolean)(job)) {
+        if (typeIs(shouldFail, 'function') && (shouldFail as (self: Job) => boolean)(job)) {
             this.failJob(job, e);
         }
     }
@@ -470,11 +470,11 @@ export class Worker {
     protected calculateBackoff(job: Job, options: WorkerOptions): number {
         const declared = (job as { backoff?: unknown }).backoff;
 
-        const value = typeIs(declared, "function")
+        const value = typeIs(declared, 'function')
             ? ((declared as (self: Job) => unknown)(job) ?? options.backoff)
             : options.backoff;
 
-        const steps = tostring(value ?? 0).split(",");
+        const steps = tostring(value ?? 0).split(',');
 
         const step = steps[job.attempts() - 1] ?? steps[steps.size() - 1];
 

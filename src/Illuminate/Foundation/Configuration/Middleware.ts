@@ -1,7 +1,7 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { SubstituteBindings } from "Illuminate/Routing/Middleware/SubstituteBindings";
-import { ThrottleRequests } from "Illuminate/Routing/Middleware/ThrottleRequests";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Arr } from 'Illuminate/Support/Arr';
+import { SubstituteBindings } from 'Illuminate/Routing/Middleware/SubstituteBindings';
+import { ThrottleRequests } from 'Illuminate/Routing/Middleware/ThrottleRequests';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Foundation\Configuration\Middleware`.
@@ -156,7 +156,7 @@ export class Middleware {
         remove: Pipe | Array<Pipe> = [],
         replace: Array<[Pipe, Pipe]> = [],
     ): this {
-        return this.modifyGroup("api", append, prepend, remove, replace);
+        return this.modifyGroup('api', append, prepend, remove, replace);
     }
 
     /** Modify the middleware in the given group. */
@@ -215,7 +215,7 @@ export class Middleware {
     }
 
     /** Indicate that the API middleware group should throttle requests. */
-    public throttleApi(limiter = "api"): this {
+    public throttleApi(limiter = 'api'): this {
         this.apiLimiter = limiter;
 
         return this;
@@ -369,7 +369,7 @@ export class Middleware {
      */
     protected empty(middleware: Pipe | Array<Pipe>): boolean {
         return (
-            typeIs(middleware, "table") &&
+            typeIs(middleware, 'table') &&
             getmetatable(middleware as object) === undefined &&
             (middleware as Array<Pipe>).isEmpty()
         );

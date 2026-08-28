@@ -1,4 +1,4 @@
-import { GlobalLimit } from "Illuminate/Cache/RateLimiting/GlobalLimit";
+import { GlobalLimit } from 'Illuminate/Cache/RateLimiting/GlobalLimit';
 
 /**
  * PHP: `Illuminate\Cache\RateLimiting\Unlimited`.

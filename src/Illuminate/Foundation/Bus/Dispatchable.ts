@@ -1,9 +1,9 @@
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import { PendingChain } from "Illuminate/Foundation/Bus/PendingChain";
-import { PendingDispatch } from "Illuminate/Foundation/Bus/PendingDispatch";
-import { Batchable } from "Illuminate/Bus/Batchable";
-import { Queueable } from "Illuminate/Bus/Queueable";
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import { PendingChain } from 'Illuminate/Foundation/Bus/PendingChain';
+import { PendingDispatch } from 'Illuminate/Foundation/Bus/PendingDispatch';
+import { Batchable } from 'Illuminate/Bus/Batchable';
+import { Queueable } from 'Illuminate/Bus/Queueable';
 
 /**
  * The job class as its own statics see it.

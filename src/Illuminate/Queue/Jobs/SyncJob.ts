@@ -1,6 +1,6 @@
-import { Job } from "Illuminate/Queue/Jobs/Job";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { Job as JobContract, JobPayload } from "Illuminate/Contracts/Queue/Job";
+import { Job } from 'Illuminate/Queue/Jobs/Job';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Job as JobContract, JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 /** PHP: `Illuminate\Queue\Jobs\SyncJob`. */
 export class SyncJob extends Job implements JobContract {
@@ -29,7 +29,7 @@ export class SyncJob extends Job implements JobContract {
 
     /** Get the job identifier. */
     public getJobId(): string {
-        return "";
+        return '';
     }
 
     /** Get the raw body string for the job. */
@@ -39,6 +39,6 @@ export class SyncJob extends Job implements JobContract {
 
     /** Get the name of the queue the job belongs to. */
     public getQueue(): string {
-        return "sync";
+        return 'sync';
     }
 }

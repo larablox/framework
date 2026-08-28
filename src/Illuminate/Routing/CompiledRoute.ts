@@ -1,5 +1,5 @@
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { Str } from "Illuminate/Support/Str";
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { Str } from 'Illuminate/Support/Str';
 
 /** One segment of a compiled URI: either literal text or a parameter. */
 export interface RouteSegment {
@@ -51,10 +51,10 @@ export class CompiledRoute {
         let seenOptional = false;
 
         for (const raw of CompiledRoute.split(uri)) {
-            const [inner] = raw.match("^{(.*)}$");
+            const [inner] = raw.match('^{(.*)}$');
 
-            if (!typeIs(inner, "string")) {
-                if (Str.contains(raw, "{")) {
+            if (!typeIs(inner, 'string')) {
+                if (Str.contains(raw, '{')) {
                     throw new InvalidArgumentException(
                         `Route pattern [${uri}] puts a parameter inside the segment [${raw}]; a parameter has to be a whole segment here.`,
                     );
@@ -71,10 +71,10 @@ export class CompiledRoute {
                 continue;
             }
 
-            const optional = inner.sub(inner.size(), inner.size()) === "?";
+            const optional = inner.sub(inner.size(), inner.size()) === '?';
             const name = optional ? inner.sub(1, inner.size() - 1) : inner;
 
-            if (name === "") {
+            if (name === '') {
                 throw new InvalidArgumentException(`Route pattern [${uri}] has an unnamed parameter.`);
             }
 
@@ -175,15 +175,15 @@ export class CompiledRoute {
             remaining.push(parts[index]);
         }
 
-        return remaining.join("/");
+        return remaining.join('/');
     }
 
     /** Split a URI into segments, treating "/" as no segments at all. */
     protected static split(uri: string): Array<string> {
         const segments = new Array<string>();
 
-        for (const segment of uri.split("/")) {
-            if (segment !== "") {
+        for (const segment of uri.split('/')) {
+            if (segment !== '') {
                 segments.push(segment);
             }
         }

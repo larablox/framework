@@ -106,7 +106,11 @@ mixed into Stringable, Request and others) is a finding, not a waiver.
 
 **Extra port-only members** inside a matched pair (`asList`, `callPipe`) have no waiver
 mechanism — record the judgment about them in the notes of the upstream members whose
-logic they carry, and in the session report.
+logic they carry, and in the session report. One sanctioned kind exists: a **language
+compensation** — a helper standing in for a PHP builtin the platform lacks
+(`Arr.reverse` for `array_reverse`), user-approved, docblocked as deliberately having no
+upstream twin. It compensates the *language*, never invents Laravel API a PHP developer
+would expect to exist upstream.
 
 ## Proposal and approval rules
 

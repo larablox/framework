@@ -927,6 +927,51 @@ export = (): void => {
             expectThrows(() => Arr.random([], 2));
         });
 
+        it("pad() pads either end, and without a value is the identity PHP's null pad becomes here", () => {
+            // No upstream twin: PHP gets array_pad from the language, so
+            // SupportArrTest never tests it -- see the method's docblock.
+            expectDeepEqual(
+                Arr.pad(
+                    [
+                        'a',
+                        'b',
+                    ],
+                    4,
+                    'x',
+                ),
+                [
+                    'a',
+                    'b',
+                    'x',
+                    'x',
+                ],
+            );
+            expectDeepEqual(
+                Arr.pad(
+                    [
+                        'a',
+                        'b',
+                    ],
+                    -4,
+                    'x',
+                ),
+                [
+                    'x',
+                    'x',
+                    'a',
+                    'b',
+                ],
+            );
+
+            const untouched = [
+                'a',
+                'b',
+                'c',
+            ];
+            expect(Arr.pad(untouched, 2, 'x')).to.equal(untouched);
+            expect(Arr.pad(untouched, 5, undefined)).to.equal(untouched);
+        });
+
         it('reverse() returns a reversed copy, leaving the input untouched', () => {
             // No upstream twin: PHP gets array_reverse from the language, so
             // SupportArrTest never tests it -- see the method's docblock.

@@ -2,6 +2,7 @@ import { Arr } from 'Illuminate/Support/Arr';
 import { Inject } from 'Illuminate/Container/Attributes/Inject';
 import { isPipeArray, splitPipe } from 'Illuminate/Pipeline/helpers';
 import { RuntimeException } from 'Illuminate/Exception';
+import { Str } from 'Illuminate/Support/Str';
 import { ContainerContract } from 'Illuminate/Contracts/Container/Container';
 import type { Container } from 'Illuminate/Contracts/Container/Container';
 import type { Passable, Pipe, Pipeline as PipelineContract } from 'Illuminate/Contracts/Pipeline/Pipeline';
@@ -206,33 +207,14 @@ export class Pipeline implements PipelineContract
         return metatable !== undefined && rawget(metatable, '__index') === metatable;
     }
 
-    /**
-     * Parse full pipe string to get name and parameters.
-     *
-     * `explode(':', $pipe, 2)` is spelled with `find`/`sub` (`string.split`
-     * has no limit), and the platform pads for free: a missing slot
-     * destructures to `undefined`, doing the job PHP needs
-     * `array_pad(..., 2, null)` for -- a Luau array could not hold the `nil`
-     * pad anyway. A pipe that is not a string never comes here: a class
-     * cannot be spelled `"Class:60,1"` the way PHP spells one, so it carries
-     * its arguments in a list instead, split by `splitPipe()` in the helpers.
-     */
+    /** Parse full pipe string to get name and parameters. */
     protected parsePipeString(pipe: string): [string, Array<string>]
     {
-        const separator = pipe.find(':')[0];
-
-        const exploded: [string, string?] = separator === undefined
-            ? [pipe]
-            : [
-                pipe.sub(1, separator - 1),
-                pipe.sub(separator + 1),
-            ];
-
-        const [name, parameters] = exploded;
+        const [name, parameters] = Arr.pad(Str.explode(':', pipe, 2), 2, undefined);
 
         return [
             name,
-            parameters !== undefined ? parameters.split(',') : [],
+            parameters !== undefined ? Str.explode(',', parameters) : [],
         ];
     }
 

@@ -819,6 +819,36 @@ export class Arr
         return Arr.take(shuffled, requested);
     }
 
+    /** Pad the array to the given size with a value. */
+    public static pad<T extends defined>(list: Array<T>, size: number, value?: T): Array<T>
+    {
+        const count = math.abs(size);
+
+        if (list.size() >= count || value === undefined) {
+            return list;
+        }
+
+        const padded = new Array<T>(count);
+
+        if (size < 0) {
+            for (let index = list.size(); index < count; index++) {
+                padded.push(value);
+            }
+        }
+
+        for (const item of list) {
+            padded.push(item);
+        }
+
+        if (size > 0) {
+            for (let index = list.size(); index < count; index++) {
+                padded.push(value);
+            }
+        }
+
+        return padded;
+    }
+
     /** Reverse the given array. */
     public static reverse<T extends defined>(list: Array<T>): Array<T>
     {

@@ -428,6 +428,48 @@ export class Str
         return typeIs(count, 'number') ? count : value.size();
     }
 
+    /** Split a string by another string. */
+    public static explode(delimiter: string, subject: string, limit?: number): Array<string>
+    {
+        const parts = subject.split(delimiter);
+
+        if (limit === undefined) {
+            return parts;
+        }
+
+        if (limit < 0) {
+            const result = new Array<string>();
+
+            for (let index = 0; index < parts.size() + limit; index++) {
+                result.push(parts[index]);
+            }
+
+            return result;
+        }
+
+        const cap = math.max(limit, 1);
+
+        if (parts.size() <= cap) {
+            return parts;
+        }
+
+        const result = new Array<string>();
+
+        for (let index = 0; index < cap - 1; index++) {
+            result.push(parts[index]);
+        }
+
+        const tail = new Array<string>();
+
+        for (let index = cap - 1; index < parts.size(); index++) {
+            tail.push(parts[index]);
+        }
+
+        result.push(tail.join(delimiter));
+
+        return result;
+    }
+
     /** Returns the portion of the string specified by the start and length. */
     public static substr(value: string, start: number, length?: number): string
     {

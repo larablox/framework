@@ -18,6 +18,34 @@ export = (): void => {
             expect(Str.length('foo bar baz')).to.equal(11);
         });
 
+        it("explode() splits with PHP's limit semantics", () => {
+            // No upstream twin: PHP gets explode from the language, so
+            // SupportStrTest never tests it -- see the method's docblock.
+            const exploded = Str.explode(':', 'a:b:c');
+            expect(exploded.size()).to.equal(3);
+            expect(exploded[0]).to.equal('a');
+
+            const limited = Str.explode(':', 'a:b:c', 2);
+            expect(limited.size()).to.equal(2);
+            expect(limited[0]).to.equal('a');
+            expect(limited[1]).to.equal('b:c');
+
+            const roomy = Str.explode(':', 'a:b', 5);
+            expect(roomy.size()).to.equal(2);
+
+            const negative = Str.explode(':', 'a:b:c', -1);
+            expect(negative.size()).to.equal(2);
+            expect(negative[1]).to.equal('b');
+
+            const zero = Str.explode(':', 'a:b:c', 0);
+            expect(zero.size()).to.equal(1);
+            expect(zero[0]).to.equal('a:b:c');
+
+            const whole = Str.explode(':', 'abc');
+            expect(whole.size()).to.equal(1);
+            expect(whole[0]).to.equal('abc');
+        });
+
         it('substr() slices by codepoint, PHP mb_substr semantics', () => {
             // PHP: SupportStrTest::testSubstr
             expect(Str.substr('БГДЖИЛЁ', -1)).to.equal('Ё');

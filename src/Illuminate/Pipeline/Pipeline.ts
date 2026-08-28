@@ -128,15 +128,18 @@ export class Pipeline implements PipelineContract {
     /** Wrap one pipe around the rest of the stack. */
     protected carry(stack: Next, pipe: Pipe): Next {
         return (passable: Passable) => {
+            // `handleCarry` runs inside the protected region, as it does in
+            // PHP's try: Routing overrides it with `toResponse()`, and what
+            // that throws must reach `handleException`, not the caller.
             const [ok, result] = pcall(() =>
-                this.callPipe(pipe, passable, stack),
+                this.handleCarry(this.callPipe(pipe, passable, stack)),
             );
 
             if (!ok) {
                 return this.handleException(passable, result);
             }
 
-            return this.handleCarry(result);
+            return result;
         };
     }
 

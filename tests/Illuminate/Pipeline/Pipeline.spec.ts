@@ -422,5 +422,37 @@ export = (): void => {
 
             expect(std.value).to.equal(2);
         });
+
+        it("routes what handleCarry() throws through handleException()", () => {
+            // No upstream twin: pins the port to PHP's `try` shape, where
+            // `handleCarry()` runs inside it -- Routing overrides it with
+            // `toResponse()`, and what that throws must become a rendered
+            // response, not an exception through the stack.
+            class CarryHandlingPipeline extends Pipeline {
+                protected handleCarry(carry: unknown): unknown {
+                    if (carry === "boom") {
+                        throw new RuntimeException("carry exploded");
+                    }
+
+                    return carry;
+                }
+
+                protected handleException(
+                    _passable: unknown,
+                    e: unknown,
+                ): unknown {
+                    expect(e instanceof RuntimeException).to.equal(true);
+
+                    return "handled";
+                }
+            }
+
+            const result = new CarryHandlingPipeline()
+                .send("payload")
+                .through([() => "boom"])
+                .then((passable: unknown) => passable);
+
+            expect(result).to.equal("handled");
+        });
     });
 };

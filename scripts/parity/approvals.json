@@ -35,6 +35,11 @@
         "ts_hash": "e8ab8d498fbb832e9c451b8f0b88b886ee17f5b2",
         "approved_at": "2026-08-28"
     },
+    "Pipeline/Pipeline.php#Pipeline#carry": {
+        "php_hash": "da3461f243a7ecf855475e42c9d35f42c53156a2",
+        "ts_hash": "1d6b13ad2573b218b3b3dee05acbbef8d095989e",
+        "approved_at": "2026-08-28"
+    },
     "Pipeline/Pipeline.php#Pipeline#finally": {
         "php_hash": "13c6c00386ec42eef6b7bc32b9a5dd8e253f3f3a",
         "ts_hash": "3e6d66d43592d9c0d8cde57e72710bdbe7df3736",

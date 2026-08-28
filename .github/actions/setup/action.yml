@@ -5,6 +5,12 @@ inputs:
   rokit:
     description: Install the Rokit toolchain (rojo, luau-lsp, lune).
     default: "false"
+  registry-url:
+    # Only publishing wants this. Setting it writes an .npmrc with an auth
+    # line and `always-auth`, which npm 11 warns about as unknown config --
+    # noise in every job that has nothing to publish.
+    description: Registry to configure npm against, for publishing.
+    default: ""
 
 runs:
   using: composite
@@ -13,7 +19,7 @@ runs:
       with:
         node-version-file: .nvmrc
         cache: npm
-        registry-url: https://registry.npmjs.org
+        registry-url: ${{ inputs.registry-url }}
 
     - if: inputs.rokit == 'true'
       uses: CompeyDev/setup-rokit@v0.1.2

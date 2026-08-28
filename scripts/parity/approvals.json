@@ -170,7 +170,7 @@
     "Pipeline/Pipeline.php#Pipeline#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
         "ts_hash": "bedada12bc7b8e78d40d801e8137e41e8a9e2f3d",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
         "note": "Body matches; container optional as upstream, parameter property replaces the explicit assignment. @Inject(ContainerContract) is the port's spelling of the reflected ?Container hint, exactly as on Hub#__construct (the byte-identical upstream body): $app->make(Pipeline::class) is a public path and must hand the pipeline the resolving container. The earlier dismissal ('upstream never container-resolves Pipeline, so no hint is owed') did not survive the public-surface rule -- the framework's own call sites say nothing about consumers'; pinned by the 'receives the container when resolved from one' spec. Re-proposed for the Conditionable mixin: extends Conditionable() obliges a super() call PHP has no counterpart for -- the platform cost of use Conditionable.",
         "approved_at": "2026-08-28"
@@ -186,9 +186,10 @@
     "Pipeline/Pipeline.php#Pipeline#Conditionable@trait": {
         "php_hash": "rel:Illuminate\\Support\\Traits\\Conditionable",
         "ts_hash": "rel:Conditionable()",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim. use Conditionable is extends Conditionable() -- the mixin chain is the trait carrier, and further traits would nest (Conditionable(Macroable(Base))), so the extends slot is not spent. Pinned by the ported testPipelineConditionable."
+        "note": "Verbatim. use Conditionable is extends Conditionable() -- the mixin chain is the trait carrier, and further traits would nest (Conditionable(Macroable(Base))), so the extends slot is not spent. Pinned by the ported testPipelineConditionable.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#container@property": {
         "php_hash": "5edb3489e2048f7c8c11e282fbdd13f57ea9ae5b",

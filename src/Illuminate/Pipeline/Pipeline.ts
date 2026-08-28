@@ -152,11 +152,10 @@ export class Pipeline implements PipelineContract
                         // execute the pipe function giving in the parameters that are required.
                         pipe = this.getContainer().make(name) as Pipe;
 
-                        parameters = [
+                        parameters = Arr.merge([
                             passable,
                             stack,
-                            ..._parameters,
-                        ];
+                        ], _parameters);
                     } else {
                         // If the pipe is already an object we'll just make a callable and pass it to
                         // the pipe as-is. There is no need to do any extra parsing and formatting

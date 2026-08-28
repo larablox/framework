@@ -819,6 +819,20 @@ export class Arr
         return Arr.take(shuffled, requested);
     }
 
+    /** Merge the given arrays into one, in order. */
+    public static merge<T>(...lists: Array<Array<T>>): Array<T>
+    {
+        const merged = new Array<T>();
+
+        for (const list of lists) {
+            for (let position = 0; position < list.size(); position++) {
+                merged[merged.size()] = list[position];
+            }
+        }
+
+        return merged;
+    }
+
     /** Pad the array to the given size with a value. */
     public static pad<T extends defined>(list: Array<T>, size: number, value?: T): Array<T>
     {

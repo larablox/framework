@@ -927,6 +927,31 @@ export = (): void => {
             expectThrows(() => Arr.random([], 2));
         });
 
+        it('merge() concatenates arrays in order', () => {
+            // No upstream twin: PHP gets array_merge from the language, so
+            // SupportArrTest never tests it.
+            expectDeepEqual(
+                Arr.merge([
+                    'a',
+                    'b',
+                ], [
+                    'c',
+                ], [
+                    'd',
+                ]),
+                [
+                    'a',
+                    'b',
+                    'c',
+                    'd',
+                ],
+            );
+            expectDeepEqual(Arr.merge([], []), []);
+
+            const single = Arr.merge(['a']);
+            expectDeepEqual(single, ['a']);
+        });
+
         it("pad() pads either end, and without a value is the identity PHP's null pad becomes here", () => {
             // No upstream twin: PHP gets array_pad from the language, so
             // SupportArrTest never tests it -- see the method's docblock.

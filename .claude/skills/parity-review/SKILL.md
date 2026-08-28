@@ -11,7 +11,8 @@ difference visible in a side-by-side diff is either eliminated or *proven* force
 proof written down. "Documented divergence" is a hypothesis to re-test, never an answer by
 itself: most of the port's original "platform-forced" divergences fell when interrogated
 (erased interfaces → `Contract<T>` tokens, no reflection → `@Inject`, marker interfaces →
-validating decorators, formatter limits → a different formatter).
+validating decorators, `func_get_args` → rest parameters, formatter limits → a different
+formatter).
 
 The etalon is `src/Illuminate/Pipeline/PipelineServiceProvider.ts` next to its upstream
 twin — format, naming, directives, keys and bodies all line up. Every reviewed file should

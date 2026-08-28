@@ -100,9 +100,10 @@
     "Pipeline/Pipeline.php#Pipeline#prepareDestination": {
         "php_hash": "03bb42a1fad5fc77d57b4cca4fc2c3f8e8324a11",
         "ts_hash": "21ff9d3a3b4b8dec15038853ce69733ac6e72a8c",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim try/catch, as upstream writes it -- roblox-ts compiles it to TS.try over pcall and the raw error value reaches handleException unchanged (verified in the emitted Luau; the earlier hand-spelled pcall was uniformity, not a platform need). Dismissed: the closure is an arrow, not upstream's function expression -- PHP's function() binds $this and this closure calls $this->handleException, while a TS function expression loses lexical this (noImplicitThis rejects it), so the arrow is the only carrier keeping PHP's binding; thenReturn's closure touches no $this, which is why it could take the function form."
+        "note": "Verbatim try/catch, as upstream writes it -- roblox-ts compiles it to TS.try over pcall and the raw error value reaches handleException unchanged (verified in the emitted Luau; the earlier hand-spelled pcall was uniformity, not a platform need). Dismissed: the closure is an arrow, not upstream's function expression -- PHP's function() binds $this and this closure calls $this->handleException, while a TS function expression loses lexical this (noImplicitThis rejects it), so the arrow is the only carrier keeping PHP's binding; thenReturn's closure touches no $this, which is why it could take the function form.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#send": {
         "php_hash": "53ea116f56b71e6bfc12cd2a6afa94810486d3a5",

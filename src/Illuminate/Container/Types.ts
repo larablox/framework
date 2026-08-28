@@ -1,4 +1,5 @@
 import type { Container } from "Illuminate/Contracts/Container/Container";
+import type { Contract } from "Illuminate/Container/Contract";
 
 /**
  * A concrete, instantiable class.
@@ -17,11 +18,12 @@ export type AbstractClass<T extends object = object> = abstract new (
 ) => T;
 
 /**
- * PHP: `string`, in practice either a plain key such as `"config"` or a
- * `Foo::class` string. Luau has no class-strings, so the class itself stands in
- * for `::class`; both spellings key the same bindings.
+ * PHP: `string`, in practice either a plain key such as `"config"`, a
+ * `Foo::class` string, or a `SomeContract::class` interface name. Luau has no
+ * class-strings, so the class itself stands in for `::class`, and a `Contract`
+ * token stands in for an interface name; all three spellings key bindings.
  */
-export type Abstract = string | AbstractClass;
+export type Abstract = string | AbstractClass | Contract;
 
 /** PHP: the `\Closure` a binding resolves through. */
 export type ContainerClosure = (

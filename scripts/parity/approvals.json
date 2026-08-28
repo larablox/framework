@@ -113,13 +113,13 @@
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
-        "ts_hash": "e0c7d79cd909a13b9087134bedce5fed335159f1",
+        "ts_hash": "b437a1158041b0464b01ffdfdf94aee177406efb",
         "approved_at": "2026-08-28"
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {
         "php_hash": "e577fa7f0c27b7a7950f092c98b0e615cd62cc92",
-        "ts_hash": "07a80ab073db54dfc63bb041bbc139f0deffd24b",
+        "ts_hash": "83472843ea02b108e45a227888957c62795c44d4",
         "approved_at": "2026-08-28",
-        "note": "binding key is the Hub class, not the contract (documented platform divergence); closures take the resolving container"
+        "note": "hub keyed by its Contract token, mirroring the PHP interface key; concrete is a closure because auto-construction needs reflection PHP has"
     }
 }

@@ -169,16 +169,25 @@
 
 ### Идентификаторы биндингов
 
-В PHP `$abstract` всегда строка (`'config'` или `Foo::class`). В Luau нет
-class-string, поэтому идентификатором служит либо строка, либо **сам класс**:
+В PHP `$abstract` всегда строка (`'config'`, `Foo::class` или имя интерфейса
+`SomeContract::class`). В Luau нет class-string, поэтому идентификатором
+служит строка, **сам класс** — или, для контракта-интерфейса (тот стёрт
+компиляцией), **токен `Contract<T>`**, объявляемый рядом с интерфейсом:
 
 ```ts
 app.bind("config", ...);
 app.singleton(Dispatcher);
 app.make(Dispatcher); // типизировано как Dispatcher
+
+// Contracts/Pipeline/Hub.ts
+export const HubContract = new Contract<Hub>("Illuminate\\Contracts\\Pipeline\\Hub");
+app.singleton(HubContract, (app) => new Hub(app));
+app.make(HubContract); // типизировано как Hub
 ```
 
-Тип — `Abstract = string | AbstractClass` (`Container/Types.ts`).
+Тип — `Abstract = string | AbstractClass | Contract`
+(`Container/Types.ts`, `Container/Contract.ts`). Токен обкатан на
+`PipelineServiceProvider`; остальные провайдеры пока биндят по классу.
 
 ### Автоворинг: `Inject` вместо type hint
 

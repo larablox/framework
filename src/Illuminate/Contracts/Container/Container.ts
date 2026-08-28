@@ -14,10 +14,12 @@ import type {
     ResolvingCallback,
 } from "Illuminate/Container/Types";
 import type { ContextualBindingBuilder } from "Illuminate/Contracts/Container/ContextualBindingBuilder";
+import type { Contract } from "Illuminate/Container/Contract";
 
 export interface Container {
     /** Resolve the given type from the container. */
     get<T extends object>(id: AbstractClass<T>): T;
+    get<T>(id: Contract<T>): T;
     get<T = unknown>(id: string): T;
     get(id: Abstract): unknown;
 
@@ -90,6 +92,7 @@ export interface Container {
         abstract: AbstractClass<T>,
         parameters?: ParameterList,
     ): T;
+    make<T>(abstract: Contract<T>, parameters?: ParameterList): T;
     make<T = unknown>(abstract: string, parameters?: ParameterList): T;
     make(abstract: Abstract, parameters?: ParameterList): unknown;
 

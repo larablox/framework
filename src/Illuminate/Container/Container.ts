@@ -41,6 +41,7 @@ import type {
     ResolvingCallback,
 } from "Illuminate/Container/Types";
 import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
+import type { Contract } from "Illuminate/Container/Contract";
 import type { ContextualBindingBuilder as ContextualBindingBuilderContract } from "Illuminate/Contracts/Container/ContextualBindingBuilder";
 
 /** The result of a Singleton / Scoped attribute lookup; `false` is PHP's null. */
@@ -715,6 +716,7 @@ export class Container implements ContainerContract {
         abstract: AbstractClass<T>,
         parameters?: ParameterList,
     ): T;
+    public make<T>(abstract: Contract<T>, parameters?: ParameterList): T;
     public make<T = unknown>(abstract: string, parameters?: ParameterList): T;
     public make(abstract: Abstract, parameters?: ParameterList): unknown;
     public make(abstract: Abstract, parameters?: ParameterList): unknown {
@@ -723,6 +725,7 @@ export class Container implements ContainerContract {
 
     /** Resolve the given type from the container, as PSR-11's `get()`. */
     public get<T extends object>(id: AbstractClass<T>): T;
+    public get<T>(id: Contract<T>): T;
     public get<T = unknown>(id: string): T;
     public get(id: Abstract): unknown;
     public get(id: Abstract): unknown {

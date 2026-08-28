@@ -43,6 +43,7 @@
         { "glob": "Container/Attributes/Attributes.ts", "kind": "port-only", "reason": "decorator registry backing the attribute system (reflection replacement)" },
         { "glob": "Container/Attributes/Inject.ts", "kind": "port-only", "reason": "@Inject replaces constructor type-hint reflection (framework-boot.md)" },
         { "glob": "Container/Attributes/Variadic.ts", "kind": "port-only", "reason": "@Variadic replaces ReflectionParameter::isVariadic()" },
+        { "glob": "Container/Contract.ts", "kind": "port-only", "reason": "runtime token standing in for an interface name as a container key (interfaces are erased)" },
         { "glob": "Container/Types.ts", "kind": "port-only", "reason": "Abstract/Concrete type definitions; PHP uses bare strings" },
         { "glob": "Contracts/Support/JsonSerializable.ts", "kind": "port-only", "reason": "PHP ships JsonSerializable built in, no upstream file" },
         { "glob": "Pipeline/Pipes.ts", "kind": "port-only", "reason": "pipe type definitions; PHP uses bare callables/strings" },

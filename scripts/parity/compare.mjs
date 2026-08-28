@@ -164,38 +164,48 @@ function compareMembers(pair, phpData, tsData, fileRow, memberRows, ctx) {
 
 		const tsMembers = new Map((tsDecl?.members ?? []).map((m) => [m.name, m]));
 
-		const tsNameFor = (phpMember) => {
+		// A leading underscore is the port's convention for a PHP name the
+		// TS side cannot use as-is -- a reserved word (`_with`) or a
+		// property/method collision (`_pipes` beside `pipes()`) -- so `_x`
+		// is tried automatically when no member is named `x`.
+		const tsNamesFor = (phpMember) => {
 			const normalized = normalizePhpMemberName(phpMember.name);
-			return ownProp(ctx.memberAliases, `${phpMember.name}@${phpMember.kind}`) ?? ownProp(ctx.memberAliases, phpMember.name) ?? ownProp(ctx.memberAliases, normalized) ?? normalized;
+			const aliased =
+				ownProp(ctx.memberAliases, `${phpMember.name}@${phpMember.kind}`) ?? ownProp(ctx.memberAliases, phpMember.name) ?? ownProp(ctx.memberAliases, normalized);
+			return aliased !== undefined ? [aliased] : [normalized, `_${normalized}`];
 		};
 
 		const assigned = new Map();
 		const claimedTsNames = new Set();
 		for (const phpMember of decl.members) {
-			const tsName = tsNameFor(phpMember);
-			const candidate = tsMembers.get(tsName);
-			if (!candidate || claimedTsNames.has(tsName)) continue;
-			const phpCategory = categoryOf(phpMember.kind);
-			const tsCategory = categoryOf(candidate.kind);
-			if (phpCategory === tsCategory || (tsCategory === "either" && phpCategory === "data")) {
-				assigned.set(phpMember, candidate);
-				claimedTsNames.add(tsName);
+			for (const tsName of tsNamesFor(phpMember)) {
+				const candidate = tsMembers.get(tsName);
+				if (!candidate || claimedTsNames.has(tsName)) continue;
+				const phpCategory = categoryOf(phpMember.kind);
+				const tsCategory = categoryOf(candidate.kind);
+				if (phpCategory === tsCategory || (tsCategory === "either" && phpCategory === "data")) {
+					assigned.set(phpMember, candidate);
+					claimedTsNames.add(tsName);
+					break;
+				}
 			}
 		}
 		for (const phpMember of decl.members) {
 			if (assigned.has(phpMember)) continue;
-			const tsName = tsNameFor(phpMember);
-			const candidate = tsMembers.get(tsName);
-			if (candidate && !claimedTsNames.has(tsName)) {
-				assigned.set(phpMember, candidate);
-				claimedTsNames.add(tsName);
+			for (const tsName of tsNamesFor(phpMember)) {
+				const candidate = tsMembers.get(tsName);
+				if (candidate && !claimedTsNames.has(tsName)) {
+					assigned.set(phpMember, candidate);
+					claimedTsNames.add(tsName);
+					break;
+				}
 			}
 		}
 
 		for (const phpMember of decl.members) {
 			const normalized = normalizePhpMemberName(phpMember.name);
-			const tsName = tsNameFor(phpMember);
 			const tsMember = assigned.get(phpMember) ?? null;
+			const tsName = tsMember?.name ?? tsNamesFor(phpMember)[0];
 			if (tsMember && tsDecl) consumed.get(tsDecl.name)?.add(tsMember.name);
 
 			const key = memberKey(pair.phpPath, decl.name, phpMember.name);

@@ -126,8 +126,9 @@ function findTsMember(php, ts, aliases, key) {
 	const normalized = phpMemberName === "__construct" ? "constructor" : phpMemberName;
 	const memberAliases = (aliases.members ?? {})[phpPath] ?? {};
 	const ownProp = (object, key) => (Object.hasOwn(object, key) ? object[key] : undefined);
-	const tsName = ownProp(memberAliases, phpMemberName) ?? ownProp(memberAliases, normalized) ?? normalized;
-	const member = tsDecl.members.find((m) => m.name === tsName);
+	const aliased = ownProp(memberAliases, phpMemberName) ?? ownProp(memberAliases, normalized);
+	const candidates = aliased !== undefined ? [aliased] : [normalized, `_${normalized}`];
+	const member = tsDecl.members.find((m) => candidates.includes(m.name));
 	return member ? { path: tsPath, decl: tsDecl, member } : null;
 }
 

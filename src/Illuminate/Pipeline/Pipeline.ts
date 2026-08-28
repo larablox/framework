@@ -15,8 +15,9 @@ export type Next = (passable: Passable) => unknown;
 /**
  * PHP: `Illuminate\Pipeline\Pipeline`.
  *
- * PHP has a `$pipes` property beside a `pipes()` method; a Luau table holds one
- * value per key, so the property is `pipeStack`.
+ * PHP has a `$pipes` property beside a `pipes()` method and `$finally` beside
+ * `finally()`; a Luau table holds one value per key, so the properties take a
+ * leading underscore -- the same convention `_with` uses in the helpers.
  *
  * `withinTransaction()` is not ported -- it wraps the run in a database
  * transaction, and there is no database. `Macroable` needs `__call`.
@@ -26,13 +27,13 @@ export class Pipeline implements PipelineContract {
     protected passable: Passable;
 
     /** The array of class pipes. */
-    protected pipeStack = new Array<Pipe>();
+    protected _pipes = new Array<Pipe>();
 
     /** The method to call on each pipe. */
     protected method = "handle";
 
     /** The callback that runs when the pipeline is done, whatever happened. */
-    protected finallyCallback?: (passable: Passable) => void;
+    protected _finally?: (passable: Passable) => void;
 
     /** Create a new class instance. */
     public constructor(protected container?: Container) {}
@@ -46,7 +47,7 @@ export class Pipeline implements PipelineContract {
 
     /** Set the array of pipes. */
     public through(pipes: Pipe | Array<Pipe>): this {
-        this.pipeStack = this.asList(pipes);
+        this._pipes = this.asList(pipes);
 
         return this;
     }
@@ -54,7 +55,7 @@ export class Pipeline implements PipelineContract {
     /** Push additional pipes onto the pipeline. */
     public pipe(pipes: Pipe | Array<Pipe>): this {
         for (const entry of this.asList(pipes)) {
-            this.pipeStack.push(entry);
+            this._pipes.push(entry);
         }
 
         return this;
@@ -91,8 +92,8 @@ export class Pipeline implements PipelineContract {
         try {
             return stack(this.passable);
         } finally {
-            if (this.finallyCallback !== undefined) {
-                this.finallyCallback(this.passable);
+            if (this._finally !== undefined) {
+                this._finally(this.passable);
             }
         }
     }
@@ -104,7 +105,7 @@ export class Pipeline implements PipelineContract {
 
     /** Set a callback to run when the pipeline finishes, whatever happened. */
     public finally(callback: (passable: Passable) => void): this {
-        this.finallyCallback = callback;
+        this._finally = callback;
 
         return this;
     }
@@ -231,7 +232,7 @@ export class Pipeline implements PipelineContract {
 
     /** Get the array of configured pipes. */
     protected pipes(): Array<Pipe> {
-        return this.pipeStack;
+        return this._pipes;
     }
 
     /** Get the container instance. */

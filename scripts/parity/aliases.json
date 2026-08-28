@@ -25,6 +25,10 @@
         "Bus/Queueable.php": {
             "delay@property": "delaySeconds"
         },
+        "Pipeline/Pipeline.php": {
+            "finally@property": "finallyCallback",
+            "pipes@property": "pipeStack"
+        },
         "Support/helpers.php": {
             "with": "_with"
         }

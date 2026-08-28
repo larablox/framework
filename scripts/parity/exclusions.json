@@ -55,5 +55,14 @@
         { "glob": "Support/Unicode.ts", "reason": "port-only: utf8 helpers PHP gets from mbstring" },
         { "glob": "Support/VarDumper.ts", "reason": "port-only: var_dump/symfony-var-dumper stand-in for logging" }
     ],
-    "members": {}
+    "members": {
+        "Pipeline/Pipeline.php#Pipeline#withinTransaction@method": {
+            "php_hash": "9c3a4134dd863567df88e26526a4ba34383358b2",
+            "reason": "wraps the run in a database transaction; there is no database (Pipeline.ts header)"
+        },
+        "Pipeline/Pipeline.php#Pipeline#withinTransaction@property": {
+            "php_hash": null,
+            "reason": "state for the unported withinTransaction() (no database)"
+        }
+    }
 }

@@ -34,9 +34,10 @@
     "Pipeline/Hub.php#Hub#pipeline": {
         "php_hash": "57ccd3594deb68148456bef9a602f70cf6269ff7",
         "ts_hash": "094a087416b05af996bae6e727dce72eec59faf7",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Matches. Dismissed: PHP's keyed array becomes OrderedMap.set -- the port's standing representation for PHP associative arrays (Container, Router, LogManager and a dozen others); only keyed get/set are used here, so the choice is unobservable."
+        "note": "Matches. Dismissed: PHP's keyed array becomes OrderedMap.set -- the port's standing representation for PHP associative arrays (Container, Router, LogManager and a dozen others); only keyed get/set are used here, so the choice is unobservable.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Hub.php#Hub#pipelines@property": {
         "php_hash": "22f27b6c45bcbf71ffe21ddf352c1fdc58acd413",

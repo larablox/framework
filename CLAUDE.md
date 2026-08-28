@@ -138,7 +138,14 @@ then reports as errors that are not there. Build first.
 
 CI (`.github/workflows/ci.yml`) checks the package only, in three independent
 jobs — `lint`, `analyze` and `tests`. It does not install or build the
-workbench, so nothing in there can break the package's checks.
+workbench, so nothing in there can break the package's checks. All three set
+themselves up through `.github/actions/setup`.
+
+Two things Dependabot cannot reach, and so are bumped by hand: Rokit's tools
+in `rokit.toml` (there is no ecosystem for them), and the action versions
+inside `.github/actions/setup` — for GitHub Actions it reads
+`.github/workflows` and a root-level `action.yml`, nothing deeper, so only
+`actions/checkout` is watched.
 
 ## Rules
 

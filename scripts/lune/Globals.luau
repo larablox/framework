@@ -5,12 +5,21 @@
 	shim that answers more than the real thing would is a test that passes for
 	the wrong reason.
 
-	`DataStoreService` and `MemoryStoreService` are **not** shimmed. Five spec
-	files are about those services and nothing else, and a fake of them would
-	only assert what we already believe about the platform (see
-	`agent_docs/testing.md`, "a platform limit asserted instead of checked" --
-	that exact mistake is already in this repo's history). They are stubbed to
-	raise instead, so a spec that reaches one says so.
+	Three things are deliberately **not** shimmed, and all three are stubbed to
+	raise rather than left missing, so that a spec reaching one says what
+	happened instead of dying on a nil index:
+
+	- `DataStoreService` and `MemoryStoreService`. Five spec files are about
+	  those services and nothing else, and a fake of them would only assert
+	  what we already believe about the platform (see `agent_docs/testing.md`,
+	  "a platform limit asserted instead of checked" -- that exact mistake is
+	  already in this repo's history).
+	- The datatypes `Support/Serializer` builds -- `CFrame`, `Color3`, `Enum`,
+	  `UDim`, `UDim2`, `Vector2`, `Vector3`. Reproducing `CFrame` in order to
+	  test `CFrame` handling proves nothing; those branches belong in Studio.
+
+	`Instance` is not among them: nothing here constructs one, and the tree in
+	`Tree.luau` stands in for the ones that are navigated.
 ]]
 
 local datetime = require("@lune/datetime")
@@ -203,6 +212,14 @@ function Globals.build(replicatedStorage: any): { [string]: any }
 		task = task,
 		DateTime = DateTime,
 		typeof = robloxTypeof,
+
+		CFrame = unavailable("CFrame"),
+		Color3 = unavailable("Color3"),
+		Enum = unavailable("Enum"),
+		UDim = unavailable("UDim"),
+		UDim2 = unavailable("UDim2"),
+		Vector2 = unavailable("Vector2"),
+		Vector3 = unavailable("Vector3"),
 	}
 end
 

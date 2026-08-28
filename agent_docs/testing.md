@@ -150,6 +150,14 @@ test asserted the zero (see "a platform limit asserted instead of checked"
 above). `Globals.luau` raises on both services rather than answering, so a spec
 that reaches one says so.
 
+The five files are what cannot run *today*; they are not the whole boundary.
+`Support/Serializer` also branches on `CFrame`, `Color3`, `Enum`, `UDim`,
+`UDim2`, `Vector2` and `Vector3`, none of which exist under Lune and none of
+which are faked, for the same reason — reproducing `CFrame` to test `CFrame`
+handling proves nothing. No spec covers those branches yet; one written for
+them belongs in Studio, and `Globals.luau` raises by name rather than leaving
+a nil global, so it will say that rather than failing on an index.
+
 The shims that do exist are deliberately narrow, and their surface was
 established by grep rather than guessed: `HttpService` (`JSONEncode`,
 `JSONDecode`, `GenerateGUID`), `RunService`, `Players`, `Stats`, `TestService`,

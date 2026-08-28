@@ -26,6 +26,18 @@ export function isPipeWithParameters(value: unknown): value is PipeWithParameter
     return list.size() > 1 && !typeIs(list[0], 'string') && typeIs(list[1], 'string');
 }
 
+/**
+ * Whether the value is a list of pipes -- the question `is_array($pipes)`
+ * answers in `through()` and `pipe()`. Two platform wrinkles: a parameterized
+ * pipe is itself a list here (see `isPipeWithParameters`), and `Util.isArray`
+ * tells a list from a single value by length, so the empty list has to be
+ * recognized on its own.
+ */
+export function isPipeList(value: unknown): value is Array<Pipe>
+{
+    return (Util.isArray(value) || Util.isEmptyArray(value)) && !isPipeWithParameters(value);
+}
+
 /** Read a `Pipe | Array<Pipe>` argument as a list of pipes. */
 export function wrapPipes(pipes: Pipe | Array<Pipe>): Array<Pipe>
 {

@@ -1,4 +1,4 @@
-import { wrapPipes } from 'Illuminate/Pipeline/Pipes';
+import { isPipeList } from 'Illuminate/Pipeline/Pipes';
 import { RuntimeException } from 'Illuminate/Exception';
 import { Util } from 'Illuminate/Container/Util';
 import type { Abstract } from 'Illuminate/Container/Types';
@@ -45,33 +45,21 @@ export class Pipeline implements PipelineContract
     }
 
     /** Set the array of pipes. */
-    public through(pipes: Pipe | Array<Pipe>): this
+    public through(...pipes: Array<Pipe | Array<Pipe>>): this
     {
-        this._pipes = this.asList(pipes);
+        this._pipes = isPipeList(pipes[0]) ? pipes[0] : (pipes as Array<Pipe>);
 
         return this;
     }
 
     /** Push additional pipes onto the pipeline. */
-    public pipe(pipes: Pipe | Array<Pipe>): this
+    public pipe(...pipes: Array<Pipe | Array<Pipe>>): this
     {
-        for (const entry of this.asList(pipes)) {
-            this._pipes.push(entry);
+        for (const pipe of isPipeList(pipes[0]) ? pipes[0] : (pipes as Array<Pipe>)) {
+            this._pipes.push(pipe);
         }
 
         return this;
-    }
-
-    /**
-     * PHP: `is_array($pipes) ? $pipes : func_get_args()`.
-     *
-     * Harder here than there: a parameterized pipe is itself a list, so
-     * `wrapPipes()` has to tell `[Throttle, "60"]` -- one pipe -- from
-     * `[Throttle, Substitute]` -- two.
-     */
-    protected asList(pipes: Pipe | Array<Pipe>): Array<Pipe>
-    {
-        return wrapPipes(pipes);
     }
 
     /** Set the method to call on the pipes. */

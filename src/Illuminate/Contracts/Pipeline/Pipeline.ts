@@ -25,7 +25,7 @@ export interface Pipeline
     send(passable: Passable): this;
 
     /** Set the stops of the pipeline. */
-    through(pipes: Pipe | Array<Pipe>): this;
+    through(...pipes: Array<Pipe | Array<Pipe>>): this;
 
     /** Set the method to call on the stops. */
     via(method: string): this;

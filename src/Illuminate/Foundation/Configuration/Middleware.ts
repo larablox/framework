@@ -428,7 +428,7 @@ export class Middleware
      *
      * A class is a table with nothing in its array part, so asking for the size
      * alone would call every class empty. A compiled class carries a metatable
-     * and a plain list does not, which is the test `Pipeline::asList()` makes.
+     * and a plain list does not, which is the test `Util.isEmptyArray()` makes.
      */
     protected empty(middleware: Pipe | Array<Pipe>): boolean
     {

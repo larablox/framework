@@ -175,6 +175,27 @@ export = (): void => {
             expect(object.value).to.equal(2);
         });
 
+        it('through() and pipe() accept pipes as separate arguments', () => {
+            // No upstream twin: upstream's tests always pass an array or a
+            // single pipe, but `through($a, $b)` is legal there through
+            // `func_get_args()` -- this pins the rest-parameter equivalent.
+            const object = { value: 0 };
+            const fn = (obj: typeof object, _next: Next) => {
+                obj.value++;
+
+                return _next(obj);
+            };
+
+            const result = new Pipeline(new Container())
+                .send(object)
+                .through(fn, fn)
+                .pipe(fn, fn)
+                .then((piped) => piped);
+
+            expect(result).to.equal(object);
+            expect(object.value).to.equal(4);
+        });
+
         it('through() overwrites previously set and appended pipes', () => {
             // PHP: PipelineTest::testPipelineThroughMethodOverwritesPreviouslySetAndAppendedPipes
             const object = { value: 0 };

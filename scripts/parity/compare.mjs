@@ -191,9 +191,11 @@ export function compare({ php, ts, aliases, exclusions, approvals, component })
                         );
                         if (!mixedIn) {
                             notes.push(`[missing mixin: ${short}]`);
-                            memberRows.push(traitRow(short, 'missing_mixin', '', `uses:${trait}`));
+                            memberRows.push(traitRow(short, 'missing_mixin', 'missing_mixin', `uses:${trait}`));
                         } else {
-                            memberRows.push(traitRow(short, 'both', '', `uses:${trait}`));
+                            // Presence is the whole check: the trait's own
+                            // file pair reviews its members.
+                            memberRows.push(traitRow(short, 'both', 'n/a', `uses:${trait}`));
                         }
                     }
                 }

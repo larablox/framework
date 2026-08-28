@@ -79,17 +79,21 @@ export class Pipeline implements PipelineContract
         const pipeline = Arr.reverse(this.pipes()).reduce(this.carry(), this.prepareDestination(destination));
 
         try {
-            // @deferred withinTransaction: upstream runs the pipeline inside a
-            // 'db' connection transaction here when withinTransaction() was
-            // called; there is no database component yet. Tracked in
-            // scripts/parity/exclusions.json under the same kind. Once 'db'
-            // is bindable, the branch below replaces the plain return -- the
-            // `_withinTransaction` property takes the underscore convention,
-            // colliding with its method the way `_pipes` does:
-            //
-            // return this._withinTransaction !== false
-            //     ? this.getContainer().make('db').connection(this._withinTransaction).transaction(() => pipeline(this.passable))
-            //     : pipeline(this.passable);
+            /**
+             * @deferred `withinTransaction`: upstream runs the pipeline inside
+             * a 'db' connection transaction here when `withinTransaction()`
+             * was called; there is no database component yet. Tracked in
+             * scripts/parity/exclusions.json under the same kind.
+             *
+             * @example Once 'db' is bindable, this branch replaces the plain
+             * return -- the `_withinTransaction` property takes the underscore
+             * convention, colliding with its method the way `_pipes` does:
+             * ```ts
+             * return this._withinTransaction !== false
+             *     ? this.getContainer().make('db').connection(this._withinTransaction).transaction(() => pipeline(this.passable))
+             *     : pipeline(this.passable);
+             * ```
+             */
             return pipeline(this.passable);
         } finally {
             if (this._finally !== undefined) {

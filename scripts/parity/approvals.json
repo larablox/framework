@@ -1,9 +1,9 @@
 {
     "Pipeline/Hub.php#Hub#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
-        "ts_hash": "affe650831a9b2f8358ebfe9f3e5738abf277d2a",
+        "ts_hash": "eeb15bae042ed94224a8ccd983cc71cc89c05fd4",
         "approved_at": "2026-08-28",
-        "note": "@Inject(app) is the port spelling of the ?Container type hint (reflection replacement)"
+        "note": "@Inject(ContainerContract) is the port spelling of the ?Container type hint: the contract token resolves through the app alias on the building container"
     },
     "Pipeline/Hub.php#Hub#defaults": {
         "php_hash": "5c5482f0aa53f8190af7505be42baff2ad7f39ae",

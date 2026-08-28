@@ -2,6 +2,7 @@ import { Inject } from "Illuminate/Container/Attributes/Inject";
 import { InvalidArgumentException } from "Illuminate/Exception";
 import { OrderedMap } from "Illuminate/Support/OrderedMap";
 import { Pipeline } from "Illuminate/Pipeline/Pipeline";
+import { ContainerContract } from "Illuminate/Contracts/Container/Container";
 import type { Container } from "Illuminate/Contracts/Container/Container";
 import type { Hub as HubContract } from "Illuminate/Contracts/Pipeline/Hub";
 
@@ -14,7 +15,7 @@ export class Hub implements HubContract {
     protected pipelines = new OrderedMap<string, PipelineBuilder>();
 
     /** Create a new Hub instance. */
-    public constructor(@Inject("app") protected container?: Container) {}
+    public constructor(@Inject(ContainerContract) protected container?: Container) {}
 
     /** Define the default named pipeline. */
     public defaults(callback: PipelineBuilder): void {

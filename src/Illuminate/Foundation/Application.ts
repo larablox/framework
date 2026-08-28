@@ -1,6 +1,7 @@
 import { ApplicationBuilder } from "Illuminate/Foundation/Configuration/ApplicationBuilder";
 import { BusServiceProvider } from "Illuminate/Bus/BusServiceProvider";
 import { Container } from "Illuminate/Container/Container";
+import { ContainerContract } from "Illuminate/Contracts/Container/Container";
 import { ContextServiceProvider } from "Illuminate/Log/Context/ContextServiceProvider";
 import { Dispatcher } from "Illuminate/Events/Dispatcher";
 import { EventServiceProvider } from "Illuminate/Events/EventServiceProvider";
@@ -586,11 +587,12 @@ export class Application extends Container implements ApplicationContract {
      * Register the core class aliases in the container.
      *
      * The PHP table maps every framework key onto its concrete class and its
-     * contracts; contracts are erased here, so only the concrete classes remain.
+     * contracts; an erased contract appears here once it has a `Contract`
+     * token, the concrete classes stand in for the rest.
      */
     public registerCoreContainerAliases(): void {
         const aliases: Array<[string, Array<Abstract>]> = [
-            ["app", [Application, Container]],
+            ["app", [Application, Container, ContainerContract]],
             ["config", [ConfigRepository]],
             ["events", [Dispatcher]],
             ["log", [LogManager]],

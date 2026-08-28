@@ -14,7 +14,7 @@ import type {
     ResolvingCallback,
 } from "Illuminate/Container/Types";
 import type { ContextualBindingBuilder } from "Illuminate/Contracts/Container/ContextualBindingBuilder";
-import type { Contract } from "Illuminate/Container/Contract";
+import { Contract } from "Illuminate/Container/Contract";
 
 export interface Container {
     /** Resolve the given type from the container. */
@@ -101,3 +101,6 @@ export interface Container {
     /** Get the container's bindings. */
     getBindings(): Array<[Abstract, Binding]>;
 }
+
+/** PHP: `Container::class` -- the interface name as a container key. */
+export const ContainerContract = new Contract<Container>("Illuminate\\Contracts\\Container\\Container");

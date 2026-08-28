@@ -142,15 +142,17 @@
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
         "ts_hash": "a53fb59c4640e950c80e5015383a7d3001c27c02",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim, same order: [PipelineHubContract, 'pipeline']; the import alias mirrors upstream's use Hub as PipelineHubContract."
+        "note": "Verbatim, same order: [PipelineHubContract, 'pipeline']; the import alias mirrors upstream's use Hub as PipelineHubContract.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {
         "php_hash": "e577fa7f0c27b7a7950f092c98b0e615cd62cc92",
         "ts_hash": "ac9aa4a807313b24d93d57d48443b5c0af4178e9",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Line-for-line, argument breaks included: singleton(PipelineHubContract, Hub) keeps the interface-as-key via the Contract token and class-as-concrete (Hub declares its dependency with @Inject); bind('pipeline', (app) => new Pipeline(app)) receives the resolving container as the closure parameter, mirroring fn ($app) -- no captured registering container, so per-request sandboxes stay isolated. This file is the component etalon."
+        "note": "Line-for-line, argument breaks included: singleton(PipelineHubContract, Hub) keeps the interface-as-key via the Contract token and class-as-concrete (Hub declares its dependency with @Inject); bind('pipeline', (app) => new Pipeline(app)) receives the resolving container as the closure parameter, mirroring fn ($app) -- no captured registering container, so per-request sandboxes stay isolated. This file is the component etalon.",
+        "approved_at": "2026-08-28"
     }
 }

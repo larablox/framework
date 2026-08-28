@@ -123,15 +123,20 @@ function extractPhp()
 
 function findPhpMember(php, key)
 {
-    const [path, declName, memberName] = key.split('#');
+    const [path, declName, memberRef] = key.split('#');
+    // `member@kind` disambiguates a PHP property/method name collision --
+    // without honouring it, an --exclude of the method would pin the
+    // *property's* hash (null) and the waiver could never go stale.
+    const [memberName, kind] = (memberRef ?? '').split('@');
     const decl = php.files[path]?.declarations.find((d) => d.name === declName);
-    const member = decl?.members.find((m) => m.name === memberName);
+    const member = decl?.members.find((m) => m.name === memberName && (kind === undefined || m.kind === kind));
     return member ? { path, decl, member } : null;
 }
 
 function findTsMember(php, ts, aliases, key)
 {
-    const [phpPath, declName, phpMemberName] = key.split('#');
+    const [phpPath, declName, memberRef] = key.split('#');
+    const phpMemberName = (memberRef ?? '').split('@')[0];
     const direct = phpPath.replace(/\.php$/, '.ts');
     const tsPath = ts.files[direct] ? direct : (aliases.files ?? {})[phpPath];
     const tsData = tsPath ? ts.files[tsPath] : null;
@@ -245,7 +250,7 @@ function main()
         if (typeof args.reason !== 'string') fail('--exclude needs --reason "..."');
         const kind = typeof args.kind === 'string' ? args.kind : 'deferred';
         if (kind !== 'deferred' && kind !== 'impossible') fail("--kind takes 'deferred' (default) or 'impossible'");
-        const found = findPhpMember(php, args.exclude.split('@')[0]);
+        const found = findPhpMember(php, args.exclude);
         if (!found) fail(`No upstream member found for key: ${args.exclude}`);
         exclusions.members ??= {};
         exclusions.members[args.exclude] = { php_hash: found.member.hash ?? null, kind, reason: args.reason };

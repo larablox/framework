@@ -95,6 +95,16 @@ subclasses that override before calling shapes equivalent.
 facades replace `__callStatic` with metatables. Only claim impossibility for a specific
 magic use after checking what the port already does elsewhere.
 
+**Trait mixins.** No status catches a missing mixin — the `uses:` list appears only as a
+note in files.csv, and a component can read green while the port class lacks a trait
+upstream mixes in. Explicitly compare each file's `uses:` traits against the port class's
+extends/mixin chain; a trait the port has already built elsewhere (`Conditionable` is
+mixed into Stringable, Request and others) is a finding, not a waiver.
+
+**Extra port-only members** inside a matched pair (`asList`, `callPipe`) have no waiver
+mechanism — record the judgment about them in the notes of the upstream members whose
+logic they carry, and in the session report.
+
 ## Proposal and approval rules
 
 Review verdicts are two-stage. **Claude's review ends at `pending`**: `--propose "<key>"`
@@ -124,6 +134,9 @@ never treat a general "закончи ревью" as that instruction.
   (`delay@property` → `delaySeconds`). Underscore renames need no alias.
 - A waived member's reason should say **what would reopen it** ("revisit if a database
   lands on DataStore"), not just what blocks it.
+- `--exclude` accepts `key@kind` and pins the hash of that specific member. Properties
+  have no body hash, so a property waiver never goes stale on upstream changes — pair it
+  with the method's waiver when the two travel together.
 
 ## When a review finds a bug
 

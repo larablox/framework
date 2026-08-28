@@ -2,149 +2,155 @@
     "Pipeline/Hub.php#Hub#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
         "ts_hash": "eeb15bae042ed94224a8ccd983cc71cc89c05fd4",
-        "note": "@Inject(ContainerContract) is the port spelling of the ?Container type hint: the contract token resolves through the app alias on the building container",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Body matches (assign the optional container). Dismissed: @Inject(ContainerContract) on the parameter is the port's spelling of PHP's reflected ?Container type hint -- owed because the provider registers singleton(PipelineHubContract, Hub) class-as-concrete; the parameter property replaces the explicit $this->container assignment."
     },
     "Pipeline/Hub.php#Hub#defaults": {
         "php_hash": "5c5482f0aa53f8190af7505be42baff2ad7f39ae",
         "ts_hash": "f3ed63e9efd6688997a1224cf52bce6a736e12f6",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: delegates to pipeline('default', callback)."
     },
     "Pipeline/Hub.php#Hub#getContainer": {
         "php_hash": "2d3ec47e8eb26e005c4c9b5fc0e17ca15b84de72",
         "ts_hash": "606715743b7869bda584df15151c2b4641fe6b9e",
         "status": "pending",
-        "proposed_at": "2026-08-28"
-    },
-    "Pipeline/Hub.php#Hub#pipe": {
-        "php_hash": "6db20cba62ad99d077d1d407f9650024c17847db",
-        "ts_hash": "5773c5b2e5f1dc260d56533869d22fa1f9f138eb",
-        "note": "PHP ?: treats an empty-string name as default; the port only defaults on nil -- pathological input only",
-        "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim property return. Dismissed: typed Container | undefined -- upstream's docblock claims Container but the method returns null when none was passed; the port's type states the same behavior honestly."
     },
     "Pipeline/Hub.php#Hub#pipeline": {
         "php_hash": "57ccd3594deb68148456bef9a602f70cf6269ff7",
         "ts_hash": "094a087416b05af996bae6e727dce72eec59faf7",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Matches. Dismissed: PHP's keyed array becomes OrderedMap.set -- the port's standing representation for PHP associative arrays (Container, Router, LogManager and a dozen others); only keyed get/set are used here, so the choice is unobservable."
     },
     "Pipeline/Hub.php#Hub#setContainer": {
         "php_hash": "f11f08e4b9219fada03497ede6ebd503ddd97a04",
         "ts_hash": "56d225e5b24d66d35c04a9f1f44d9818ee2fd4f1",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: assign, return this."
     },
     "Pipeline/Pipeline.php#Pipeline#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
         "ts_hash": "e8ab8d498fbb832e9c451b8f0b88b886ee17f5b2",
         "status": "pending",
-        "proposed_at": "2026-08-28"
-    },
-    "Pipeline/Pipeline.php#Pipeline#carry": {
-        "php_hash": "da3461f243a7ecf855475e42c9d35f42c53156a2",
-        "ts_hash": "1d6b13ad2573b218b3b3dee05acbbef8d095989e",
-        "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Body matches; container optional as upstream, parameter property replaces the explicit assignment. Dismissed: no @Inject here, deliberately -- upstream never container-resolves Pipeline (the provider binds 'pipeline' through a closure), so no hint is owed; adding one would be surface upstream does not have."
     },
     "Pipeline/Pipeline.php#Pipeline#finally": {
         "php_hash": "13c6c00386ec42eef6b7bc32b9a5dd8e253f3f3a",
         "ts_hash": "3e6d66d43592d9c0d8cde57e72710bdbe7df3736",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. The $finally property lives as _finally under the underscore convention (property/method name collision in one Luau table); the comparator matches it automatically."
     },
     "Pipeline/Pipeline.php#Pipeline#getContainer": {
         "php_hash": "a1034a6d82aef39051bd7aa74916c8de1117d36a",
         "ts_hash": "283312e850cc839d40619dc45db40cf929753154",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: guard, RuntimeException with upstream's exact message, return."
     },
     "Pipeline/Pipeline.php#Pipeline#handleCarry": {
         "php_hash": "e8a5f4a1d295c49abe2e0451d26c3e1f82b66e59",
         "ts_hash": "218a74fecb9e60c3e3fc4e04654caef72bc23f34",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim identity hook. Its call site sits inside the pcall-protected region in carry(), matching upstream's try -- the shape the earlier carry() bug was about."
     },
     "Pipeline/Pipeline.php#Pipeline#handleException": {
         "php_hash": "86c427cd0ecde1660fbc44ca8aab7b03eb2a3f3a",
         "ts_hash": "791e597f673a84e9c09306b479b1aa8762957787",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim rethrow; throw e compiles to error(e), so the original pcall error value propagates unchanged."
     },
     "Pipeline/Pipeline.php#Pipeline#parsePipeString": {
         "php_hash": "fbf5a45239c080d0160e8962f12d35b7aa4b1724",
         "ts_hash": "b509f6d36a2181ca104d89af8ba4448f1c6b06d7",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "The string path is upstream's: first ':' splits name from ','-separated parameters, preserving explode-limit-2 semantics ('a:b:c' keeps 'b:c' as one comma-split tail). Dismissed additions: the [Class, ...args] head and the non-string pass-through exist because a class cannot be spelled inside a string on this platform -- same parameter syntax, different carrier, documented in the method docblock."
     },
     "Pipeline/Pipeline.php#Pipeline#pipe": {
         "php_hash": "23530aa6c0f7eb0c58b04b95a07be81643ed94db",
         "ts_hash": "4e558f0ccb44cf3d3b33c9f19bfd188d8cd1934b",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "array_push(..., ...spread) becomes an append loop over asList(pipes) -- same result, no observable difference. Same func_get_args dismissal as through(): the variadic form is folded into the Pipe | Array<Pipe> union because a parameterized pipe is itself list-shaped here."
     },
     "Pipeline/Pipeline.php#Pipeline#pipes": {
         "php_hash": "a2d9b19186db34bb7a72e95c9c63272a16eeb5fc",
         "ts_hash": "6ecceffc70602d1d523512e19869f10cbf1c0a35",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim; the $pipes property is _pipes under the underscore convention (collides with this method's name in one Luau table)."
     },
     "Pipeline/Pipeline.php#Pipeline#prepareDestination": {
         "php_hash": "03bb42a1fad5fc77d57b4cca4fc2c3f8e8324a11",
         "ts_hash": "576ff3de8631dde5ced34191eea0ff9c34191d34",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Same shape: the destination runs inside the protected region and a failure routes to handleException with the original passable. Dismissed: an explicit pcall instead of try/catch -- roblox-ts compiles try to TS.try over pcall anyway, and the raw error value reaches handleException either way; the port spells the pcall out because it needs the [ok, result] pair as an expression."
     },
     "Pipeline/Pipeline.php#Pipeline#send": {
         "php_hash": "53ea116f56b71e6bfc12cd2a6afa94810486d3a5",
         "ts_hash": "4d20e710a264a92884a961bb8523801c04c2155c",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: assign, return this."
     },
     "Pipeline/Pipeline.php#Pipeline#setContainer": {
         "php_hash": "f11f08e4b9219fada03497ede6ebd503ddd97a04",
         "ts_hash": "56d225e5b24d66d35c04a9f1f44d9818ee2fd4f1",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: assign, return this."
     },
     "Pipeline/Pipeline.php#Pipeline#then": {
         "php_hash": "e6aef20b60628c05ced41ceb20905b6905b36161",
         "ts_hash": "0abb89477630f6078f105d13932c07b2de00ab20",
-        "note": "equivalent minus the withinTransaction branch, waived separately (no database)",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Same onion, same try/finally with the same guard on _finally. Dismissed: (1) array_reduce(array_reverse(...)) becomes a backwards fold loop -- roblox-ts arrays have reduce but no reverse and no reduceRight, so the reversed reduce cannot be spelled directly; (2) with the reduce forced out, carry() takes (stack, pipe) directly instead of returning a reducer closure (carry itself is left unproposed for a separate finding, see review report); (3) the withinTransaction branch is omitted together with the withinTransaction waiver -- no database to open a transaction on; (4) the accumulator is named stack, the name upstream's carry() closure gives the same value, rather than $pipeline."
     },
     "Pipeline/Pipeline.php#Pipeline#thenReturn": {
         "php_hash": "8769eeff97e702e251d6301db6bc1a6a2c4e9d96",
         "ts_hash": "0076d038da80a32029704e80b0464d777070797e",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: then() with the identity destination."
     },
     "Pipeline/Pipeline.php#Pipeline#through": {
         "php_hash": "9b68c30f5c5375c00a286305e598f50b2ce3a458",
         "ts_hash": "9f049dc994ab6042da7f2b576e90538513e4c17d",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "is_array($pipes) ? $pipes : func_get_args() folds into asList()/wrapPipes(). Dismissed: no variadic form -- a parameterized pipe is [Class, 'args'] here (a class is not a string), which is list-shaped, so variadic arguments would be ambiguous with a single parameterized pipe; wrapPipes tells the two apart by the documented heuristic (head is not a string, second entry is) and Util.isEmptyArray keeps through([]) meaning an empty list. Known heuristic edge, accepted and documented in Pipes.ts: a two-entry list [ClassPipe, 'bindingName'] reads as one parameterized pipe -- a binding-name pipe next to a class must spell its own arguments inline or come first."
     },
     "Pipeline/Pipeline.php#Pipeline#via": {
         "php_hash": "bf622dfb0e778b05f7e079ffc6efb27fa22af604",
         "ts_hash": "60f9fd1f68ae1e0ad3c80a4fcf53325830f1ea47",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: assign, return this."
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
         "ts_hash": "a53fb59c4640e950c80e5015383a7d3001c27c02",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim, same order: [PipelineHubContract, 'pipeline']; the import alias mirrors upstream's use Hub as PipelineHubContract."
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {
         "php_hash": "e577fa7f0c27b7a7950f092c98b0e615cd62cc92",
         "ts_hash": "ac9aa4a807313b24d93d57d48443b5c0af4178e9",
-        "note": "mirrors upstream line for line: contract token as key, Hub class as concrete; the container builds Hub through its @Inject metadata",
         "status": "pending",
-        "proposed_at": "2026-08-28"
+        "proposed_at": "2026-08-28",
+        "note": "Line-for-line, argument breaks included: singleton(PipelineHubContract, Hub) keeps the interface-as-key via the Contract token and class-as-concrete (Hub declares its dependency with @Inject); bind('pipeline', (app) => new Pipeline(app)) receives the resolving container as the closure parameter, mirroring fn ($app) -- no captured registering container, so per-request sandboxes stay isolated. This file is the component etalon."
     }
 }

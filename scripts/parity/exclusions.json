@@ -1,71 +1,21 @@
 {
-    "paths": [
-        { "glob": "Auth/**", "kind": "deferred", "reason": "not ported yet: guards/providers could map to Roblox identity, nobody has needed it" },
-        { "glob": "Broadcasting/**", "kind": "deferred", "reason": "not ported yet: MessagingService could carry broadcasts, out of scope so far (Events ported without broadcast)" },
-        { "glob": "Concurrency/**", "kind": "deferred", "reason": "PHP process/fork concurrency has no Luau counterpart; task-library helpers live in Support/Concurrency.ts" },
-        { "glob": "Console/**", "kind": "deferred", "reason": "there is no CLI on the Roblox runtime" },
-        { "glob": "Cookie/**", "kind": "deferred", "reason": "no HTTP cookies over remotes" },
-        { "glob": "Database/**", "kind": "deferred", "reason": "not ported yet: SQL grammars/PDO do not carry over, but a query builder / Eloquent over DataStore is conceivable (UpdateAsync is atomic)" },
-        { "glob": "Encryption/**", "kind": "deferred", "reason": "not ported yet: no OpenSSL, but ciphers are expressible in pure Luau if ever worth the cost" },
-        { "glob": "Filesystem/**", "kind": "deferred", "reason": "no filesystem on the Roblox runtime" },
-        { "glob": "Hashing/**", "kind": "deferred", "reason": "not ported yet: no native bcrypt/argon, but hashing is expressible in pure Luau if ever worth the cost" },
-        { "glob": "Image/**", "kind": "deferred", "reason": "not ported yet: EditableImage exists, server-side image handling is out of scope so far" },
-        { "glob": "JsonSchema/**", "kind": "deferred", "reason": "not ported yet: pure-PHP schema builder, portable if ever needed" },
-        { "glob": "Macroable/**", "kind": "deferred", "reason": "runtime macro() needs __call; not expressible in compiled roblox-ts" },
-        { "glob": "Mail/**", "kind": "deferred", "reason": "not ported yet: no native transport, but HttpService can reach mail APIs (Mailgun/Resend) if ever needed" },
-        { "glob": "Notifications/**", "kind": "deferred", "reason": "not ported yet: mail/broadcast channels are gone, but in-game channels could exist" },
-        { "glob": "Pagination/**", "kind": "deferred", "reason": "not ported yet: pure data structure, portable if ever needed" },
-        { "glob": "Process/**", "kind": "deferred", "reason": "no OS processes on the Roblox runtime" },
-        { "glob": "Redis/**", "kind": "deferred", "reason": "no Redis on the platform; MemoryStoreService plays this role (Cache/Queue MemoryStore* ports)" },
-        { "glob": "Session/**", "kind": "deferred", "reason": "no HTTP sessions over remotes" },
-        { "glob": "Testing/**", "kind": "deferred", "reason": "PHPUnit-oriented; this repo tests with TestEZ" },
-        { "glob": "Translation/**", "kind": "deferred", "reason": "not ported yet: localization is real on Roblox, nobody has needed it" },
-        { "glob": "Validation/**", "kind": "deferred", "reason": "not ported yet: request validation is portable and will be wanted" },
-        { "glob": "View/**", "kind": "deferred", "reason": "no Blade/HTML rendering on Roblox" },
-        { "glob": "Reflection/**", "kind": "deferred", "reason": "PHP reflection (ReflectionParameter, attributes, backed enums) has no Luau counterpart; DI declares dependencies with @Inject instead" },
-        { "glob": "Conditionable/HigherOrderWhenProxy.php", "kind": "deferred", "reason": "__call proxy; not expressible in compiled roblox-ts" },
-        { "glob": "Routing/Matching/HostValidator.php", "kind": "deferred", "reason": "there are no hosts on Roblox (parity doc)" },
-        { "glob": "Exception.ts", "kind": "port-only", "reason": "SPL exceptions (LogicException etc.) have no upstream file, PHP ships them built in" },
-        { "glob": "Support/Stringable.ts", "kind": "port-only", "reason": "re-export of the Stringable class living in Str.ts (cyclic import otherwise)" },
-        { "glob": "Support/Traits/Trait.ts", "kind": "port-only", "reason": "the mixin mechanism traits compile through" },
-        { "glob": "Foundation/Runtime/**", "kind": "port-only", "reason": "Octane-style runtime (Laravel\\Octane\\Worker analogue), not part of laravel/framework" },
-        { "glob": "Foundation/Events/WorkerStarting.ts", "kind": "port-only", "reason": "Laravel\\Octane event, not part of laravel/framework" },
-        { "glob": "Foundation/Events/WorkerStopping.ts", "kind": "port-only", "reason": "Laravel\\Octane event, not part of laravel/framework" },
-        { "glob": "Foundation/Events/WorkerErrorOccurred.ts", "kind": "port-only", "reason": "Laravel\\Octane event, not part of laravel/framework" },
-        { "glob": "Foundation/Events/RequestReceived.ts", "kind": "port-only", "reason": "Laravel\\Octane event, not part of laravel/framework" },
-        { "glob": "Foundation/Events/RequestTerminated.ts", "kind": "port-only", "reason": "Laravel\\Octane event, not part of laravel/framework" },
-        { "glob": "Http/Remote.ts", "kind": "port-only", "reason": "the remote transport is the web server PHP does not have (routing-design.md)" },
-        { "glob": "Http/RemoteGateway.ts", "kind": "port-only", "reason": "the remote transport is the web server PHP does not have (routing-design.md)" },
-        { "glob": "Http/Exceptions/HttpException.ts", "kind": "port-only", "reason": "Symfony HttpException family, Symfony itself is not ported" },
-        { "glob": "Routing/CompiledRoute.ts", "kind": "port-only", "reason": "Symfony CompiledRoute counterpart, segment-wise instead of one regex" },
-        { "glob": "Contracts/Log/Logger.ts", "kind": "port-only", "reason": "Psr\\Log\\LoggerInterface stand-in, PSR is absent on the platform" },
-        { "glob": "Log/NullLogger.ts", "kind": "port-only", "reason": "Psr\\Log\\NullLogger stand-in" },
-        { "glob": "Container/Attributes/Attributes.ts", "kind": "port-only", "reason": "decorator registry backing the attribute system (reflection replacement)" },
-        { "glob": "Container/Attributes/Inject.ts", "kind": "port-only", "reason": "@Inject replaces constructor type-hint reflection (framework-boot.md)" },
-        { "glob": "Container/Attributes/Variadic.ts", "kind": "port-only", "reason": "@Variadic replaces ReflectionParameter::isVariadic()" },
-        { "glob": "Container/Contract.ts", "kind": "port-only", "reason": "runtime token standing in for an interface name as a container key (interfaces are erased)" },
-        { "glob": "Container/Types.ts", "kind": "port-only", "reason": "Abstract/Concrete type definitions; PHP uses bare strings" },
-        { "glob": "Contracts/Support/JsonSerializable.ts", "kind": "port-only", "reason": "PHP ships JsonSerializable built in, no upstream file" },
-        { "glob": "Pipeline/Pipes.ts", "kind": "port-only", "reason": "pipe type definitions; PHP uses bare callables/strings" },
-        { "glob": "Support/Concurrency.ts", "kind": "port-only", "reason": "task-library concurrency helpers, no upstream counterpart" },
-        { "glob": "Support/DataStoreRequest.ts", "kind": "port-only", "reason": "DataStoreService request budgeting helper, platform-specific" },
-        { "glob": "Support/Facades/Forwards.ts", "kind": "port-only", "reason": "facade forwarding plumbing (metatable replacement for __callStatic)" },
-        { "glob": "Support/OrderedMap.ts", "kind": "port-only", "reason": "sorted-map utility PHP gets from arrays natively" },
-        { "glob": "Support/Reflector.ts", "kind": "port-only", "reason": "reflection primitives over the roblox-ts object model (metatables); NOT a port of Illuminate\\Reflection\\Reflector, which is all ReflectionParameter API" },
-        { "glob": "Support/Serializer.ts", "kind": "port-only", "reason": "replaces PHP serialize()/unserialize() + SerializesModels (parity doc)" },
-        { "glob": "Support/Unicode.ts", "kind": "port-only", "reason": "utf8 helpers PHP gets from mbstring" },
-        { "glob": "Support/VarDumper.ts", "kind": "port-only", "reason": "var_dump/symfony-var-dumper stand-in for logging" }
-    ],
     "members": {
-        "Pipeline/Pipeline.php#Pipeline#withinTransaction@method": {
-            "php_hash": "9c3a4134dd863567df88e26526a4ba34383358b2",
-            "kind": "deferred",
-            "reason": "wraps the run in a database transaction; no database yet -- revisit if one lands on DataStore (UpdateAsync is atomic)"
-        },
         "Pipeline/Pipeline.php#Pipeline#withinTransaction@property": {
             "php_hash": null,
             "kind": "deferred",
-            "reason": "state for withinTransaction(), deferred with it"
+            "reason": "Wraps the run in a 'db' connection transaction; the port has no database component and no 'db' binding to reach for. Revisit when a database layer (e.g. over DataStore) lands and 'db' becomes bindable."
+        },
+        "Pipeline/Pipeline.php#Pipeline#withinTransaction@method": {
+            "php_hash": "9c3a4134dd863567df88e26526a4ba34383358b2",
+            "kind": "deferred",
+            "reason": "Wraps the run in a 'db' connection transaction; the port has no database component and no 'db' binding to reach for. Revisit when a database layer (e.g. over DataStore) lands and 'db' becomes bindable."
         }
-    }
+    },
+    "paths": [
+        {
+            "glob": "Pipeline/Pipes.ts",
+            "kind": "port-only",
+            "reason": "Port-only helper with no upstream twin: wrapPipes/isPipeWithParameters tell one parameterized pipe `[Class, 'args']` from a list of pipes -- a distinction PHP spells inside a single string ('Class:args') and never has to make, because a class is not a string on this platform. Shared by Pipeline.asList, Routing/Route and Routing/Controller."
+        }
+    ]
 }

@@ -37,8 +37,8 @@ Work one component at a time:
 5. `node scripts/parity/run.mjs --component <X> --check` must end green: everything
    proposed (pending), approved, or excluded — nothing stale, nothing unreviewed left
    unexplained.
-6. Commit per meaningful change (English message telling the story, not a list), push to
-   the open PR branch.
+6. Commit per meaningful change (English message telling the story, not a list). Do not
+   push after every commit — push only when the user asks, or at a milestone they name.
 
 Approvals pin body hashes of **both** sides; editing the port or bumping Laravel flips them
 to stale. That is the design, not a failure: approvals are checkpoints, and reworking an
@@ -83,7 +83,17 @@ stays an if/else (not a ternary), a single return stays single, a `function` clo
 a function expression unless it touches `$this` (then the arrow is forced by lexical
 binding). Before writing any shape upstream does not have, exhaust the mirrored encodings
 — and when only a non-mirror encoding remains, propose it to the user first instead of
-committing it.
+committing it. Port-added guards are shape too: a condition upstream does not test (the
+`typeIs string ||` that once sat in front of the `is_object` check) must be individually
+owed, or dropped.
+
+**Impossibility is proven by the toolchain, not by reasoning.** Every "cannot be spelled"
+verdict in a note must cite evidence produced in-session: the compiler error from actually
+trying the encoding, or a grep of the actual API (`reduce` exists in
+`@rbxts/compiler-types`, `reverse` does not). Type-system intuition here has been wrong in
+both directions — "no variadic form" fell to a rest parameter, and a cast dismissed as
+illegal compiled fine the moment it was tried. When the user offers a counter-encoding,
+compile it before judging it.
 
 **Formatting.** Mechanics are enforced (dprint: PSR-12 braces, quotes, width; eslint
 expands array literals of 2+ elements). Argument-list line breaks and import order are
@@ -94,7 +104,9 @@ are CI gates.
 message and the approval note, not the code. Genuinely load-bearing platform notes go in
 file-level docblocks. A file that mirrors upstream verbatim does not need a `PHP:` header;
 a renamed file (`MemoryStoreQueue` ← `RedisQueue`) keeps it — it is the only in-file link
-to upstream.
+to upstream. Method docblocks never narrate the port ("PHP does X, here we do Y") — the
+framework's consumer does not care; a compensation helper gets a one-line summary plus at
+most one sentence of behavioral fact, and the porting rationale lives in the note.
 
 **Try/catch shape.** Match what is *inside* the protected region, not just that one exists.
 `carry()`'s bug: `handleCarry` ran outside the pcall, so a throwing override (Routing's
@@ -112,13 +124,22 @@ extends/mixin chain; a trait the port has already built elsewhere (`Conditionabl
 mixed into Stringable, Request and others) is a finding, not a waiver.
 
 **Extra port-only members** inside a matched pair (`isPipeInstance`, the port's
-`is_object`) have no waiver
-mechanism — record the judgment about them in the notes of the upstream members whose
-logic they carry, and in the session report. One sanctioned kind exists: a **language
-compensation** — a helper standing in for a PHP builtin the platform lacks
-(`Arr.reverse` for `array_reverse`), user-approved, docblocked as deliberately having no
-upstream twin. It compensates the *language*, never invents Laravel API a PHP developer
-would expect to exist upstream.
+`is_object`) have no waiver mechanism — record the judgment about them in the notes of the
+upstream members whose logic they carry, and in the session report. An extra member is
+also where divergence *hides*: `callPipe`, split out of `carry()`, quietly fed
+closure-pipe results through `handleCarry` that upstream's early return bypasses, and
+threw a port-invented RuntimeException where upstream falls back to an invokable call.
+Dissolve the split back into the upstream body first; judge only what refuses to dissolve.
+
+**Language compensations** are the sanctioned way to close a builtin-shaped gap: helpers
+standing in for what PHP gets from the language, user-approved, never inventing Laravel
+API a PHP developer would expect upstream. The kit so far: `Arr.reverse`/`Arr.pad`/
+`Arr.merge` for the array builtins, `Str.explode` for `explode` (with PHP's limit
+semantics), and `Pipeline/helpers`' `call`/`callMethod`/`methodExists`/`isCallable` for
+PHP's dynamic calls and capability checks. Check this kit before spelling a builtin as a
+loop, and extend it (with the user's approval) rather than casting at the site — a call
+site needing the same type assertion more than once is the smell of a missing
+compensation.
 
 ## Proposal and approval rules
 
@@ -178,7 +199,11 @@ explicit, named instruction.
 
 Ask first: introducing a new convention (a new token, decorator, or naming pattern —
 these ripple), reclassifying a waiver to `impossible`, renaming anything on the public
-surface, adding dependencies, and anything that changes CLAUDE.md-documented behavior.
+surface, adding dependencies, anything that changes CLAUDE.md-documented behavior, and
+any cleanup or encoding with more than one defensible spelling — write the variants into
+the chat and let the user pick (the `_parameters` compromise and the `call()` helper were
+both chosen that way, and the user's counter-proposals have repeatedly beaten the first
+draft).
 When a difference survives interrogation but the fix would be a scope jump, leave the
 member unapproved with the finding recorded and surface it — an honest `unreviewed` beats
 a hollow `approved`.

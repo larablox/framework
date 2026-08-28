@@ -113,13 +113,13 @@
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
-        "ts_hash": "b437a1158041b0464b01ffdfdf94aee177406efb",
+        "ts_hash": "1519a4fcaa1e90689842c1e33f01b946947d1230",
         "approved_at": "2026-08-28"
     },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {
         "php_hash": "e577fa7f0c27b7a7950f092c98b0e615cd62cc92",
-        "ts_hash": "83472843ea02b108e45a227888957c62795c44d4",
+        "ts_hash": "a13458c4a1714af07adcbc9d64076921aca32ba9",
         "approved_at": "2026-08-28",
-        "note": "hub keyed by its Contract token, mirroring the PHP interface key; concrete is a closure because auto-construction needs reflection PHP has"
+        "note": "hub keyed by its Contract token under upstream local alias PipelineHubContract; concrete is a closure because auto-construction needs reflection PHP has"
     }
 }

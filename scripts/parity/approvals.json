@@ -2,30 +2,34 @@
     "Pipeline/Hub.php#Hub#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
         "ts_hash": "eeb15bae042ed94224a8ccd983cc71cc89c05fd4",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Body matches (assign the optional container). Dismissed: @Inject(ContainerContract) on the parameter is the port's spelling of PHP's reflected ?Container type hint -- owed because the provider registers singleton(PipelineHubContract, Hub) class-as-concrete; the parameter property replaces the explicit $this->container assignment."
+        "note": "Body matches (assign the optional container). Dismissed: @Inject(ContainerContract) on the parameter is the port's spelling of PHP's reflected ?Container type hint -- owed because the provider registers singleton(PipelineHubContract, Hub) class-as-concrete; the parameter property replaces the explicit $this->container assignment.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Hub.php#Hub#container@property": {
         "php_hash": "5edb3489e2048f7c8c11e282fbdd13f57ea9ae5b",
         "ts_hash": "f5de4eef2b814576fdac647e618c254710db4060",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Promoted constructor parameter on both sides; @Inject(ContainerContract) as on Pipeline, owed by the class-as-concrete singleton registration."
+        "note": "Promoted constructor parameter on both sides; @Inject(ContainerContract) as on Pipeline, owed by the class-as-concrete singleton registration.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Hub.php#Hub#defaults": {
         "php_hash": "5c5482f0aa53f8190af7505be42baff2ad7f39ae",
         "ts_hash": "f3ed63e9efd6688997a1224cf52bce6a736e12f6",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: delegates to pipeline('default', callback)."
+        "note": "Verbatim: delegates to pipeline('default', callback).",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Hub.php#Hub#getContainer": {
         "php_hash": "2d3ec47e8eb26e005c4c9b5fc0e17ca15b84de72",
         "ts_hash": "606715743b7869bda584df15151c2b4641fe6b9e",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim property return. Dismissed: typed Container | undefined -- upstream's docblock claims Container but the method returns null when none was passed; the port's type states the same behavior honestly."
+        "note": "Verbatim property return. Dismissed: typed Container | undefined -- upstream's docblock claims Container but the method returns null when none was passed; the port's type states the same behavior honestly.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Hub.php#Hub#pipeline": {
         "php_hash": "57ccd3594deb68148456bef9a602f70cf6269ff7",
@@ -44,9 +48,10 @@
     "Pipeline/Hub.php#Hub#setContainer": {
         "php_hash": "f11f08e4b9219fada03497ede6ebd503ddd97a04",
         "ts_hash": "56d225e5b24d66d35c04a9f1f44d9818ee2fd4f1",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-28",
-        "note": "Verbatim: assign, return this."
+        "note": "Verbatim: assign, return this.",
+        "approved_at": "2026-08-28"
     },
     "Pipeline/Pipeline.php#Pipeline#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",

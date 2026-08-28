@@ -160,7 +160,7 @@ export function compare({ php, ts, aliases, exclusions, approvals, conventions, 
                 // as a file note. A waived trait (exclusions.traits) reads as
                 // excluded/deferred with its reason.
                 if (tsData) {
-                    const relationRow = (short, kind, status, implStatus, note) => ({
+                    const relationRow = (short, kind, status, implStatus, note, phpHash = '', tsHash = '') => ({
                         component: row.component,
                         laravel_path: pair.phpPath,
                         declaration: decl.name,
@@ -176,72 +176,72 @@ export function compare({ php, ts, aliases, exclusions, approvals, conventions, 
                         vendor_deps: '',
                         php_line: '',
                         ts_line: '',
-                        php_hash: '',
-                        ts_hash: '',
+                        php_hash: phpHash,
+                        ts_hash: tsHash,
                         note,
                     });
                     const tsHeritage = tsData.declarations.flatMap((d) => d.extends ?? []);
                     const tsNotes = tsData.declarations.flatMap((d) => d.notes ?? []);
                     const tsDecorators = tsData.declarations.flatMap((d) => d.decorators ?? []);
-                    const present = (short) =>
-                        tsHeritage.some((heritage) => heritage.includes(short))
-                        || tsNotes.some((note) => note.includes(short));
+
+                    // One relation of any kind: waived, missing, or present.
+                    // A present relation is reviewable like a member -- its
+                    // "hashes" are the FQCN and the matched heritage text, so
+                    // a rewritten mixin chain or a changed upstream relation
+                    // flips the entry stale. A marker interface additionally
+                    // owes its validating class decorator (markerDecorators),
+                    // the runtime half of what PHP's instanceof checked.
+                    const relation = (kind, fqcn, waivers, missingStatus, label, notePrefix) => {
+                        const short = fqcn.split('\\').pop();
+                        const waiver = ownProp(waivers, fqcn) ?? ownProp(waivers, short);
+                        if (waiver) {
+                            memberRows.push(relationRow(short, kind, 'excluded', 'deferred', waiver));
+                            return;
+                        }
+                        const matched = tsHeritage.find((heritage) => heritage.includes(short))
+                            ?? tsNotes.find((note) => note.includes(short));
+                        if (matched === undefined) {
+                            notes.push(`[missing ${label}: ${short}]`);
+                            row.impl_rejected++;
+                            memberRows.push(relationRow(short, kind, missingStatus, 'rejected', `${notePrefix}:${fqcn}`));
+                            return;
+                        }
+                        const requiredDecorator = kind === 'implements' ? ownProp(markerDecorators, short) : undefined;
+                        if (requiredDecorator !== undefined && !tsDecorators.includes(requiredDecorator)) {
+                            notes.push(`[missing decorator: @${requiredDecorator}]`);
+                            row.impl_rejected++;
+                            memberRows.push(relationRow(short, kind, 'both', 'rejected', `${notePrefix}:${fqcn} [missing decorator: @${requiredDecorator}]`));
+                            return;
+                        }
+                        const phpHash = `rel:${fqcn}`;
+                        const tsHash = `rel:${matched}`;
+                        const reviewKey = approvalKey(pair.phpPath, decl.name, short, kind);
+                        const approval = ownProp(approvals, reviewKey);
+                        const noteParts = [`${notePrefix}:${fqcn}`];
+                        let implStatus;
+                        if (!approval) {
+                            implStatus = 'unreviewed';
+                            row.impl_unreviewed++;
+                        } else if (approval.php_hash === phpHash && approval.ts_hash === tsHash) {
+                            implStatus = implStatusOf(approval.status);
+                            row[`impl_${implStatus}`]++;
+                        } else {
+                            implStatus = 'stale';
+                            row.impl_stale++;
+                            staleKeys.push(reviewKey);
+                        }
+                        if (approval?.note) noteParts.push(approval.note);
+                        memberRows.push(relationRow(short, kind, 'both', implStatus, noteParts.join(' '), phpHash, tsHash));
+                    };
 
                     for (const trait of decl.uses) {
-                        const short = trait.split('\\').pop();
-                        const waiver = ownProp(traitExclusions, trait) ?? ownProp(traitExclusions, short);
-                        if (waiver) {
-                            memberRows.push(relationRow(short, 'trait', 'excluded', 'deferred', waiver));
-                        } else if (!present(short)) {
-                            notes.push(`[missing mixin: ${short}]`);
-                            memberRows.push(relationRow(short, 'trait', 'missing_mixin', 'missing_mixin', `uses:${trait}`));
-                        } else {
-                            // Presence is the whole check: the trait's own
-                            // file pair reviews its members.
-                            memberRows.push(relationRow(short, 'trait', 'both', 'n/a', `uses:${trait}`));
-                        }
+                        relation('trait', trait, traitExclusions, 'missing_mixin', 'mixin', 'uses');
                     }
-
-                    // `implements` and `extends` are tracked the same way; a
-                    // marker interface additionally owes its validating class
-                    // decorator (conventions.json markerDecorators), the
-                    // runtime half of what PHP's instanceof checked.
                     for (const iface of decl.implements) {
-                        const short = iface.split('\\').pop();
-                        const waiver = ownProp(heritageExclusions, iface) ?? ownProp(heritageExclusions, short);
-                        if (waiver) {
-                            memberRows.push(relationRow(short, 'implements', 'excluded', 'deferred', waiver));
-                        } else if (!present(short)) {
-                            notes.push(`[missing interface: ${short}]`);
-                            memberRows.push(
-                                relationRow(short, 'implements', 'missing_interface', 'missing_interface', `implements:${iface}`),
-                            );
-                        } else {
-                            const requiredDecorator = ownProp(markerDecorators, short);
-                            if (requiredDecorator !== undefined && !tsDecorators.includes(requiredDecorator)) {
-                                notes.push(`[missing decorator: @${requiredDecorator}]`);
-                                memberRows.push(
-                                    relationRow(short, 'implements', 'both', 'missing_decorator', `implements:${iface}`),
-                                );
-                            } else {
-                                memberRows.push(relationRow(short, 'implements', 'both', 'n/a', `implements:${iface}`));
-                            }
-                        }
+                        relation('implements', iface, heritageExclusions, 'missing_interface', 'interface', 'implements');
                     }
-
                     for (const parent of decl.extends) {
-                        const short = parent.split('\\').pop();
-                        const waiver = ownProp(heritageExclusions, parent) ?? ownProp(heritageExclusions, short);
-                        if (waiver) {
-                            memberRows.push(relationRow(short, 'extends', 'excluded', 'deferred', waiver));
-                        } else if (!present(short)) {
-                            notes.push(`[missing parent: ${short}]`);
-                            memberRows.push(
-                                relationRow(short, 'extends', 'missing_parent', 'missing_parent', `extends:${parent}`),
-                            );
-                        } else {
-                            memberRows.push(relationRow(short, 'extends', 'both', 'n/a', `extends:${parent}`));
-                        }
+                        relation('extends', parent, heritageExclusions, 'missing_parent', 'parent', 'extends');
                     }
                 }
             }

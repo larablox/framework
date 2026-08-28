@@ -118,14 +118,19 @@ facades replace `__callStatic` with metatables. Only claim impossibility for a s
 magic use after checking what the port already does elsewhere.
 
 **Trait mixins and heritage.** Every `uses:` trait, `implements` interface and `extends`
-parent is its own row in members.csv (`kind: trait/implements/extends`) — `both` when
-present, `missing_mixin`/`missing_interface`/`missing_parent` when absent (also flagged
-in the file's note), `excluded/deferred` when waived with a reason in `exclusions.json`'s
-`traits`/`heritage` sections (Macroable; the PHP builtin interfaces). A **marker
-interface** additionally owes its validating class decorator — `conventions.json`'s
-`markerDecorators` maps interface to decorator (`DeferrableProvider`, `ShouldQueue`), and
-a class that `implements` the type without the decorator reads `missing_decorator`: the
-type half without the runtime half is exactly how the erased-interface bug returns. Treat the flag
+parent is its own row in members.csv (`kind: trait/implements/extends`), and a *present*
+relation goes through the same review cycle as a member: it lands `unreviewed`, the agent
+proposes it after checking the detector's contains-match is not a false positive, and the
+user approves having seen the relation with their own eyes — the entry pins the FQCN and
+the matched heritage text, so a rewritten mixin chain or a changed upstream relation
+flips it stale. An *absent* relation reads `rejected` in impl_status (the specific
+`missing_mixin`/`missing_interface`/`missing_parent` stays in the status column and the
+file note) — visible problems, not blanks. Waived ones read `excluded/deferred` with the
+reason from `exclusions.json`'s `traits`/`heritage` sections (Macroable; the PHP builtin
+interfaces). A **marker interface** additionally owes its validating class decorator —
+`conventions.json`'s `markerDecorators` maps interface to decorator (`DeferrableProvider`,
+`ShouldQueue`), and the type half without the runtime half also reads `rejected`, flagged
+`[missing decorator: @X]`: that gap is exactly how the erased-interface bug returns. Treat the flag
 as a finding: a trait the port has already built elsewhere (`Conditionable` is mixed into
 Stringable, Request and others) is work, not a waiver.
 

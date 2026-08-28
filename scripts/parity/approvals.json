@@ -31,6 +31,13 @@
         "note": "Verbatim property return. Dismissed: typed Container | undefined -- upstream's docblock claims Container but the method returns null when none was passed; the port's type states the same behavior honestly.",
         "approved_at": "2026-08-28"
     },
+    "Pipeline/Hub.php#Hub#Hub@implements": {
+        "php_hash": "rel:Illuminate\\Contracts\\Pipeline\\Hub",
+        "ts_hash": "rel:HubContract",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. implements HubContract -- the Contract<T> token interface, imported as the type for implements and re-exported beside it."
+    },
     "Pipeline/Hub.php#Hub#pipe": {
         "php_hash": "6db20cba62ad99d077d1d407f9650024c17847db",
         "ts_hash": "be3a356f042dc517c21941dec7477e472ecd2f5c",
@@ -167,6 +174,13 @@
         "note": "Same expression as through(): is_array($pipes) ? $pipes : func_get_args() is a rest parameter plus the same ternary over isPipeArray. Dismissed: array_push's spread becomes an append loop -- roblox-ts's push macro rejects spread arguments (roblox-ts#1149), verified by the compile error.",
         "approved_at": "2026-08-28"
     },
+    "Pipeline/Pipeline.php#Pipeline#Pipeline@implements": {
+        "php_hash": "rel:Illuminate\\Contracts\\Pipeline\\Pipeline",
+        "ts_hash": "rel:PipelineContract",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. implements PipelineContract (Pipeline as PipelineContract import alias, mirroring the upstream use)."
+    },
     "Pipeline/Pipeline.php#Pipeline#pipes": {
         "php_hash": "a2d9b19186db34bb7a72e95c9c63272a16eeb5fc",
         "ts_hash": "6ecceffc70602d1d523512e19869f10cbf1c0a35",
@@ -239,6 +253,13 @@
         "note": "Verbatim: assign, return this.",
         "approved_at": "2026-08-28"
     },
+    "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#DeferrableProvider@implements": {
+        "php_hash": "rel:Illuminate\\Contracts\\Support\\DeferrableProvider",
+        "ts_hash": "rel:DeferrableProvider",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim, both halves: implements DeferrableProvider is the type, @DeferrableProvider() the validating decorator -- the runtime instanceof PHP got from the marker interface."
+    },
     "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
         "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
         "ts_hash": "a53fb59c4640e950c80e5015383a7d3001c27c02",
@@ -254,5 +275,12 @@
         "proposed_at": "2026-08-28",
         "note": "Line-for-line, argument breaks included: singleton(PipelineHubContract, Hub) keeps the interface-as-key via the Contract token and class-as-concrete (Hub declares its dependency with @Inject); bind('pipeline', (app) => new Pipeline(app)) receives the resolving container as the closure parameter, mirroring fn ($app) -- no captured registering container, so per-request sandboxes stay isolated. This file is the component etalon.",
         "approved_at": "2026-08-28"
+    },
+    "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#ServiceProvider@extends": {
+        "php_hash": "rel:Illuminate\\Support\\ServiceProvider",
+        "ts_hash": "rel:ServiceProvider",
+        "status": "pending",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. extends ServiceProvider."
     }
 }

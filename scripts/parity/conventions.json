@@ -4,10 +4,13 @@
         "array_pad": "Arr.pad",
         "array_merge": "Arr.merge",
         "explode": "Str.explode",
+        "str_contains": "Str.contains",
         "call_user_func": "call",
         "method_exists": "methodExists",
         "is_callable": "isCallable",
         "is_object": "isPipeInstance",
+        "class_exists": "Util.isClass",
+        "iterator_to_array": "toArray",
         "null": "undefined"
     },
     "structural": [
@@ -28,8 +31,32 @@
             "rule": "`isset($x[$k])` spells as an `=== undefined` test on the index (absence is `undefined` here)."
         },
         {
+            "name": "collection-ops",
+            "rule": "PHP array ops on a keyed store spell as map calls: `isset` -> `.has()`, `unset` -> `.delete()`, a keyed read/write -> `.get()`/`.set()`, `$x[] =` -> `.push()`, `array_pop` -> `.pop()`, `count()` -> `.size()`, `empty()` -> `.isEmpty()`, `in_array($x, $list, true)` -> `.includes(x)`, `end()`/`array_last()` -> `[size() - 1]`, a reset to `[]` -> `.clear()`; a `= []` property initializer spells `new Map()`/`new OrderedMap()`/`new Array()` by the store's kind."
+        },
+        {
+            "name": "autovivification",
+            "rule": "PHP's `$x[$k][] = $v` spells as `Util.pushInto(map, key, value)` (on an OrderedMap: `map.push(key, value)`), and `$x[$k1][$k2] = $v` as `Util.setInto(map, outer, inner, value)`."
+        },
+        {
+            "name": "hoisted-assignment",
+            "rule": "An assignment inside a PHP condition (`if ($x = expr)`, `while (...)`) hoists to a `const`/`let` on the line above -- Luau has no assignment expressions."
+        },
+        {
+            "name": "class-name-in-message",
+            "rule": "An Abstract interpolated into an exception message spells as `Reflector.className(abstract)` -- a bare table would interpolate as an address."
+        },
+        {
             "name": "inject",
             "rule": "A constructor type hint PHP reads by reflection spells as `@Inject(...)` on the parameter."
+        },
+        {
+            "name": "reflection-registry",
+            "rule": "Reflection reads spell as registry lookups: `getAttributes()` -> `Attributes.get/has/all`, constructor parameters -> `getInjectedDependencies()`, a `ReflectionParameter`'s type/attributes/variadic -> `ParameterDependency` fields, and an attribute named by `::class` is its decorator factory function."
+        },
+        {
+            "name": "parameter-overrides",
+            "rule": "PHP's name-keyed `$parameters` array spells as a `Map` keyed by the abstract a parameter declares, or by its 1-based position (parameter names are erased); `normalizeParameters()` converts the public list form at the edge."
         },
         {
             "name": "contract-token",
@@ -41,7 +68,7 @@
         },
         {
             "name": "assoc-array",
-            "rule": "A PHP associative array whose iteration order is observable is an `OrderedMap`; one touched only by keyed get/set may be a plain `Record` literal."
+            "rule": "A PHP associative array whose iteration order is observable is an `OrderedMap`; one touched only by keyed get/set is a native `Map` (a bare table at runtime) -- or a plain `Record` literal where every key is a string."
         },
         {
             "name": "casts",

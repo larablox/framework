@@ -311,9 +311,11 @@ function main()
         exclusions.members ??= {};
         exclusions.members[args.exclude] = { php_hash: found.member.hash ?? null, kind, reason: args.reason };
         writeJsonSorted(exclusionsPath, {
+            ...exclusions,
             paths: exclusions.paths ?? [],
             members: exclusions.members,
             traits: exclusions.traits ?? {},
+            heritage: exclusions.heritage ?? {},
         });
         registriesChanged = true;
         console.log(`excluded: ${args.exclude}`);

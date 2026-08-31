@@ -1,3 +1,4 @@
+import { Arr } from 'Illuminate/Support/Arr';
 import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
 import { Bind } from 'Illuminate/Container/Attributes/Bind';
 import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
@@ -1243,13 +1244,11 @@ export class Container implements ContainerContract
         callbacksPerType: OrderedMap<Abstract, Array<ResolvingCallback>>,
     ): Array<ResolvingCallback>
     {
-        const results = new Array<ResolvingCallback>();
+        let results = new Array<ResolvingCallback>();
 
         for (const [abstractType, callbacks] of callbacksPerType.entries()) {
             if (abstractType === abstract || Reflector.isInstanceOf(object, abstractType)) {
-                for (const callback of callbacks) {
-                    results.push(callback);
-                }
+                results = Arr.merge(results, callbacks);
             }
         }
 

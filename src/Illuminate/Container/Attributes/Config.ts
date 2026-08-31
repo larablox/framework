@@ -11,11 +11,11 @@ export interface Config extends ContextualAttribute
 }
 
 /** Resolve the annotated parameter from the configuration repository. */
-export function Config(key: string, defaultValue?: unknown)
+export function Config(key: string, _default?: unknown)
 {
     const instance: Config = {
         key,
-        default: defaultValue,
+        default: _default,
         resolve: (attribute: never, container: Container) =>
             container.make<Repository>('config').get((attribute as Config).key, (attribute as Config).default),
     };

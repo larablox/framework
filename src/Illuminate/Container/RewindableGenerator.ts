@@ -1,3 +1,5 @@
+import { isCallable } from 'Illuminate/Container/helpers';
+
 /**
  * PHP: `Illuminate\Container\RewindableGenerator`, returned by
  * `Container::tagged()`.
@@ -8,18 +10,29 @@
  */
 export class RewindableGenerator<T extends defined = defined>
 {
-    private resolvedCount?: number;
-
+    /** Create a new generator instance. */
     public constructor(
-        protected readonly generator: () => Generator<T>,
-        protected readonly counter: number | (() => number),
+        protected generator: () => Generator<T>,
+        protected _count: number | (() => number),
     )
     {}
 
-    /** PHP: `getIterator(): Traversable`. */
+    /** Get an iterator from the generator. */
     public getIterator(): Generator<T>
     {
         return this.generator();
+    }
+
+    /** Get the total number of tagged services. */
+    public count(): number
+    {
+        const count = this._count;
+
+        if (isCallable(count)) {
+            this._count = (count as () => number)();
+        }
+
+        return this._count as number;
     }
 
     /**
@@ -37,15 +50,5 @@ export class RewindableGenerator<T extends defined = defined>
         }
 
         return items;
-    }
-
-    /** PHP: `count(): int`. */
-    public count(): number
-    {
-        if (this.resolvedCount === undefined) {
-            this.resolvedCount = typeIs(this.counter, 'function') ? this.counter() : this.counter;
-        }
-
-        return this.resolvedCount;
     }
 }

@@ -7,18 +7,19 @@ import type { ContextualBindingBuilder as ContextualBindingBuilderContract } fro
 export class ContextualBindingBuilder implements ContextualBindingBuilderContract
 {
     /** The abstract target. */
-    protected needsAbstract?: Abstract;
+    protected _needs?: Abstract;
 
+    /** Create a new contextual binding builder. */
     public constructor(
-        protected readonly container: Container,
-        protected readonly concrete: Abstract | Array<Abstract>,
+        protected container: Container,
+        protected concrete: Abstract | Array<Abstract>,
     )
     {}
 
     /** Define the abstract target that depends on the context. */
     public needs(abstract: Abstract): this
     {
-        this.needsAbstract = abstract;
+        this._needs = abstract;
 
         return this;
     }
@@ -27,7 +28,7 @@ export class ContextualBindingBuilder implements ContextualBindingBuilderContrac
     public give(implementation: ContextualImplementation): this
     {
         for (const concrete of Util.arrayWrap(this.concrete)) {
-            this.container.addContextualBinding(concrete, this.needsAbstract as Abstract, implementation);
+            this.container.addContextualBinding(concrete, this._needs as Abstract, implementation);
         }
 
         return this;
@@ -40,13 +41,8 @@ export class ContextualBindingBuilder implements ContextualBindingBuilderContrac
     }
 
     /** Specify the configuration item to bind as a primitive. */
-    public giveConfig(key: string, defaultValue?: unknown): this
+    public giveConfig(key: string, _default?: unknown): this
     {
-        // Typed through the contract rather than an inline object type: an
-        // inline `{get: (key) => unknown}` declares a *property* holding a
-        // function, and roblox-ts compiles a call on one with a dot, which
-        // drops the receiver. The contract declares `get` as a method, so the
-        // call compiles to `config:get(...)`.
-        return this.give((container: Container) => container.make<ConfigRepository>('config').get(key, defaultValue));
+        return this.give((container: Container) => container.get<ConfigRepository>('config').get(key, _default));
     }
 }

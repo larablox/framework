@@ -1,5 +1,6 @@
 import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
 import { InvalidArgumentException } from 'Illuminate/Exception';
+import { Util } from 'Illuminate/Container/Util';
 import type { Concrete } from 'Illuminate/Container/Types';
 
 /** PHP: `#[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)] class Bind`. */
@@ -19,7 +20,8 @@ export interface Bind
  */
 export function Bind(concrete: Concrete, environments: string | Array<string> = ['*'])
 {
-    const wrapped = typeIs(environments, 'string') ? [environments] : environments;
+    const wrapped = (typeIs(environments, 'string') ? [environments] : environments)
+        .filter((environment) => Util.truthy(environment));
 
     if (wrapped.isEmpty()) {
         throw new InvalidArgumentException('The environment property must be set and cannot be empty.');

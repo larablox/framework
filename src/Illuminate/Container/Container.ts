@@ -46,21 +46,11 @@ type ScopedType = 'singleton' | 'scoped' | false;
 
 export class Container implements ContainerContract
 {
-    /**
-     * The current globally available container (if any).
-     *
-     * PHP names this `$instance`; renamed because a static field and an instance
-     * method share one table in Luau, and `instance()` is public API.
-     */
-    protected static sharedInstance?: Container;
+    /** The current globally available container (if any). */
+    protected static _instance?: Container;
 
-    /**
-     * An array of the types that have been resolved.
-     *
-     * PHP names this `$resolved`; renamed because TypeScript cannot carry a
-     * property and a method of the same name on one class.
-     */
-    protected resolvedTypes = new OrderedMap<Abstract, boolean>();
+    /** An array of the types that have been resolved. */
+    protected _resolved = new OrderedMap<Abstract, boolean>();
 
     /** The container's bindings. */
     protected bindings = new OrderedMap<Abstract, Binding>();
@@ -180,7 +170,7 @@ export class Container implements ContainerContract
             abstract = this.getAlias(abstract);
         }
 
-        return this.resolvedTypes.has(abstract) || this.instances.has(abstract);
+        return this._resolved.has(abstract) || this.instances.has(abstract);
     }
 
     /** Determine if a given type is shared. */
@@ -746,7 +736,7 @@ export class Container implements ContainerContract
         // the parameter overrides for this build. After those two things are done
         // we will be ready to return back the fully constructed class instance.
         if (!needsContextualBuild) {
-            this.resolvedTypes.set(abstract, true);
+            this._resolved.set(abstract, true);
         }
 
         this.with.pop();
@@ -1425,7 +1415,7 @@ export class Container implements ContainerContract
      */
     protected copyStateTo(target: Container): void
     {
-        target.resolvedTypes = this.resolvedTypes.clone();
+        target._resolved = this._resolved.clone();
         target.bindings = this.bindings.clone();
         target.methodBindings = Container.cloneNestedMap(this.methodBindings);
         target.instances = this.instances.clone();
@@ -1501,7 +1491,7 @@ export class Container implements ContainerContract
     public flush(): void
     {
         this.aliases.clear();
-        this.resolvedTypes.clear();
+        this._resolved.clear();
         this.bindings.clear();
         this.instances.clear();
         this.abstractAliases.clear();
@@ -1513,11 +1503,11 @@ export class Container implements ContainerContract
     /** Get the globally available instance of the container. */
     public static getInstance(): Container
     {
-        if (Container.sharedInstance === undefined) {
-            Container.sharedInstance = new Container();
+        if (Container._instance === undefined) {
+            Container._instance = new Container();
         }
 
-        return Container.sharedInstance;
+        return Container._instance;
     }
 
     /**
@@ -1552,13 +1542,13 @@ export class Container implements ContainerContract
     {
         this.bindings.delete(offset);
         this.instances.delete(offset);
-        this.resolvedTypes.delete(offset);
+        this._resolved.delete(offset);
     }
 
     /** Set the shared instance of the container. */
     public static setInstance(container?: Container): Container | undefined
     {
-        Container.sharedInstance = container;
+        Container._instance = container;
 
         return container;
     }

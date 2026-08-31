@@ -11,10 +11,10 @@ export interface Give extends ContextualAttribute
 }
 
 /** Resolve the annotated parameter from the given concrete implementation. */
-export function Give(target: Abstract, params?: ParameterList)
+export function Give(_class: Abstract, params?: ParameterList)
 {
     const instance: Give = {
-        class: target,
+        class: _class,
         params,
         resolve: (attribute: never, container: Container) =>
             container.make((attribute as Give).class, (attribute as Give).params),

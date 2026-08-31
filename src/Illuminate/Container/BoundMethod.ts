@@ -1,6 +1,7 @@
 import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
 import { InvalidArgumentException } from 'Illuminate/Exception';
 import { Reflector } from 'Illuminate/Support/Reflector';
+import { Str } from 'Illuminate/Support/Str';
 import { Util } from 'Illuminate/Container/Util';
 import { getInjectedDependencies } from 'Illuminate/Container/Attributes/Inject';
 import type { ParameterDependency } from 'Illuminate/Container/Attributes/Inject';
@@ -17,8 +18,8 @@ export class BoundMethod
         defaultMethod?: string,
     ): unknown
     {
-        if (typeIs(callback, 'string') && (BoundMethod.isCallableWithAtSign(callback) || defaultMethod !== undefined)) {
-            return BoundMethod.callClass(container, callback, parameters, defaultMethod);
+        if (BoundMethod.isCallableWithAtSign(callback) || defaultMethod !== undefined) {
+            return BoundMethod.callClass(container, callback as string, parameters, defaultMethod);
         }
 
         return BoundMethod.callBoundMethod(
@@ -36,7 +37,7 @@ export class BoundMethod
         defaultMethod?: string,
     ): unknown
     {
-        const segments = target.split('@');
+        const segments = Str.explode('@', target);
 
         // We will assume an @ sign is used to delimit the class name from the method
         // name. We will split on this @ sign and then build a callable array that
@@ -54,10 +55,10 @@ export class BoundMethod
     }
 
     /** Call a method that has been bound to the container. */
-    private static callBoundMethod(container: Container, callback: CallableTarget, fallback: () => unknown): unknown
+    private static callBoundMethod(container: Container, callback: CallableTarget, _default: unknown): unknown
     {
         if (!Util.isArray(callback)) {
-            return fallback();
+            return Util.unwrapIfClosure(_default);
         }
 
         // Here we need to turn the array callable into a Class@method string we can use to
@@ -69,7 +70,7 @@ export class BoundMethod
             return container.callMethodBinding(method, (callback as [object, string])[0]);
         }
 
-        return fallback();
+        return Util.unwrapIfClosure(_default);
     }
 
     /**
@@ -226,10 +227,8 @@ export class BoundMethod
     }
 
     /** Determine if the given string is in Class@method syntax. */
-    private static isCallableWithAtSign(callback: string): boolean
+    private static isCallableWithAtSign(callback: CallableTarget): boolean
     {
-        const [position] = callback.find('@', 1, true);
-
-        return position !== undefined;
+        return typeIs(callback, 'string') && callback.find('@', 1, true)[0] !== undefined;
     }
 }

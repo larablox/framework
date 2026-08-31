@@ -2310,8 +2310,7 @@ export class Stringable extends Tappable(Conditionable()) implements JsonSeriali
      * The underlying string value.
      *
      * PHP names it `$value`; a field and a method cannot share a name here --
-     * both live in one table -- and `value()` is the public API. The same
-     * trade produced `Container::sharedInstance`.
+     * both live in one table -- and `value()` is the public API.
      */
     protected stringValue: string;
 

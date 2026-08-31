@@ -12,11 +12,11 @@ export interface Context extends ContextualAttribute
 }
 
 /** Resolve the annotated parameter from the log context repository. */
-export function Context(key: string, defaultValue?: unknown, hidden = false)
+export function Context(key: string, _default?: unknown, hidden = false)
 {
     const instance: Context = {
         key,
-        default: defaultValue,
+        default: _default,
         hidden,
         resolve: (attribute: never, container: Container) => {
             const repository = container.make(Repository);

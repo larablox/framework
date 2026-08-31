@@ -30,18 +30,7 @@ export class Util
             return [];
         }
 
-        if (!typeIs(value, 'table')) {
-            return [value as T];
-        }
-
-        if (Util.isArray(value)) {
-            return value as Array<T>;
-        }
-
-        // `isArray()` reports false for an empty table, which is right for a
-        // class instance and wrong for an empty list -- and `Arr::wrap([])` is
-        // `[]` upstream, not `[[]]`.
-        return Util.isEmptyArray(value) ? [] : [value as T];
+        return Util.isArray(value) || Util.isEmptyArray(value) ? (value as Array<T>) : [value as T];
     }
 
     /**

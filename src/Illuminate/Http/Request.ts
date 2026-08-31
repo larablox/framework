@@ -43,8 +43,7 @@ export class Request extends InteractsWithData(Conditionable())
      * The player the request came from.
      *
      * Named apart from the `player()` accessor: a field and a method of the
-     * same name both live in the class table and collide, which is why the
-     * container calls its own field `sharedInstance`.
+     * same name both live in the class table and collide.
      */
     protected callingPlayer: Player;
 

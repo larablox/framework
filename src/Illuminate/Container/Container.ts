@@ -126,8 +126,8 @@ export class Container implements ContainerContract
     {
         const aliases = new Array<Abstract>();
 
-        for (const entry of Util.arrayWrap(concrete)) {
-            aliases.push(this.getAlias(entry));
+        for (const c of Util.arrayWrap(concrete)) {
+            aliases.push(this.getAlias(c));
         }
 
         return new ContextualBindingBuilder(this, aliases);

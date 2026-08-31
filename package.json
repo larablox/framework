@@ -42,16 +42,9 @@
         "lint:fix": "eslint . --fix",
         "format": "dprint check",
         "format:fix": "dprint fmt",
-        "workbench:lint": "npm --prefix .workbench run lint",
-        "workbench:lint:fix": "npm --prefix .workbench run lint:fix",
         "types:roblox": "curl -fsSL -o globalTypes.None.d.luau https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.None.d.luau",
         "sourcemap": "rojo sourcemap default.project.json --output sourcemap.json",
-        "analyze": "npm run build && npm run sourcemap && luau-lsp analyze --platform=roblox --sourcemap=sourcemap.json --definitions=globalTypes.None.d.luau --base-luaurc=.luaurc --settings=luau-lsp.settings.json --ignore=\"**/include/**\" --ignore=\"**/node_modules/**\" out",
-        "workbench": "npm --prefix .workbench run build",
-        "workbench:watch": "npm --prefix .workbench run watch",
-        "workbench:serve": "npm --prefix .workbench run serve",
-        "workbench:place": "npm --prefix .workbench run place",
-        "workbench:install": "npm --prefix .workbench install"
+        "analyze": "npm run build && npm run sourcemap && luau-lsp analyze --platform=roblox --sourcemap=sourcemap.json --definitions=globalTypes.None.d.luau --base-luaurc=.luaurc --settings=luau-lsp.settings.json --ignore=\"**/include/**\" --ignore=\"**/node_modules/**\" out"
     },
     "dependencies": {
         "@larablox/monolog": "^0.2.0"

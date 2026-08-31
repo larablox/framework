@@ -1,6 +1,7 @@
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
 
-export interface Repository {
+export interface Repository
+{
     /** Determine if the given configuration value exists. */
     has(key: string): boolean;
 

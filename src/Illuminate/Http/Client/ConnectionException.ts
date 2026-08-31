@@ -1,4 +1,4 @@
-import { HttpClientException } from "Illuminate/Http/Client/HttpClientException";
+import { HttpClientException } from 'Illuminate/Http/Client/HttpClientException';
 
 /**
  * PHP: `Illuminate\Http\Client\ConnectionException`.
@@ -6,4 +6,5 @@ import { HttpClientException } from "Illuminate/Http/Client/HttpClientException"
  * Thrown when the call never reached a handler: the remote errored, was never
  * listened on, or answered with something that is not a response envelope.
  */
-export class ConnectionException extends HttpClientException {}
+export class ConnectionException extends HttpClientException
+{}

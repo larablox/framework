@@ -1,0 +1,29 @@
+{
+    "files": {
+        "Bus/DatabaseBatchRepository.php": "Bus/ArrayBatchRepository.ts",
+        "Cache/DatabaseLock.php": "Cache/DataStoreLock.ts",
+        "Cache/DatabaseStore.php": "Cache/DataStoreStore.ts",
+        "Cache/RedisLock.php": "Cache/MemoryStoreLock.ts",
+        "Cache/RedisStore.php": "Cache/MemoryStoreStore.ts",
+        "Collections/Arr.php": "Support/Arr.ts",
+        "Collections/Collection.php": "Support/Collection.ts",
+        "Collections/helpers.php": "Support/helpers.ts",
+        "Conditionable/Traits/Conditionable.php": "Support/Traits/Conditionable.ts",
+        "Contracts/Bus/QueueingDispatcher.php": "Contracts/Bus/Dispatcher.ts",
+        "Queue/Connectors/DatabaseConnector.php": "Queue/Connectors/MemoryConnector.ts",
+        "Queue/Connectors/RedisConnector.php": "Queue/Connectors/MemoryStoreConnector.ts",
+        "Queue/DatabaseQueue.php": "Queue/MemoryQueue.ts",
+        "Queue/Failed/DatabaseFailedJobProvider.php": "Queue/Failed/DataStoreFailedJobProvider.ts",
+        "Queue/Jobs/DatabaseJob.php": "Queue/Jobs/MemoryJob.ts",
+        "Queue/Jobs/RedisJob.php": "Queue/Jobs/MemoryStoreJob.ts",
+        "Queue/RedisQueue.php": "Queue/MemoryStoreQueue.ts",
+        "Routing/Matching/SchemeValidator.php": "Routing/Matching/TransportValidator.ts",
+        "Support/Stringable.php": "Support/Str.ts",
+        "Conditionable/HigherOrderWhenProxy.php": "Support/HigherOrderWhenProxy.ts"
+    },
+    "members": {
+        "Bus/Queueable.php": {
+            "delay@property": "delaySeconds"
+        }
+    }
+}

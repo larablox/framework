@@ -1,10 +1,10 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../TestHelpers";
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { Request } from "Illuminate/Http/Request";
-import { Route } from "Illuminate/Routing/Route";
-import { Router } from "Illuminate/Routing/Router";
+import { expectDeepEqual } from '../TestHelpers';
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { Request } from 'Illuminate/Http/Request';
+import { Route } from 'Illuminate/Routing/Route';
+import { Router } from 'Illuminate/Routing/Router';
 
 /**
  * PHP: `Illuminate\Tests\Routing\RouteRegistrarTest`.
@@ -74,18 +74,22 @@ import { Router } from "Illuminate/Routing/Router";
  *   notes on `testWhenEnumMethod`).
  */
 
-class RouteRegistrarControllerStub {
-    public index(): string {
-        return "controller";
+class RouteRegistrarControllerStub
+{
+    public index(): string
+    {
+        return 'controller';
     }
 }
 
-function router(): Router {
+function router(): Router
+{
     return new Router(new Dispatcher(), new Container());
 }
 
 /** PHP: `RouteRegistrarTest::getRoute()`. */
-function lastRoute(router: Router): Route {
+function lastRoute(router: Router): Route
+{
     const routes = router.getRoutes().getRoutes();
     return routes[routes.size() - 1];
 }
@@ -98,85 +102,84 @@ export = (): void => {
     // nil value".
 
     /** PHP: `RouteRegistrarTest::seeResponse()`. */
-    function seeResponse(
-        route: Route,
-        content: unknown,
-        request: Request,
-    ): void {
+    function seeResponse(route: Route, content: unknown, request: Request): void
+    {
         expect(route.matches(request)).to.equal(true);
         expect(route.bind(request).run()).to.equal(content);
     }
 
     /** PHP: `RouteRegistrarTest::seeMiddleware()`. */
-    function seeMiddleware(route: Route, middleware: string): void {
+    function seeMiddleware(route: Route, middleware: string): void
+    {
         expect(route.middleware()[0]).to.equal(middleware);
     }
 
-    describe("Routing.RouteRegistrar", () => {
+    describe('Routing.RouteRegistrar', () => {
         // PHP: RouteRegistrarTest::testMiddlewareFluentRegistration
-        it("Router::middleware() opens a fluent registrar carrying that middleware", () => {
+        it('Router::middleware() opens a fluent registrar carrying that middleware', () => {
             const r = router();
 
-            r.middleware(["one", "two"]).get("users", () => "all-users");
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            expectDeepEqual(lastRoute(r).middleware(), ["one", "two"]);
+            r.middleware([
+                'one',
+                'two',
+            ]).get('users', () => 'all-users');
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            expectDeepEqual(lastRoute(r).middleware(), [
+                'one',
+                'two',
+            ]);
 
-            r.middleware(["three", "four"]).get("users", () => "all-users");
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            expectDeepEqual(lastRoute(r).middleware(), ["three", "four"]);
+            r.middleware([
+                'three',
+                'four',
+            ]).get('users', () => 'all-users');
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            expectDeepEqual(lastRoute(r).middleware(), [
+                'three',
+                'four',
+            ]);
 
-            r.get("users", () => "all-users").middleware(["five", "six"]);
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            expectDeepEqual(lastRoute(r).middleware(), ["five", "six"]);
+            r.get('users', () => 'all-users').middleware([
+                'five',
+                'six',
+            ]);
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            expectDeepEqual(lastRoute(r).middleware(), [
+                'five',
+                'six',
+            ]);
 
-            r.middleware("seven").get("users", () => "all-users");
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            expectDeepEqual(lastRoute(r).middleware(), ["seven"]);
+            r.middleware('seven').get('users', () => 'all-users');
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            expectDeepEqual(lastRoute(r).middleware(), ['seven']);
         });
 
         // PHP: RouteRegistrarTest::testWithoutMiddlewareRegistration
-        it("Route::withoutMiddleware() records excluded middleware", () => {
+        it('Route::withoutMiddleware() records excluded middleware', () => {
             const r = router();
 
-            r.middleware(["one", "two"])
-                .get("users", () => "all-users")
-                .withoutMiddleware("one");
+            r.middleware([
+                'one',
+                'two',
+            ])
+                .get('users', () => 'all-users')
+                .withoutMiddleware('one');
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            expectDeepEqual(lastRoute(r).excludedMiddleware(), ["one"]);
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            expectDeepEqual(lastRoute(r).excludedMiddleware(), ['one']);
         });
 
         // PHP: RouteRegistrarTest::testFallbackRoute
-        it("Router::fallback() marks the route as a fallback", () => {
+        it('Router::fallback() marks the route as a fallback', () => {
             const r = router();
-            const route = r.fallback(() => "milwad");
+            const route = r.fallback(() => 'milwad');
             expect(route.isFallback).to.equal(true);
         });
 
         // PHP: RouteRegistrarTest::testSetFallbackRoute
-        it("Route::setFallback() toggles the fallback flag directly", () => {
+        it('Route::setFallback() toggles the fallback flag directly', () => {
             const r = router();
-            const route = r.fallback(() => "milwad");
+            const route = r.fallback(() => 'milwad');
 
             route.setFallback(false);
             expect(route.isFallback).to.equal(false);
@@ -186,288 +189,229 @@ export = (): void => {
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterGetRouteWithClosureAction
-        it("registers a GET route with a closure action", () => {
+        it('registers a GET route with a closure action', () => {
             const r = router();
-            r.middleware("get-middleware").get("users", () => "all-users");
+            r.middleware('get-middleware').get('users', () => 'all-users');
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            seeMiddleware(lastRoute(r), "get-middleware");
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            seeMiddleware(lastRoute(r), 'get-middleware');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterPostRouteWithClosureAction
-        it("registers a POST route with a closure action", () => {
+        it('registers a POST route with a closure action', () => {
             const r = router();
-            r.middleware("post-middleware").post("users", () => "saved");
+            r.middleware('post-middleware').post('users', () => 'saved');
 
-            seeResponse(
-                lastRoute(r),
-                "saved",
-                new Request({} as Player, "POST", "users"),
-            );
-            seeMiddleware(lastRoute(r), "post-middleware");
+            seeResponse(lastRoute(r), 'saved', new Request({} as Player, 'POST', 'users'));
+            seeMiddleware(lastRoute(r), 'post-middleware');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterAnyRouteWithClosureAction
-        it("registers an ANY route with a closure action", () => {
+        it('registers an ANY route with a closure action', () => {
             const r = router();
-            r.middleware("test-middleware").any("users", () => "anything");
+            r.middleware('test-middleware').any('users', () => 'anything');
 
-            seeResponse(
-                lastRoute(r),
-                "anything",
-                new Request({} as Player, "PUT", "users"),
-            );
-            seeMiddleware(lastRoute(r), "test-middleware");
+            seeResponse(lastRoute(r), 'anything', new Request({} as Player, 'PUT', 'users'));
+            seeMiddleware(lastRoute(r), 'test-middleware');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterMatchRouteWithClosureAction
-        it("registers a route matching an explicit verb list", () => {
+        it('registers a route matching an explicit verb list', () => {
             const r = router();
-            r.middleware("match-middleware").match(
-                ["DELETE"],
-                "users",
-                () => "deleted",
-            );
+            r.middleware('match-middleware').match(['DELETE'], 'users', () => 'deleted');
 
-            seeResponse(
-                lastRoute(r),
-                "deleted",
-                new Request({} as Player, "DELETE", "users"),
-            );
-            seeMiddleware(lastRoute(r), "match-middleware");
+            seeResponse(lastRoute(r), 'deleted', new Request({} as Player, 'DELETE', 'users'));
+            seeMiddleware(lastRoute(r), 'match-middleware');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterRouteWithArrayAndClosureUsesAction
         it("registers a route from an action array carrying a 'uses' closure", () => {
             const r = router();
-            r.middleware("put-middleware").put("users", () => "replaced");
+            r.middleware('put-middleware').put('users', () => 'replaced');
 
-            seeResponse(
-                lastRoute(r),
-                "replaced",
-                new Request({} as Player, "PUT", "users"),
-            );
-            seeMiddleware(lastRoute(r), "put-middleware");
+            seeResponse(lastRoute(r), 'replaced', new Request({} as Player, 'PUT', 'users'));
+            seeMiddleware(lastRoute(r), 'put-middleware');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterRouteWithControllerActionArray
-        it("registers a route from a [Controller, method] pair", () => {
+        it('registers a route from a [Controller, method] pair', () => {
             const r = router();
-            r.middleware("controller-middleware").get("users", [
+            r.middleware('controller-middleware').get('users', [
                 RouteRegistrarControllerStub,
-                "index",
+                'index',
             ]);
 
-            seeResponse(
-                lastRoute(r),
-                "controller",
-                new Request({} as Player, "GET", "users"),
-            );
-            seeMiddleware(lastRoute(r), "controller-middleware");
+            seeResponse(lastRoute(r), 'controller', new Request({} as Player, 'GET', 'users'));
+            seeMiddleware(lastRoute(r), 'controller-middleware');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterRouteWithArrayAndControllerAction
         it("registers a route from an action array carrying a 'uses' controller pair", () => {
             const r = router();
-            r.middleware("controller-middleware").put("users", [
+            r.middleware('controller-middleware').put('users', [
                 RouteRegistrarControllerStub,
-                "index",
+                'index',
             ]);
 
-            seeResponse(
-                lastRoute(r),
-                "controller",
-                new Request({} as Player, "PUT", "users"),
-            );
-            seeMiddleware(lastRoute(r), "controller-middleware");
+            seeResponse(lastRoute(r), 'controller', new Request({} as Player, 'PUT', 'users'));
+            seeMiddleware(lastRoute(r), 'controller-middleware');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterGroupWithMiddleware
-        it("Router::middleware()->group() applies the middleware to every route in it", () => {
+        it('Router::middleware()->group() applies the middleware to every route in it', () => {
             const r = router();
-            r.middleware("group-middleware").group(() => {
-                r.get("users", () => "all-users");
+            r.middleware('group-middleware').group(() => {
+                r.get('users', () => 'all-users');
             });
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            seeMiddleware(lastRoute(r), "group-middleware");
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            seeMiddleware(lastRoute(r), 'group-middleware');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterGroupWithoutMiddleware
-        it("Router::withoutMiddleware()->group() applies the exclusion to every route in it", () => {
+        it('Router::withoutMiddleware()->group() applies the exclusion to every route in it', () => {
             const r = router();
-            r.withoutMiddleware("one").group(() => {
-                r.get("users", () => "all-users").middleware(["one", "two"]);
+            r.withoutMiddleware('one').group(() => {
+                r.get('users', () => 'all-users').middleware([
+                    'one',
+                    'two',
+                ]);
             });
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            expectDeepEqual(lastRoute(r).excludedMiddleware(), ["one"]);
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            expectDeepEqual(lastRoute(r).excludedMiddleware(), ['one']);
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterGroupWithPrefix
-        it("Router::prefix()->group() prefixes every URI in it", () => {
+        it('Router::prefix()->group() prefixes every URI in it', () => {
             const r = router();
-            r.prefix("api").group(() => {
-                r.get("users", [RouteRegistrarControllerStub, "index"]);
+            r.prefix('api').group(() => {
+                r.get('users', [
+                    RouteRegistrarControllerStub,
+                    'index',
+                ]);
             });
 
-            expect(lastRoute(r).uri()).to.equal("api/users");
+            expect(lastRoute(r).uri()).to.equal('api/users');
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterGroupWithPrefixAndWhere
-        it("Router::prefix()->where()->group() applies both to every route in it", () => {
+        it('Router::prefix()->where()->group() applies both to every route in it', () => {
             const r = router();
-            r.prefix("foo/{bar}")
-                .where({ bar: "%d+" })
+            r.prefix('foo/{bar}')
+                .where({ bar: '%d+' })
                 .group(() => {
-                    r.get("here", () => "good");
+                    r.get('here', () => 'good');
                 });
 
-            seeResponse(
-                lastRoute(r),
-                "good",
-                new Request({} as Player, "GET", "foo/12345/here"),
-            );
+            seeResponse(lastRoute(r), 'good', new Request({} as Player, 'GET', 'foo/12345/here'));
         });
 
         // PHP: RouteRegistrarTest::testCanRegisterGroupWithNamePrefix
-        it("Router::name()->group() prefixes every route name in it", () => {
+        it('Router::name()->group() prefixes every route name in it', () => {
             const r = router();
-            r.name("api.").group(() => {
-                r.get("users", [RouteRegistrarControllerStub, "index"]).name(
-                    "users",
-                );
+            r.name('api.').group(() => {
+                r.get('users', [
+                    RouteRegistrarControllerStub,
+                    'index',
+                ]).name('users');
             });
 
-            expect(lastRoute(r).getName()).to.equal("api.users");
+            expect(lastRoute(r).getName()).to.equal('api.users');
         });
 
         // PHP: RouteRegistrarTest::testRouteGroupingWithoutPrefix
-        it("an empty group still nests a further prefix() call correctly", () => {
+        it('an empty group still nests a further prefix() call correctly', () => {
             const r = router();
             r.group({}, () => {
-                r.prefix("bar")
-                    .as("baz")
-                    .get("baz", () => "hello");
+                r.prefix('bar')
+                    .as('baz')
+                    .get('baz', () => 'hello');
             });
 
-            seeResponse(
-                lastRoute(r),
-                "hello",
-                new Request({} as Player, "GET", "bar/baz"),
-            );
+            seeResponse(lastRoute(r), 'hello', new Request({} as Player, 'GET', 'bar/baz'));
         });
 
         // PHP: RouteRegistrarTest::testRouteGroupChaining
-        it("Router::group() returns the router, so calls chain", () => {
+        it('Router::group() returns the router, so calls chain', () => {
             const r = router();
             r.group({}, () => {
-                r.get("foo", () => "hello");
+                r.get('foo', () => 'hello');
             }).group({}, () => {
-                r.get("bar", () => "goodbye");
+                r.get('bar', () => 'goodbye');
             });
 
             const routes = r.getRoutes();
-            expect(
-                routes.match(new Request({} as Player, "GET", "foo")),
-            ).to.be.ok();
-            expect(
-                routes.match(new Request({} as Player, "GET", "bar")),
-            ).to.be.ok();
+            expect(routes.match(new Request({} as Player, 'GET', 'foo'))).to.be.ok();
+            expect(routes.match(new Request({} as Player, 'GET', 'bar'))).to.be.ok();
         });
 
         // PHP: RouteRegistrarTest::testCanSetRouteName
-        it("Router::as() opens a fluent registrar carrying that name", () => {
+        it('Router::as() opens a fluent registrar carrying that name', () => {
             const r = router();
-            r.as("users.index").get("users", () => "all-users");
+            r.as('users.index').get('users', () => 'all-users');
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            expect(lastRoute(r).getName()).to.equal("users.index");
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            expect(lastRoute(r).getName()).to.equal('users.index');
         });
 
         // PHP: RouteRegistrarTest::testCanSetRouteNameUsingNameAlias
-        it("Router::name() is an alias for as()", () => {
+        it('Router::name() is an alias for as()', () => {
             const r = router();
-            r.name("users.index").get("users", () => "all-users");
+            r.name('users.index').get('users', () => 'all-users');
 
-            seeResponse(
-                lastRoute(r),
-                "all-users",
-                new Request({} as Player, "GET", "users"),
-            );
-            expect(lastRoute(r).getName()).to.equal("users.index");
+            seeResponse(lastRoute(r), 'all-users', new Request({} as Player, 'GET', 'users'));
+            expect(lastRoute(r).getName()).to.equal('users.index');
         });
 
         // PHP: RouteRegistrarTest::testPushMiddlewareToGroup
-        it("Router::pushMiddlewareToGroup() appends to an existing group", () => {
+        it('Router::pushMiddlewareToGroup() appends to an existing group', () => {
             const r = router();
-            r.middlewareGroup("web", []);
-            r.pushMiddlewareToGroup("web", "test-middleware");
+            r.middlewareGroup('web', []);
+            r.pushMiddlewareToGroup('web', 'test-middleware');
 
-            expectDeepEqual(r.getMiddlewareGroups().get("web"), [
-                "test-middleware",
-            ]);
+            expectDeepEqual(r.getMiddlewareGroups().get('web'), ['test-middleware']);
         });
 
         // PHP: RouteRegistrarTest::testPushMiddlewareToGroupUnregisteredGroup
-        it("Router::pushMiddlewareToGroup() creates the group if it did not exist", () => {
+        it('Router::pushMiddlewareToGroup() creates the group if it did not exist', () => {
             const r = router();
-            r.pushMiddlewareToGroup("web", "test-middleware");
+            r.pushMiddlewareToGroup('web', 'test-middleware');
 
-            expectDeepEqual(r.getMiddlewareGroups().get("web"), [
-                "test-middleware",
-            ]);
+            expectDeepEqual(r.getMiddlewareGroups().get('web'), ['test-middleware']);
         });
 
         // PHP: RouteRegistrarTest::testPushMiddlewareToGroupDuplicatedMiddleware
-        it("Router::pushMiddlewareToGroup() does not duplicate an existing entry", () => {
+        it('Router::pushMiddlewareToGroup() does not duplicate an existing entry', () => {
             const r = router();
-            r.pushMiddlewareToGroup("web", "test-middleware");
-            r.pushMiddlewareToGroup("web", "test-middleware");
+            r.pushMiddlewareToGroup('web', 'test-middleware');
+            r.pushMiddlewareToGroup('web', 'test-middleware');
 
-            expectDeepEqual(r.getMiddlewareGroups().get("web"), [
-                "test-middleware",
-            ]);
+            expectDeepEqual(r.getMiddlewareGroups().get('web'), ['test-middleware']);
         });
 
         // PHP: RouteRegistrarTest::testCanRemoveMiddlewareFromGroup
-        it("Router::removeMiddlewareFromGroup() removes a registered entry", () => {
+        it('Router::removeMiddlewareFromGroup() removes a registered entry', () => {
             const r = router();
-            r.pushMiddlewareToGroup("web", "test-middleware");
-            r.removeMiddlewareFromGroup("web", "test-middleware");
+            r.pushMiddlewareToGroup('web', 'test-middleware');
+            r.removeMiddlewareFromGroup('web', 'test-middleware');
 
-            expectDeepEqual(r.getMiddlewareGroups().get("web"), []);
+            expectDeepEqual(r.getMiddlewareGroups().get('web'), []);
         });
 
         // PHP: RouteRegistrarTest::testCanRemoveMiddlewareFromGroupNotUnregisteredMiddleware
-        it("Router::removeMiddlewareFromGroup() is a no-op for an entry that was never there", () => {
+        it('Router::removeMiddlewareFromGroup() is a no-op for an entry that was never there', () => {
             const r = router();
-            r.middlewareGroup("web", []);
-            r.removeMiddlewareFromGroup("web", "different-test-middleware");
+            r.middlewareGroup('web', []);
+            r.removeMiddlewareFromGroup('web', 'different-test-middleware');
 
-            expectDeepEqual(r.getMiddlewareGroups().get("web"), []);
+            expectDeepEqual(r.getMiddlewareGroups().get('web'), []);
         });
 
         // PHP: RouteRegistrarTest::testCanRemoveMiddlewareFromGroupUnregisteredGroup
-        it("Router::removeMiddlewareFromGroup() does not create the group if it did not exist", () => {
+        it('Router::removeMiddlewareFromGroup() does not create the group if it did not exist', () => {
             const r = router();
-            r.removeMiddlewareFromGroup("web", "test-middleware");
+            r.removeMiddlewareFromGroup('web', 'test-middleware');
 
             expect(r.getMiddlewareGroups().size()).to.equal(0);
         });
@@ -478,12 +422,18 @@ export = (): void => {
         // `where()` class comment), so it does not read `[0-9]+` the way PHP's
         // does -- `whereNumber()`'s own expression (`%d+`, from `Route.ts`) is
         // asserted here instead.
-        it("Route::whereNumber() assigns the numeric pattern to every parameter named", () => {
+        it('Route::whereNumber() assigns the numeric pattern to every parameter named', () => {
             const r = router();
-            const wheres = { foo: "%d+", bar: "%d+" };
+            const wheres = { foo: '%d+', bar: '%d+' };
 
-            r.get("/{foo}/{bar}").whereNumber(["foo", "bar"]);
-            r.get("/api/{bar}/{foo}").whereNumber(["bar", "foo"]);
+            r.get('/{foo}/{bar}').whereNumber([
+                'foo',
+                'bar',
+            ]);
+            r.get('/api/{bar}/{foo}').whereNumber([
+                'bar',
+                'foo',
+            ]);
 
             for (const route of r.getRoutes().getRoutes()) {
                 expectDeepEqual(route.wheres, wheres);
@@ -491,12 +441,18 @@ export = (): void => {
         });
 
         // PHP: RouteRegistrarTest::testWhereAlphaRegistration
-        it("Route::whereAlpha() assigns the alphabetic pattern to every parameter named", () => {
+        it('Route::whereAlpha() assigns the alphabetic pattern to every parameter named', () => {
             const r = router();
-            const wheres = { foo: "%a+", bar: "%a+" };
+            const wheres = { foo: '%a+', bar: '%a+' };
 
-            r.get("/{foo}/{bar}").whereAlpha(["foo", "bar"]);
-            r.get("/api/{bar}/{foo}").whereAlpha(["bar", "foo"]);
+            r.get('/{foo}/{bar}').whereAlpha([
+                'foo',
+                'bar',
+            ]);
+            r.get('/api/{bar}/{foo}').whereAlpha([
+                'bar',
+                'foo',
+            ]);
 
             for (const route of r.getRoutes().getRoutes()) {
                 expectDeepEqual(route.wheres, wheres);
@@ -504,11 +460,11 @@ export = (): void => {
         });
 
         // PHP: RouteRegistrarTest::testWhereAlphaNumericRegistration
-        it("Route::whereAlphaNumeric() assigns the alphanumeric pattern to the parameter named", () => {
+        it('Route::whereAlphaNumeric() assigns the alphanumeric pattern to the parameter named', () => {
             const r = router();
-            const wheres = { "1a2b3c": "%w+" };
+            const wheres = { '1a2b3c': '%w+' };
 
-            r.get("/{foo}").whereAlphaNumeric(["1a2b3c"]);
+            r.get('/{foo}').whereAlphaNumeric(['1a2b3c']);
 
             for (const route of r.getRoutes().getRoutes()) {
                 expectDeepEqual(route.wheres, wheres);
@@ -516,91 +472,35 @@ export = (): void => {
         });
 
         // PHP: RouteRegistrarTest::testWhereUlidRegistration
-        it("Route::whereUlid() only matches a syntactically valid ULID segment", () => {
+        it('Route::whereUlid() only matches a syntactically valid ULID segment', () => {
             const r = router();
-            r.get("/{foo}").whereUlid("foo");
+            r.get('/{foo}').whereUlid('foo');
             const route = r.getRoutes().getRoutes()[0];
 
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/01ARZ3NDEKTSV4RRFFQ69G5FAV",
-                    ),
-                ),
-            ).to.equal(true);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/01ARZ3NDEKTSV4RRFFQ69G5FA",
-                    ),
-                ),
-            ).to.equal(false);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/01ARZ3NDEKTSV4RRFFQ69G5FAI",
-                    ),
-                ),
-            ).to.equal(false);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/81ARZ3NDEKTSV4RRFFQ69G5FAV",
-                    ),
-                ),
-            ).to.equal(false);
+            expect(route.matches(new Request({} as Player, 'GET', '/01ARZ3NDEKTSV4RRFFQ69G5FAV'))).to.equal(true);
+            expect(route.matches(new Request({} as Player, 'GET', '/01ARZ3NDEKTSV4RRFFQ69G5FA'))).to.equal(false);
+            expect(route.matches(new Request({} as Player, 'GET', '/01ARZ3NDEKTSV4RRFFQ69G5FAI'))).to.equal(false);
+            expect(route.matches(new Request({} as Player, 'GET', '/81ARZ3NDEKTSV4RRFFQ69G5FAV'))).to.equal(false);
         });
 
         // PHP: RouteRegistrarTest::testWhereUuidRegistration
-        it("Route::whereUuid() only matches a syntactically valid UUID segment", () => {
+        it('Route::whereUuid() only matches a syntactically valid UUID segment', () => {
             const r = router();
-            r.get("/{foo}").whereUuid("foo");
+            r.get('/{foo}').whereUuid('foo');
             const route = r.getRoutes().getRoutes()[0];
 
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/2cd90b6d-3c34-4a0a-9d0d-9d0b7b1a2e6f",
-                    ),
-                ),
-            ).to.equal(true);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/2CD90B6D-3C34-4A0A-9D0D-9D0B7B1A2E6F",
-                    ),
-                ),
-            ).to.equal(true);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/2cd90b6d3c344a0a9d0d9d0b7b1a2e6f",
-                    ),
-                ),
-            ).to.equal(false);
-            expect(
-                route.matches(
-                    new Request(
-                        {} as Player,
-                        "GET",
-                        "/2cd90b6d-3c34-4a0a-9d0d-9d0b7b1a2e6",
-                    ),
-                ),
-            ).to.equal(false);
+            expect(route.matches(new Request({} as Player, 'GET', '/2cd90b6d-3c34-4a0a-9d0d-9d0b7b1a2e6f'))).to.equal(
+                true,
+            );
+            expect(route.matches(new Request({} as Player, 'GET', '/2CD90B6D-3C34-4A0A-9D0D-9D0B7B1A2E6F'))).to.equal(
+                true,
+            );
+            expect(route.matches(new Request({} as Player, 'GET', '/2cd90b6d3c344a0a9d0d9d0b7b1a2e6f'))).to.equal(
+                false,
+            );
+            expect(route.matches(new Request({} as Player, 'GET', '/2cd90b6d-3c34-4a0a-9d0d-9d0b7b1a2e6'))).to.equal(
+                false,
+            );
         });
     });
 };

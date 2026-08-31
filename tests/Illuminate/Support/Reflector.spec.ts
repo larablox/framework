@@ -56,7 +56,7 @@
  * so this file stays empty of `it()`s rather than fabricate coverage.
  */
 export = (): void => {
-    describe("Reflector", () => {
+    describe('Reflector', () => {
         // Intentionally no it() blocks -- see the file-level comment above.
     });
 };

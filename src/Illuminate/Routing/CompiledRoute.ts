@@ -1,8 +1,9 @@
-import { InvalidArgumentException } from "Illuminate/Exception";
-import { Str } from "Illuminate/Support/Str";
+import { InvalidArgumentException } from 'Illuminate/Exception';
+import { Str } from 'Illuminate/Support/Str';
 
 /** One segment of a compiled URI: either literal text or a parameter. */
-export interface RouteSegment {
+export interface RouteSegment
+{
     /** The parameter name, or undefined when the segment is literal. */
     readonly name?: string;
 
@@ -37,24 +38,27 @@ export interface RouteSegment {
  *   trailing parameter with no pattern still takes one segment: nothing would
  *   be left to refuse the rest with.
  */
-export class CompiledRoute {
+export class CompiledRoute
+{
     /** Create a new compiled route. */
     public constructor(
         public readonly segments: Array<RouteSegment>,
         public readonly parameterNames: Array<string>,
-    ) {}
+    )
+    {}
 
     /** Compile the given URI into the segments matching walks. */
-    public static compile(uri: string): CompiledRoute {
+    public static compile(uri: string): CompiledRoute
+    {
         const segments = new Array<RouteSegment>();
         const parameterNames = new Array<string>();
         let seenOptional = false;
 
         for (const raw of CompiledRoute.split(uri)) {
-            const [inner] = raw.match("^{(.*)}$");
+            const [inner] = raw.match('^{(.*)}$');
 
-            if (!typeIs(inner, "string")) {
-                if (Str.contains(raw, "{")) {
+            if (!typeIs(inner, 'string')) {
+                if (Str.contains(raw, '{')) {
                     throw new InvalidArgumentException(
                         `Route pattern [${uri}] puts a parameter inside the segment [${raw}]; a parameter has to be a whole segment here.`,
                     );
@@ -71,13 +75,11 @@ export class CompiledRoute {
                 continue;
             }
 
-            const optional = inner.sub(inner.size(), inner.size()) === "?";
+            const optional = inner.sub(inner.size(), inner.size()) === '?';
             const name = optional ? inner.sub(1, inner.size() - 1) : inner;
 
-            if (name === "") {
-                throw new InvalidArgumentException(
-                    `Route pattern [${uri}] has an unnamed parameter.`,
-                );
+            if (name === '') {
+                throw new InvalidArgumentException(`Route pattern [${uri}] has an unnamed parameter.`);
             }
 
             if (seenOptional && !optional) {
@@ -102,10 +104,8 @@ export class CompiledRoute {
      * match at all -- which is the whole of what `UriValidator` asks, and what
      * `RouteParameterBinder` reads the values out of.
      */
-    public match(
-        path: string,
-        wheres: Record<string, string> = {},
-    ): Map<string, string> | undefined {
+    public match(path: string, wheres: Record<string, string> = {}): Map<string, string> | undefined
+    {
         const parts = CompiledRoute.split(path);
         const parameters = new Map<string, string>();
         const overflowing = parts.size() > this.segments.size();
@@ -117,8 +117,7 @@ export class CompiledRoute {
         for (let index = 0; index < this.segments.size(); index++) {
             const segment = this.segments[index];
             const last = index === this.segments.size() - 1;
-            const pattern =
-                segment.name !== undefined ? wheres[segment.name] : undefined;
+            const pattern = segment.name !== undefined ? wheres[segment.name] : undefined;
 
             // A trailing parameter with a pattern takes whatever is left of the
             // path -- several parts, or none at all -- and the pattern below
@@ -127,10 +126,7 @@ export class CompiledRoute {
             // would be nothing to refuse the rest with, so the parameter takes
             // one part and the length check above has already turned away
             // anything longer.
-            const value =
-                last && pattern !== undefined
-                    ? CompiledRoute.rest(parts, index)
-                    : parts[index];
+            const value = last && pattern !== undefined ? CompiledRoute.rest(parts, index) : parts[index];
 
             if (segment.name === undefined) {
                 if (value !== segment.text) {
@@ -170,33 +166,32 @@ export class CompiledRoute {
      * regular expression does. Without one, a route matches its own number of
      * segments and no more.
      */
-    protected trailingParameterSpans(wheres: Record<string, string>): boolean {
+    protected trailingParameterSpans(wheres: Record<string, string>): boolean
+    {
         const last = this.segments[this.segments.size() - 1];
 
-        return (
-            last !== undefined &&
-            last.name !== undefined &&
-            wheres[last.name] !== undefined
-        );
+        return last !== undefined && last.name !== undefined && wheres[last.name] !== undefined;
     }
 
     /** The path from the given part onwards, joined back together. */
-    protected static rest(parts: Array<string>, from: number): string {
+    protected static rest(parts: Array<string>, from: number): string
+    {
         const remaining = new Array<string>();
 
         for (let index = from; index < parts.size(); index++) {
             remaining.push(parts[index]);
         }
 
-        return remaining.join("/");
+        return remaining.join('/');
     }
 
     /** Split a URI into segments, treating "/" as no segments at all. */
-    protected static split(uri: string): Array<string> {
+    protected static split(uri: string): Array<string>
+    {
         const segments = new Array<string>();
 
-        for (const segment of uri.split("/")) {
-            if (segment !== "") {
+        for (const segment of uri.split('/')) {
+            if (segment !== '') {
                 segments.push(segment);
             }
         }

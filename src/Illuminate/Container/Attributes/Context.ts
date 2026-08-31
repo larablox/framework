@@ -1,17 +1,19 @@
-import { Repository } from "Illuminate/Log/Context/Repository";
-import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { Repository } from 'Illuminate/Log/Context/Repository';
+import { addParameterAttribute } from 'Illuminate/Container/Attributes/Inject';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] class Context`. */
-export interface Context extends ContextualAttribute {
+export interface Context extends ContextualAttribute
+{
     readonly key: string;
     readonly default?: unknown;
     readonly hidden: boolean;
 }
 
 /** Resolve the annotated parameter from the log context repository. */
-export function Context(key: string, defaultValue?: unknown, hidden = false) {
+export function Context(key: string, defaultValue?: unknown, hidden = false)
+{
     const instance: Context = {
         key,
         default: defaultValue,
@@ -26,17 +28,7 @@ export function Context(key: string, defaultValue?: unknown, hidden = false) {
         },
     };
 
-    return (
-        owner: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
-        addParameterAttribute(
-            owner,
-            propertyKey,
-            parameterIndex,
-            Context,
-            instance,
-        );
+    return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+        addParameterAttribute(owner, propertyKey, parameterIndex, Context, instance);
     };
 }

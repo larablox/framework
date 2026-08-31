@@ -1,7 +1,7 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { SubstituteBindings } from "Illuminate/Routing/Middleware/SubstituteBindings";
-import { ThrottleRequests } from "Illuminate/Routing/Middleware/ThrottleRequests";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Arr } from 'Illuminate/Support/Arr';
+import { SubstituteBindings } from 'Illuminate/Routing/Middleware/SubstituteBindings';
+import { ThrottleRequests } from 'Illuminate/Routing/Middleware/ThrottleRequests';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Foundation\Configuration\Middleware`.
@@ -25,7 +25,8 @@ import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
  * `preventRequestsDuringMaintenance()`, `statefulApi()`, `throttleWithRedis()`
  * and `authenticateSessions()`.
  */
-export class Middleware {
+export class Middleware
+{
     /** The user defined global middleware stack. */
     protected global?: Array<Pipe>;
 
@@ -72,29 +73,45 @@ export class Middleware {
     protected appendPriority = new Array<[Pipe, Pipe | Array<Pipe>]>();
 
     /** Prepend middleware to the application's global middleware stack. */
-    public prepend(middleware: Pipe | Array<Pipe>): this {
-        this.prepends = [...Arr.wrap(middleware), ...this.prepends];
+    public prepend(middleware: Pipe | Array<Pipe>): this
+    {
+        this.prepends = [
+            ...Arr.wrap(middleware),
+            ...this.prepends,
+        ];
 
         return this;
     }
 
     /** Append middleware to the application's global middleware stack. */
-    public append(middleware: Pipe | Array<Pipe>): this {
-        this.appends = [...this.appends, ...Arr.wrap(middleware)];
+    public append(middleware: Pipe | Array<Pipe>): this
+    {
+        this.appends = [
+            ...this.appends,
+            ...Arr.wrap(middleware),
+        ];
 
         return this;
     }
 
     /** Remove middleware from the application's global middleware stack. */
-    public remove(middleware: Pipe | Array<Pipe>): this {
-        this.removals = [...this.removals, ...Arr.wrap(middleware)];
+    public remove(middleware: Pipe | Array<Pipe>): this
+    {
+        this.removals = [
+            ...this.removals,
+            ...Arr.wrap(middleware),
+        ];
 
         return this;
     }
 
     /** Specify a middleware that should be replaced with another middleware. */
-    public replace(search: Pipe, replace: Pipe): this {
-        this.replacements.push([search, replace]);
+    public replace(search: Pipe, replace: Pipe): this
+    {
+        this.replacements.push([
+            search,
+            replace,
+        ]);
 
         return this;
     }
@@ -104,21 +121,24 @@ export class Middleware {
      *
      * PHP calls this `use()`, which is a reserved word here.
      */
-    public useMiddleware(middleware: Array<Pipe>): this {
+    public useMiddleware(middleware: Array<Pipe>): this
+    {
         this.global = middleware;
 
         return this;
     }
 
     /** Define a middleware group. */
-    public group(group: string, middleware: Array<Pipe>): this {
+    public group(group: string, middleware: Array<Pipe>): this
+    {
         this.groups[group] = middleware;
 
         return this;
     }
 
     /** Prepend the given middleware to the specified group. */
-    public prependToGroup(group: string, middleware: Pipe | Array<Pipe>): this {
+    public prependToGroup(group: string, middleware: Pipe | Array<Pipe>): this
+    {
         this.groupPrepends[group] = [
             ...Arr.wrap(middleware),
             ...(this.groupPrepends[group] ?? new Array<Pipe>()),
@@ -128,7 +148,8 @@ export class Middleware {
     }
 
     /** Append the given middleware to the specified group. */
-    public appendToGroup(group: string, middleware: Pipe | Array<Pipe>): this {
+    public appendToGroup(group: string, middleware: Pipe | Array<Pipe>): this
+    {
         this.groupAppends[group] = [
             ...(this.groupAppends[group] ?? new Array<Pipe>()),
             ...Arr.wrap(middleware),
@@ -138,10 +159,8 @@ export class Middleware {
     }
 
     /** Remove the given middleware from the specified group. */
-    public removeFromGroup(
-        group: string,
-        middleware: Pipe | Array<Pipe>,
-    ): this {
+    public removeFromGroup(group: string, middleware: Pipe | Array<Pipe>): this
+    {
         this.groupRemovals[group] = [
             ...Arr.wrap(middleware),
             ...(this.groupRemovals[group] ?? new Array<Pipe>()),
@@ -151,11 +170,14 @@ export class Middleware {
     }
 
     /** Replace the given middleware in the specified group with another middleware. */
-    public replaceInGroup(group: string, search: Pipe, replace: Pipe): this {
-        const replacements =
-            this.groupReplacements[group] ?? new Array<[Pipe, Pipe]>();
+    public replaceInGroup(group: string, search: Pipe, replace: Pipe): this
+    {
+        const replacements = this.groupReplacements[group] ?? new Array<[Pipe, Pipe]>();
 
-        replacements.push([search, replace]);
+        replacements.push([
+            search,
+            replace,
+        ]);
 
         this.groupReplacements[group] = replacements;
 
@@ -168,8 +190,9 @@ export class Middleware {
         prepend: Pipe | Array<Pipe> = [],
         remove: Pipe | Array<Pipe> = [],
         replace: Array<[Pipe, Pipe]> = [],
-    ): this {
-        return this.modifyGroup("api", append, prepend, remove, replace);
+    ): this
+    {
+        return this.modifyGroup('api', append, prepend, remove, replace);
     }
 
     /** Modify the middleware in the given group. */
@@ -179,7 +202,8 @@ export class Middleware {
         prepend: Pipe | Array<Pipe>,
         remove: Pipe | Array<Pipe>,
         replace: Array<[Pipe, Pipe]>,
-    ): this {
+    ): this
+    {
         if (!this.empty(append)) {
             this.appendToGroup(group, append);
         }
@@ -200,45 +224,54 @@ export class Middleware {
     }
 
     /** Register additional middleware aliases. */
-    public alias(aliases: Record<string, Pipe>): this {
+    public alias(aliases: Record<string, Pipe>): this
+    {
         this.customAliases = aliases;
 
         return this;
     }
 
     /** Define the middleware priority for the application. */
-    public priority(priority: Array<Pipe>): this {
+    public priority(priority: Array<Pipe>): this
+    {
         this.priorityList = priority;
 
         return this;
     }
 
     /** Prepend middleware to the priority middleware. */
-    public prependToPriorityList(
-        before: Pipe | Array<Pipe>,
-        prepend: Pipe,
-    ): this {
-        this.prependPriority.push([prepend, before]);
+    public prependToPriorityList(before: Pipe | Array<Pipe>, prepend: Pipe): this
+    {
+        this.prependPriority.push([
+            prepend,
+            before,
+        ]);
 
         return this;
     }
 
     /** Append middleware to the priority middleware. */
-    public appendToPriorityList(after: Pipe | Array<Pipe>, append: Pipe): this {
-        this.appendPriority.push([append, after]);
+    public appendToPriorityList(after: Pipe | Array<Pipe>, append: Pipe): this
+    {
+        this.appendPriority.push([
+            append,
+            after,
+        ]);
 
         return this;
     }
 
     /** Indicate that the API middleware group should throttle requests. */
-    public throttleApi(limiter = "api"): this {
+    public throttleApi(limiter = 'api'): this
+    {
         this.apiLimiter = limiter;
 
         return this;
     }
 
     /** Get the global middleware. */
-    public getGlobalMiddleware(): Array<Pipe> {
+    public getGlobalMiddleware(): Array<Pipe>
+    {
         const middleware = this.global ?? new Array<Pipe>();
         const replaced = new Array<Pipe>();
 
@@ -246,7 +279,11 @@ export class Middleware {
             replaced.push(this.replacementFor(this.replacements, entry));
         }
 
-        const merged = [...this.prepends, ...replaced, ...this.appends];
+        const merged = [
+            ...this.prepends,
+            ...replaced,
+            ...this.appends,
+        ];
         const resolved = new Array<Pipe>();
 
         for (const entry of merged) {
@@ -259,12 +296,15 @@ export class Middleware {
     }
 
     /** Get the middleware groups. */
-    public getMiddlewareGroups(): Record<string, Array<Pipe>> {
+    public getMiddlewareGroups(): Record<string, Array<Pipe>>
+    {
         const middleware: Record<string, Array<Pipe>> = {
-            api:
-                this.apiLimiter !== undefined
-                    ? [`throttle:${this.apiLimiter}`, SubstituteBindings]
-                    : [SubstituteBindings],
+            api: this.apiLimiter !== undefined
+                ? [
+                    `throttle:${this.apiLimiter}`,
+                    SubstituteBindings,
+                ]
+                : [SubstituteBindings],
         };
 
         for (const [group, groupMiddleware] of pairs(this.groups)) {
@@ -274,14 +314,8 @@ export class Middleware {
         for (const [group, replacements] of pairs(this.groupReplacements)) {
             const replaced = new Array<Pipe>();
 
-            for (const entry of middleware[group as string] ??
-                new Array<Pipe>()) {
-                replaced.push(
-                    this.replacementFor(
-                        replacements as Array<[Pipe, Pipe]>,
-                        entry,
-                    ),
-                );
+            for (const entry of middleware[group as string] ?? new Array<Pipe>()) {
+                replaced.push(this.replacementFor(replacements as Array<[Pipe, Pipe]>, entry));
             }
 
             middleware[group as string] = replaced;
@@ -312,7 +346,8 @@ export class Middleware {
     }
 
     /** Get the middleware aliases. */
-    public getMiddlewareAliases(): Record<string, Pipe> {
+    public getMiddlewareAliases(): Record<string, Pipe>
+    {
         const aliases = this.defaultAliases();
 
         for (const [alias, middleware] of pairs(this.customAliases)) {
@@ -328,24 +363,28 @@ export class Middleware {
      * One of PHP's eleven survives: the rest name authentication,
      * authorisation, sessions, signed URLs and precognition.
      */
-    protected defaultAliases(): Record<string, Pipe> {
+    protected defaultAliases(): Record<string, Pipe>
+    {
         return {
             throttle: ThrottleRequests,
         };
     }
 
     /** Get the middleware priority for the application. */
-    public getMiddlewarePriority(): Array<Pipe> {
+    public getMiddlewarePriority(): Array<Pipe>
+    {
         return this.priorityList;
     }
 
     /** Get the middleware to prepend to the middleware priority definition. */
-    public getMiddlewarePriorityPrepends(): Array<[Pipe, Pipe | Array<Pipe>]> {
+    public getMiddlewarePriorityPrepends(): Array<[Pipe, Pipe | Array<Pipe>]>
+    {
         return this.prependPriority;
     }
 
     /** Get the middleware to append to the middleware priority definition. */
-    public getMiddlewarePriorityAppends(): Array<[Pipe, Pipe | Array<Pipe>]> {
+    public getMiddlewarePriorityAppends(): Array<[Pipe, Pipe | Array<Pipe>]>
+    {
         return this.appendPriority;
     }
 
@@ -359,10 +398,8 @@ export class Middleware {
      * PHP keys the replacements by the middleware they replace; a class is not
      * a string here, so the pair is a list and the look-up is a walk.
      */
-    protected replacementFor(
-        replacements: Array<[Pipe, Pipe]>,
-        middleware: Pipe,
-    ): Pipe {
+    protected replacementFor(replacements: Array<[Pipe, Pipe]>, middleware: Pipe): Pipe
+    {
         for (const [search, replacement] of replacements) {
             if (search === middleware) {
                 return replacement;
@@ -373,10 +410,8 @@ export class Middleware {
     }
 
     /** The list with duplicates -- and anything removed -- taken out. */
-    protected unique(
-        middleware: Array<Pipe>,
-        removals: Array<Pipe> = [],
-    ): Array<Pipe> {
+    protected unique(middleware: Array<Pipe>, removals: Array<Pipe> = []): Array<Pipe>
+    {
         const resolved = new Array<Pipe>();
 
         for (const entry of middleware) {
@@ -393,13 +428,14 @@ export class Middleware {
      *
      * A class is a table with nothing in its array part, so asking for the size
      * alone would call every class empty. A compiled class carries a metatable
-     * and a plain list does not, which is the test `Pipeline::asList()` makes.
+     * and a plain list does not, which is the test `Util.isEmptyArray()` makes.
      */
-    protected empty(middleware: Pipe | Array<Pipe>): boolean {
+    protected empty(middleware: Pipe | Array<Pipe>): boolean
+    {
         return (
-            typeIs(middleware, "table") &&
-            getmetatable(middleware as object) === undefined &&
-            (middleware as Array<Pipe>).isEmpty()
+            typeIs(middleware, 'table')
+            && getmetatable(middleware as object) === undefined
+            && (middleware as Array<Pipe>).isEmpty()
         );
     }
 }

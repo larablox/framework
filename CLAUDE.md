@@ -62,12 +62,15 @@ this wired up, both load-bearing:
 | Watch artifacts in `out/` (Studio)      | `rojo serve`               |
 | Lint                                    | `npm run lint`             |
 | Lint + autofix                          | `npm run lint:fix`         |
+| Check formatting                        | `npm run format`           |
+| Format                                  | `npm run format:fix`       |
 | Analyze generated Luau                  | `npm run analyze`          |
 | Run the suite (no Studio)               | `npm test`                 |
 | Run one spec (no Studio)                | `npm run test:lune -- <filter>` |
 | Build the test place                    | `npm run test:build`       |
 | Serve the test place to Studio          | `npm run test:serve`       |
 | Remove build artifacts                  | `npm run clean`            |
+| Parity report against Laravel           | `npm run parity`           |
 | Install the workbench                   | `npm run workbench:install`|
 | Build the workbench                     | `npm run workbench`        |
 | Build the workbench place file          | `npm run workbench:place`  |
@@ -99,6 +102,58 @@ nothing else; those are skipped, named at the end of every run, and still need
 Studio or Open Cloud. A green `npm test` is therefore not a green suite, which
 is why the run says so out loud. `agent_docs/testing.md` has how the harness
 works and why the two services are not faked.
+
+## Parity tooling
+
+`npm run parity` compares `src/Illuminate` against a pinned `laravel/framework`
+checkout file to file and member to member, and writes `reports/parity/`
+(`files.csv`, `members.csv`, `summary.md`; gitignored). The reference lives in
+`.upstream/` — committed `composer.json`/`composer.lock`, installed by the
+runner via the developer's own `composer` (PHP CLI is also required).
+
+The summary carries two ratios. **Fidelity**: of what was ported, how much
+matches. **Coverage**: of what is portable at all, how much has been ported.
+Waivers are typed for exactly that split — `impossible` (the platform
+boundary; never counts as lag), `deferred` (real backlog; drags Coverage
+down), `port-only` (this port's own additions). Every waiver **starts as
+`deferred`**: `impossible` is written per case, by hand, with the proof in
+its reason — never presumed up front. Do not reclassify to `impossible`
+without that examination. Do not stub missing upstream
+API to raise the numbers: an absent member fails the consumer at compile
+time, a throwing stub at run time, and the report would count the stub as
+ported.
+
+The registries next to the scripts are committed and are the point of the tool:
+`aliases.json` (deliberate renames: `RedisQueue` → `MemoryStoreQueue`, ...;
+a leading underscore needs no alias — `_x` matches `x` by convention for
+names TS cannot use as-is), `exclusions.json` (typed waivers with reasons),
+`approvals.json` (per-member "implementation reviewed" marks keyed to
+hashes of **both** sides — method bodies, and declaration hashes for
+properties and consts — so editing the port or bumping Laravel flips the
+mark to stale automatically; non-method keys carry an `@kind` suffix, and
+port-only extras are recorded with `php_hash: null`). Review loop:
+`--list stale|unreviewed|pending`, `--show "<key>"` (both bodies side by
+side, then the recorded review note and waiver, if any), `--propose "<key>"` / `--propose-file` (a review lands at
+**pending** — the agent's approval of a perfect mirror, note tagged
+`Verbatim.`/`Mirrored.`), `--decision "<key>"` (a divergence awaiting the
+user's call, note tagged `DECISION:`), `--reject "<key>"` (the review found
+the port wrong, note tagged `REJECTED:`), `--approve "<key>"` /
+`--approve-file` (promotion to **approved** is a person's call — the user
+runs it, or Claude runs it only on the user's explicit instruction),
+`--verify "<key>"` (diffs the normalized token streams against
+`conventions.json` — the machine-readable register of renames and
+structural conventions — before a `Verbatim.`/`Mirrored.` tag is earned),
+`--approve-pending` (the user's batch promotion of the whole pending
+queue), `--refresh-cosmetic` (re-pins `ts_hash` on stales whose
+`php_hash` is unchanged), `--check` (non-zero exit on anything stale).
+The comparator also tracks heritage: every `uses:` trait, `implements`
+interface and `extends` parent is a members.csv row (`missing_mixin` /
+`missing_interface` / `missing_parent` when absent, waivable in
+`exclusions.json`'s `traits`/`heritage`), and a marker interface without
+its validating decorator (`conventions.json` `markerDecorators`) reads
+`missing_decorator`. A proposal asserts a mirror —
+record any verdict only after actually reading both bodies; approval
+asserts a human looked too.
 
 ## The workbench
 
@@ -136,8 +191,8 @@ Its lint does depend on `out/` existing. Run it straight after `npm run clean`
 and every framework type degrades to `any`, which `roblox-ts/lua-truthiness`
 then reports as errors that are not there. Build first.
 
-CI (`.github/workflows/ci.yml`) checks the package only, in three independent
-jobs — `lint`, `analyze` and `tests`. It does not install or build the
+CI (`.github/workflows/ci.yml`) checks the package only, in four independent
+jobs — `lint`, `format`, `analyze` and `tests`. It does not install or build the
 workbench, so nothing in there can break the package's checks. All three set
 themselves up through `.github/actions/setup`.
 
@@ -165,7 +220,19 @@ inside `.github/actions/setup` — for GitHub Actions it reads
 - The build is incremental: `rbxtsc` will not regenerate a file whose source
   did not change, so edits made directly in `out/` survive `npm run build`.
   Run `npm run clean` first when you need to trust what is in `out/`.
-- Formatting and style are `npm run lint:fix`'s job, not yours.
+- Formatting and style are `npm run format:fix`'s job (and `lint:fix`'s for
+  eslint autofixables), not yours. The
+  formatter is **dprint** (`dprint.json`), configured to read like Laravel:
+  PSR-12 brace placement (declarations open on the next line, control flow
+  on the same one), single quotes, and — the reason prettier is gone — it
+  **preserves authored multi-line layout**: an argument list written in the
+  upstream shape stays that way. Array literals are not authored but
+  enforced: `@stylistic/array-element-newline` in the eslint config expands
+  every array literal of two or more elements to one element per line
+  (destructuring patterns stay inline), which is the Laravel shape --
+  accepting that the few tuples PHP returns inline expand here too. Import
+  order is authored (`sortImportDeclarations: maintain`). When porting, copy
+  upstream's line breaks along with its names.
 - No Node APIs, no DOM, no `window`. The runtime is Luau; the only usable npm
   packages are `@rbxts/*`.
 - Do not add dependencies unless asked.

@@ -1,7 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { MemoryJob } from "Illuminate/Queue/Jobs/MemoryJob";
-import { MemoryQueue } from "Illuminate/Queue/MemoryQueue";
+import { Container } from 'Illuminate/Container/Container';
+import { MemoryJob } from 'Illuminate/Queue/Jobs/MemoryJob';
+import { MemoryQueue } from 'Illuminate/Queue/MemoryQueue';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueDatabaseQueueUnitTest`, ported against
@@ -39,13 +39,16 @@ import { MemoryQueue } from "Illuminate/Queue/MemoryQueue";
  * actually reads these through.
  */
 
-class MyTestJob {
-    public handle(): void {
+class MyTestJob
+{
+    public handle(): void
+    {
         //
     }
 }
 
-function freshQueue(): MemoryQueue {
+function freshQueue(): MemoryQueue
+{
     const queue = new MemoryQueue();
     queue.setContainer(new Container());
 
@@ -53,87 +56,94 @@ function freshQueue(): MemoryQueue {
 }
 
 export = (): void => {
-    describe("MemoryQueue", () => {
+    describe('MemoryQueue', () => {
         // PHP: QueueDatabaseQueueUnitTest::testPushProperlyPushesJobOntoDatabase
-        it("push() stores an object job with a uuid, display name, queue, and zero attempts", () => {
+        it('push() stores an object job with a uuid, display name, queue, and zero attempts', () => {
             const queue = freshQueue();
 
-            queue.push(new MyTestJob(), ["data"]);
+            queue.push(new MyTestJob(), ['data']);
 
             const record = queue.pendingJobs().first()!;
 
-            expect(record.queue).to.equal("default");
+            expect(record.queue).to.equal('default');
             expect(record.attempts).to.equal(0);
             expect(record.reservedAt).to.equal(undefined);
-            expect(typeOf(record.availableAt)).to.equal("number");
+            expect(typeOf(record.availableAt)).to.equal('number');
             expect(record.payload.uuid.size() > 0).to.equal(true);
-            expect(record.payload.displayName).to.equal("MyTestJob");
+            expect(record.payload.displayName).to.equal('MyTestJob');
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testPushProperlyPushesJobOntoDatabase (string job data point)
-        it("push() accepts a plain string as the job target", () => {
+        it('push() accepts a plain string as the job target', () => {
             const queue = freshQueue();
 
-            queue.push("foo", ["data"]);
+            queue.push('foo', ['data']);
 
             const record = queue.pendingJobs().first()!;
 
-            expect(record.payload.displayName).to.equal("foo");
+            expect(record.payload.displayName).to.equal('foo');
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testDelayedPushProperlyPushesJobOntoDatabase
-        it("later() stores the job as not yet available", () => {
+        it('later() stores the job as not yet available', () => {
             const queue = freshQueue();
 
-            queue.later(10, "foo", ["data"]);
+            queue.later(10, 'foo', ['data']);
 
             expect(queue.pendingJobs().count()).to.equal(0);
             expect(queue.delayedJobs().count()).to.equal(1);
 
             const record = queue.delayedJobs().first()!;
 
-            expect(record.queue).to.equal("default");
+            expect(record.queue).to.equal('default');
             expect(record.attempts).to.equal(0);
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testBulkBatchPushesOntoDatabase
-        it("bulk() pushes every job onto the given queue", () => {
+        it('bulk() pushes every job onto the given queue', () => {
             const queue = freshQueue();
 
-            queue.bulk(["foo", "bar"], ["data"], "queue");
+            queue.bulk(
+                [
+                    'foo',
+                    'bar',
+                ],
+                ['data'],
+                'queue',
+            );
 
-            const records = queue.pendingJobs("queue");
+            const records = queue.pendingJobs('queue');
 
             expect(records.count()).to.equal(2);
-            expect(records.first()!.payload.displayName).to.equal("foo");
-            expect(records.last()!.payload.displayName).to.equal("bar");
+            expect(records.first()!.payload.displayName).to.equal('foo');
+            expect(records.last()!.payload.displayName).to.equal('bar');
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testPendingJobs
-        it("pendingJobs() returns jobs that are available and unreserved", () => {
+        it('pendingJobs() returns jobs that are available and unreserved', () => {
             const queue = freshQueue();
             queue.push(new MyTestJob(), []);
 
             const jobs = queue.pendingJobs();
 
             expect(jobs.count()).to.equal(1);
-            expect(jobs.first()!.payload.displayName).to.equal("MyTestJob");
+            expect(jobs.first()!.payload.displayName).to.equal('MyTestJob');
             expect(jobs.first()!.attempts).to.equal(0);
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testDelayedJobs
-        it("delayedJobs() returns jobs that are not available yet", () => {
+        it('delayedJobs() returns jobs that are not available yet', () => {
             const queue = freshQueue();
             queue.later(60, new MyTestJob(), []);
 
             const jobs = queue.delayedJobs();
 
             expect(jobs.count()).to.equal(1);
-            expect(jobs.first()!.payload.displayName).to.equal("MyTestJob");
+            expect(jobs.first()!.payload.displayName).to.equal('MyTestJob');
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testReservedJobs
-        it("reservedJobs() returns jobs a worker is holding", () => {
+        it('reservedJobs() returns jobs a worker is holding', () => {
             const queue = freshQueue();
             queue.push(new MyTestJob(), []);
 
@@ -146,40 +156,40 @@ export = (): void => {
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testAllPendingJobs
-        it("allPendingJobs() returns pending jobs across every queue", () => {
+        it('allPendingJobs() returns pending jobs across every queue', () => {
             const queue = freshQueue();
-            queue.push("JobA", [], "default");
-            queue.push("JobB", [], "emails");
+            queue.push('JobA', [], 'default');
+            queue.push('JobB', [], 'emails');
 
             const jobs = queue.allPendingJobs();
 
             expect(jobs.count()).to.equal(2);
-            expect(jobs.first()!.payload.displayName).to.equal("JobA");
-            expect(jobs.last()!.payload.displayName).to.equal("JobB");
-            expect(jobs.last()!.queue).to.equal("emails");
+            expect(jobs.first()!.payload.displayName).to.equal('JobA');
+            expect(jobs.last()!.payload.displayName).to.equal('JobB');
+            expect(jobs.last()!.queue).to.equal('emails');
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testAllDelayedJobs
-        it("allDelayedJobs() returns delayed jobs across every queue", () => {
+        it('allDelayedJobs() returns delayed jobs across every queue', () => {
             const queue = freshQueue();
-            queue.later(60, "JobA", [], "default");
-            queue.later(60, "JobB", [], "emails");
+            queue.later(60, 'JobA', [], 'default');
+            queue.later(60, 'JobB', [], 'emails');
 
             const jobs = queue.allDelayedJobs();
 
             expect(jobs.count()).to.equal(2);
-            expect(jobs.first()!.payload.displayName).to.equal("JobA");
-            expect(jobs.last()!.payload.displayName).to.equal("JobB");
+            expect(jobs.first()!.payload.displayName).to.equal('JobA');
+            expect(jobs.last()!.payload.displayName).to.equal('JobB');
         });
 
         // PHP: QueueDatabaseQueueUnitTest::testAllReservedJobs
-        it("allReservedJobs() returns reserved jobs across every queue", () => {
+        it('allReservedJobs() returns reserved jobs across every queue', () => {
             const queue = freshQueue();
-            queue.push("JobA", [], "default");
-            queue.push("JobB", [], "emails");
+            queue.push('JobA', [], 'default');
+            queue.push('JobB', [], 'emails');
 
-            queue.pop("default");
-            queue.pop("emails");
+            queue.pop('default');
+            queue.pop('emails');
 
             const jobs = queue.allReservedJobs();
 
@@ -191,7 +201,7 @@ export = (): void => {
         // Not directly in the PHP suite -- exercises `pop()`/`release()`/
         // `delete()` end to end, since the mocked query builder upstream never
         // round-trips through a real store the way this in-memory table does.
-        it("pop() reserves a job, and release() returns it to pending", () => {
+        it('pop() reserves a job, and release() returns it to pending', () => {
             const queue = freshQueue();
             queue.push(MyTestJob, []);
 
@@ -208,7 +218,7 @@ export = (): void => {
             expect(queue.reservedJobs().count()).to.equal(0);
         });
 
-        it("pop() returns undefined once every job has been reserved", () => {
+        it('pop() returns undefined once every job has been reserved', () => {
             const queue = freshQueue();
             queue.push(MyTestJob, []);
             queue.pop();
@@ -216,7 +226,7 @@ export = (): void => {
             expect(queue.pop()).to.equal(undefined);
         });
 
-        it("delete() removes the job from the table entirely", () => {
+        it('delete() removes the job from the table entirely', () => {
             const queue = freshQueue();
             queue.push(MyTestJob, []);
 
@@ -226,14 +236,14 @@ export = (): void => {
             expect(queue.size()).to.equal(0);
         });
 
-        it("clear() removes every job from the given queue and reports how many", () => {
+        it('clear() removes every job from the given queue and reports how many', () => {
             const queue = freshQueue();
-            queue.push(MyTestJob, [], "default");
-            queue.push(MyTestJob, [], "emails");
+            queue.push(MyTestJob, [], 'default');
+            queue.push(MyTestJob, [], 'emails');
 
-            expect(queue.clear("default")).to.equal(1);
-            expect(queue.size("default")).to.equal(0);
-            expect(queue.size("emails")).to.equal(1);
+            expect(queue.clear('default')).to.equal(1);
+            expect(queue.size('default')).to.equal(0);
+            expect(queue.size('emails')).to.equal(1);
         });
     });
 };

@@ -14,5 +14,5 @@
  * taken from `RoutingRouteTest`.
  */
 export = (): void => {
-    describe("Routing.RouteBinding", () => {});
+    describe('Routing.RouteBinding', () => {});
 };

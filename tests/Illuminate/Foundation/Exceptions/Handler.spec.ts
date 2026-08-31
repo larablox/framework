@@ -1,20 +1,15 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../../TestHelpers";
-import {
-    Exception,
-    InvalidArgumentException,
-    LogicException,
-    RuntimeException,
-} from "Illuminate/Exception";
-import { Container } from "Illuminate/Container/Container";
-import { Handler } from "Illuminate/Foundation/Exceptions/Handler";
-import { HttpException } from "Illuminate/Http/Exceptions/HttpException";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { Repository as ConfigRepository } from "Illuminate/Config/Repository";
-import { Request } from "Illuminate/Http/Request";
-import { Response } from "Illuminate/Http/Response";
-import type { LogContext, LogLevel } from "Illuminate/Contracts/Log/Logger";
-import type { LogManager } from "Illuminate/Log/LogManager";
+import { expectDeepEqual } from '../../TestHelpers';
+import { Exception, InvalidArgumentException, LogicException, RuntimeException } from 'Illuminate/Exception';
+import { Container } from 'Illuminate/Container/Container';
+import { Handler } from 'Illuminate/Foundation/Exceptions/Handler';
+import { HttpException } from 'Illuminate/Http/Exceptions/HttpException';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
+import { Request } from 'Illuminate/Http/Request';
+import { Response } from 'Illuminate/Http/Response';
+import type { LogContext, LogLevel } from 'Illuminate/Contracts/Log/Logger';
+import type { LogManager } from 'Illuminate/Log/LogManager';
 
 /**
  * PHP: `Illuminate\Tests\Foundation\FoundationExceptionsHandlerTest`.
@@ -84,21 +79,20 @@ import type { LogManager } from "Illuminate/Log/LogManager";
  * substitutes for PHP's `$container->instance(LoggerInterface::class, $logger)`.
  */
 export = (): void => {
-    describe("Foundation.Exceptions.Handler", () => {
-        interface LogRecord {
+    describe('Foundation.Exceptions.Handler', () => {
+        interface LogRecord
+        {
             level: LogLevel;
             message: string;
             context: LogContext;
         }
 
-        class FakeLogger {
+        class FakeLogger
+        {
             public records = new Array<LogRecord>();
 
-            public log(
-                level: LogLevel,
-                message: unknown,
-                context?: LogContext,
-            ): void {
+            public log(level: LogLevel, message: unknown, context?: LogContext): void
+            {
                 this.records.push({
                     level: level,
                     message: message as string,
@@ -107,53 +101,65 @@ export = (): void => {
             }
         }
 
-        abstract class ReportingService {
+        abstract class ReportingService
+        {
             public abstract send(message: string): void;
         }
 
-        class SpyingReporter extends ReportingService {
+        class SpyingReporter extends ReportingService
+        {
             public sent = new Array<string>();
 
-            public send(message: string): void {
+            public send(message: string): void
+            {
                 this.sent.push(message);
             }
         }
 
-        class CustomException extends Exception {}
+        class CustomException extends Exception
+        {}
 
-        class ResponsableException extends Exception {
-            public toResponse(): Response {
+        class ResponsableException extends Exception
+        {
+            public toResponse(): Response
+            {
                 return new Response({
-                    response: "My responsable exception response",
+                    response: 'My responsable exception response',
                 });
             }
         }
 
-        class ReportableException extends Exception {
-            public report(
-                @Inject(ReportingService) service: ReportingService,
-            ): void {
+        class ReportableException extends Exception
+        {
+            public report(@Inject(ReportingService) service: ReportingService): void
+            {
                 service.send(this.getMessage());
             }
         }
 
-        class UnReportableException extends Exception {
-            public report(): boolean {
+        class UnReportableException extends Exception
+        {
+            public report(): boolean
+            {
                 return false;
             }
         }
 
-        class RenderableException extends Exception {
-            public render(): Response {
+        class RenderableException extends Exception
+        {
+            public render(): Response
+            {
                 return new Response({
-                    response: "My renderable exception response",
+                    response: 'My renderable exception response',
                 });
             }
         }
 
-        class ContextProvidingException extends Exception {
-            public context(): LogContext {
-                return { foo: "bar" };
+        class ContextProvidingException extends Exception
+        {
+            public context(): LogContext
+            {
+                return { foo: 'bar' };
             }
         }
 
@@ -164,28 +170,33 @@ export = (): void => {
          * thing the test needs from it is a class distinct from
          * `RuntimeException`, which is exercised unlevelled in the same case.
          */
-        class CustomLevelException extends LogicException {}
+        class CustomLevelException extends LogicException
+        {}
 
-        function handlerWithFakeLogger(): [Handler, FakeLogger] {
+        function handlerWithFakeLogger(): [Handler, FakeLogger]
+        {
             const container = new Container();
-            container.instance("config", new ConfigRepository({}));
+            container.instance('config', new ConfigRepository({}));
 
             const logger = new FakeLogger();
-            container.instance("log", logger as unknown as LogManager);
+            container.instance('log', logger as unknown as LogManager);
 
-            return [new Handler(container), logger];
+            return [
+                new Handler(container),
+                logger,
+            ];
         }
 
         it("report() logs the exception's message under an `exception` context key", () => {
             // PHP: FoundationExceptionsHandlerTest::testHandlerReportsExceptionAsContext
             const [handler, logger] = handlerWithFakeLogger();
-            const e = new RuntimeException("Exception message");
+            const e = new RuntimeException('Exception message');
 
             handler.report(e);
 
             expect(logger.records.size()).to.equal(1);
-            expect(logger.records[0].level).to.equal("error");
-            expect(logger.records[0].message).to.equal("Exception message");
+            expect(logger.records[0].level).to.equal('error');
+            expect(logger.records[0].message).to.equal('Exception message');
             expect(logger.records[0].context.exception).to.equal(e);
         });
 
@@ -193,43 +204,43 @@ export = (): void => {
             // PHP: FoundationExceptionsHandlerTest::testHandlerCallsContextMethodIfPresent
             const [handler, logger] = handlerWithFakeLogger();
 
-            handler.report(new ContextProvidingException("Exception message"));
+            handler.report(new ContextProvidingException('Exception message'));
 
-            expect(logger.records[0].context.foo).to.equal("bar");
+            expect(logger.records[0].context.foo).to.equal('bar');
         });
 
         it("report() still logs when the exception's own report() returns false", () => {
             // PHP: FoundationExceptionsHandlerTest::testHandlerReportsExceptionWhenUnReportable
             const [handler, logger] = handlerWithFakeLogger();
 
-            handler.report(new UnReportableException("Exception message"));
+            handler.report(new UnReportableException('Exception message'));
 
             expect(logger.records.size()).to.equal(1);
-            expect(logger.records[0].message).to.equal("Exception message");
+            expect(logger.records[0].message).to.equal('Exception message');
         });
 
-        it("level() maps an exception type to a custom log level (adapted -- see class comment)", () => {
+        it('level() maps an exception type to a custom log level (adapted -- see class comment)', () => {
             // PHP: FoundationExceptionsHandlerTest::testHandlerReportsExceptionWithCustomLogLevel
             const [handler, logger] = handlerWithFakeLogger();
 
-            handler.level(InvalidArgumentException, "critical");
-            handler.level(CustomLevelException, "custom" as LogLevel);
+            handler.level(InvalidArgumentException, 'critical');
+            handler.level(CustomLevelException, 'custom' as LogLevel);
 
-            handler.report(new InvalidArgumentException("Critical message"));
-            handler.report(new RuntimeException("Error message"));
-            handler.report(new CustomLevelException("Custom message"));
+            handler.report(new InvalidArgumentException('Critical message'));
+            handler.report(new RuntimeException('Error message'));
+            handler.report(new CustomLevelException('Custom message'));
 
-            expect(logger.records[0].level).to.equal("critical");
-            expect(logger.records[1].level).to.equal("error");
-            expect(logger.records[2].level).to.equal("custom");
+            expect(logger.records[0].level).to.equal('critical');
+            expect(logger.records[1].level).to.equal('error');
+            expect(logger.records[2].level).to.equal('custom');
         });
 
-        it("ignore() stops an exception type from being reported", () => {
+        it('ignore() stops an exception type from being reported', () => {
             // PHP: FoundationExceptionsHandlerTest::testHandlerIgnoresNotReportableExceptions
             const [handler, logger] = handlerWithFakeLogger();
 
             handler.ignore(RuntimeException);
-            handler.report(new RuntimeException("Exception message"));
+            handler.report(new RuntimeException('Exception message'));
 
             expect(logger.records.size()).to.equal(0);
         });
@@ -237,30 +248,30 @@ export = (): void => {
         it("report() calls the exception's own report() through the container, and does not log", () => {
             // PHP: FoundationExceptionsHandlerTest::testHandlerCallsReportMethodWithDependencies
             const container = new Container();
-            container.instance("config", new ConfigRepository({}));
+            container.instance('config', new ConfigRepository({}));
             const logger = new FakeLogger();
-            container.instance("log", logger as unknown as LogManager);
+            container.instance('log', logger as unknown as LogManager);
             const reporter = new SpyingReporter();
             container.instance(ReportingService, reporter);
 
             const handler = new Handler(container);
-            handler.report(new ReportableException("Exception message"));
+            handler.report(new ReportableException('Exception message'));
 
-            expectDeepEqual(reporter.sent, ["Exception message"]);
+            expectDeepEqual(reporter.sent, ['Exception message']);
             expect(logger.records.size()).to.equal(0);
         });
 
-        it("renderable() offers every exception to the callback, and its response wins", () => {
+        it('renderable() offers every exception to the callback, and its response wins', () => {
             // PHP: FoundationExceptionsHandlerTest::testReturnsCustomResponseFromRenderableCallback
             const [handler] = handlerWithFakeLogger();
-            const request = new Request({} as Player, "GET", "/");
+            const request = new Request({} as Player, 'GET', '/');
 
             handler.renderable((e: unknown, r: Request) => {
                 expect(r).to.equal(request);
 
                 if (e instanceof CustomException) {
                     return new Response({
-                        response: "My custom exception response",
+                        response: 'My custom exception response',
                     });
                 }
 
@@ -270,100 +281,79 @@ export = (): void => {
             const response = handler.render(request, new CustomException());
 
             expectDeepEqual(response.getContent(), {
-                response: "My custom exception response",
+                response: 'My custom exception response',
             });
         });
 
         it("render() prefers an exception's own render() method", () => {
             // PHP: FoundationExceptionsHandlerTest::testReturnsResponseFromRenderableException
             const [handler] = handlerWithFakeLogger();
-            const request = new Request({} as Player, "GET", "/");
+            const request = new Request({} as Player, 'GET', '/');
 
             const response = handler.render(request, new RenderableException());
 
             expectDeepEqual(response.getContent(), {
-                response: "My renderable exception response",
+                response: 'My renderable exception response',
             });
         });
 
-        it("map() rewrites the exception before render() sees it", () => {
+        it('map() rewrites the exception before render() sees it', () => {
             // PHP: FoundationExceptionsHandlerTest::testReturnsResponseFromMappedRenderableException
             const [handler] = handlerWithFakeLogger();
-            const request = new Request({} as Player, "GET", "/");
+            const request = new Request({} as Player, 'GET', '/');
 
             handler.map(RuntimeException, RenderableException);
 
             const response = handler.render(request, new RuntimeException());
 
             expectDeepEqual(response.getContent(), {
-                response: "My renderable exception response",
+                response: 'My renderable exception response',
             });
         });
 
-        it("render() answers a Responsable exception with its own toResponse()", () => {
+        it('render() answers a Responsable exception with its own toResponse()', () => {
             // PHP: FoundationExceptionsHandlerTest::testReturnsCustomResponseWhenExceptionImplementsResponsable
             const [handler] = handlerWithFakeLogger();
-            const request = new Request({} as Player, "GET", "/");
+            const request = new Request({} as Player, 'GET', '/');
 
-            const response = handler.render(
-                request,
-                new ResponsableException(),
-            );
+            const response = handler.render(request, new ResponsableException());
 
             expectDeepEqual(response.getContent(), {
-                response: "My responsable exception response",
+                response: 'My responsable exception response',
             });
         });
 
         it("render() masks a generic exception's message when debug is off (adapted -- see class comment)", () => {
             // PHP: FoundationExceptionsHandlerTest::testReturnsJsonWithoutStackTraceWhenAjaxRequestAndDebugFalseAndExceptionMessageIsMasked
             const container = new Container();
-            container.instance(
-                "config",
-                new ConfigRepository({ app: { debug: false } }),
-            );
-            container.instance(
-                "log",
-                new FakeLogger() as unknown as LogManager,
-            );
+            container.instance('config', new ConfigRepository({ app: { debug: false } }));
+            container.instance('log', new FakeLogger() as unknown as LogManager);
 
             const handler = new Handler(container);
-            const request = new Request({} as Player, "GET", "/");
+            const request = new Request({} as Player, 'GET', '/');
 
-            const response = handler.render(
-                request,
-                new Exception("This error message should not be visible"),
-            );
+            const response = handler.render(request, new Exception('This error message should not be visible'));
 
-            expectDeepEqual(response.getContent(), { message: "Server Error" });
+            expectDeepEqual(response.getContent(), { message: 'Server Error' });
         });
 
         it("render() still shows an HttpException's own message when debug is off (adapted -- see class comment)", () => {
             // PHP: FoundationExceptionsHandlerTest::testReturnsJsonWithoutStackTraceWhenAjaxRequestAndDebugFalseAndHttpExceptionErrorIsShown
             const container = new Container();
-            container.instance(
-                "config",
-                new ConfigRepository({ app: { debug: false } }),
-            );
-            container.instance(
-                "log",
-                new FakeLogger() as unknown as LogManager,
-            );
+            container.instance('config', new ConfigRepository({ app: { debug: false } }));
+            container.instance('log', new FakeLogger() as unknown as LogManager);
 
             const handler = new Handler(container);
-            const request = new Request({} as Player, "GET", "/");
+            const request = new Request({} as Player, 'GET', '/');
 
-            const response = handler.render(
-                request,
-                new HttpException(403, "My custom error message"),
-            );
+            const response = handler.render(request, new HttpException(403, 'My custom error message'));
 
             expectDeepEqual(response.getContent(), {
-                message: "My custom error message",
+                message: 'My custom error message',
             });
         });
 
-        it("report() offers a reportable() callback the same exception instance every time it is reported", () => {
+        it('report() offers a reportable() callback the same exception instance every time it is reported', () => {
             // PHP: FoundationExceptionsHandlerTest::testItReportsDuplicateExceptions
             const [handler] = handlerWithFakeLogger();
             const reported = new Array<unknown>();
@@ -374,16 +364,20 @@ export = (): void => {
                 return false;
             });
 
-            const one = new RuntimeException("foo");
+            const one = new RuntimeException('foo');
             handler.report(one);
             handler.report(one);
-            const two = new RuntimeException("foo");
+            const two = new RuntimeException('foo');
             handler.report(two);
 
-            expectDeepEqual(reported, [one, one, two]);
+            expectDeepEqual(reported, [
+                one,
+                one,
+                two,
+            ]);
         });
 
-        it("dontReportDuplicates() reports the same exception instance only once", () => {
+        it('dontReportDuplicates() reports the same exception instance only once', () => {
             // PHP: FoundationExceptionsHandlerTest::testItCanDedupeExceptions
             const [handler] = handlerWithFakeLogger();
             const reported = new Array<unknown>();
@@ -395,21 +389,24 @@ export = (): void => {
             });
             handler.dontReportDuplicates();
 
-            const one = new RuntimeException("foo");
+            const one = new RuntimeException('foo');
             handler.report(one);
             handler.report(one);
-            const two = new RuntimeException("foo");
+            const two = new RuntimeException('foo');
             handler.report(two);
 
-            expectDeepEqual(reported, [one, two]);
+            expectDeepEqual(reported, [
+                one,
+                two,
+            ]);
         });
 
-        it("dontReportWhen() skips reporting exceptions the callback rejects", () => {
+        it('dontReportWhen() skips reporting exceptions the callback rejects', () => {
             // PHP: FoundationExceptionsHandlerTest::testItCanSkipExceptionReportingUsingCallback
             const [handler] = handlerWithFakeLogger();
             const reported = new Array<unknown>();
-            const e1 = new RuntimeException("foo");
-            const e2 = new RuntimeException("bar");
+            const e1 = new RuntimeException('foo');
+            const e2 = new RuntimeException('bar');
 
             handler.reportable((e: unknown) => {
                 reported[reported.size()] = e;
@@ -417,10 +414,7 @@ export = (): void => {
                 return false;
             });
 
-            handler.dontReportWhen(
-                (e: unknown) =>
-                    e instanceof RuntimeException && e.getMessage() === "foo",
-            );
+            handler.dontReportWhen((e: unknown) => e instanceof RuntimeException && e.getMessage() === 'foo');
 
             handler.report(e1);
             handler.report(e2);
@@ -429,7 +423,7 @@ export = (): void => {
             expectDeepEqual(reported, [e2]);
         });
 
-        it("report() does not throttle by default (adapted -- see class comment)", () => {
+        it('report() does not throttle by default (adapted -- see class comment)', () => {
             // PHP: FoundationExceptionsHandlerTest::testItDoesNotThrottleExceptionsByDefault
             const [handler] = handlerWithFakeLogger();
             const reported = new Array<unknown>();

@@ -1,5 +1,5 @@
-import { RuntimeException } from "Illuminate/Exception";
-import type { Response } from "Illuminate/Http/Response";
+import { RuntimeException } from 'Illuminate/Exception';
+import type { Response } from 'Illuminate/Http/Response';
 
 /**
  * PHP: `Illuminate\Http\Exceptions\HttpResponseException`.
@@ -8,14 +8,17 @@ import type { Response } from "Illuminate/Http/Response";
  * is: `Route::run()` catches it and takes the response it carries. Validation
  * will throw it once it exists.
  */
-export class HttpResponseException extends RuntimeException {
+export class HttpResponseException extends RuntimeException
+{
     /** Create a new HTTP response exception instance. */
-    public constructor(protected readonly response: Response) {
+    public constructor(protected readonly response: Response)
+    {
         super();
     }
 
     /** Get the underlying response instance. */
-    public getResponse(): Response {
+    public getResponse(): Response
+    {
         return this.response;
     }
 }

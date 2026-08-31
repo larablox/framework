@@ -1,11 +1,12 @@
-import { Reflector } from "Illuminate/Support/Reflector";
-import { RuntimeException } from "Illuminate/Exception";
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { RuntimeException } from 'Illuminate/Exception';
 
-const HttpService = game.GetService("HttpService");
-const Players = game.GetService("Players");
+const HttpService = game.GetService('HttpService');
+const Players = game.GetService('Players');
 
 /** Thrown when a value cannot be turned into a payload, or read back from one. */
-export class SerializationException extends RuntimeException {}
+export class SerializationException extends RuntimeException
+{}
 
 /**
  * Thrown when a serialized `Instance` reference no longer resolves.
@@ -15,13 +16,14 @@ export class SerializationException extends RuntimeException {}
  * was deleted between queueing and running is the same situation as a player
  * who has left.
  */
-export class InstanceNotFoundException extends SerializationException {}
+export class InstanceNotFoundException extends SerializationException
+{}
 
 /** The key a class envelope is tagged with. */
-const CLASS_KEY = "__class";
+const CLASS_KEY = '__class';
 
 /** The key a datatype envelope is tagged with. */
-const TYPE_KEY = "__type";
+const TYPE_KEY = '__type';
 
 /** name -> class, the substitute for PHP's autoloader. */
 const namesToClasses = new Map<string, object>();
@@ -52,9 +54,11 @@ const classesToNames = new Map<object, string>();
  * Object identity and cycles are lost: PHP's format carries back-references,
  * JSON does not, so a cycle is reported rather than silently truncated.
  */
-export class Serializer {
+export class Serializer
+{
     /** Make a class resolvable by name when a payload is read back. */
-    public static register(target: object, name?: string): void {
+    public static register(target: object, name?: string): void
+    {
         const registered = name ?? Reflector.className(target);
 
         const existing = namesToClasses.get(registered);
@@ -70,7 +74,8 @@ export class Serializer {
     }
 
     /** The name a class is serialized under, registering it if it is new. */
-    public static nameOf(target: object): string {
+    public static nameOf(target: object): string
+    {
         const known = classesToNames.get(target);
 
         if (known !== undefined) {
@@ -83,35 +88,32 @@ export class Serializer {
     }
 
     /** The class registered under the given name, if any. */
-    public static resolve(name: string): object | undefined {
+    public static resolve(name: string): object | undefined
+    {
         return namesToClasses.get(name);
     }
 
     /** PHP: `serialize($value)`. */
-    public static serialize(value: unknown): string {
+    public static serialize(value: unknown): string
+    {
         const encoded = encode(value, new Map<object, boolean>());
 
-        const [ok, result] = pcall(() =>
-            HttpService.JSONEncode(encoded as defined),
-        );
+        const [ok, result] = pcall(() => HttpService.JSONEncode(encoded as defined));
 
         if (!ok) {
-            throw new SerializationException(
-                `Unable to encode payload: ${tostring(result)}`,
-            );
+            throw new SerializationException(`Unable to encode payload: ${tostring(result)}`);
         }
 
         return result as string;
     }
 
     /** PHP: `unserialize($payload)`. */
-    public static unserialize(payload: string): unknown {
+    public static unserialize(payload: string): unknown
+    {
         const [ok, decoded] = pcall(() => HttpService.JSONDecode(payload));
 
         if (!ok) {
-            throw new SerializationException(
-                `Unable to decode payload: ${tostring(decoded)}`,
-            );
+            throw new SerializationException(`Unable to decode payload: ${tostring(decoded)}`);
         }
 
         return decode(decoded);
@@ -119,60 +121,67 @@ export class Serializer {
 }
 
 /** Turn one value into something `JSONEncode` accepts. */
-function encode(value: unknown, seen: Map<object, boolean>): unknown {
-    if (
-        typeIs(value, "number") ||
-        typeIs(value, "string") ||
-        typeIs(value, "boolean")
-    ) {
+function encode(value: unknown, seen: Map<object, boolean>): unknown
+{
+    if (typeIs(value, 'number') || typeIs(value, 'string') || typeIs(value, 'boolean')) {
         return value;
     }
 
-    if (typeIs(value, "function")) {
-        throw new SerializationException(
-            "Serialization of a function is not allowed.",
-        );
+    if (typeIs(value, 'function')) {
+        throw new SerializationException('Serialization of a function is not allowed.');
     }
 
-    if (typeIs(value, "Instance")) {
+    if (typeIs(value, 'Instance')) {
         return encodeInstance(value);
     }
 
-    if (typeIs(value, "Vector3")) {
-        return { [TYPE_KEY]: "vector3", x: value.X, y: value.Y, z: value.Z };
+    if (typeIs(value, 'Vector3')) {
+        return { [TYPE_KEY]: 'vector3', x: value.X, y: value.Y, z: value.Z };
     }
 
-    if (typeIs(value, "Vector2")) {
-        return { [TYPE_KEY]: "vector2", x: value.X, y: value.Y };
+    if (typeIs(value, 'Vector2')) {
+        return { [TYPE_KEY]: 'vector2', x: value.X, y: value.Y };
     }
 
-    if (typeIs(value, "CFrame")) {
+    if (typeIs(value, 'CFrame')) {
         // Spelled out: a LuaTuple inside an array literal nests instead of
         // flattening, and the twelve components have to stay a flat list.
-        const [x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22] =
-            value.GetComponents();
+        const [x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22] = value.GetComponents();
 
         return {
-            [TYPE_KEY]: "cframe",
-            components: [x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22],
+            [TYPE_KEY]: 'cframe',
+            components: [
+                x,
+                y,
+                z,
+                r00,
+                r01,
+                r02,
+                r10,
+                r11,
+                r12,
+                r20,
+                r21,
+                r22,
+            ],
         };
     }
 
-    if (typeIs(value, "Color3")) {
-        return { [TYPE_KEY]: "color3", r: value.R, g: value.G, b: value.B };
+    if (typeIs(value, 'Color3')) {
+        return { [TYPE_KEY]: 'color3', r: value.R, g: value.G, b: value.B };
     }
 
-    if (typeIs(value, "UDim")) {
+    if (typeIs(value, 'UDim')) {
         return {
-            [TYPE_KEY]: "udim",
+            [TYPE_KEY]: 'udim',
             scale: value.Scale,
             offset: value.Offset,
         };
     }
 
-    if (typeIs(value, "UDim2")) {
+    if (typeIs(value, 'UDim2')) {
         return {
-            [TYPE_KEY]: "udim2",
+            [TYPE_KEY]: 'udim2',
             components: [
                 value.X.Scale,
                 value.X.Offset,
@@ -182,27 +191,27 @@ function encode(value: unknown, seen: Map<object, boolean>): unknown {
         };
     }
 
-    if (typeIs(value, "DateTime")) {
+    if (typeIs(value, 'DateTime')) {
         return {
-            [TYPE_KEY]: "datetime",
+            [TYPE_KEY]: 'datetime',
             millis: value.UnixTimestampMillis,
         };
     }
 
-    if (typeIs(value, "EnumItem")) {
+    if (typeIs(value, 'EnumItem')) {
         return {
-            [TYPE_KEY]: "enum",
+            [TYPE_KEY]: 'enum',
             enum: tostring(value.EnumType),
             name: value.Name,
         };
     }
 
-    if (typeIs(value, "table")) {
+    if (typeIs(value, 'table')) {
         // A class itself, not an instance of one: PHP would be carrying its
         // name as a class-string, and so does this.
         if (isClassTable(value as object)) {
             return {
-                [TYPE_KEY]: "class",
+                [TYPE_KEY]: 'class',
                 name: Serializer.nameOf(value as object),
             };
         }
@@ -210,40 +219,36 @@ function encode(value: unknown, seen: Map<object, boolean>): unknown {
         return encodeTable(value as object, seen);
     }
 
-    throw new SerializationException(
-        `Serialization of a [${typeOf(value)}] value is not supported.`,
-    );
+    throw new SerializationException(`Serialization of a [${typeOf(value)}] value is not supported.`);
 }
 
 /** An `Instance` becomes an identifier, never the instance itself. */
-function encodeInstance(instance: Instance): unknown {
-    if (instance.IsA("Player")) {
+function encodeInstance(instance: Instance): unknown
+{
+    if (instance.IsA('Player')) {
         return {
-            [TYPE_KEY]: "instance",
-            class: "Player",
+            [TYPE_KEY]: 'instance',
+            class: 'Player',
             id: instance.UserId,
         };
     }
 
     return {
-        [TYPE_KEY]: "instance",
+        [TYPE_KEY]: 'instance',
         path: instance.GetFullName(),
     };
 }
 
 /** A table is a class instance, a list or a map. */
-function encodeTable(value: object, seen: Map<object, boolean>): unknown {
+function encodeTable(value: object, seen: Map<object, boolean>): unknown
+{
     if (seen.get(value) === true) {
-        throw new SerializationException(
-            "Serialization of a cyclic value is not supported.",
-        );
+        throw new SerializationException('Serialization of a cyclic value is not supported.');
     }
 
     seen.set(value, true);
 
-    const klass = Reflector.isInstance(value)
-        ? Reflector.classOf(value)
-        : undefined;
+    const klass = Reflector.isInstance(value) ? Reflector.classOf(value) : undefined;
 
     const entries = value as unknown as Record<string, unknown>;
 
@@ -275,7 +280,7 @@ function encodeTable(value: object, seen: Map<object, boolean>): unknown {
             ] as unknown as defined);
         }
 
-        encoded = { [TYPE_KEY]: "map", entries: pairsList };
+        encoded = { [TYPE_KEY]: 'map', entries: pairsList };
     }
 
     seen.delete(value);
@@ -288,8 +293,9 @@ function encodeTable(value: object, seen: Map<object, boolean>): unknown {
 }
 
 /** Read one encoded value back. */
-function decode(value: unknown): unknown {
-    if (!typeIs(value, "table")) {
+function decode(value: unknown): unknown
+{
+    if (!typeIs(value, 'table')) {
         return value;
     }
 
@@ -297,13 +303,13 @@ function decode(value: unknown): unknown {
 
     const className = entries[CLASS_KEY];
 
-    if (typeIs(className, "string")) {
+    if (typeIs(className, 'string')) {
         return decodeClass(className, entries.fields);
     }
 
     const tag = entries[TYPE_KEY];
 
-    if (typeIs(tag, "string")) {
+    if (typeIs(tag, 'string')) {
         return decodeTagged(tag, entries);
     }
 
@@ -332,7 +338,8 @@ function decode(value: unknown): unknown {
  * The constructor is never called -- PHP's `unserialize()` does not call one
  * either -- so a job comes back with exactly the state it was queued with.
  */
-function decodeClass(name: string, fields: unknown): object {
+function decodeClass(name: string, fields: unknown): object
+{
     const klass = Serializer.resolve(name);
 
     if (klass === undefined) {
@@ -347,20 +354,17 @@ function decodeClass(name: string, fields: unknown): object {
 }
 
 /** Rebuild one of the tagged datatypes. */
-function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
-    if (tag === "vector3") {
-        return new Vector3(
-            entries.x as number,
-            entries.y as number,
-            entries.z as number,
-        );
+function decodeTagged(tag: string, entries: Record<string, unknown>): unknown
+{
+    if (tag === 'vector3') {
+        return new Vector3(entries.x as number, entries.y as number, entries.z as number);
     }
 
-    if (tag === "vector2") {
+    if (tag === 'vector2') {
         return new Vector2(entries.x as number, entries.y as number);
     }
 
-    if (tag === "cframe") {
+    if (tag === 'cframe') {
         const components = entries.components as Array<number>;
 
         return new CFrame(
@@ -379,38 +383,29 @@ function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
         );
     }
 
-    if (tag === "color3") {
-        return new Color3(
-            entries.r as number,
-            entries.g as number,
-            entries.b as number,
-        );
+    if (tag === 'color3') {
+        return new Color3(entries.r as number, entries.g as number, entries.b as number);
     }
 
-    if (tag === "udim") {
+    if (tag === 'udim') {
         return new UDim(entries.scale as number, entries.offset as number);
     }
 
-    if (tag === "udim2") {
+    if (tag === 'udim2') {
         const components = entries.components as Array<number>;
 
-        return new UDim2(
-            components[0],
-            components[1],
-            components[2],
-            components[3],
-        );
+        return new UDim2(components[0], components[1], components[2], components[3]);
     }
 
-    if (tag === "datetime") {
+    if (tag === 'datetime') {
         return DateTime.fromUnixTimestampMillis(entries.millis as number);
     }
 
-    if (tag === "enum") {
+    if (tag === 'enum') {
         return decodeEnum(entries.enum as string, entries.name as string);
     }
 
-    if (tag === "class") {
+    if (tag === 'class') {
         const name = entries.name as string;
 
         const klass = Serializer.resolve(name);
@@ -424,11 +419,11 @@ function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
         return klass;
     }
 
-    if (tag === "instance") {
+    if (tag === 'instance') {
         return decodeInstance(entries);
     }
 
-    if (tag === "map") {
+    if (tag === 'map') {
         const restored = new Map<unknown, unknown>();
 
         for (const entry of entries.entries as Array<Array<unknown>>) {
@@ -442,31 +437,29 @@ function decodeTagged(tag: string, entries: Record<string, unknown>): unknown {
 }
 
 /** `Enum.Material.Plastic` from its two names. */
-function decodeEnum(enumType: string, name: string): EnumItem {
+function decodeEnum(enumType: string, name: string): EnumItem
+{
     const enums = Enum as unknown as Record<string, Record<string, EnumItem>>;
 
     const item = enums[enumType]?.[name];
 
     if (item === undefined) {
-        throw new SerializationException(
-            `Unknown enum item [Enum.${enumType}.${name}].`,
-        );
+        throw new SerializationException(`Unknown enum item [Enum.${enumType}.${name}].`);
     }
 
     return item;
 }
 
 /** Resolve an identifier back to the instance it stands for. */
-function decodeInstance(entries: Record<string, unknown>): Instance {
+function decodeInstance(entries: Record<string, unknown>): Instance
+{
     const className = entries.class;
 
-    if (className === "Player") {
+    if (className === 'Player') {
         const player = Players.GetPlayerByUserId(entries.id as number);
 
         if (player === undefined) {
-            throw new InstanceNotFoundException(
-                `No player with id [${entries.id}] is in this server.`,
-            );
+            throw new InstanceNotFoundException(`No player with id [${entries.id}] is in this server.`);
         }
 
         return player;
@@ -476,14 +469,12 @@ function decodeInstance(entries: Record<string, unknown>): Instance {
 
     let current: Instance | undefined = game;
 
-    for (const segment of path.split(".")) {
+    for (const segment of path.split('.')) {
         current = current?.FindFirstChild(segment);
     }
 
     if (current === undefined) {
-        throw new InstanceNotFoundException(
-            `No instance is at [${path}] in this server.`,
-        );
+        throw new InstanceNotFoundException(`No instance is at [${path}] in this server.`);
     }
 
     return current;
@@ -496,16 +487,18 @@ function decodeInstance(entries: Record<string, unknown>): Instance {
  * while a plain table, an array and a `Map` have none. An instance has one too,
  * which is why `Reflector.isInstance()` rules it out first.
  */
-function isClassTable(value: object): boolean {
+function isClassTable(value: object): boolean
+{
     return getmetatable(value) !== undefined && !Reflector.isInstance(value);
 }
 
 /** A table whose keys are exactly `1..n`. */
-function isList(value: Record<string, unknown>): boolean {
+function isList(value: Record<string, unknown>): boolean
+{
     let count = 0;
 
     for (const [key] of pairs(value)) {
-        if (!typeIs(key, "number")) {
+        if (!typeIs(key, 'number')) {
             return false;
         }
 
@@ -524,9 +517,10 @@ function isList(value: Record<string, unknown>): boolean {
 }
 
 /** A table that `JSONEncode` may write as a plain object. */
-function hasOnlyStringKeys(value: Record<string, unknown>): boolean {
+function hasOnlyStringKeys(value: Record<string, unknown>): boolean
+{
     for (const [key] of pairs(value)) {
-        if (!typeIs(key, "string")) {
+        if (!typeIs(key, 'string')) {
             return false;
         }
 

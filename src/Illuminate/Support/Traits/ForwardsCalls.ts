@@ -1,11 +1,7 @@
-import { BadMethodCallException } from "Illuminate/Exception";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Trait } from "Illuminate/Support/Traits/Trait";
-import type {
-    AssertNoExtraMembers,
-    AssertTrue,
-    Constructor,
-} from "Illuminate/Support/Traits/Trait";
+import { BadMethodCallException } from 'Illuminate/Exception';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Trait } from 'Illuminate/Support/Traits/Trait';
+import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/Support/Traits/Trait';
 
 /**
  * The instance type `ForwardsCalls()` mixes in.
@@ -20,26 +16,19 @@ import type {
  * is exactly what `ForwardsCallsExtra` below asserts. Both members are on the
  * honour system -- change one and change it here.
  */
-export declare class ForwardsCallsShape {
+export declare class ForwardsCallsShape
+{
     /** Type-only: there is no such value in the compiled Luau. */
     private constructor();
 
     /** Forward a method call to the given object. */
-    protected forwardCallTo(
-        target: object,
-        method: string,
-        parameters: Array<unknown>,
-    ): unknown;
+    protected forwardCallTo(target: object, method: string, parameters: Array<unknown>): unknown;
 
     /**
      * Forward a method call to the given object, returning $this if the
      * forwarded call returned itself.
      */
-    protected forwardDecoratedCallTo(
-        target: object,
-        method: string,
-        parameters: Array<unknown>,
-    ): unknown;
+    protected forwardDecoratedCallTo(target: object, method: string, parameters: Array<unknown>): unknown;
 }
 
 /**
@@ -49,21 +38,17 @@ export declare class ForwardsCallsShape {
  * `ForwardsCallsExtra` has something concrete to look at -- see the note on
  * `conditionable` in `Illuminate/Support/Traits/Conditionable`.
  */
-function forwardsCalls<TBase extends Constructor>(Base: TBase) {
+function forwardsCalls<TBase extends Constructor>(Base: TBase)
+{
     return class extends Base {
         /** Forward a method call to the given object. */
-        protected forwardCallTo(
-            target: object,
-            method: string,
-            parameters: Array<unknown>,
-        ): unknown {
+        protected forwardCallTo(target: object, method: string, parameters: Array<unknown>): unknown
+        {
             const callable = (target as Record<string, unknown>)[method];
 
-            if (!typeIs(callable, "function")) {
+            if (!typeIs(callable, 'function')) {
                 throw new BadMethodCallException(
-                    `Call to undefined method ${Reflector.className(
-                        Reflector.classOf(target) ?? target,
-                    )}::${method}()`,
+                    `Call to undefined method ${Reflector.className(Reflector.classOf(target) ?? target)}::${method}()`,
                 );
             }
 
@@ -74,11 +59,8 @@ function forwardsCalls<TBase extends Constructor>(Base: TBase) {
          * Forward a method call to the given object, returning $this if the
          * forwarded call returned itself.
          */
-        protected forwardDecoratedCallTo(
-            target: object,
-            method: string,
-            parameters: Array<unknown>,
-        ): unknown {
+        protected forwardDecoratedCallTo(target: object, method: string, parameters: Array<unknown>): unknown
+        {
             const result = this.forwardCallTo(target, method, parameters);
 
             return result === target ? this : result;
@@ -98,9 +80,7 @@ type ForwardsCallsExtra = Exclude<
 >;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the assertion is the point: it fails to compile when the trait has a public member the shape does not list.
-type ForwardsCallsIsExact = AssertTrue<
-    AssertNoExtraMembers<ForwardsCallsExtra>
->;
+type ForwardsCallsIsExact = AssertTrue<AssertNoExtraMembers<ForwardsCallsExtra>>;
 
 /**
  * PHP: `trait Illuminate\Support\Traits\ForwardsCalls`.
@@ -117,16 +97,13 @@ type ForwardsCallsIsExact = AssertTrue<
  */
 export function ForwardsCalls<TBase extends Constructor>(
     Base: TBase = Trait as never,
-): TBase & Constructor<ForwardsCallsShape> {
+): TBase & Constructor<ForwardsCallsShape>
+{
     return forwardsCalls(Base) as never;
 }
 
 /** PHP: `static::throwBadMethodCallException($method)`. */
-export function throwBadMethodCallException(
-    target: unknown,
-    method: string,
-): never {
-    throw new BadMethodCallException(
-        `Call to undefined method ${Reflector.className(target)}::${method}()`,
-    );
+export function throwBadMethodCallException(target: unknown, method: string): never
+{
+    throw new BadMethodCallException(`Call to undefined method ${Reflector.className(target)}::${method}()`);
 }

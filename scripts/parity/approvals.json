@@ -1,0 +1,394 @@
+{
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__call": {
+        "php_hash": "8b460550917b209207ab4b1adff9f256b397db65",
+        "ts_hash": "33fbc781d0f6a8c933ea9821793d4e4a7cad492c",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. Named ___call: roblox-ts reserves Lua metamethod names in class definitions, so the underscore convention goes one step further and the comparator matches it back. Body is upstream through callMethod (->{}(...)); reached via the dot-called wrapper the __index dispatcher returns.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__construct": {
+        "php_hash": "531f2651176a5cfd99c5c49de69e665cf0911c92",
+        "ts_hash": "df5e674b9ff80de31aeefb27448877539453e101",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim assignment, upstream classic (not promoted), plus the one platform line: installing the shared __index dispatcher.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#__get": {
+        "php_hash": "80037fe8b6e4cf7b8114bda6e6a76808c88e4287",
+        "ts_hash": "6dc7c60ecf0abdcaf1459b3b7114c038e94617d8",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. The named member the fused pass() used to hide: capture folds the raw member through Util.truthy into the docblock-bool condition (hoisted const, negation as upstream), apply indexes the target or skips to it. Dispatched from the shared __index metatable.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition": {
+        "php_hash": "6ea6a00729734ae21255b1f79b4e144feaceac41",
+        "ts_hash": "b9303dfb841f854bc42bfb399541c0e7186607c9",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: the docblock bool parameter and the list assignment, exactly upstream -- normalization lives at the capture sites.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#condition@property": {
+        "php_hash": "393215010b27d69d375f88a0f1b4f8509ef743b3",
+        "ts_hash": "3aedf3fee639ffda571f03c74aef3dac66572b4b",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. _condition under the underscore convention (collides with condition()); boolean per the docblock @var bool, initialized false where PHP leaves it unset (a Luau field cannot hold nil), with condition() normalizing every write.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#hasCondition@property": {
+        "php_hash": "9fe95fa13d42dc957b0b6fcff19f3cfea4050351",
+        "ts_hash": "3d9cc5232b2984d8ca4ca3384c0db936301dd4ea",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: protected, false default.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#metatable@property": {
+        "php_hash": null,
+        "ts_hash": "c5ab6b705294446b8aa06616f67a89b556158b4a",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Port-only: the shared __get/__call dispatcher every instance takes in its constructor -- a static, built once, no closure (the proxy arrives as __index first argument). A function-valued target member is a method; the known corner (a property holding a function reads as a method) lives here.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#negateConditionOnCapture": {
+        "php_hash": "cde9d3a8bf1370a5a4a8b35b3244589a3dad071b",
+        "ts_hash": "739fe5b0597bebfc711818b5103a3beff781d575",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: set the flag, return this.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#negateConditionOnCapture@property": {
+        "php_hash": "b4ee3342ad2b1f947a38d3547ed87188c8c1119e",
+        "ts_hash": "8bcd43c03a3d747449836ed1f5b754d1a32070ae",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. _negateConditionOnCapture under the underscore convention; initialized false where PHP leaves the bool unset (an uninitialized flag reads falsy either way, and a Luau field cannot hold nil).",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/HigherOrderWhenProxy.php#HigherOrderWhenProxy#target@property": {
+        "php_hash": "37820d2850ce9bf5f531f0b39e0115f8caa35e38",
+        "ts_hash": "976a29de20db5dba2854ca93fef69c5f47d64f59",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: protected, declared classically as upstream declares it, first in the property order.",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/Traits/Conditionable.php#Conditionable#unless": {
+        "php_hash": "b50290d39aac9deb74efbe5b8443d2592b9a5a39",
+        "ts_hash": "c67cadc2f754c0b294795c4021ad4872397c9828",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. The full upstream body, proxy branches included: func_num_args() is the rest parameter's size() (a trailing explicit undefined is uncountable -- when(undefined) reads as when(), where PHP counts one; the file docblock records it), the named parameters destructure from the rest tuple, and the remaining residues are the standing conventions -- truthiness, instanceof-closure, nullable-default, _default under the underscore convention. The one-argument form negates with !Util.truthy(value), PHP: condition(! ).",
+        "approved_at": "2026-08-28"
+    },
+    "Conditionable/Traits/Conditionable.php#Conditionable#when": {
+        "php_hash": "a858339b620db8c30391917756d5db1000369d32",
+        "ts_hash": "f27486dc103e0fe56199794bc2ba01b54715c3b8",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Mirrored. The full upstream body, proxy branches included: func_num_args() is the rest parameter's size() (a trailing explicit undefined is uncountable -- when(undefined) reads as when(), where PHP counts one; the file docblock records it), the named parameters destructure from the rest tuple, and the remaining residues are the standing conventions -- truthiness, instanceof-closure, nullable-default, _default under the underscore convention. The one-argument form passes Util.truthy(value) -- condition() takes the docblock bool, where PHP hands over the raw value.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#__construct": {
+        "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
+        "ts_hash": "eeb15bae042ed94224a8ccd983cc71cc89c05fd4",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Body matches (assign the optional container). Dismissed: @Inject(ContainerContract) on the parameter is the port's spelling of PHP's reflected ?Container type hint -- owed because the provider registers singleton(PipelineHubContract, Hub) class-as-concrete; the parameter property replaces the explicit $this->container assignment.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#container@property": {
+        "php_hash": "5edb3489e2048f7c8c11e282fbdd13f57ea9ae5b",
+        "ts_hash": "f5de4eef2b814576fdac647e618c254710db4060",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Promoted constructor parameter on both sides; @Inject(ContainerContract) as on Pipeline, owed by the class-as-concrete singleton registration.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#defaults": {
+        "php_hash": "5c5482f0aa53f8190af7505be42baff2ad7f39ae",
+        "ts_hash": "f3ed63e9efd6688997a1224cf52bce6a736e12f6",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: delegates to pipeline('default', callback).",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#getContainer": {
+        "php_hash": "2d3ec47e8eb26e005c4c9b5fc0e17ca15b84de72",
+        "ts_hash": "606715743b7869bda584df15151c2b4641fe6b9e",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim property return. Dismissed: typed Container | undefined -- upstream's docblock claims Container but the method returns null when none was passed; the port's type states the same behavior honestly.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#Hub@implements": {
+        "php_hash": "rel:Illuminate\\Contracts\\Pipeline\\Hub",
+        "ts_hash": "rel:HubContract",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. implements HubContract -- the Contract<T> token interface, imported as the type for implements and re-exported beside it.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#pipe": {
+        "php_hash": "6db20cba62ad99d077d1d407f9650024c17847db",
+        "ts_hash": "be3a356f042dc517c21941dec7477e472ecd2f5c",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "The upstream body statement for statement:  =  ?: 'default' is Util.elvis (the ?: compensation over Util.truthy, so '' and '0' fall back exactly as PHP's falsy rules say -- closing the finding this member carried since the field-test review); ! isset(->pipelines[]) is the === undefined test on the plain index, and call_user_func is call() from the helpers, the map indexed directly as upstream writes it. Dismissed: the parameter is pipeline?: string rather than = null -- absence is undefined here and Util.truthy(undefined) is false, so every elvis branch agrees; dprint expands the call arguments one per line (enforced mechanics). Pinned by the '' / '0' fallback spec.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#pipeline": {
+        "php_hash": "57ccd3594deb68148456bef9a602f70cf6269ff7",
+        "ts_hash": "88f35735505b270da216a3eea6b8368b6ccf69ad",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim now: ->pipelines[] =  is the plain index assignment -- the OrderedMap detour is gone (only keyed get/set touch this map, order is unobservable, and the user chose the literal mirror).",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#pipelines@property": {
+        "php_hash": "22f27b6c45bcbf71ffe21ddf352c1fdc58acd413",
+        "ts_hash": "04a30c09601dcf5cd3b9b96c0b708e0a56699747",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "protected, empty default on both sides -- [] as a plain Record literal, the direct mirror. Dismissed: not OrderedMap (the standing representation elsewhere) -- only keyed get/set touch this map, so PHP array order is unobservable here; revisit if upstream ever iterates the pipelines.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Hub.php#Hub#setContainer": {
+        "php_hash": "f11f08e4b9219fada03497ede6ebd503ddd97a04",
+        "ts_hash": "56d225e5b24d66d35c04a9f1f44d9818ee2fd4f1",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: assign, return this.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#__construct": {
+        "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
+        "ts_hash": "bedada12bc7b8e78d40d801e8137e41e8a9e2f3d",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Body matches; container optional as upstream, parameter property replaces the explicit assignment. @Inject(ContainerContract) is the port's spelling of the reflected ?Container hint, exactly as on Hub#__construct (the byte-identical upstream body): $app->make(Pipeline::class) is a public path and must hand the pipeline the resolving container. The earlier dismissal ('upstream never container-resolves Pipeline, so no hint is owed') did not survive the public-surface rule -- the framework's own call sites say nothing about consumers'; pinned by the 'receives the container when resolved from one' spec. Re-proposed for the Conditionable mixin: extends Conditionable() obliges a super() call PHP has no counterpart for -- the platform cost of use Conditionable.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#carry": {
+        "php_hash": "da3461f243a7ecf855475e42c9d35f42c53156a2",
+        "ts_hash": "7cda263b24cb1d1ba442042e08dbfed8db012eb9",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "The upstream closure statement for statement: is_callable first (isCallable in the helpers -- a function, or a table with __call, the platform's __invoke), the not-an-object branch reassigning pipe from the container as upstream reassigns $pipe, the object branch, then the method_exists ternary -- a resolved or given object without the method is called as an invokable, so a __call table runs and anything else raises Luau's attempt-to-call, reaching handleException exactly as PHP's Error does. This closes the field-test finding: the port used to throw its own RuntimeException with no invokable path, and both upstream invokable tests are now ported. Dismissed: the destructured slot is _parameters with the merged list in let parameters (PHP retypes in place, as parsePipeString's note records); array_merge([passable, stack], parameters) is Arr.merge, the same language compensation as Arr.pad/Arr.reverse; the ternary is token for token through the helpers -- methodExists (method_exists; a method here is a function-valued field reached through __index), callMethod ($pipe->{$this->method}(...$parameters), the explicit target being the self PHP passes implicitly) and call ($callable(...$args)) -- so no local and no cast survives at the site. Known corners, neither reached by an upstream test: a binding resolving to a bare function fails methodExists (not a table) and falls to call(pipe, ...), which PHP would also end up calling; a closure stored in a field named like the method counts as a method here where PHP's method_exists would say false.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#Conditionable@trait": {
+        "php_hash": "rel:Illuminate\\Support\\Traits\\Conditionable",
+        "ts_hash": "rel:Conditionable()",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. use Conditionable is extends Conditionable() -- the mixin chain is the trait carrier, and further traits would nest (Conditionable(Macroable(Base))), so the extends slot is not spent. Pinned by the ported testPipelineConditionable.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#container@property": {
+        "php_hash": "5edb3489e2048f7c8c11e282fbdd13f57ea9ae5b",
+        "ts_hash": "f5de4eef2b814576fdac647e618c254710db4060",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Promoted constructor parameter on both sides; the port adds @Inject(ContainerContract), the approved spelling of the reflected ?Container hint (see __construct).",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#finally": {
+        "php_hash": "13c6c00386ec42eef6b7bc32b9a5dd8e253f3f3a",
+        "ts_hash": "3e6d66d43592d9c0d8cde57e72710bdbe7df3736",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. The $finally property lives as _finally under the underscore convention (property/method name collision in one Luau table); the comparator matches it automatically.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#finally@property": {
+        "php_hash": "839b7e5b91643fd1f09b7e4622ef5408e9ec6566",
+        "ts_hash": "a619feffc62e8a5b30bda99fdc80e98033d86df1",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "protected, no default on either side; lives as _finally under the underscore convention (collides with the finally() method) and carries the callback type PHP leaves to the docblock.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#getContainer": {
+        "php_hash": "a1034a6d82aef39051bd7aa74916c8de1117d36a",
+        "ts_hash": "283312e850cc839d40619dc45db40cf929753154",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: guard, RuntimeException with upstream's exact message, return.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#handleCarry": {
+        "php_hash": "e8a5f4a1d295c49abe2e0451d26c3e1f82b66e59",
+        "ts_hash": "218a74fecb9e60c3e3fc4e04654caef72bc23f34",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim identity hook. Its call site sits inside the pcall-protected region in carry(), matching upstream's try -- the shape the earlier carry() bug was about.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#handleException": {
+        "php_hash": "86c427cd0ecde1660fbc44ca8aab7b03eb2a3f3a",
+        "ts_hash": "791e597f673a84e9c09306b479b1aa8762957787",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim rethrow; throw e compiles to error(e), so the original pcall error value propagates unchanged.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#isPipeInstance": {
+        "php_hash": null,
+        "ts_hash": "6692ccc775eb926cdc7696434f62f55dbaaacaaa",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Port-only: the platform's is_object for carry()'s not-an-object branch -- PHP asks is_object(), a class is a table here too, so the question is whether the metatable marks an instance (__index === metatable). Cannot dissolve into carry(): it is a reusable predicate with its own docblock, and the branch reads as upstream's elseif through it.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#method@property": {
+        "php_hash": "b2c89d3b486a81a55e25387c74be3ea002f7ab06",
+        "ts_hash": "fd6c3d1f35756a61a15f5456f48192b505a1f0b5",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: protected, default 'handle' on both sides.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#parsePipeString": {
+        "php_hash": "fbf5a45239c080d0160e8962f12d35b7aa4b1724",
+        "ts_hash": "82d576187e56bd0afb343b514ed210e4f313acd0",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "The upstream line itself: [name, parameters] destructured from Arr.pad(Str.explode(':', pipe, 2), 2, undefined) -- explode and array_pad are language compensations (extra members on Str/Arr, docblocked), and the undefined pad is the identity a Luau array forces, with the missing slot destructuring to undefined and playing is_null. The is_null branch is upstream's if/else and the return is the single [name, parameters]. Dismissed: the string slot destructures as _parameters under the underscore convention (the same spelling _pipes uses) -- PHP retypes $parameters from string to array in place, a TS binding's type is fixed at declaration, so the retyped half lives in let parameters; the exact-same-name encoding does compile but costs a tuple annotation plus a cast on the declaration, judged not worth it. The contract is upstream's (string in), and the port's non-string carriers ([Class, ...args], a bare class) live in splitPipe() in Pipeline/helpers.ts, dispatched where carry() resolves the pipe; both parsers feed make(), whose Abstract union plays the DI role PHP's string plays. Known scope difference for subclasses: an override of parsePipeString sees only string pipes here (in PHP every parameterized pipe is a string); one that needs every carrier overrides carry(), as it would upstream.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#passable@property": {
+        "php_hash": "3c9138db4ad4161ba39cef9743308e25c4498608",
+        "ts_hash": "3b2ddd93037a2a7bcfcfe64684aaed71154c24d6",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: protected, no default; typed Passable (unknown), the widest honest type for what send() accepts.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#pipe": {
+        "php_hash": "23530aa6c0f7eb0c58b04b95a07be81643ed94db",
+        "ts_hash": "b25f366d1a2b72b1ee3dc25e91fe2bcbae531681",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Same expression as through(): is_array($pipes) ? $pipes : func_get_args() is a rest parameter plus the same ternary over isPipeArray. Dismissed: array_push's spread becomes an append loop -- roblox-ts's push macro rejects spread arguments (roblox-ts#1149), verified by the compile error.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#Pipeline@implements": {
+        "php_hash": "rel:Illuminate\\Contracts\\Pipeline\\Pipeline",
+        "ts_hash": "rel:PipelineContract",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. implements PipelineContract (Pipeline as PipelineContract import alias, mirroring the upstream use).",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#pipes": {
+        "php_hash": "a2d9b19186db34bb7a72e95c9c63272a16eeb5fc",
+        "ts_hash": "6ecceffc70602d1d523512e19869f10cbf1c0a35",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim; the $pipes property is _pipes under the underscore convention (collides with this method's name in one Luau table).",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#pipes@property": {
+        "php_hash": "6f4f0476e381f5cbccb79e888088bc96f4d5087a",
+        "ts_hash": "287f24c83f0c5c448c417aaaaf7d35a34ce874f0",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "protected, empty-list default on both sides ([] as new Array<Pipe>()); lives as _pipes under the underscore convention (collides with the pipes() method).",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#prepareDestination": {
+        "php_hash": "03bb42a1fad5fc77d57b4cca4fc2c3f8e8324a11",
+        "ts_hash": "21ff9d3a3b4b8dec15038853ce69733ac6e72a8c",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim try/catch, as upstream writes it -- roblox-ts compiles it to TS.try over pcall and the raw error value reaches handleException unchanged (verified in the emitted Luau; the earlier hand-spelled pcall was uniformity, not a platform need). Dismissed: the closure is an arrow, not upstream's function expression -- PHP's function() binds $this and this closure calls $this->handleException, while a TS function expression loses lexical this (noImplicitThis rejects it), so the arrow is the only carrier keeping PHP's binding; thenReturn's closure touches no $this, which is why it could take the function form.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#send": {
+        "php_hash": "53ea116f56b71e6bfc12cd2a6afa94810486d3a5",
+        "ts_hash": "4d20e710a264a92884a961bb8523801c04c2155c",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: assign, return this.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#setContainer": {
+        "php_hash": "f11f08e4b9219fada03497ede6ebd503ddd97a04",
+        "ts_hash": "56d225e5b24d66d35c04a9f1f44d9818ee2fd4f1",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: assign, return this.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#then": {
+        "php_hash": "e6aef20b60628c05ced41ceb20905b6905b36161",
+        "ts_hash": "28c29efec9f469fdbb9b32065972c17e6e895f60",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "The upstream expression itself: Arr.reverse(this.pipes()).reduce(this.carry(), this.prepareDestination(destination)) -- reduce is array_reduce, carry() is the reducer factory as upstream, and Arr.reverse stands in for the array_reverse builtin (a deliberate language compensation with no upstream twin; its docblock says so). The reduce runs before try and try wraps only the run, matching upstream. Remaining dismissal: the withinTransaction ternary is omitted together with its waiver -- no database to open a transaction on.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#thenReturn": {
+        "php_hash": "8769eeff97e702e251d6301db6bc1a6a2c4e9d96",
+        "ts_hash": "cc741eb18b7345ac74ac3d63c91843cc7bea0947",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim, closure form included: a function expression with the expanded return, as upstream writes it -- thenReturn predates PHP 7.4's arrow functions and was never modernized, and the port mirrors the letter rather than modernizing for it.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#through": {
+        "php_hash": "9b68c30f5c5375c00a286305e598f50b2ce3a458",
+        "ts_hash": "49c4ee950b2dea3ad76614c9bf52e6ea204ce76e",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim shape: is_array($pipes) ? $pipes : func_get_args() maps to a rest parameter and the same ternary, with isPipeArray as the platform's is_array for pipes -- it additionally tells one parameterized pipe [Class, 'args'] from a list (a class is not a string here) and recognizes the empty list Util.isArray cannot see (Pipeline/helpers.ts documents both). Even the pathological through([a], b) drops the extras like PHP does. Known heuristic edge remains for the single-array form ([ClassPipe, 'bindingName'] reads as one parameterized pipe); the restored variadic form is the unambiguous spelling of that case.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/Pipeline.php#Pipeline#via": {
+        "php_hash": "bf622dfb0e778b05f7e079ffc6efb27fa22af604",
+        "ts_hash": "60f9fd1f68ae1e0ad3c80a4fcf53325830f1ea47",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim: assign, return this.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#DeferrableProvider@implements": {
+        "php_hash": "rel:Illuminate\\Contracts\\Support\\DeferrableProvider",
+        "ts_hash": "rel:DeferrableProvider",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim, both halves: implements DeferrableProvider is the type, @DeferrableProvider() the validating decorator -- the runtime instanceof PHP got from the marker interface.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#provides": {
+        "php_hash": "88c8850cbfed4594d9939bf087ab3737cf29d39d",
+        "ts_hash": "a53fb59c4640e950c80e5015383a7d3001c27c02",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim, same order: [PipelineHubContract, 'pipeline']; the import alias mirrors upstream's use Hub as PipelineHubContract.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#register": {
+        "php_hash": "e577fa7f0c27b7a7950f092c98b0e615cd62cc92",
+        "ts_hash": "ac9aa4a807313b24d93d57d48443b5c0af4178e9",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Line-for-line, argument breaks included: singleton(PipelineHubContract, Hub) keeps the interface-as-key via the Contract token and class-as-concrete (Hub declares its dependency with @Inject); bind('pipeline', (app) => new Pipeline(app)) receives the resolving container as the closure parameter, mirroring fn ($app) -- no captured registering container, so per-request sandboxes stay isolated. This file is the component etalon.",
+        "approved_at": "2026-08-28"
+    },
+    "Pipeline/PipelineServiceProvider.php#PipelineServiceProvider#ServiceProvider@extends": {
+        "php_hash": "rel:Illuminate\\Support\\ServiceProvider",
+        "ts_hash": "rel:ServiceProvider",
+        "status": "approved",
+        "proposed_at": "2026-08-28",
+        "note": "Verbatim. extends ServiceProvider.",
+        "approved_at": "2026-08-28"
+    }
+}

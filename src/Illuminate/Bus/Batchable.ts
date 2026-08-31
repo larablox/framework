@@ -1,7 +1,7 @@
-import { Container } from "Illuminate/Container/Container";
-import { Queueable } from "Illuminate/Bus/Queueable";
-import type { Batch } from "Illuminate/Bus/Batch";
-import type { BatchRepository } from "Illuminate/Bus/BatchRepository";
+import { Container } from 'Illuminate/Container/Container';
+import { Queueable } from 'Illuminate/Bus/Queueable';
+import type { Batch } from 'Illuminate/Bus/Batch';
+import type { BatchRepository } from 'Illuminate/Bus/BatchRepository';
 
 /**
  * PHP: `Illuminate\Bus\Batchable`.
@@ -13,36 +13,38 @@ import type { BatchRepository } from "Illuminate/Bus/BatchRepository";
  *
  * `withFakeBatch()` is a testing helper with no test runner behind it.
  */
-export class Batchable extends Queueable {
+export class Batchable extends Queueable
+{
     /** The batch ID (if applicable). */
     public batchId?: string;
 
     /** Get the batch instance for the job, if applicable. */
-    public batch(): Batch | undefined {
+    public batch(): Batch | undefined
+    {
         if (this.batchId === undefined) {
             return undefined;
         }
 
         const container = Container.getInstance();
 
-        if (!container.bound("bus.batches")) {
+        if (!container.bound('bus.batches')) {
             return undefined;
         }
 
-        return container
-            .make<BatchRepository>("bus.batches")
-            .find(this.batchId);
+        return container.make<BatchRepository>('bus.batches').find(this.batchId);
     }
 
     /** Determine if the batch is still active and processing. */
-    public batching(): boolean {
+    public batching(): boolean
+    {
         const batch = this.batch();
 
         return batch !== undefined && !batch.finished() && !batch.cancelled();
     }
 
     /** Set the batch ID on the job. */
-    public withBatchId(batchId: string): this {
+    public withBatchId(batchId: string): this
+    {
         this.batchId = batchId;
 
         return this;

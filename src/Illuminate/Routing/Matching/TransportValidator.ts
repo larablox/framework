@@ -1,6 +1,6 @@
-import type { Request } from "Illuminate/Http/Request";
-import type { Route } from "Illuminate/Routing/Route";
-import type { ValidatorInterface } from "Illuminate/Routing/Matching/ValidatorInterface";
+import type { Request } from 'Illuminate/Http/Request';
+import type { Route } from 'Illuminate/Routing/Route';
+import type { ValidatorInterface } from 'Illuminate/Routing/Matching/ValidatorInterface';
 
 /**
  * Stands where PHP's `SchemeValidator` stands.
@@ -13,9 +13,11 @@ import type { ValidatorInterface } from "Illuminate/Routing/Matching/ValidatorIn
  *
  * `HostValidator` has no counterpart at all -- there are no hosts.
  */
-export class TransportValidator implements ValidatorInterface {
+export class TransportValidator implements ValidatorInterface
+{
     /** Validate a given rule against a route and request. */
-    public matches(route: Route, request: Request): boolean {
+    public matches(route: Route, request: Request): boolean
+    {
         return route.transports().includes(request.transport());
     }
 }

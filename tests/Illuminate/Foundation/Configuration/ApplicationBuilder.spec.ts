@@ -32,7 +32,7 @@
  * ported-and-tested-upstream to carry over here rather than invent.
  */
 export = (): void => {
-    describe("Foundation.Configuration.ApplicationBuilder", () => {
+    describe('Foundation.Configuration.ApplicationBuilder', () => {
         // See the class comment: every upstream case in
         // `FoundationApplicationBuilderTest.php` exercises paths, `.env`, or
         // `prefersJsonResponses()`, none of which this port has.

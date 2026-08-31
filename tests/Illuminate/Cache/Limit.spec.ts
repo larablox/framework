@@ -1,6 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
-import { GlobalLimit } from "Illuminate/Cache/RateLimiting/GlobalLimit";
-import { Limit } from "Illuminate/Cache/RateLimiting/Limit";
+import { GlobalLimit } from 'Illuminate/Cache/RateLimiting/GlobalLimit';
+import { Limit } from 'Illuminate/Cache/RateLimiting/Limit';
 
 /**
  * PHP: `Illuminate\Tests\Cache\LimitTest`.
@@ -12,10 +12,10 @@ import { Limit } from "Illuminate/Cache/RateLimiting/Limit";
  * same argument order.
  */
 export = (): void => {
-    describe("Limit", () => {
-        it("constructors compute maxAttempts/decaySeconds the same way PHP does", () => {
+    describe('Limit', () => {
+        it('constructors compute maxAttempts/decaySeconds the same way PHP does', () => {
             // PHP: LimitTest::testConstructors
-            let limit = new Limit("", 3, 1);
+            let limit = new Limit('', 3, 1);
             expect(limit.decaySeconds).to.equal(1);
             expect(limit.maxAttempts).to.equal(3);
 

@@ -1,7 +1,8 @@
-import type { Abstract } from "Illuminate/Container/Types";
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /** PHP: `Illuminate\Contracts\Bus\Dispatcher`. */
-export interface Dispatcher {
+export interface Dispatcher
+{
     /** Dispatch a command to its appropriate handler. */
     dispatch(command: object): unknown;
 
@@ -30,7 +31,8 @@ export interface Dispatcher {
  * `batch()` and `findBatch()` wait on the batch repository, which wants a
  * database or a cache.
  */
-export interface QueueingDispatcher extends Dispatcher {
+export interface QueueingDispatcher extends Dispatcher
+{
     /** Dispatch a command to its appropriate handler behind a queue. */
     dispatchToQueue(command: object): unknown;
 }

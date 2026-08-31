@@ -1,4 +1,4 @@
-import type { Container } from "Illuminate/Contracts/Container/Container";
+import type { Container } from 'Illuminate/Contracts/Container/Container';
 
 /**
  * PHP: `interface Illuminate\Contracts\Container\ContextualAttribute`, an empty
@@ -10,27 +10,17 @@ import type { Container } from "Illuminate/Contracts/Container/Container";
  * are called with the instance passed explicitly: a call through a
  * function-valued property compiles to a dot call and would drop `self`.
  */
-export interface ContextualAttribute {
+export interface ContextualAttribute
+{
     /** Resolve the value the annotated parameter should receive. */
     readonly resolve?: (attribute: never, container: Container) => unknown;
 
     /** Run after the annotated dependency has been resolved. */
-    readonly after?: (
-        attribute: never,
-        instance: never,
-        container: Container,
-    ) => void;
+    readonly after?: (attribute: never, instance: never, container: Container) => void;
 }
 
 /** PHP: the handler registered with `Container::whenHasAttribute()`. */
-export type ContextualAttributeHandler = (
-    attribute: never,
-    container: Container,
-) => unknown;
+export type ContextualAttributeHandler = (attribute: never, container: Container) => unknown;
 
 /** PHP: the callback registered with `Container::afterResolvingAttribute()`. */
-export type AfterResolvingAttributeCallback = (
-    attribute: never,
-    instance: never,
-    container: Container,
-) => void;
+export type AfterResolvingAttributeCallback = (attribute: never, instance: never, container: Container) => void;

@@ -1,5 +1,5 @@
-import { HttpClientException } from "Illuminate/Http/Client/HttpClientException";
-import type { Response } from "Illuminate/Http/Client/Response";
+import { HttpClientException } from 'Illuminate/Http/Client/HttpClientException';
+import type { Response } from 'Illuminate/Http/Client/Response';
 
 /**
  * PHP: `Illuminate\Http\Client\RequestException`.
@@ -12,12 +12,11 @@ import type { Response } from "Illuminate/Http/Client/Response";
  * The response is imported as a type only: it holds a `RequestException` back,
  * and a cycle between two value imports takes the whole module down.
  */
-export class RequestException extends HttpClientException {
+export class RequestException extends HttpClientException
+{
     /** Create a new exception instance. */
-    public constructor(public readonly response: Response) {
-        super(
-            `HTTP request returned status code ${response.status()}`,
-            response.status(),
-        );
+    public constructor(public readonly response: Response)
+    {
+        super(`HTTP request returned status code ${response.status()}`, response.status());
     }
 }

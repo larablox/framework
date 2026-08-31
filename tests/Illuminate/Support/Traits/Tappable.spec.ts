@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Tappable } from "Illuminate/Support/Traits/Tappable";
+import { Tappable } from 'Illuminate/Support/Traits/Tappable';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportTappableTest`.
@@ -18,32 +18,36 @@ import { Tappable } from "Illuminate/Support/Traits/Tappable";
  * to construct in TypeScript.
  */
 export = (): void => {
-    describe("Tappable", () => {
-        class TappableClass extends Tappable() {
-            private name = "";
+    describe('Tappable', () => {
+        class TappableClass extends Tappable()
+        {
+            private name = '';
 
-            public static make(): TappableClass {
+            public static make(): TappableClass
+            {
                 return new TappableClass();
             }
 
-            public setName(name: string): void {
+            public setName(name: string): void
+            {
                 this.name = name;
             }
 
-            public getName(): string {
+            public getName(): string
+            {
                 return this.name;
             }
         }
 
-        it("tap() calls the callback with the instance and returns the instance", () => {
+        it('tap() calls the callback with the instance and returns the instance', () => {
             // PHP: SupportTappableTest::testTappableClassWithCallback
             const name = TappableClass.make()
                 .tap((tappable) => {
-                    tappable.setName("MyName");
+                    tappable.setName('MyName');
                 })
                 .getName();
 
-            expect(name).to.equal("MyName");
+            expect(name).to.equal('MyName');
         });
     });
 };

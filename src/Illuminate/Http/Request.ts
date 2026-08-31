@@ -1,16 +1,16 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
-import { InteractsWithData } from "Illuminate/Support/Traits/InteractsWithData";
-import { Str } from "Illuminate/Support/Str";
-import { Util } from "Illuminate/Container/Util";
-import { data_get, data_set } from "Illuminate/Support/Helpers";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
+import { Arr } from 'Illuminate/Support/Arr';
+import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
+import { InteractsWithData } from 'Illuminate/Support/Traits/InteractsWithData';
+import { Str } from 'Illuminate/Support/Str';
+import { Util } from 'Illuminate/Container/Util';
+import { data_get, data_set } from 'Illuminate/Support/helpers';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
+import type { ConditionableShape } from 'Illuminate/Support/Traits/Conditionable';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { InteractsWithDataShape } from "Illuminate/Support/Traits/InteractsWithData";
-import type { Route } from "Illuminate/Routing/Route";
-import type { Transport } from "Illuminate/Http/Remote";
+import type { InteractsWithDataShape } from 'Illuminate/Support/Traits/InteractsWithData';
+import type { Route } from 'Illuminate/Routing/Route';
+import type { Transport } from 'Illuminate/Http/Remote';
 
 /**
  * PHP: `Illuminate\Http\Request`.
@@ -37,7 +37,8 @@ import type { Transport } from "Illuminate/Http/Remote";
  * ported contract promises an `Array` or an `OrderedMap`, neither of which
  * this is.
  */
-export class Request extends InteractsWithData(Conditionable()) {
+export class Request extends InteractsWithData(Conditionable())
+{
     /**
      * The player the request came from.
      *
@@ -74,8 +75,9 @@ export class Request extends InteractsWithData(Conditionable()) {
         method: string,
         path: string,
         input: ArrayAccessible = {},
-        transport: Transport = "call",
-    ) {
+        transport: Transport = 'call',
+    )
+    {
         super();
 
         this.callingPlayer = player;
@@ -86,10 +88,11 @@ export class Request extends InteractsWithData(Conditionable()) {
     }
 
     /** Strip the slashes PHP's `getPathInfo()` would have left behind. */
-    protected static normalizePath(path: string): string {
-        const trimmed = Str.trim(path, "/");
+    protected static normalizePath(path: string): string
+    {
+        const trimmed = Str.trim(path, '/');
 
-        return trimmed === "" ? "/" : trimmed;
+        return trimmed === '' ? '/' : trimmed;
     }
 
     /**
@@ -97,12 +100,14 @@ export class Request extends InteractsWithData(Conditionable()) {
      *
      * No PHP counterpart; see the class comment.
      */
-    public player(): Player {
+    public player(): Player
+    {
         return this.callingPlayer;
     }
 
     /** Get the request method. */
-    public method(): string {
+    public method(): string
+    {
         return this.requestMethod;
     }
 
@@ -111,26 +116,30 @@ export class Request extends InteractsWithData(Conditionable()) {
      *
      * No PHP counterpart; the nearest thing is `getScheme()`.
      */
-    public transport(): Transport {
+    public transport(): Transport
+    {
         return this.requestTransport;
     }
 
     /** Checks if the request method is of specified type. */
-    public isMethod(method: string): boolean {
+    public isMethod(method: string): boolean
+    {
         return this.requestMethod === method.upper();
     }
 
     /** Get the current path info for the request. */
-    public path(): string {
+    public path(): string
+    {
         return this.requestPath;
     }
 
     /** Get all of the segments for the request path. */
-    public segments(): Array<string> {
+    public segments(): Array<string>
+    {
         const segments = new Array<string>();
 
-        for (const segment of this.requestPath.split("/")) {
-            if (segment !== "") {
+        for (const segment of this.requestPath.split('/')) {
+            if (segment !== '') {
                 segments.push(segment);
             }
         }
@@ -144,12 +153,14 @@ export class Request extends InteractsWithData(Conditionable()) {
      * PHP indexes segments from one, and so does Luau; unlike PHP this needs no
      * adjustment.
      */
-    public segment(index: number, defaultValue?: string): string | undefined {
+    public segment(index: number, defaultValue?: string): string | undefined
+    {
         return this.segments()[index - 1] ?? defaultValue;
     }
 
     /** Determine if the current request URI matches a pattern. */
-    public is(...patterns: Array<string>): boolean {
+    public is(...patterns: Array<string>): boolean
+    {
         return Str.is(patterns, this.decodedPath());
     }
 
@@ -159,12 +170,14 @@ export class Request extends InteractsWithData(Conditionable()) {
      * There is nothing to percent-decode on a remote call, so this is `path()`;
      * the method is kept because `is()` is written in terms of it in PHP.
      */
-    public decodedPath(): string {
+    public decodedPath(): string
+    {
         return this.requestPath;
     }
 
     /** Get the route handling the request. */
-    public route(param?: string, defaultValue?: unknown): unknown {
+    public route(param?: string, defaultValue?: unknown): unknown
+    {
         const route = this.getRouteResolver()();
 
         if (route === undefined || param === undefined) {
@@ -175,26 +188,30 @@ export class Request extends InteractsWithData(Conditionable()) {
     }
 
     /** Determine if the route name matches a given pattern. */
-    public routeIs(...patterns: Array<string>): boolean {
+    public routeIs(...patterns: Array<string>): boolean
+    {
         const route = this.getRouteResolver()();
 
         return route !== undefined && route.named(...patterns);
     }
 
     /** Get the route resolver callback. */
-    public getRouteResolver(): () => Route | undefined {
+    public getRouteResolver(): () => Route | undefined
+    {
         return this.routeResolver ?? (() => undefined);
     }
 
     /** Set the route resolver callback. */
-    public setRouteResolver(callback: () => Route | undefined): this {
+    public setRouteResolver(callback: () => Route | undefined): this
+    {
         this.routeResolver = callback;
 
         return this;
     }
 
     /** Get all of the input for the request. */
-    public all(keys?: string | Array<string>): ArrayAccessible {
+    public all(keys?: string | Array<string>): ArrayAccessible
+    {
         const input = table.clone(this.inputSource);
 
         if (keys === undefined) {
@@ -211,7 +228,8 @@ export class Request extends InteractsWithData(Conditionable()) {
     }
 
     /** Retrieve an input item from the request. */
-    public input(key?: string, defaultValue?: unknown): unknown {
+    public input(key?: string, defaultValue?: unknown): unknown
+    {
         return data_get(this.inputSource, key, defaultValue);
     }
 
@@ -221,7 +239,8 @@ export class Request extends InteractsWithData(Conditionable()) {
      * A Luau table has no defined iteration order, so neither has this list --
      * PHP returns the keys in insertion order.
      */
-    public keys(): Array<string> {
+    public keys(): Array<string>
+    {
         const keys = new Array<string>();
 
         for (const [key] of pairs(this.inputSource)) {
@@ -232,7 +251,8 @@ export class Request extends InteractsWithData(Conditionable()) {
     }
 
     /** Retrieve data from the instance. */
-    protected data(key?: string, defaultValue?: unknown): unknown {
+    protected data(key?: string, defaultValue?: unknown): unknown
+    {
         return this.input(key, defaultValue);
     }
 
@@ -244,7 +264,8 @@ export class Request extends InteractsWithData(Conditionable()) {
      * `merge(['user.last_name' => 'Otwell'])` reaches `user`, it does not
      * add a top-level key spelled `user.last_name`.
      */
-    public merge(input: ArrayAccessible): this {
+    public merge(input: ArrayAccessible): this
+    {
         for (const [key, value] of pairs(input)) {
             data_set(this.inputSource, key as string, value);
         }
@@ -253,7 +274,8 @@ export class Request extends InteractsWithData(Conditionable()) {
     }
 
     /** Merge new input into the request's input, but only when that key is missing. */
-    public mergeIfMissing(input: ArrayAccessible): this {
+    public mergeIfMissing(input: ArrayAccessible): this
+    {
         for (const [key, value] of pairs(input)) {
             if (this.missing(key as string)) {
                 data_set(this.inputSource, key as string, value);
@@ -264,39 +286,46 @@ export class Request extends InteractsWithData(Conditionable()) {
     }
 
     /** Replace the input values for the current request. */
-    public replace(input: ArrayAccessible): this {
+    public replace(input: ArrayAccessible): this
+    {
         this.inputSource = input;
 
         return this;
     }
 
     /** Get the input source for the request. */
-    public getInputSource(): ArrayAccessible {
+    public getInputSource(): ArrayAccessible
+    {
         return this.inputSource;
     }
 
     /** Get all of the input and files for the request. */
-    public toArray(): ArrayAccessible {
+    public toArray(): ArrayAccessible
+    {
         return this.all();
     }
 
     /** Determine if the given offset exists. */
-    public offsetExists(offset: string): boolean {
+    public offsetExists(offset: string): boolean
+    {
         return Arr.has(this.all(), offset);
     }
 
     /** Get the value at the given offset. */
-    public offsetGet(offset: string): unknown {
+    public offsetGet(offset: string): unknown
+    {
         return data_get(this.all(), offset);
     }
 
     /** Set the value at the given offset. */
-    public offsetSet(offset: string, value: unknown): void {
+    public offsetSet(offset: string, value: unknown): void
+    {
         this.inputSource[offset] = value;
     }
 
     /** Remove the value at the given offset. */
-    public offsetUnset(offset: string): void {
+    public offsetUnset(offset: string): void
+    {
         delete this.inputSource[offset];
     }
 }

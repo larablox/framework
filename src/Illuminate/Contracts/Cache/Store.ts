@@ -1,5 +1,6 @@
 /** PHP: `Illuminate\Contracts\Cache\Store`. */
-export interface Store {
+export interface Store
+{
     /** Retrieve an item from the cache by key. */
     get(key: string): unknown;
 

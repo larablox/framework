@@ -1,5 +1,5 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import { Reflector } from "Illuminate/Support/Reflector";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import { Reflector } from 'Illuminate/Support/Reflector';
 
 /**
  * PHP: `interface ShouldQueue`, whose presence tells the bus to queue a job
@@ -16,25 +16,26 @@ import { Reflector } from "Illuminate/Support/Reflector";
  * ```
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ShouldQueue {}
+export interface ShouldQueue
+{}
 
-export function ShouldQueue() {
+export function ShouldQueue()
+{
     return (target: object): void => {
         Attributes.add(target, ShouldQueue, {});
     };
 }
 
 /** PHP: `$job instanceof ShouldQueue`. */
-export function isShouldQueue(job: unknown): job is ShouldQueue {
-    if (!typeIs(job, "table")) {
+export function isShouldQueue(job: unknown): job is ShouldQueue
+{
+    if (!typeIs(job, 'table')) {
         return false;
     }
 
     // PHP asks the question of a class as readily as of an object -- the event
     // dispatcher checks a listener's class before ever building it.
-    let current: object | undefined = Reflector.isInstance(job)
-        ? Reflector.classOf(job as object)
-        : (job as object);
+    let current: object | undefined = Reflector.isInstance(job) ? Reflector.classOf(job as object) : (job as object);
 
     while (current !== undefined) {
         if (Attributes.has(current, ShouldQueue)) {

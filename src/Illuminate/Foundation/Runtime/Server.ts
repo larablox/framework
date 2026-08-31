@@ -1,10 +1,10 @@
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { RemoteGateway } from "Illuminate/Http/RemoteGateway";
-import { RuntimeException } from "Illuminate/Exception";
-import { Worker } from "Illuminate/Foundation/Runtime/Worker";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
-import type { Request } from "Illuminate/Http/Request";
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { RemoteGateway } from 'Illuminate/Http/RemoteGateway';
+import { RuntimeException } from 'Illuminate/Exception';
+import { Worker } from 'Illuminate/Foundation/Runtime/Worker';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Application } from 'Illuminate/Contracts/Foundation/Application';
+import type { Request } from 'Illuminate/Http/Request';
 
 /**
  * The server's entry point: the thing that owns the transport.
@@ -26,7 +26,8 @@ import type { Request } from "Illuminate/Http/Request";
  * -- instead of booting the worker and then knowing, by hand, that the
  * gateway's handler is `app.handleRequest`.
  */
-export class Server {
+export class Server
+{
     /** Whether `boot()` has run. */
     protected booted = false;
 
@@ -40,15 +41,17 @@ export class Server {
      * when this compiles.
      */
     public constructor(
-        @Inject("app") protected readonly app: Application,
+        @Inject('app') protected readonly app: Application,
         @Inject(Worker) protected readonly worker: Worker,
         @Inject(RemoteGateway) protected readonly gateway: RemoteGateway,
-    ) {}
+    )
+    {}
 
     /** Boot the worker, then attach to the remotes. */
-    public boot(services?: Array<Abstract>): void {
+    public boot(services?: Array<Abstract>): void
+    {
         if (this.booted) {
-            throw new RuntimeException("The server has already booted.");
+            throw new RuntimeException('The server has already booted.');
         }
 
         // Order matters and is the same order Octane starts in: the worker is
@@ -77,7 +80,8 @@ export class Server {
     }
 
     /** Detach from the remotes and stop the worker. */
-    public stop(): void {
+    public stop(): void
+    {
         if (!this.booted) {
             return;
         }
@@ -92,17 +96,20 @@ export class Server {
     }
 
     /** Whether the server has booted. */
-    public hasBooted(): boolean {
+    public hasBooted(): boolean
+    {
         return this.booted;
     }
 
     /** Get the worker serving this server's requests. */
-    public runtimeWorker(): Worker {
+    public runtimeWorker(): Worker
+    {
         return this.worker;
     }
 
     /** Get the application instance the server booted. */
-    public application(): Application {
+    public application(): Application
+    {
         return this.app;
     }
 }

@@ -1,15 +1,12 @@
-import { BootProviders } from "Illuminate/Foundation/Bootstrap/BootProviders";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { LoadConfiguration } from "Illuminate/Foundation/Bootstrap/LoadConfiguration";
-import { RegisterFacades } from "Illuminate/Foundation/Bootstrap/RegisterFacades";
-import { RegisterProviders } from "Illuminate/Foundation/Bootstrap/RegisterProviders";
-import { RuntimeException } from "Illuminate/Exception";
-import type { Abstract, Constructor } from "Illuminate/Container/Types";
-import type {
-    Application,
-    Bootstrapper,
-} from "Illuminate/Contracts/Foundation/Application";
-import type { Repository as ConfigRepository } from "Illuminate/Config/Repository";
+import { BootProviders } from 'Illuminate/Foundation/Bootstrap/BootProviders';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { LoadConfiguration } from 'Illuminate/Foundation/Bootstrap/LoadConfiguration';
+import { RegisterFacades } from 'Illuminate/Foundation/Bootstrap/RegisterFacades';
+import { RegisterProviders } from 'Illuminate/Foundation/Bootstrap/RegisterProviders';
+import { RuntimeException } from 'Illuminate/Exception';
+import type { Abstract, Constructor } from 'Illuminate/Container/Types';
+import type { Application, Bootstrapper } from 'Illuminate/Contracts/Foundation/Application';
+import type { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
 
 /**
  * The client's entry point, as `Worker` is the server's.
@@ -40,12 +37,14 @@ import type { Repository as ConfigRepository } from "Illuminate/Config/Repositor
  * a real pair of this kind, faithfully to PHP: `Http\Response` and
  * `Http\Client\Response`.
  */
-export class Client {
+export class Client
+{
     /** Whether `boot()` has run. */
     protected booted = false;
 
     /** Create a new client instance. */
-    public constructor(@Inject("app") protected readonly app: Application) {}
+    public constructor(@Inject('app') protected readonly app: Application)
+    {}
 
     /**
      * The bootstrappers the client runs.
@@ -56,7 +55,8 @@ export class Client {
      * are free to diverge -- which is exactly what happens in PHP between the
      * HTTP and console kernels.
      */
-    public static defaultBootstrappers(): Array<Constructor<Bootstrapper>> {
+    public static defaultBootstrappers(): Array<Constructor<Bootstrapper>>
+    {
         return [
             LoadConfiguration,
             RegisterFacades,
@@ -71,19 +71,23 @@ export class Client {
      * `Worker`'s list minus the two that answer requests: there is no router
      * without routes and no queue worker on a client.
      */
-    public static defaultServicesToWarm(): Array<Abstract> {
-        return ["events", "config", "log"];
+    public static defaultServicesToWarm(): Array<Abstract>
+    {
+        return [
+            'events',
+            'config',
+            'log',
+        ];
     }
 
     /** Bootstrap the application, then warm it. */
     public boot(
-        bootstrappers: Array<
-            Constructor<Bootstrapper>
-        > = Client.defaultBootstrappers(),
+        bootstrappers: Array<Constructor<Bootstrapper>> = Client.defaultBootstrappers(),
         services?: Array<Abstract>,
-    ): void {
+    ): void
+    {
         if (this.booted) {
-            throw new RuntimeException("The client has already booted.");
+            throw new RuntimeException('The client has already booted.');
         }
 
         // Guarded the way `Kernel::bootstrap()` guards it: `bootstrapWith()`
@@ -103,12 +107,11 @@ export class Client {
      * Reads `app.warm` like `Worker` does, falling back to the client's own
      * default list.
      */
-    public warm(services?: Array<Abstract>): void {
-        const configured =
-            services ??
-            (this.app.make<ConfigRepository>("config").get("app.warm") as
-                Array<Abstract> | undefined) ??
-            Client.defaultServicesToWarm();
+    public warm(services?: Array<Abstract>): void
+    {
+        const configured = services
+            ?? (this.app.make<ConfigRepository>('config').get('app.warm') as Array<Abstract> | undefined)
+            ?? Client.defaultServicesToWarm();
 
         for (const service of configured) {
             if (this.app.bound(service)) {
@@ -118,12 +121,14 @@ export class Client {
     }
 
     /** Whether the client has booted. */
-    public hasBooted(): boolean {
+    public hasBooted(): boolean
+    {
         return this.booted;
     }
 
     /** Get the application instance the client booted. */
-    public application(): Application {
+    public application(): Application
+    {
         return this.app;
     }
 }

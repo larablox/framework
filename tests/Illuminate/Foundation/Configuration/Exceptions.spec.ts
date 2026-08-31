@@ -1,9 +1,9 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { Exceptions } from "Illuminate/Foundation/Configuration/Exceptions";
-import { Handler } from "Illuminate/Foundation/Exceptions/Handler";
-import { HttpException } from "Illuminate/Http/Exceptions/HttpException";
-import type { AbstractClass } from "Illuminate/Container/Types";
+import { Container } from 'Illuminate/Container/Container';
+import { Exceptions } from 'Illuminate/Foundation/Configuration/Exceptions';
+import { Handler } from 'Illuminate/Foundation/Exceptions/Handler';
+import { HttpException } from 'Illuminate/Http/Exceptions/HttpException';
+import type { AbstractClass } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `Illuminate\Tests\Foundation\Configuration\ExceptionsTest`.
@@ -25,28 +25,29 @@ import type { AbstractClass } from "Illuminate/Container/Types";
  * stop ignoring.
  */
 export = (): void => {
-    describe("Foundation.Configuration.Exceptions", () => {
-        class ExposedHandler extends Handler {
-            public getDontReport(): Array<AbstractClass> {
-                return [...this.dontReportTypes, ...this.internalDontReport];
+    describe('Foundation.Configuration.Exceptions', () => {
+        class ExposedHandler extends Handler
+        {
+            public getDontReport(): Array<AbstractClass>
+            {
+                return [
+                    ...this.dontReportTypes,
+                    ...this.internalDontReport,
+                ];
             }
         }
 
-        it("stopIgnoring() removes a class from both dontReport lists (adapted -- see class comment)", () => {
+        it('stopIgnoring() removes a class from both dontReport lists (adapted -- see class comment)', () => {
             // PHP: ExceptionsTest::testStopIgnoring
             const container = new Container();
             const handler = new ExposedHandler(container);
             let exceptions = new Exceptions(handler);
 
-            expect(handler.getDontReport().includes(HttpException)).to.equal(
-                true,
-            );
+            expect(handler.getDontReport().includes(HttpException)).to.equal(true);
 
             exceptions = exceptions.stopIgnoring(HttpException);
             expect(exceptions instanceof Exceptions).to.equal(true);
-            expect(handler.getDontReport().includes(HttpException)).to.equal(
-                false,
-            );
+            expect(handler.getDontReport().includes(HttpException)).to.equal(false);
         });
     });
 };

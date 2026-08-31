@@ -1,27 +1,30 @@
-import { Hub } from "Illuminate/Pipeline/Hub";
-import { Pipeline } from "Illuminate/Pipeline/Pipeline";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Application } from "Illuminate/Contracts/Foundation/Application";
+import { DeferrableProvider } from 'Illuminate/Contracts/Support/DeferrableProvider';
+import { Hub } from 'Illuminate/Pipeline/Hub';
+import { HubContract as PipelineHubContract } from 'Illuminate/Contracts/Pipeline/Hub';
+import { Pipeline } from 'Illuminate/Pipeline/Pipeline';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Abstract } from 'Illuminate/Container/Types';
 
-/**
- * PHP: `Illuminate\Pipeline\PipelineServiceProvider`.
- *
- * PHP binds the hub against its contract; an interface is no binding key here,
- * so the class is the key.
- */
-export class PipelineServiceProvider extends ServiceProvider {
+@DeferrableProvider()
+export class PipelineServiceProvider extends ServiceProvider implements DeferrableProvider
+{
     /** Register the service provider. */
-    public register(): void {
-        const app: Application = this.app;
+    public register(): void
+    {
+        this.app.singleton(
+            PipelineHubContract,
+            Hub,
+        );
 
-        this.app.singleton(Hub, () => new Hub(app));
-
-        this.app.bind("pipeline", () => new Pipeline(app));
+        this.app.bind('pipeline', (app) => new Pipeline(app));
     }
 
     /** Get the services provided by the provider. */
-    public provides(): Array<Abstract> {
-        return [Hub, "pipeline"];
+    public provides(): Array<Abstract>
+    {
+        return [
+            PipelineHubContract,
+            'pipeline',
+        ];
     }
 }

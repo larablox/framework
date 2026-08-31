@@ -1,10 +1,10 @@
-import { Container } from "Illuminate/Container/Container";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { Reflector } from "Illuminate/Support/Reflector";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
-import type { Repository as Cache } from "Illuminate/Cache/Repository";
+import { Container } from 'Illuminate/Container/Container';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
+import type { Repository as Cache } from 'Illuminate/Cache/Repository';
 
 /**
  * PHP: `Illuminate\Queue\Middleware\WithoutOverlapping`.
@@ -16,9 +16,10 @@ import type { Repository as Cache } from "Illuminate/Cache/Repository";
  * PHP hashes the job's display name into the key with `xxh128`; there is no
  * hash function here, so the name goes in as it is.
  */
-export class WithoutOverlapping {
+export class WithoutOverlapping
+{
     /** The prefix of the lock key. */
-    public prefix = "laravel-queue-overlap:";
+    public prefix = 'laravel-queue-overlap:';
 
     /** Indicates whether the lock key should be shared across job classes. */
     public shareKey = false;
@@ -28,18 +29,18 @@ export class WithoutOverlapping {
 
     /** Create a new middleware instance. */
     public constructor(
-        public key = "",
+        public key = '',
         public releaseAfterSeconds: number | undefined = 0,
         expiresAfter: Delay = 0,
-    ) {
+    )
+    {
         this.expiresAfter = InteractsWithTime.secondsUntil(expiresAfter);
     }
 
     /** Process the job. */
-    public handle(job: InteractsWithQueue, _next: Next): unknown {
-        const lock = Container.getInstance()
-            .make<Cache>("cache.store")
-            .lock(this.getLockKey(job), this.expiresAfter);
+    public handle(job: InteractsWithQueue, _next: Next): unknown
+    {
+        const lock = Container.getInstance().make<Cache>('cache.store').lock(this.getLockKey(job), this.expiresAfter);
 
         if (lock.get() === true) {
             try {
@@ -57,42 +58,48 @@ export class WithoutOverlapping {
     }
 
     /** Set the number of seconds the job should be released for. */
-    public releaseAfter(seconds: number): this {
+    public releaseAfter(seconds: number): this
+    {
         this.releaseAfterSeconds = seconds;
 
         return this;
     }
 
     /** Do not release the job back to the queue if no lock can be acquired. */
-    public dontRelease(): this {
+    public dontRelease(): this
+    {
         this.releaseAfterSeconds = undefined;
 
         return this;
     }
 
     /** Set the maximum number of seconds that can elapse before the lock is released. */
-    public expireAfter(seconds: Delay): this {
+    public expireAfter(seconds: Delay): this
+    {
         this.expiresAfter = InteractsWithTime.secondsUntil(seconds);
 
         return this;
     }
 
     /** Set the prefix of the lock key. */
-    public withPrefix(prefix: string): this {
+    public withPrefix(prefix: string): this
+    {
         this.prefix = prefix;
 
         return this;
     }
 
     /** Indicate that the lock key should be shared across job classes. */
-    public shared(): this {
+    public shared(): this
+    {
         this.shareKey = true;
 
         return this;
     }
 
     /** Get the lock key for the given job. */
-    public getLockKey(job: object): string {
+    public getLockKey(job: object): string
+    {
         if (this.shareKey) {
             return this.prefix + this.key;
         }

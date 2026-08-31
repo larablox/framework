@@ -1,6 +1,6 @@
-import { Factory } from "Illuminate/Http/Client/Factory";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type { Abstract, Concrete } from "Illuminate/Container/Types";
+import { Factory } from 'Illuminate/Http/Client/Factory';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Abstract, Concrete } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `Illuminate\Foundation\Providers\FoundationServiceProvider`.
@@ -18,7 +18,8 @@ import type { Abstract, Concrete } from "Illuminate/Container/Types";
  * the maintenance-mode manager, and the aggregated `FormRequestServiceProvider`
  * and `ParallelTestingServiceProvider`.
  */
-export class FoundationServiceProvider extends ServiceProvider {
+export class FoundationServiceProvider extends ServiceProvider
+{
     /** The singletons to register into the container. */
     public singletons: Array<[Abstract, Concrete] | Abstract> = [Factory];
 }

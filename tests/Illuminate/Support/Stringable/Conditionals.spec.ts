@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Str, Stringable } from "Illuminate/Support/Str";
+import { Str, Stringable } from 'Illuminate/Support/Str';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportStringableTest` (conditional
@@ -14,374 +14,358 @@ import { Str, Stringable } from "Illuminate/Support/Str";
  * signature (`(target, value) => TReturn | undefined`).
  */
 export = (): void => {
-    describe("Stringable conditionals", () => {
-        it("unless() invokes the callback when the condition is falsy", () => {
+    describe('Stringable conditionals', () => {
+        it('unless() invokes the callback when the condition is falsy', () => {
             // PHP: SupportStringableTest::testUnless / testUnlessTruthy /
             // testUnlessFalsy
             expect(
-                Str.of("unless")
-                    .unless(false, (target) => target.append(" false"))
+                Str.of('unless')
+                    .unless(false, (target) => target.append(' false'))
                     .toString(),
-            ).to.equal("unless false");
+            ).to.equal('unless false');
 
             expect(
-                Str.of("unless")
+                Str.of('unless')
                     .unless(
                         true,
                         (target, value) => target.append(tostring(value)),
-                        (target) => target.append(" true fallbacks to default"),
+                        (target) => target.append(' true fallbacks to default'),
                     )
                     .toString(),
-            ).to.equal("unless true fallbacks to default");
+            ).to.equal('unless true fallbacks to default');
 
             expect(
-                Str.of("unless ")
-                    .unless(0, (target, value) =>
-                        target.append(tostring(value)),
-                    )
+                Str.of('unless ')
+                    .unless(0, (target, value) => target.append(tostring(value)))
                     .toString(),
-            ).to.equal("unless 0");
+            ).to.equal('unless 0');
         });
 
-        it("when() invokes the callback when the condition is truthy", () => {
+        it('when() invokes the callback when the condition is truthy', () => {
             // PHP: SupportStringableTest::testWhenFalse / testWhenTrue
             expect(
-                Str.of("when")
-                    .when(false, (target, value) =>
-                        target.append(tostring(value)).append("false"),
-                    )
+                Str.of('when')
+                    .when(false, (target, value) => target.append(tostring(value)).append('false'))
                     .toString(),
-            ).to.equal("when");
+            ).to.equal('when');
 
             expect(
-                Str.of("when ")
-                    .when(true, (target) => target.append("true"))
+                Str.of('when ')
+                    .when(true, (target) => target.append('true'))
                     .toString(),
-            ).to.equal("when true");
+            ).to.equal('when true');
         });
 
-        it("whenContains()/whenContainsAll() branch on substring presence", () => {
+        it('whenContains()/whenContainsAll() branch on substring presence', () => {
             // PHP: SupportStringableTest::testWhenContains / testWhenContainsAll
             expect(
-                Str.of("stark")
-                    .whenContains("tar", (target) =>
-                        target.prepend("Tony ").title(),
-                    )
+                Str.of('stark')
+                    .whenContains('tar', (target) => target.prepend('Tony ').title())
                     .toString(),
-            ).to.equal("Tony Stark");
+            ).to.equal('Tony Stark');
 
             expect(
-                Str.of("stark")
-                    .whenContains("xxx", (target) =>
-                        target.prepend("Tony ").title(),
-                    )
+                Str.of('stark')
+                    .whenContains('xxx', (target) => target.prepend('Tony ').title())
                     .toString(),
-            ).to.equal("stark");
+            ).to.equal('stark');
 
             expect(
-                Str.of("stark")
+                Str.of('stark')
                     .whenContains(
-                        "xxx",
-                        (target) => target.prepend("Tony ").title(),
-                        (target) => target.prepend("Arno ").title(),
+                        'xxx',
+                        (target) => target.prepend('Tony ').title(),
+                        (target) => target.prepend('Arno ').title(),
                     )
                     .toString(),
-            ).to.equal("Arno Stark");
+            ).to.equal('Arno Stark');
 
             expect(
-                Str.of("tony stark")
-                    .whenContainsAll(["tony", "stark"], (target) =>
-                        target.title(),
-                    )
+                Str.of('tony stark')
+                    .whenContainsAll([
+                        'tony',
+                        'stark',
+                    ], (target) => target.title())
                     .toString(),
-            ).to.equal("Tony Stark");
+            ).to.equal('Tony Stark');
 
             expect(
-                Str.of("tony stark")
+                Str.of('tony stark')
                     .whenContainsAll(
-                        ["tony", "xxx"],
+                        [
+                            'tony',
+                            'xxx',
+                        ],
                         (target) => target.title(),
                         (target) => target.studly(),
                     )
                     .toString(),
-            ).to.equal("TonyStark");
+            ).to.equal('TonyStark');
         });
 
-        it("whenEndsWith()/whenDoesntEndWith() branch on the suffix", () => {
+        it('whenEndsWith()/whenDoesntEndWith() branch on the suffix', () => {
             // PHP: SupportStringableTest::testWhenEndsWith / testWhenDoesntEndWith
             expect(
-                Str.of("tony stark")
+                Str.of('tony stark')
                     .whenEndsWith(
-                        "ark",
+                        'ark',
                         (target) => target.title(),
                         (target) => target.studly(),
                     )
                     .toString(),
-            ).to.equal("Tony Stark");
+            ).to.equal('Tony Stark');
 
             expect(
-                Str.of("tony stark")
+                Str.of('tony stark')
                     .whenEndsWith(
-                        ["kra", "ark"],
+                        [
+                            'kra',
+                            'ark',
+                        ],
                         (target) => target.title(),
                         (target) => target.studly(),
                     )
                     .toString(),
-            ).to.equal("Tony Stark");
+            ).to.equal('Tony Stark');
 
             expect(
-                Str.of("tony stark")
-                    .whenEndsWith(["xxx"], (target) => target.title())
+                Str.of('tony stark')
+                    .whenEndsWith(['xxx'], (target) => target.title())
                     .toString(),
-            ).to.equal("tony stark");
+            ).to.equal('tony stark');
 
             expect(
-                Str.of("tony stark")
+                Str.of('tony stark')
                     .whenDoesntEndWith(
-                        "ark",
+                        'ark',
                         (target) => target.studly(),
                         (target) => target.title(),
                     )
                     .toString(),
-            ).to.equal("Tony Stark");
+            ).to.equal('Tony Stark');
 
             expect(
-                Str.of("tony stark")
-                    .whenDoesntEndWith(["xxx"], (target) => target)
+                Str.of('tony stark')
+                    .whenDoesntEndWith(['xxx'], (target) => target)
                     .toString(),
-            ).to.equal("tony stark");
+            ).to.equal('tony stark');
         });
 
-        it("whenExactly()/whenNotExactly() branch on an exact match", () => {
+        it('whenExactly()/whenNotExactly() branch on an exact match', () => {
             // PHP: SupportStringableTest::testWhenExactly / testWhenNotExactly
             expect(
-                Str.of("Tony Stark").whenExactly(
-                    "Tony Stark",
-                    () => "Nailed it...!",
-                    () => "Swing and a miss...!",
+                Str.of('Tony Stark').whenExactly(
+                    'Tony Stark',
+                    () => 'Nailed it...!',
+                    () => 'Swing and a miss...!',
                 ),
-            ).to.equal("Nailed it...!");
+            ).to.equal('Nailed it...!');
 
             expect(
-                Str.of("Tony Stark").whenExactly(
-                    "Iron Man",
-                    () => "Nailed it...!",
-                    () => "Swing and a miss...!",
+                Str.of('Tony Stark').whenExactly(
+                    'Iron Man',
+                    () => 'Nailed it...!',
+                    () => 'Swing and a miss...!',
                 ),
-            ).to.equal("Swing and a miss...!");
+            ).to.equal('Swing and a miss...!');
 
             expect(
-                (
-                    Str.of("Tony Stark").whenExactly(
-                        "Iron Man",
-                        () => "Nailed it...!",
-                    ) as Stringable
-                ).toString(),
-            ).to.equal("Tony Stark");
+                (Str.of('Tony Stark').whenExactly('Iron Man', () => 'Nailed it...!') as Stringable).toString(),
+            ).to.equal('Tony Stark');
+
+            expect(Str.of('Tony').whenNotExactly('Tony Stark', () => 'Iron Man')).to.equal('Iron Man');
 
             expect(
-                Str.of("Tony").whenNotExactly("Tony Stark", () => "Iron Man"),
-            ).to.equal("Iron Man");
-
-            expect(
-                Str.of("Tony Stark").whenNotExactly(
-                    "Tony Stark",
-                    () => "Iron Man",
-                    () => "Swing and a miss...!",
+                Str.of('Tony Stark').whenNotExactly(
+                    'Tony Stark',
+                    () => 'Iron Man',
+                    () => 'Swing and a miss...!',
                 ),
-            ).to.equal("Swing and a miss...!");
+            ).to.equal('Swing and a miss...!');
         });
 
-        it("whenIs() branches on a wildcard pattern match", () => {
+        it('whenIs() branches on a wildcard pattern match', () => {
             // PHP: SupportStringableTest::testWhenIs
             expect(
-                Str.of("/")
+                Str.of('/')
                     .whenIs(
-                        "/",
-                        (target) => target.prepend("Winner: "),
-                        () => Str.of("Try again"),
+                        '/',
+                        (target) => target.prepend('Winner: '),
+                        () => Str.of('Try again'),
                     )
                     .toString(),
-            ).to.equal("Winner: /");
+            ).to.equal('Winner: /');
 
             expect(
-                Str.of("/")
-                    .whenIs(" /", (target) => target.prepend("Winner: "))
+                Str.of('/')
+                    .whenIs(' /', (target) => target.prepend('Winner: '))
                     .toString(),
-            ).to.equal("/");
+            ).to.equal('/');
 
             expect(
-                Str.of("/")
+                Str.of('/')
                     .whenIs(
-                        " /",
-                        (target) => target.prepend("Winner: "),
-                        () => Str.of("Try again"),
+                        ' /',
+                        (target) => target.prepend('Winner: '),
+                        () => Str.of('Try again'),
                     )
                     .toString(),
-            ).to.equal("Try again");
+            ).to.equal('Try again');
 
             expect(
-                Str.of("foo/bar/baz")
-                    .whenIs("foo/*", (target) => target.prepend("Winner: "))
+                Str.of('foo/bar/baz')
+                    .whenIs('foo/*', (target) => target.prepend('Winner: '))
                     .toString(),
-            ).to.equal("Winner: foo/bar/baz");
+            ).to.equal('Winner: foo/bar/baz');
         });
 
         it("whenIsAscii()/whenIsUuid()/whenIsUlid() branch on the string's shape", () => {
             // PHP: SupportStringableTest::testWhenIsAscii / testWhenIsUuid /
             // testWhenIsUlid
             expect(
-                Str.of("A")
+                Str.of('A')
                     .whenIsAscii(
-                        (target) => target.prepend("Ascii: "),
-                        (target) => target.prepend("Not Ascii: "),
+                        (target) => target.prepend('Ascii: '),
+                        (target) => target.prepend('Not Ascii: '),
                     )
                     .toString(),
-            ).to.equal("Ascii: A");
+            ).to.equal('Ascii: A');
 
             expect(
-                Str.of("ù")
-                    .whenIsAscii((target) => target.prepend("Ascii: "))
+                Str.of('ù')
+                    .whenIsAscii((target) => target.prepend('Ascii: '))
                     .toString(),
-            ).to.equal("ù");
+            ).to.equal('ù');
 
             expect(
-                Str.of("ù")
+                Str.of('ù')
                     .whenIsAscii(
-                        (target) => target.prepend("Ascii: "),
-                        (target) => target.prepend("Not Ascii: "),
+                        (target) => target.prepend('Ascii: '),
+                        (target) => target.prepend('Not Ascii: '),
                     )
                     .toString(),
-            ).to.equal("Not Ascii: ù");
+            ).to.equal('Not Ascii: ù');
 
             expect(
-                Str.of("2cdc7039-65a6-4ac7-8e5d-d554a98e7b15")
+                Str.of('2cdc7039-65a6-4ac7-8e5d-d554a98e7b15')
                     .whenIsUuid(
-                        (target) => target.prepend("Uuid: "),
-                        (target) => target.prepend("Not Uuid: "),
+                        (target) => target.prepend('Uuid: '),
+                        (target) => target.prepend('Not Uuid: '),
                     )
                     .toString(),
-            ).to.equal("Uuid: 2cdc7039-65a6-4ac7-8e5d-d554a98e7b15");
+            ).to.equal('Uuid: 2cdc7039-65a6-4ac7-8e5d-d554a98e7b15');
 
             expect(
-                Str.of("2cdc7039-65a6-4ac7-8e5d-d554a98")
+                Str.of('2cdc7039-65a6-4ac7-8e5d-d554a98')
                     .whenIsUuid(
-                        (target) => target.prepend("Uuid: "),
-                        (target) => target.prepend("Not Uuid: "),
+                        (target) => target.prepend('Uuid: '),
+                        (target) => target.prepend('Not Uuid: '),
                     )
                     .toString(),
-            ).to.equal("Not Uuid: 2cdc7039-65a6-4ac7-8e5d-d554a98");
+            ).to.equal('Not Uuid: 2cdc7039-65a6-4ac7-8e5d-d554a98');
 
             expect(
-                Str.of("01GJSNW9MAF792C0XYY8RX6QFT")
+                Str.of('01GJSNW9MAF792C0XYY8RX6QFT')
                     .whenIsUlid(
-                        (target) => target.prepend("Ulid: "),
-                        (target) => target.prepend("Not Ulid: "),
+                        (target) => target.prepend('Ulid: '),
+                        (target) => target.prepend('Not Ulid: '),
                     )
                     .toString(),
-            ).to.equal("Ulid: 01GJSNW9MAF792C0XYY8RX6QFT");
+            ).to.equal('Ulid: 01GJSNW9MAF792C0XYY8RX6QFT');
 
             expect(
-                Str.of("ss-01GJSNW9MAF792C0XYY8RX6QFT")
+                Str.of('ss-01GJSNW9MAF792C0XYY8RX6QFT')
                     .whenIsUlid(
-                        (target) => target.prepend("Ulid: "),
-                        (target) => target.prepend("Not Ulid: "),
+                        (target) => target.prepend('Ulid: '),
+                        (target) => target.prepend('Not Ulid: '),
                     )
                     .toString(),
-            ).to.equal("Not Ulid: ss-01GJSNW9MAF792C0XYY8RX6QFT");
+            ).to.equal('Not Ulid: ss-01GJSNW9MAF792C0XYY8RX6QFT');
         });
 
-        it("whenTest() branches on a Luau pattern match", () => {
+        it('whenTest() branches on a Luau pattern match', () => {
             // PHP: SupportStringableTest::testWhenTest (adapted to Luau
             // patterns)
             expect(
-                Str.of("foo bar")
+                Str.of('foo bar')
                     .whenTest(
-                        "bar",
-                        (target) => target.prepend("Winner: "),
-                        () => Str.of("Try again"),
+                        'bar',
+                        (target) => target.prepend('Winner: '),
+                        () => Str.of('Try again'),
                     )
                     .toString(),
-            ).to.equal("Winner: foo bar");
+            ).to.equal('Winner: foo bar');
 
             expect(
-                Str.of("foo bar")
+                Str.of('foo bar')
                     .whenTest(
-                        "link",
-                        (target) => target.prepend("Winner: "),
-                        () => Str.of("Try again"),
+                        'link',
+                        (target) => target.prepend('Winner: '),
+                        () => Str.of('Try again'),
                     )
                     .toString(),
-            ).to.equal("Try again");
+            ).to.equal('Try again');
 
             expect(
-                Str.of("foo bar")
-                    .whenTest("link", (target) => target.prepend("Winner: "))
+                Str.of('foo bar')
+                    .whenTest('link', (target) => target.prepend('Winner: '))
                     .toString(),
-            ).to.equal("foo bar");
+            ).to.equal('foo bar');
         });
 
-        it("whenStartsWith()/whenDoesntStartWith() branch on the prefix", () => {
+        it('whenStartsWith()/whenDoesntStartWith() branch on the prefix', () => {
             // PHP: SupportStringableTest::testWhenStartsWith / testWhenDoesntStartWith
             expect(
-                Str.of("tony stark")
+                Str.of('tony stark')
                     .whenStartsWith(
-                        "ton",
+                        'ton',
                         (target) => target.title(),
                         (target) => target.studly(),
                     )
                     .toString(),
-            ).to.equal("Tony Stark");
+            ).to.equal('Tony Stark');
 
             expect(
-                Str.of("tony stark")
-                    .whenStartsWith(["xxx"], (target) => target.title())
+                Str.of('tony stark')
+                    .whenStartsWith(['xxx'], (target) => target.title())
                     .toString(),
-            ).to.equal("tony stark");
+            ).to.equal('tony stark');
 
             expect(
-                Str.of("tony stark")
+                Str.of('tony stark')
                     .whenDoesntStartWith(
-                        "ton",
+                        'ton',
                         (target) => target.studly(),
                         (target) => target.title(),
                     )
                     .toString(),
-            ).to.equal("Tony Stark");
+            ).to.equal('Tony Stark');
 
             expect(
-                Str.of("tony stark")
-                    .whenDoesntStartWith(["xxx"], (target) => target)
+                Str.of('tony stark')
+                    .whenDoesntStartWith(['xxx'], (target) => target)
                     .toString(),
-            ).to.equal("tony stark");
+            ).to.equal('tony stark');
         });
 
-        it("whenEmpty()/whenNotEmpty() branch on emptiness", () => {
+        it('whenEmpty()/whenNotEmpty() branch on emptiness', () => {
             // PHP: SupportStringableTest::testWhenEmpty / testWhenNotEmpty
-            const untouched = Str.of("");
+            const untouched = Str.of('');
 
-            expect(untouched.whenEmpty<Stringable>(() => undefined)).to.equal(
-                untouched,
-            );
+            expect(untouched.whenEmpty<Stringable>(() => undefined)).to.equal(untouched);
 
-            expect(Str.of("").whenEmpty(() => "empty")).to.equal("empty");
-            expect(
-                (
-                    Str.of("not-empty").whenEmpty(() => "empty") as Stringable
-                ).toString(),
-            ).to.equal("not-empty");
+            expect(Str.of('').whenEmpty(() => 'empty')).to.equal('empty');
+            expect((Str.of('not-empty').whenEmpty(() => 'empty') as Stringable).toString()).to.equal('not-empty');
 
-            const untouchedNotEmpty = Str.of("");
+            const untouchedNotEmpty = Str.of('');
+
+            expect(untouchedNotEmpty.whenNotEmpty<Stringable>(() => undefined)).to.equal(untouchedNotEmpty);
 
             expect(
-                untouchedNotEmpty.whenNotEmpty<Stringable>(() => undefined),
-            ).to.equal(untouchedNotEmpty);
-
-            expect(
-                Str.of("Not empty")
-                    .whenNotEmpty((target) => target.append("."))
+                Str.of('Not empty')
+                    .whenNotEmpty((target) => target.append('.'))
                     .toString(),
-            ).to.equal("Not empty.");
+            ).to.equal('Not empty.');
         });
     });
 };

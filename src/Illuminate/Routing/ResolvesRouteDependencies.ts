@@ -1,16 +1,12 @@
-import { BindingResolutionException } from "Illuminate/Contracts/Container/BindingResolutionException";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Trait } from "Illuminate/Support/Traits/Trait";
-import { Util } from "Illuminate/Container/Util";
-import { getInjectedDependencies } from "Illuminate/Container/Attributes/Inject";
-import type {
-    AssertNoExtraMembers,
-    AssertTrue,
-    Constructor,
-} from "Illuminate/Support/Traits/Trait";
-import type { Container } from "Illuminate/Container/Container";
-import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
-import type { OrderedMap } from "Illuminate/Support/OrderedMap";
+import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Trait } from 'Illuminate/Support/Traits/Trait';
+import { Util } from 'Illuminate/Container/Util';
+import { getInjectedDependencies } from 'Illuminate/Container/Attributes/Inject';
+import type { AssertNoExtraMembers, AssertTrue, Constructor } from 'Illuminate/Support/Traits/Trait';
+import type { Container } from 'Illuminate/Container/Container';
+import type { Container as ContainerContract } from 'Illuminate/Contracts/Container/Container';
+import type { OrderedMap } from 'Illuminate/Support/OrderedMap';
 
 /**
  * The instance type `ResolvesRouteDependencies()` mixes in.
@@ -21,7 +17,8 @@ import type { OrderedMap } from "Illuminate/Support/OrderedMap";
  * which explains the whole pattern, including why the shape is in two halves
  * and which half the compiler can check for you.
  */
-export declare class ResolvesRouteDependenciesPublicShape {
+export declare class ResolvesRouteDependenciesPublicShape
+{
     /** Type-only: there is no such value in the compiled Luau. */
     protected constructor();
 
@@ -44,7 +41,8 @@ export declare class ResolvesRouteDependenciesPublicShape {
  * The full shape: {@link ResolvesRouteDependenciesPublicShape} plus what
  * Laravel hides.
  */
-export declare class ResolvesRouteDependenciesShape extends ResolvesRouteDependenciesPublicShape {
+export declare class ResolvesRouteDependenciesShape extends ResolvesRouteDependenciesPublicShape
+{
     /** Type-only: there is no such value in the compiled Luau. */
     private constructor();
 
@@ -68,7 +66,8 @@ export declare class ResolvesRouteDependenciesShape extends ResolvesRouteDepende
  * that the two checks on the shape have something concrete to look at -- see
  * the note on `conditionable` in `Illuminate/Support/Traits/Conditionable`.
  */
-function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
+function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase)
+{
     return class extends Base {
         /** The container instance, set by the class using the trait. */
         protected container!: ContainerContract;
@@ -80,7 +79,8 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
          * class rather than on the contract -- in PHP too, where the container
          * the router hands around is always the real one.
          */
-        private concreteContainer(): Container {
+        private concreteContainer(): Container
+        {
             return this.container as unknown as Container;
         }
 
@@ -89,12 +89,9 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
             parameters: OrderedMap<string, defined>,
             instance: object,
             method: string,
-        ): Array<defined> {
-            return this.resolveMethodDependencies(
-                parameters,
-                Reflector.classOf(instance),
-                method,
-            );
+        ): Array<defined>
+        {
+            return this.resolveMethodDependencies(parameters, Reflector.classOf(instance), method);
         }
 
         /** Resolve the given method's dependencies. */
@@ -102,27 +99,21 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
             parameters: OrderedMap<string, defined>,
             target: object | undefined,
             method: string,
-        ): Array<defined> {
-            const declared =
-                target !== undefined
-                    ? getInjectedDependencies(target, method)
-                    : [];
+        ): Array<defined>
+        {
+            const declared = target !== undefined ? getInjectedDependencies(target, method) : [];
 
             const values = new Array<defined>();
 
             for (let index = 0; index < declared.size(); index++) {
                 const dependency = declared[index];
 
-                const attribute =
-                    Util.getContextualAttributeFromDependency(dependency);
+                const attribute = Util.getContextualAttributeFromDependency(dependency);
 
                 let resolved: unknown;
 
                 if (attribute !== undefined) {
-                    resolved =
-                        this.concreteContainer().resolveFromAttribute(
-                            attribute,
-                        );
+                    resolved = this.concreteContainer().resolveFromAttribute(attribute);
                 } else if (dependency.abstract !== undefined) {
                     resolved = this.container.make(dependency.abstract);
                 } else {
@@ -131,10 +122,7 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
                     );
                 }
 
-                this.concreteContainer().fireAfterResolvingAttributeCallbacks(
-                    dependency.attributes,
-                    resolved,
-                );
+                this.concreteContainer().fireAfterResolvingAttributeCallbacks(dependency.attributes, resolved);
 
                 values.push(resolved as defined);
             }
@@ -155,16 +143,12 @@ function resolvesRouteDependencies<TBase extends Constructor>(Base: TBase) {
  * `ConditionableExtra` in `Illuminate/Support/Traits/Conditionable`.
  */
 type ResolvesRouteDependenciesExtra = Exclude<
-    keyof InstanceType<
-        ReturnType<typeof resolvesRouteDependencies<typeof Trait>>
-    >,
+    keyof InstanceType<ReturnType<typeof resolvesRouteDependencies<typeof Trait>>>,
     keyof ResolvesRouteDependenciesPublicShape
 >;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the assertion is the point: it fails to compile when the trait has a public member the shape does not list.
-type ResolvesRouteDependenciesIsExact = AssertTrue<
-    AssertNoExtraMembers<ResolvesRouteDependenciesExtra>
->;
+type ResolvesRouteDependenciesIsExact = AssertTrue<AssertNoExtraMembers<ResolvesRouteDependenciesExtra>>;
 
 /**
  * PHP: `trait Illuminate\Routing\ResolvesRouteDependencies`.
@@ -188,6 +172,7 @@ type ResolvesRouteDependenciesIsExact = AssertTrue<
  */
 export function ResolvesRouteDependencies<TBase extends Constructor>(
     Base: TBase = Trait as never,
-): TBase & Constructor<ResolvesRouteDependenciesShape> {
+): TBase & Constructor<ResolvesRouteDependenciesShape>
+{
     return resolvesRouteDependencies(Base) as never;
 }

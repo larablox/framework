@@ -1,5 +1,5 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Response } from "Illuminate/Http/Response";
+import { Response } from 'Illuminate/Http/Response';
 
 /**
  * PHP: `Illuminate\Tests\Http\HttpResponseTest`.
@@ -47,20 +47,20 @@ import { Response } from "Illuminate/Http/Response";
  */
 
 export = (): void => {
-    describe("Http.Response", () => {
+    describe('Http.Response', () => {
         // PHP: HttpResponseTest::testHeader
-        it("header() only replaces an existing value when told to", () => {
+        it('header() only replaces an existing value when told to', () => {
             const response = new Response();
-            expect(response.getHeaders().has("foo")).to.equal(false);
+            expect(response.getHeaders().has('foo')).to.equal(false);
 
-            response.header("foo", "bar");
-            expect(response.getHeaders().get("foo")).to.equal("bar");
+            response.header('foo', 'bar');
+            expect(response.getHeaders().get('foo')).to.equal('bar');
 
-            response.header("foo", "baz", false);
-            expect(response.getHeaders().get("foo")).to.equal("bar");
+            response.header('foo', 'baz', false);
+            expect(response.getHeaders().get('foo')).to.equal('bar');
 
-            response.header("foo", "baz");
-            expect(response.getHeaders().get("foo")).to.equal("baz");
+            response.header('foo', 'baz');
+            expect(response.getHeaders().get('foo')).to.equal('baz');
         });
 
         /**
@@ -71,8 +71,8 @@ export = (): void => {
          * above), but `content()`/`getContent()` are the same plain passthrough,
          * so the assertion is ported against them instead.
          */
-        it("content() and getContent() return whatever was set, unchanged", () => {
-            const arr = { foo: "bar" };
+        it('content() and getContent() return whatever was set, unchanged', () => {
+            const arr = { foo: 'bar' };
             const response = new Response();
             response.setContent(arr);
 
@@ -81,8 +81,8 @@ export = (): void => {
         });
 
         // PHP: HttpResponseTest::testSetAndRetrieveStatusCode
-        it("setStatusCode() and getStatusCode()/status() round-trip", () => {
-            const response = new Response("foo");
+        it('setStatusCode() and getStatusCode()/status() round-trip', () => {
+            const response = new Response('foo');
             response.setStatusCode(404);
 
             expect(response.getStatusCode()).to.equal(404);
@@ -94,13 +94,13 @@ export = (): void => {
          * class doc comment for why the `ResponseHeaderBag`/`HeaderBag` cases are
          * not ported).
          */
-        it("withHeaders() merges a plain object of headers in, later values winning", () => {
-            const response = new Response(undefined, 200, { foo: "bar" });
-            expect(response.getHeaders().get("foo")).to.equal("bar");
+        it('withHeaders() merges a plain object of headers in, later values winning', () => {
+            const response = new Response(undefined, 200, { foo: 'bar' });
+            expect(response.getHeaders().get('foo')).to.equal('bar');
 
-            response.withHeaders({ foo: "BAR", bar: "baz" });
-            expect(response.getHeaders().get("foo")).to.equal("BAR");
-            expect(response.getHeaders().get("bar")).to.equal("baz");
+            response.withHeaders({ foo: 'BAR', bar: 'baz' });
+            expect(response.getHeaders().get('foo')).to.equal('BAR');
+            expect(response.getHeaders().get('bar')).to.equal('baz');
         });
 
         /**
@@ -111,11 +111,11 @@ export = (): void => {
          * `agent_docs/laravel-parity.md`'s renaming table) since it is central
          * enough to the port to leave untested otherwise.
          */
-        it("withException()/exception() attach the exception a response answers a failed request with", () => {
+        it('withException()/exception() attach the exception a response answers a failed request with', () => {
             const response = new Response();
             expect(response.exception()).to.equal(undefined);
 
-            const thrown = "boom";
+            const thrown = 'boom';
             response.withException(thrown);
             expect(response.exception()).to.equal(thrown);
         });

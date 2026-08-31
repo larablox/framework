@@ -1,6 +1,6 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
 
 /**
  * PHP: `Illuminate\Tests\Events\EventsSubscriberTest`.
@@ -16,43 +16,47 @@ import { Dispatcher } from "Illuminate/Events/Dispatcher";
  * mock framework.
  */
 export = (): void => {
-    describe("Dispatcher::subscribe()", () => {
-        it("subscribe(Abstract) resolves the subscriber through the container and calls subscribe() once (adapted -- see class comment)", () => {
+    describe('Dispatcher::subscribe()', () => {
+        it('subscribe(Abstract) resolves the subscriber through the container and calls subscribe() once (adapted -- see class comment)', () => {
             // PHP: EventsSubscriberTest::testEventSubscribers
             let subscribeCallCount = 0;
             let subscribeArg: unknown;
 
-            class ExampleSubscriber {
-                public subscribe(e: unknown): string {
+            class ExampleSubscriber
+            {
+                public subscribe(e: unknown): string
+                {
                     subscribeCallCount++;
                     subscribeArg = e;
 
                     // There would be no error if a non-array is returned.
-                    return "(O_o)";
+                    return '(O_o)';
                 }
             }
 
             const container = new Container();
-            container.bind("ExampleSubscriber", ExampleSubscriber);
+            container.bind('ExampleSubscriber', ExampleSubscriber);
             const d = new Dispatcher(container);
 
-            d.subscribe("ExampleSubscriber");
+            d.subscribe('ExampleSubscriber');
 
             expect(subscribeCallCount).to.equal(1);
             expect(subscribeArg).to.equal(d);
         });
 
-        it("subscribe(object) calls subscribe() once on the given instance (adapted -- see class comment)", () => {
+        it('subscribe(object) calls subscribe() once on the given instance (adapted -- see class comment)', () => {
             // PHP: EventsSubscriberTest::testEventSubscribeCanAcceptObject
             let subscribeCallCount = 0;
             let subscribeArg: unknown;
 
-            class ExampleSubscriber {
-                public subscribe(e: unknown): string {
+            class ExampleSubscriber
+            {
+                public subscribe(e: unknown): string
+                {
                     subscribeCallCount++;
                     subscribeArg = e;
 
-                    return "(O_o)";
+                    return '(O_o)';
                 }
             }
 
@@ -65,47 +69,55 @@ export = (): void => {
             expect(subscribeArg).to.equal(d);
         });
 
-        it("subscribe() registers every [event, Class@method] pair returned by subscribe()", () => {
+        it('subscribe() registers every [event, Class@method] pair returned by subscribe()', () => {
             // PHP: EventsSubscriberTest::testEventSubscribeCanReturnMappings
-            let str = "";
+            let str = '';
 
-            class DeclarativeSubscriber {
-                public subscribe(): Array<[string, Array<string>]> {
+            class DeclarativeSubscriber
+            {
+                public subscribe(): Array<[string, Array<string>]>
+                {
                     return [
                         [
-                            "myEvent1",
+                            'myEvent1',
                             [
-                                "DeclarativeSubscriber@listener1",
-                                "DeclarativeSubscriber@listener2",
+                                'DeclarativeSubscriber@listener1',
+                                'DeclarativeSubscriber@listener2',
                             ],
                         ],
-                        ["myEvent2", ["DeclarativeSubscriber@listener3"]],
+                        [
+                            'myEvent2',
+                            ['DeclarativeSubscriber@listener3'],
+                        ],
                     ];
                 }
 
-                public listener1(): void {
-                    str += "L1_";
+                public listener1(): void
+                {
+                    str += 'L1_';
                 }
 
-                public listener2(): void {
-                    str += "L2_";
+                public listener2(): void
+                {
+                    str += 'L2_';
                 }
 
-                public listener3(): void {
-                    str += "L3";
+                public listener3(): void
+                {
+                    str += 'L3';
                 }
             }
 
             const container = new Container();
-            container.bind("DeclarativeSubscriber", DeclarativeSubscriber);
+            container.bind('DeclarativeSubscriber', DeclarativeSubscriber);
             const d = new Dispatcher(container);
-            d.subscribe("DeclarativeSubscriber");
+            d.subscribe('DeclarativeSubscriber');
 
-            d.dispatch("myEvent1");
-            expect(str).to.equal("L1_L2_");
+            d.dispatch('myEvent1');
+            expect(str).to.equal('L1_L2_');
 
-            d.dispatch("myEvent2");
-            expect(str).to.equal("L1_L2_L3");
+            d.dispatch('myEvent2');
+            expect(str).to.equal('L1_L2_L3');
         });
     });
 };

@@ -1,6 +1,6 @@
-import { Str } from "Illuminate/Support/Str";
-import type { ActionAttributes } from "Illuminate/Routing/RouteAction";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Str } from 'Illuminate/Support/Str';
+import type { ActionAttributes } from 'Illuminate/Routing/RouteAction';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Routing\RouteGroup`.
@@ -11,38 +11,30 @@ import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
  * `array_merge_recursive`), and a `controller` set by the inner group replaces
  * the outer one.
  */
-export class RouteGroup {
+export class RouteGroup
+{
     /** Merge route groups into a new array. */
     public static merge(
         attributes: ActionAttributes,
         old: ActionAttributes,
         prependExistingPrefix = true,
-    ): ActionAttributes {
+    ): ActionAttributes
+    {
         const merged: ActionAttributes = {
             ...old,
             ...attributes,
             as: RouteGroup.formatAs(attributes, old),
-            prefix: RouteGroup.formatPrefix(
-                attributes,
-                old,
-                prependExistingPrefix,
-            ),
+            prefix: RouteGroup.formatPrefix(attributes, old, prependExistingPrefix),
             where: RouteGroup.formatWhere(attributes, old),
         };
 
-        const middleware = RouteGroup.formatMiddleware(
-            attributes.middleware,
-            old.middleware,
-        );
+        const middleware = RouteGroup.formatMiddleware(attributes.middleware, old.middleware);
 
         if (middleware !== undefined) {
             merged.middleware = middleware;
         }
 
-        const excluded = RouteGroup.formatMiddleware(
-            attributes.excluded_middleware,
-            old.excluded_middleware,
-        );
+        const excluded = RouteGroup.formatMiddleware(attributes.excluded_middleware, old.excluded_middleware);
 
         if (excluded !== undefined) {
             merged.excluded_middleware = excluded;
@@ -56,23 +48,25 @@ export class RouteGroup {
         attributes: ActionAttributes,
         old: ActionAttributes,
         prependExistingPrefix: boolean,
-    ): string | undefined {
-        const previous = old.prefix ?? "";
+    ): string | undefined
+    {
+        const previous = old.prefix ?? '';
 
         if (attributes.prefix === undefined) {
-            return previous === "" ? undefined : previous;
+            return previous === '' ? undefined : previous;
         }
 
         return prependExistingPrefix
-            ? `${Str.trim(previous, "/")}/${Str.trim(attributes.prefix, "/")}`
-            : `${Str.trim(attributes.prefix, "/")}/${Str.trim(previous, "/")}`;
+            ? `${Str.trim(previous, '/')}/${Str.trim(attributes.prefix, '/')}`
+            : `${Str.trim(attributes.prefix, '/')}/${Str.trim(previous, '/')}`;
     }
 
     /** Format the "wheres" for the new group attributes. */
     protected static formatWhere(
         attributes: ActionAttributes,
         old: ActionAttributes,
-    ): Record<string, string> | undefined {
+    ): Record<string, string> | undefined
+    {
         if (attributes.where === undefined && old.where === undefined) {
             return undefined;
         }
@@ -81,22 +75,18 @@ export class RouteGroup {
     }
 
     /** Format the "as" clause of the new group attributes. */
-    protected static formatAs(
-        attributes: ActionAttributes,
-        old: ActionAttributes,
-    ): string | undefined {
+    protected static formatAs(attributes: ActionAttributes, old: ActionAttributes): string | undefined
+    {
         if (old.as === undefined) {
             return attributes.as;
         }
 
-        return `${old.as}${attributes.as ?? ""}`;
+        return `${old.as}${attributes.as ?? ''}`;
     }
 
     /** Append one middleware list to another, keeping both. */
-    protected static formatMiddleware(
-        middleware?: Array<Pipe>,
-        old?: Array<Pipe>,
-    ): Array<Pipe> | undefined {
+    protected static formatMiddleware(middleware?: Array<Pipe>, old?: Array<Pipe>): Array<Pipe> | undefined
+    {
         if (middleware === undefined) {
             return old;
         }

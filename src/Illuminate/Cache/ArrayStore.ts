@@ -1,18 +1,20 @@
-import { ArrayLock } from "Illuminate/Cache/ArrayLock";
-import { InteractsWithTime } from "Illuminate/Support/InteractsWithTime";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { Lock } from "Illuminate/Contracts/Cache/Lock";
-import type { LockProvider } from "Illuminate/Contracts/Cache/LockProvider";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import { ArrayLock } from 'Illuminate/Cache/ArrayLock';
+import { InteractsWithTime } from 'Illuminate/Support/InteractsWithTime';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { Lock } from 'Illuminate/Contracts/Cache/Lock';
+import type { LockProvider } from 'Illuminate/Contracts/Cache/LockProvider';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
 /** One item as the store keeps it. */
-interface ArrayItem {
+interface ArrayItem
+{
     value: unknown;
     expiresAt: number;
 }
 
 /** A lock as the store keeps it. */
-export interface ArrayLockRecord {
+export interface ArrayLockRecord
+{
     owner: string;
     expiresAt?: number;
 }
@@ -27,7 +29,8 @@ export interface ArrayLockRecord {
  * trip everything a cache may hold. A value comes back as the very object that
  * was put in.
  */
-export class ArrayStore implements Store, LockProvider {
+export class ArrayStore implements Store, LockProvider
+{
     /** The array of stored values. */
     protected storage = new OrderedMap<string, ArrayItem>();
 
@@ -35,17 +38,15 @@ export class ArrayStore implements Store, LockProvider {
     public locks = new OrderedMap<string, ArrayLockRecord>();
 
     /** Retrieve an item from the cache by key. */
-    public get(key: string): unknown {
+    public get(key: string): unknown
+    {
         const item = this.storage.get(key);
 
         if (item === undefined) {
             return undefined;
         }
 
-        if (
-            item.expiresAt !== 0 &&
-            InteractsWithTime.currentTime() >= item.expiresAt
-        ) {
+        if (item.expiresAt !== 0 && InteractsWithTime.currentTime() >= item.expiresAt) {
             this.forget(key);
 
             return undefined;
@@ -55,7 +56,8 @@ export class ArrayStore implements Store, LockProvider {
     }
 
     /** Retrieve multiple items from the cache by key. */
-    public many(keys: Array<string>): Map<string, unknown> {
+    public many(keys: Array<string>): Map<string, unknown>
+    {
         const values = new Map<string, unknown>();
 
         for (const key of keys) {
@@ -66,7 +68,8 @@ export class ArrayStore implements Store, LockProvider {
     }
 
     /** Store an item in the cache for a given number of seconds. */
-    public put(key: string, value: unknown, seconds: number): boolean {
+    public put(key: string, value: unknown, seconds: number): boolean
+    {
         this.storage.set(key, {
             value,
             expiresAt: this.calculateExpiration(seconds),
@@ -76,7 +79,8 @@ export class ArrayStore implements Store, LockProvider {
     }
 
     /** Store multiple items in the cache for a given number of seconds. */
-    public putMany(values: Map<string, unknown>, seconds: number): boolean {
+    public putMany(values: Map<string, unknown>, seconds: number): boolean
+    {
         for (const [key, value] of values) {
             this.put(key, value, seconds);
         }
@@ -93,7 +97,8 @@ export class ArrayStore implements Store, LockProvider {
     // upstream gives an atomic `add()` to.
 
     /** Increment the value of an item in the cache. */
-    public increment(key: string, value = 1): number | false {
+    public increment(key: string, value = 1): number | false
+    {
         const existing = this.get(key);
 
         if (existing === undefined) {
@@ -110,17 +115,20 @@ export class ArrayStore implements Store, LockProvider {
     }
 
     /** Decrement the value of an item in the cache. */
-    public decrement(key: string, value = 1): number | false {
+    public decrement(key: string, value = 1): number | false
+    {
         return this.increment(key, value * -1);
     }
 
     /** Store an item in the cache indefinitely. */
-    public forever(key: string, value: unknown): boolean {
+    public forever(key: string, value: unknown): boolean
+    {
         return this.put(key, value, 0);
     }
 
     /** Set a new expiration time on an item that is already stored. */
-    public touch(key: string, seconds: number): boolean {
+    public touch(key: string, seconds: number): boolean
+    {
         const item = this.storage.get(key);
 
         if (item === undefined) {
@@ -133,43 +141,48 @@ export class ArrayStore implements Store, LockProvider {
     }
 
     /** Remove an item from the cache. */
-    public forget(key: string): boolean {
+    public forget(key: string): boolean
+    {
         return this.storage.delete(key);
     }
 
     /** Remove all items from the cache. */
-    public flush(): boolean {
+    public flush(): boolean
+    {
         this.storage.clear();
 
         return true;
     }
 
     /** Remove all of the locks from the cache. */
-    public flushLocks(): boolean {
+    public flushLocks(): boolean
+    {
         this.locks.clear();
 
         return true;
     }
 
     /** Get a lock instance. */
-    public lock(name: string, seconds = 0, owner?: string): Lock {
+    public lock(name: string, seconds = 0, owner?: string): Lock
+    {
         return new ArrayLock(this, name, seconds, owner);
     }
 
     /** Restore a lock instance using the owner identifier. */
-    public restoreLock(name: string, owner: string): Lock {
+    public restoreLock(name: string, owner: string): Lock
+    {
         return this.lock(name, 0, owner);
     }
 
     /** Get the expiration time of the key. */
-    protected calculateExpiration(seconds: number): number {
-        return seconds === 0
-            ? 0
-            : InteractsWithTime.currentTime() + math.floor(seconds);
+    protected calculateExpiration(seconds: number): number
+    {
+        return seconds === 0 ? 0 : InteractsWithTime.currentTime() + math.floor(seconds);
     }
 
     /** Get the cache key prefix. */
-    public getPrefix(): string {
-        return "";
+    public getPrefix(): string
+    {
+        return '';
     }
 }

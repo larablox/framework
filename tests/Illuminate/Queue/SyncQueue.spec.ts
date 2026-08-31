@@ -1,12 +1,12 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher as BusDispatcher } from "Illuminate/Bus/Dispatcher";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import { LogicException, RuntimeException } from "Illuminate/Exception";
-import { SyncJob } from "Illuminate/Queue/Jobs/SyncJob";
-import { SyncQueue } from "Illuminate/Queue/SyncQueue";
-import type { Job } from "Illuminate/Contracts/Queue/Job";
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher as BusDispatcher } from 'Illuminate/Bus/Dispatcher';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import { LogicException, RuntimeException } from 'Illuminate/Exception';
+import { SyncJob } from 'Illuminate/Queue/Jobs/SyncJob';
+import { SyncQueue } from 'Illuminate/Queue/SyncQueue';
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueSyncQueueTest`.
@@ -27,69 +27,80 @@ import type { Job } from "Illuminate/Contracts/Queue/Job";
  * transaction manager.
  */
 
-const box: { syncTest?: [Job, unknown]; syncFailed?: unknown } = {};
+const box: { syncTest?: [Job, unknown]; syncFailed?: unknown; } = {};
 
-class SyncQueueTestHandler {
-    public fire(job: Job, data: unknown): void {
-        box.syncTest = [job, data];
+class SyncQueueTestHandler
+{
+    public fire(job: Job, data: unknown): void
+    {
+        box.syncTest = [
+            job,
+            data,
+        ];
     }
 }
 
-class FailingSyncQueueTestHandler {
-    public fire(): void {
+class FailingSyncQueueTestHandler
+{
+    public fire(): void
+    {
         throw new RuntimeException();
     }
 
-    public failed(): void {
+    public failed(): void
+    {
         box.syncFailed = true;
     }
 }
 
-class FailingSyncQueueJob extends InteractsWithQueue {
-    public handle(): void {
+class FailingSyncQueueJob extends InteractsWithQueue
+{
+    public handle(): void
+    {
         throw new LogicException();
     }
 
-    public failed(): void {
+    public failed(): void
+    {
         const payload = this.job!.payload();
 
-        box.syncFailed = (payload.data as { extra?: unknown }).extra;
+        box.syncFailed = (payload.data as { extra?: unknown; }).extra;
     }
 }
 
 export = (): void => {
-    describe("SyncQueue", () => {
+    describe('SyncQueue', () => {
         beforeEach(() => {
             box.syncTest = undefined;
             box.syncFailed = undefined;
         });
 
         // PHP: QueueSyncQueueTest::testPushShouldFireJobInstantly
-        it("push() fires the job instantly", () => {
+        it('push() fires the job instantly', () => {
             const sync = new SyncQueue();
             const container = new Container();
             sync.setContainer(container);
 
-            sync.push(SyncQueueTestHandler, { foo: "bar" });
+            sync.push(SyncQueueTestHandler, { foo: 'bar' });
 
             expect(box.syncTest).to.be.ok();
             expect(box.syncTest![0] instanceof SyncJob).to.equal(true);
-            expect((box.syncTest![1] as { foo: string }).foo).to.equal("bar");
+            expect((box.syncTest![1] as { foo: string; }).foo).to.equal('bar');
         });
 
         // PHP: QueueSyncQueueTest::testFailedJobGetsHandledWhenAnExceptionIsThrown
-        it("a thrown exception fails the job, and the exception propagates", () => {
+        it('a thrown exception fails the job, and the exception propagates', () => {
             const sync = new SyncQueue();
             const container = new Container();
             Container.setInstance(container);
             const events = new Dispatcher(container);
-            container.instance("events", events);
+            container.instance('events', events);
             sync.setContainer(container);
 
             let threw = false;
 
             try {
-                sync.push(FailingSyncQueueTestHandler, { foo: "bar" });
+                sync.push(FailingSyncQueueTestHandler, { foo: 'bar' });
             } catch {
                 threw = true;
             }
@@ -101,7 +112,7 @@ export = (): void => {
         });
 
         // PHP: QueueSyncQueueTest::testFailedJobHasAccessToJobInstance
-        it("failed() has access to the payload the job carried", () => {
+        it('failed() has access to the payload the job carried', () => {
             const sync = new SyncQueue();
             const container = new Container();
 
@@ -109,17 +120,14 @@ export = (): void => {
             // container builds -- and which asks for the bus dispatcher, the
             // event dispatcher and the container itself. Upstream binds the
             // same three contracts before pushing.
-            container.instance("app", container);
-            container.instance("events", new Dispatcher(container));
-            container.singleton(
-                BusDispatcher,
-                () => new BusDispatcher(container),
-            );
+            container.instance('app', container);
+            container.instance('events', new Dispatcher(container));
+            container.singleton(BusDispatcher, () => new BusDispatcher(container));
 
             sync.setContainer(container);
 
             SyncQueue.createPayloadUsing(() => ({
-                data: { extra: "extraValue" },
+                data: { extra: 'extraValue' },
             }));
 
             try {
@@ -128,7 +136,7 @@ export = (): void => {
                 // expected -- the job's handle() throws
             }
 
-            expect(box.syncFailed).to.equal("extraValue");
+            expect(box.syncFailed).to.equal('extraValue');
 
             SyncQueue.createPayloadUsing(undefined);
         });

@@ -6,16 +6,19 @@
  * it rewindable, and yields one service at a time -- a tagged binding is only
  * resolved once iteration reaches it.
  */
-export class RewindableGenerator<T extends defined = defined> {
+export class RewindableGenerator<T extends defined = defined>
+{
     private resolvedCount?: number;
 
     public constructor(
         protected readonly generator: () => Generator<T>,
         protected readonly counter: number | (() => number),
-    ) {}
+    )
+    {}
 
     /** PHP: `getIterator(): Traversable`. */
-    public getIterator(): Generator<T> {
+    public getIterator(): Generator<T>
+    {
         return this.generator();
     }
 
@@ -25,7 +28,8 @@ export class RewindableGenerator<T extends defined = defined> {
      * Stands in for the `iterator_to_array()` PHP calls at the few places that
      * need a list rather than a lazy sequence.
      */
-    public toArray(): Array<T> {
+    public toArray(): Array<T>
+    {
         const items = new Array<T>();
 
         for (const item of this.getIterator()) {
@@ -36,11 +40,10 @@ export class RewindableGenerator<T extends defined = defined> {
     }
 
     /** PHP: `count(): int`. */
-    public count(): number {
+    public count(): number
+    {
         if (this.resolvedCount === undefined) {
-            this.resolvedCount = typeIs(this.counter, "function")
-                ? this.counter()
-                : this.counter;
+            this.resolvedCount = typeIs(this.counter, 'function') ? this.counter() : this.counter;
         }
 
         return this.resolvedCount;

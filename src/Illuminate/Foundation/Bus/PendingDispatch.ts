@@ -1,10 +1,10 @@
-import { Container } from "Illuminate/Container/Container";
-import { UniqueLock } from "Illuminate/Bus/UniqueLock";
-import { isShouldBeUnique } from "Illuminate/Contracts/Queue/ShouldBeUnique";
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Queueable } from "Illuminate/Bus/Queueable";
-import type { Repository as Cache } from "Illuminate/Cache/Repository";
+import { Container } from 'Illuminate/Container/Container';
+import { UniqueLock } from 'Illuminate/Bus/UniqueLock';
+import { isShouldBeUnique } from 'Illuminate/Contracts/Queue/ShouldBeUnique';
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Queueable } from 'Illuminate/Bus/Queueable';
+import type { Repository as Cache } from 'Illuminate/Cache/Repository';
 
 /**
  * PHP: `Illuminate\Foundation\Bus\PendingDispatch`.
@@ -22,66 +22,76 @@ import type { Repository as Cache } from "Illuminate/Cache/Repository";
  * Debounced jobs are not ported; unique ones are, and are checked here as PHP
  * checks them.
  */
-export class PendingDispatch {
+export class PendingDispatch
+{
     /** Indicates the job has already gone to the bus. */
     protected dispatched = false;
 
     /** Create a new pending job dispatch. */
-    public constructor(protected readonly job: Queueable) {
+    public constructor(protected readonly job: Queueable)
+    {
         task.defer(() => this.send());
     }
 
     /** Set the desired connection for the job. */
-    public onConnection(connection?: string): this {
+    public onConnection(connection?: string): this
+    {
         this.job.onConnection(connection);
 
         return this;
     }
 
     /** Set the desired queue for the job. */
-    public onQueue(queue?: string): this {
+    public onQueue(queue?: string): this
+    {
         this.job.onQueue(queue);
 
         return this;
     }
 
     /** Set the desired connection for the chain. */
-    public allOnConnection(connection?: string): this {
+    public allOnConnection(connection?: string): this
+    {
         this.job.allOnConnection(connection);
 
         return this;
     }
 
     /** Set the desired queue for the chain. */
-    public allOnQueue(queue?: string): this {
+    public allOnQueue(queue?: string): this
+    {
         this.job.allOnQueue(queue);
 
         return this;
     }
 
     /** Set the desired delay in seconds for the job. */
-    public delay(delay?: Delay): this {
+    public delay(delay?: Delay): this
+    {
         this.job.delay(delay);
 
         return this;
     }
 
     /** Set the delay for the job to zero seconds. */
-    public withoutDelay(): this {
+    public withoutDelay(): this
+    {
         this.job.withoutDelay();
 
         return this;
     }
 
     /** Set the jobs that should run if this job is successful. */
-    public chain(chain: Array<object>): this {
+    public chain(chain: Array<object>): this
+    {
         this.job.chain(chain);
 
         return this;
     }
 
     /** Get the underlying job instance. */
-    public getJob(): Queueable {
+    public getJob(): Queueable
+    {
         return this.job;
     }
 
@@ -91,24 +101,24 @@ export class PendingDispatch {
      * A job marked `ShouldBeUnique` only goes out when it can take the lock;
      * the handler releases it once the job has run.
      */
-    protected shouldDispatch(): boolean {
+    protected shouldDispatch(): boolean
+    {
         if (!isShouldBeUnique(this.job)) {
             return true;
         }
 
         const container = Container.getInstance();
 
-        if (!container.bound("cache.store")) {
+        if (!container.bound('cache.store')) {
             return true;
         }
 
-        return new UniqueLock(container.make<Cache>("cache.store")).acquire(
-            this.job,
-        );
+        return new UniqueLock(container.make<Cache>('cache.store')).acquire(this.job);
     }
 
     /** Hand the job to the bus, now rather than at the end of the cycle. */
-    public send(): unknown {
+    public send(): unknown
+    {
         if (this.dispatched) {
             return undefined;
         }
@@ -119,8 +129,6 @@ export class PendingDispatch {
             return undefined;
         }
 
-        return Container.getInstance()
-            .make<Dispatcher>(Dispatcher)
-            .dispatch(this.job);
+        return Container.getInstance().make<Dispatcher>(Dispatcher).dispatch(this.job);
     }
 }

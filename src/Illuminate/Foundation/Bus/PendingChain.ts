@@ -1,7 +1,7 @@
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Queueable } from "Illuminate/Bus/Queueable";
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Queueable } from 'Illuminate/Bus/Queueable';
 
 /**
  * PHP: `Illuminate\Foundation\Bus\PendingChain`.
@@ -12,10 +12,8 @@ import type { Queueable } from "Illuminate/Bus/Queueable";
  * `catch()` is not ported -- a catch callback is a closure, and a closure does
  * not survive serialization.
  */
-export class PendingChain<
-    T extends Queueable = Queueable,
-    A extends Array<unknown> = Array<unknown>,
-> {
+export class PendingChain<T extends Queueable = Queueable, A extends Array<unknown> = Array<unknown>>
+{
     /** The connection the chain should run on. */
     protected connection?: string;
 
@@ -27,33 +25,38 @@ export class PendingChain<
 
     /** Create a new PendingChain instance. */
     public constructor(
-        protected readonly job: new (...args: A) => T,
+        protected readonly job: new(...args: A) => T,
         protected readonly chain: Array<object>,
-    ) {}
+    )
+    {}
 
     /** Set the desired connection for the chain. */
-    public onConnection(connection?: string): this {
+    public onConnection(connection?: string): this
+    {
         this.connection = connection;
 
         return this;
     }
 
     /** Set the desired queue for the chain. */
-    public onQueue(queue?: string): this {
+    public onQueue(queue?: string): this
+    {
         this.queue = queue;
 
         return this;
     }
 
     /** Set the desired delay for the chain. */
-    public delay(delay?: Delay): this {
+    public delay(delay?: Delay): this
+    {
         this.delayFor = delay;
 
         return this;
     }
 
     /** Dispatch the job chain. */
-    public dispatch(...args: A): unknown {
+    public dispatch(...args: A): unknown
+    {
         const first = new this.job(...args);
 
         if (this.connection !== undefined) {
@@ -72,8 +75,6 @@ export class PendingChain<
 
         first.chain(this.chain);
 
-        return Container.getInstance()
-            .make<Dispatcher>(Dispatcher)
-            .dispatch(first);
+        return Container.getInstance().make<Dispatcher>(Dispatcher).dispatch(first);
     }
 }

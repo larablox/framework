@@ -1,9 +1,9 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Container } from "Illuminate/Container/Container";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { addParameterAttribute } from "Illuminate/Container/Attributes/Inject";
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { Container } from 'Illuminate/Container/Container';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { addParameterAttribute } from 'Illuminate/Container/Attributes/Inject';
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /**
  * PHP: `Illuminate\Tests\Container\AfterResolvingAttributeCallbackTest`.
@@ -23,136 +23,133 @@ import type { ContextualAttribute } from "Illuminate/Contracts/Container/Context
  * split this port already uses for `Abstract`.
  */
 export = (): void => {
-    describe("After resolving attribute callbacks", () => {
-        type Tenant = "TenantA" | "TenantB";
+    describe('After resolving attribute callbacks', () => {
+        type Tenant = 'TenantA' | 'TenantB';
 
         const Tenant = {
-            TenantA: "TenantA" as Tenant,
-            TenantB: "TenantB" as Tenant,
+            TenantA: 'TenantA' as Tenant,
+            TenantB: 'TenantB' as Tenant,
         };
 
         /** PHP: `#[Attribute(Attribute::TARGET_PARAMETER)] final readonly class ContainerTestOnTenant`. */
-        interface ContainerTestOnTenant extends ContextualAttribute {
+        interface ContainerTestOnTenant extends ContextualAttribute
+        {
             readonly tenant: Tenant;
         }
 
-        function ContainerTestOnTenant(tenant: Tenant) {
+        function ContainerTestOnTenant(tenant: Tenant)
+        {
             const instance: ContainerTestOnTenant = {
                 tenant,
                 resolve: () => undefined,
             };
 
-            return (
-                owner: object,
-                propertyKey: unknown,
-                parameterIndex: number,
-            ): void => {
-                addParameterAttribute(
-                    owner,
-                    propertyKey,
-                    parameterIndex,
-                    ContainerTestOnTenant,
-                    instance,
-                );
+            return (owner: object, propertyKey: unknown, parameterIndex: number): void => {
+                addParameterAttribute(owner, propertyKey, parameterIndex, ContainerTestOnTenant, instance);
             };
         }
 
-        class HasTenantImpl {
+        class HasTenantImpl
+        {
             public tenant?: Tenant;
 
-            public onTenant(tenant: Tenant): void {
+            public onTenant(tenant: Tenant): void
+            {
                 this.tenant = tenant;
             }
         }
 
-        class ContainerTestHasTenantImplPropertyWithTenantA {
+        class ContainerTestHasTenantImplPropertyWithTenantA
+        {
             public constructor(
                 @Inject(HasTenantImpl)
                 @ContainerTestOnTenant(Tenant.TenantA)
                 public readonly property: HasTenantImpl,
-            ) {}
+            )
+            {}
         }
 
-        class ContainerTestHasTenantImplPropertyWithTenantB {
+        class ContainerTestHasTenantImplPropertyWithTenantB
+        {
             public constructor(
                 @Inject(HasTenantImpl)
                 @ContainerTestOnTenant(Tenant.TenantB)
                 public readonly property: HasTenantImpl,
-            ) {}
+            )
+            {}
         }
 
         /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] final readonly class ContainerTestConfiguresClass`. */
-        function ContainerTestConfiguresClass(value: string) {
+        function ContainerTestConfiguresClass(value: string)
+        {
             return (target: object): void => {
                 Attributes.add(target, ContainerTestConfiguresClass, { value });
             };
         }
 
-        interface ContainerTestConfiguresClassAttribute {
+        interface ContainerTestConfiguresClassAttribute
+        {
             readonly value: string;
         }
 
-        @ContainerTestConfiguresClass("the-right-value")
-        class ContainerTestHasSelfConfiguringAttributeAndConstructor {
-            public constructor(@Inject("$value") public value: string) {}
+        @ContainerTestConfiguresClass('the-right-value')
+        class ContainerTestHasSelfConfiguringAttributeAndConstructor
+        {
+            public constructor(@Inject('$value') public value: string)
+            {}
         }
 
         /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] final class ContainerTestBootable`. */
-        function ContainerTestBootable() {
+        function ContainerTestBootable()
+        {
             return (target: object): void => {
                 Attributes.add(target, ContainerTestBootable, {});
             };
         }
 
         @ContainerTestBootable()
-        class ContainerTestHasBootable {
+        class ContainerTestHasBootable
+        {
             public hasBooted = false;
 
-            public booting(): void {
+            public booting(): void
+            {
                 this.hasBooted = true;
             }
         }
 
-        it("afterResolvingAttribute() runs after the annotated dependency resolves", () => {
+        it('afterResolvingAttribute() runs after the annotated dependency resolves', () => {
             // PHP: AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterDependencyResolutionWithAttribute
             const container = new Container();
 
             container.afterResolvingAttribute(
                 ContainerTestOnTenant,
-                (
-                    attribute: ContainerTestOnTenant,
-                    hasTenantImpl: HasTenantImpl,
-                ) => {
+                (attribute: ContainerTestOnTenant, hasTenantImpl: HasTenantImpl) => {
                     hasTenantImpl.onTenant(attribute.tenant);
                 },
             );
 
-            const hasTenantA = container.make(
-                ContainerTestHasTenantImplPropertyWithTenantA,
-            );
+            const hasTenantA = container.make(ContainerTestHasTenantImplPropertyWithTenantA);
             expect(hasTenantA.property instanceof HasTenantImpl).to.equal(true);
             expect(hasTenantA.property.tenant).to.equal(Tenant.TenantA);
 
-            const hasTenantB = container.make(
-                ContainerTestHasTenantImplPropertyWithTenantB,
-            );
+            const hasTenantB = container.make(ContainerTestHasTenantImplPropertyWithTenantB);
             expect(hasTenantB.property instanceof HasTenantImpl).to.equal(true);
             expect(hasTenantB.property.tenant).to.equal(Tenant.TenantB);
         });
 
-        it("afterResolvingAttribute() runs after the class carrying the attribute itself resolves", () => {
+        it('afterResolvingAttribute() runs after the class carrying the attribute itself resolves', () => {
             // PHP: AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterClassWithAttributeIsResolved
             const container = new Container();
 
             container.afterResolvingAttribute(
                 ContainerTestBootable,
-                (
-                    _attribute: unknown,
-                    instance: ContainerTestHasBootable,
-                    c,
-                ) => {
-                    if (typeIs(instance.booting, "function")) {
-                        c.call([instance, "booting"]);
+                (_attribute: unknown, instance: ContainerTestHasBootable, c) => {
+                    if (typeIs(instance.booting, 'function')) {
+                        c.call([
+                            instance,
+                            'booting',
+                        ]);
                     }
                 },
             );
@@ -163,7 +160,7 @@ export = (): void => {
             expect(instance.hasBooted).to.equal(true);
         });
 
-        it("afterResolvingAttribute() runs after a class with both a constructor and the attribute resolves", () => {
+        it('afterResolvingAttribute() runs after a class with both a constructor and the attribute resolves', () => {
             // PHP: AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterClassWithConstructorAndAttributeIsResolved
             const container = new Container();
 
@@ -179,18 +176,13 @@ export = (): void => {
 
             container
                 .when(ContainerTestHasSelfConfiguringAttributeAndConstructor)
-                .needs("$value")
-                .give("no-the-right-value");
+                .needs('$value')
+                .give('no-the-right-value');
 
-            const instance = container.make(
-                ContainerTestHasSelfConfiguringAttributeAndConstructor,
-            );
+            const instance = container.make(ContainerTestHasSelfConfiguringAttributeAndConstructor);
 
-            expect(
-                instance instanceof
-                    ContainerTestHasSelfConfiguringAttributeAndConstructor,
-            ).to.equal(true);
-            expect(instance.value).to.equal("the-right-value");
+            expect(instance instanceof ContainerTestHasSelfConfiguringAttributeAndConstructor).to.equal(true);
+            expect(instance.value).to.equal('the-right-value');
         });
     });
 };

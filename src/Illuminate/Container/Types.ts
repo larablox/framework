@@ -1,4 +1,5 @@
-import type { Container } from "Illuminate/Contracts/Container/Container";
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import type { Contract } from 'Illuminate/Container/Contract';
 
 /**
  * A concrete, instantiable class.
@@ -7,27 +8,21 @@ import type { Container } from "Illuminate/Contracts/Container/Container";
  * its constructor signature; the container rebuilds the argument list from the
  * `Inject` metadata rather than from the type.
  */
-export type Constructor<T extends object = object> = new (
-    ...args: never[]
-) => T;
+export type Constructor<T extends object = object> = new(...args: Array<never>) => T;
 
 /** A class that may be abstract -- usable as a key, but never instantiated. */
-export type AbstractClass<T extends object = object> = abstract new (
-    ...args: never[]
-) => T;
+export type AbstractClass<T extends object = object> = abstract new(...args: Array<never>) => T;
 
 /**
- * PHP: `string`, in practice either a plain key such as `"config"` or a
- * `Foo::class` string. Luau has no class-strings, so the class itself stands in
- * for `::class`; both spellings key the same bindings.
+ * PHP: `string`, in practice either a plain key such as `"config"`, a
+ * `Foo::class` string, or a `SomeContract::class` interface name. Luau has no
+ * class-strings, so the class itself stands in for `::class`, and a `Contract`
+ * token stands in for an interface name; all three spellings key bindings.
  */
-export type Abstract = string | AbstractClass;
+export type Abstract = string | AbstractClass | Contract;
 
 /** PHP: the `\Closure` a binding resolves through. */
-export type ContainerClosure = (
-    container: Container,
-    parameters: ParameterOverrides,
-) => unknown;
+export type ContainerClosure = (container: Container, parameters: ParameterOverrides) => unknown;
 
 /** PHP: `\Closure|string $concrete`. */
 export type Concrete = Abstract | ContainerClosure;
@@ -36,10 +31,7 @@ export type Concrete = Abstract | ContainerClosure;
 export type ExtenderClosure = (service: never, container: Container) => unknown;
 
 /** PHP: the `\Closure` passed to `Container::bindMethod()`. */
-export type MethodBindingClosure = (
-    instance: never,
-    container: Container,
-) => unknown;
+export type MethodBindingClosure = (instance: never, container: Container) => unknown;
 
 /** PHP: the `\Closure` passed to `beforeResolving()`. */
 export type BeforeResolvingCallback = (
@@ -70,7 +62,8 @@ export type ParameterOverrides = Map<Abstract | number, unknown>;
 export type BuildStackEntry = Abstract | ContainerClosure;
 
 /** A binding as stored in `Container::$bindings`. */
-export interface Binding {
+export interface Binding
+{
     readonly concrete: ContainerClosure;
     readonly shared: boolean;
 }
@@ -82,9 +75,7 @@ export interface Binding {
 export type ParameterList = ParameterOverrides | Array<unknown>;
 
 /** PHP: `(callable(array<int, string>|string): bool|string)|null`. */
-export type EnvironmentResolver = (
-    environments: Array<string> | string,
-) => boolean | string;
+export type EnvironmentResolver = (environments: Array<string> | string) => boolean | string;
 
 /**
  * PHP: `\Closure|string|array $implementation` handed to a contextual binding.

@@ -1,10 +1,10 @@
 /// <reference types="@rbxts/testez/globals" />
-import { ArrayBatchRepository } from "Illuminate/Bus/ArrayBatchRepository";
-import { Batchable } from "Illuminate/Bus/Batchable";
-import { Container } from "Illuminate/Container/Container";
-import { PendingBatch } from "Illuminate/Bus/PendingBatch";
-import type { Factory as QueueFactory } from "Illuminate/Contracts/Queue/Factory";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
+import { ArrayBatchRepository } from 'Illuminate/Bus/ArrayBatchRepository';
+import { Batchable } from 'Illuminate/Bus/Batchable';
+import { Container } from 'Illuminate/Container/Container';
+import { PendingBatch } from 'Illuminate/Bus/PendingBatch';
+import type { Factory as QueueFactory } from 'Illuminate/Contracts/Queue/Factory';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /**
  * PHP: `Illuminate\Tests\Bus\BusBatchableTest`.
@@ -19,23 +19,26 @@ import type { Queue } from "Illuminate/Contracts/Queue/Queue";
  * is instead exercised below against a real `ArrayBatchRepository`, which is
  * the closest analogue available.
  */
-class TestJob extends Batchable {}
+class TestJob extends Batchable
+{}
 
 /** A `Factory` that always hands back the same queue, itself unused here. */
-class FakeQueueFactory implements QueueFactory {
-    public connection(): Queue {
-        throw "not expected";
+class FakeQueueFactory implements QueueFactory
+{
+    public connection(): Queue
+    {
+        throw 'not expected';
     }
 }
 
 export = (): void => {
-    describe("Batchable", () => {
-        it("withBatchId() returns the job and sets batchId; batch() resolves it through the container", () => {
+    describe('Batchable', () => {
+        it('withBatchId() returns the job and sets batchId; batch() resolves it through the container', () => {
             // PHP: BusBatchableTest::test_batch_may_be_retrieved
             const job = new TestJob();
 
-            expect(job.withBatchId("test-batch-id")).to.equal(job);
-            expect(job.batchId).to.equal("test-batch-id");
+            expect(job.withBatchId('test-batch-id')).to.equal(job);
+            expect(job.batchId).to.equal('test-batch-id');
 
             const container = new Container();
             Container.setInstance(container);
@@ -44,20 +47,20 @@ export = (): void => {
             const stored = repository.store(new PendingBatch(container, []));
             job.withBatchId(stored.id);
 
-            container.instance("bus.batches", repository);
+            container.instance('bus.batches', repository);
 
             expect(job.batch()?.id).to.equal(stored.id);
 
             Container.setInstance(undefined);
         });
 
-        it("batching() reflects whether the batch has been cancelled", () => {
+        it('batching() reflects whether the batch has been cancelled', () => {
             // PHP: BusBatchableTest::test_batching_reflects_cancelled_state (adapted -- see class comment)
             const container = new Container();
             Container.setInstance(container);
 
             const repository = new ArrayBatchRepository(new FakeQueueFactory());
-            container.instance("bus.batches", repository);
+            container.instance('bus.batches', repository);
 
             const stored = repository.store(new PendingBatch(container, []));
 
@@ -73,13 +76,13 @@ export = (): void => {
             Container.setInstance(undefined);
         });
 
-        it("batching() is false once the batch has finished", () => {
+        it('batching() is false once the batch has finished', () => {
             // PHP: BusBatchableTest::test_batching_returns_false_when_batch_is_finished (adapted -- see class comment)
             const container = new Container();
             Container.setInstance(container);
 
             const repository = new ArrayBatchRepository(new FakeQueueFactory());
-            container.instance("bus.batches", repository);
+            container.instance('bus.batches', repository);
 
             const stored = repository.store(new PendingBatch(container, []));
             repository.markAsFinished(stored.id);

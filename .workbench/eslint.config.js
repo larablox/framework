@@ -1,8 +1,8 @@
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import robloxTs from "eslint-plugin-roblox-ts";
-import prettierPlugin from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
+import stylistic from "@stylistic/eslint-plugin";
 
 /**
  * The workbench lints itself.
@@ -38,13 +38,14 @@ export default [
 		plugins: {
 			"@typescript-eslint": tseslint,
 			"roblox-ts": robloxTs,
-			prettier: prettierPlugin,
+			"@stylistic": stylistic,
 		},
 		rules: {
 			...tseslint.configs.recommended.rules,
 			...robloxTs.configs.recommended.rules,
 			...prettierConfig.rules,
-			"prettier/prettier": "warn",
+			"@stylistic/array-element-newline": ["warn", { ArrayExpression: "always" }],
+			"@stylistic/array-bracket-newline": ["warn", { multiline: true }],
 
 			// The framework's rule, and this is the project it was written for:
 			// `server/`, `client/` and `shared/` are separate DataModel

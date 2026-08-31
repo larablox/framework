@@ -1,13 +1,11 @@
-import type { Abstract } from "Illuminate/Container/Types";
-import type {
-    ParameterAttribute,
-    ParameterDependency,
-} from "Illuminate/Container/Attributes/Inject";
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { ParameterAttribute, ParameterDependency } from 'Illuminate/Container/Attributes/Inject';
 
 /**
  * @internal
  */
-export class Util {
+export class Util
+{
     /**
      * Distinguish a list from a single value.
      *
@@ -16,8 +14,9 @@ export class Util {
      * array is therefore indistinguishable from a class and counts as a single
      * value -- passing one where a list is expected is meaningless anyway.
      */
-    public static isArray(value: unknown): value is Array<defined> {
-        return typeIs(value, "table") && (value as Array<defined>).size() > 0;
+    public static isArray(value: unknown): value is Array<defined>
+    {
+        return typeIs(value, 'table') && (value as Array<defined>).size() > 0;
     }
 
     /**
@@ -25,14 +24,13 @@ export class Util {
      *
      * From `Arr::wrap()` in Illuminate\Support.
      */
-    public static arrayWrap<T extends defined>(
-        value: T | Array<T> | undefined,
-    ): Array<T> {
+    public static arrayWrap<T extends defined>(value: T | Array<T> | undefined): Array<T>
+    {
         if (value === undefined) {
             return [];
         }
 
-        if (!typeIs(value, "table")) {
+        if (!typeIs(value, 'table')) {
             return [value as T];
         }
 
@@ -54,11 +52,9 @@ export class Util {
      * compiled class always carries a metatable and an object literal always
      * carries entries, so a table with neither is the empty list.
      */
-    public static isEmptyArray(value: unknown): boolean {
-        if (
-            !typeIs(value, "table") ||
-            getmetatable(value as object) !== undefined
-        ) {
+    public static isEmptyArray(value: unknown): boolean
+    {
+        if (!typeIs(value, 'table') || getmetatable(value as object) !== undefined) {
             return false;
         }
 
@@ -74,11 +70,9 @@ export class Util {
      *
      * From the global `value()` helper in Illuminate\Support.
      */
-    public static unwrapIfClosure(
-        value: unknown,
-        ...args: Array<unknown>
-    ): unknown {
-        return typeIs(value, "function") ? (value as Callback)(...args) : value;
+    public static unwrapIfClosure(value: unknown, ...args: Array<unknown>): unknown
+    {
+        return typeIs(value, 'function') ? (value as Callback)(...args) : value;
     }
 
     /**
@@ -90,13 +84,15 @@ export class Util {
      */
     public static getContextualAttributeFromDependency(
         dependency: ParameterDependency,
-    ): ParameterAttribute | undefined {
+    ): ParameterAttribute | undefined
+    {
         return dependency.attributes[0];
     }
 
     /** True when the abstract is a class rather than a plain string key. */
-    public static isClass(abstract: Abstract): boolean {
-        return typeIs(abstract, "table");
+    public static isClass(abstract: Abstract): boolean
+    {
+        return typeIs(abstract, 'table');
     }
 
     /**
@@ -107,19 +103,26 @@ export class Util {
      * with nothing in the array part -- so a table is always truthy, which is
      * the same call `Util.isArray` makes.
      */
-    public static truthy(value: unknown): boolean {
-        if (typeIs(value, "boolean")) {
+    public static truthy(value: unknown): boolean
+    {
+        if (typeIs(value, 'boolean')) {
             return value;
         }
 
-        if (typeIs(value, "number")) {
+        if (typeIs(value, 'number')) {
             return value !== 0;
         }
 
-        if (typeIs(value, "string")) {
-            return value !== "" && value !== "0";
+        if (typeIs(value, 'string')) {
+            return value !== '' && value !== '0';
         }
 
         return value !== undefined;
+    }
+
+    /** PHP's `$value ?: $fallback`. */
+    public static elvis<T extends defined>(value: unknown, fallback: T): T
+    {
+        return Util.truthy(value) ? (value as T) : fallback;
     }
 }

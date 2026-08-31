@@ -307,7 +307,7 @@ because the next component ported will hit the same ones:
   table as the list `[x]`, and `[Throttle, "60"]` to the same table as a
   list of two middleware. Both collisions were silently resolving the wrong
   way; both are documented where they were fixed
-  (`Container.normalizeParameters()`, `Pipeline/Pipes.ts`).
+  (`Container.normalizeParameters()`, `Pipeline/helpers.ts`).
 - **A regular expression translated instead of ported.** `Str::snake()`,
   `Str::deduplicate()`, `whereUlid()` — each read plausibly and matched the
   wrong thing. Read the PCRE pattern character by character, especially

@@ -1,6 +1,6 @@
-import type { Batch } from "Illuminate/Bus/Batch";
-import type { PendingBatch } from "Illuminate/Bus/PendingBatch";
-import type { UpdatedBatchJobCounts } from "Illuminate/Bus/UpdatedBatchJobCounts";
+import type { Batch } from 'Illuminate/Bus/Batch';
+import type { PendingBatch } from 'Illuminate/Bus/PendingBatch';
+import type { UpdatedBatchJobCounts } from 'Illuminate/Bus/UpdatedBatchJobCounts';
 
 /**
  * PHP: `Illuminate\Bus\BatchRepository`.
@@ -10,7 +10,8 @@ import type { UpdatedBatchJobCounts } from "Illuminate/Bus/UpdatedBatchJobCounts
  * `pendingJobs`, and whoever brings it to zero fires the `then` callbacks.
  * PHP gets that from a database transaction with `lockForUpdate()`.
  */
-export interface BatchRepository {
+export interface BatchRepository
+{
     /** Retrieve a list of batches. */
     get(limit: number, before?: string): Array<Batch>;
 

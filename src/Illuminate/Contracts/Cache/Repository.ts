@@ -1,5 +1,5 @@
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Store } from "Illuminate/Contracts/Cache/Store";
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Store } from 'Illuminate/Contracts/Cache/Store';
 
 /** PHP: `\DateTimeInterface|\DateInterval|int|null $ttl`. */
 export type Ttl = Delay | undefined;
@@ -11,7 +11,8 @@ export type Ttl = Delay | undefined;
  * the methods it contributed (`set`, `delete`, `getMultiple`, ...) are on the
  * class rather than in this contract.
  */
-export interface Repository {
+export interface Repository
+{
     /** Determine if an item exists in the cache. */
     has(key: string): boolean;
 

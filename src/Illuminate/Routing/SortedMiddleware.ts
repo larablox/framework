@@ -1,9 +1,9 @@
-import { Collection } from "Illuminate/Support/Collection";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { Route } from "Illuminate/Routing/Route";
-import { Str } from "Illuminate/Support/Str";
-import { Util } from "Illuminate/Container/Util";
-import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Collection } from 'Illuminate/Support/Collection';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { Route } from 'Illuminate/Routing/Route';
+import { Str } from 'Illuminate/Support/Str';
+import { Util } from 'Illuminate/Container/Util';
+import type { Pipe } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Routing\SortedMiddleware`.
@@ -21,25 +21,22 @@ import type { Pipe } from "Illuminate/Contracts/Pipeline/Pipeline";
  * priority map. Interfaces leave no runtime trace here, so only the class
  * chain is walked -- which is why the priority list should name classes.
  */
-export class SortedMiddleware extends Collection<number, Pipe> {
+export class SortedMiddleware extends Collection<number, Pipe>
+{
     /** Create a new sorted middleware container. */
-    public constructor(priorityMap: Array<Pipe>, middleware: Array<Pipe>) {
+    public constructor(priorityMap: Array<Pipe>, middleware: Array<Pipe>)
+    {
         super(SortedMiddleware.sortMiddleware(priorityMap, middleware));
     }
 
     /** Sort the middleware by the given priority map. */
-    protected static sortMiddleware(
-        priorityMap: Array<Pipe>,
-        middleware: Array<Pipe>,
-    ): Array<Pipe> {
+    protected static sortMiddleware(priorityMap: Array<Pipe>, middleware: Array<Pipe>): Array<Pipe>
+    {
         let lastIndex = 0;
         let lastPriorityIndex: number | undefined;
 
         for (let index = 0; index < middleware.size(); index++) {
-            const priorityIndex = SortedMiddleware.priorityMapIndex(
-                priorityMap,
-                middleware[index],
-            );
+            const priorityIndex = SortedMiddleware.priorityMapIndex(priorityMap, middleware[index]);
 
             if (priorityIndex === undefined) {
                 continue;
@@ -48,17 +45,10 @@ export class SortedMiddleware extends Collection<number, Pipe> {
             // This middleware is in the priority map. If we have encountered another
             // middleware that was also in the priority map and was at a lower
             // priority, we move this one above the previous encounter.
-            if (
-                lastPriorityIndex !== undefined &&
-                priorityIndex < lastPriorityIndex
-            ) {
+            if (lastPriorityIndex !== undefined && priorityIndex < lastPriorityIndex) {
                 return SortedMiddleware.sortMiddleware(
                     priorityMap,
-                    SortedMiddleware.moveMiddleware(
-                        middleware,
-                        index,
-                        lastIndex,
-                    ),
+                    SortedMiddleware.moveMiddleware(middleware, index, lastIndex),
                 );
             }
 
@@ -70,10 +60,8 @@ export class SortedMiddleware extends Collection<number, Pipe> {
     }
 
     /** Calculate the priority map index of the middleware. */
-    protected static priorityMapIndex(
-        priorityMap: Array<Pipe>,
-        middleware: Pipe,
-    ): number | undefined {
+    protected static priorityMapIndex(priorityMap: Array<Pipe>, middleware: Pipe): number | undefined
+    {
         for (const name of SortedMiddleware.middlewareNames(middleware)) {
             const index = priorityMap.indexOf(name);
 
@@ -86,16 +74,15 @@ export class SortedMiddleware extends Collection<number, Pipe> {
     }
 
     /** Resolve the names to look for in the priority list. */
-    protected static middlewareNames(middleware: Pipe): Array<Pipe> {
+    protected static middlewareNames(middleware: Pipe): Array<Pipe>
+    {
         const names = new Array<Pipe>();
 
         // A class with its arguments beside it answers for the class.
-        const target = Util.isArray(middleware)
-            ? (middleware as Array<Pipe>)[0]
-            : middleware;
+        const target = Util.isArray(middleware) ? (middleware as Array<Pipe>)[0] : middleware;
 
-        if (typeIs(target, "string")) {
-            names.push(Str.before(target, ":"));
+        if (typeIs(target, 'string')) {
+            names.push(Str.before(target, ':'));
 
             return names;
         }
@@ -104,7 +91,7 @@ export class SortedMiddleware extends Collection<number, Pipe> {
         // class *name* there. Here a class is a table, so that check becomes
         // "is it a class": a closure -- or any other bare value -- names
         // nothing and stays where it is.
-        if (!typeIs(target, "table")) {
+        if (!typeIs(target, 'table')) {
             return names;
         }
 
@@ -120,11 +107,8 @@ export class SortedMiddleware extends Collection<number, Pipe> {
     }
 
     /** Splice a middleware into a new position and remove the old entry. */
-    protected static moveMiddleware(
-        middleware: Array<Pipe>,
-        from: number,
-        to: number,
-    ): Array<Pipe> {
+    protected static moveMiddleware(middleware: Array<Pipe>, from: number, to: number): Array<Pipe>
+    {
         const moved = new Array<Pipe>();
 
         // PHP splices a copy in at `to` and unsets the original, which has

@@ -1,8 +1,9 @@
-import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
-import type { JobTarget } from "Illuminate/Contracts/Queue/Queue";
+import type { JobPayload } from 'Illuminate/Contracts/Queue/Job';
+import type { JobTarget } from 'Illuminate/Contracts/Queue/Queue';
 
 /** PHP: `Illuminate\Queue\Events\JobQueueing`. */
-export class JobQueueing {
+export class JobQueueing
+{
     /** Create a new event instance. */
     public constructor(
         public readonly connectionName: string,
@@ -10,7 +11,8 @@ export class JobQueueing {
         public readonly job: JobTarget,
         public readonly rawPayload: JobPayload,
         public readonly delay: number | undefined,
-    ) {}
+    )
+    {}
 
     /**
      * Get the decoded payload.
@@ -18,7 +20,8 @@ export class JobQueueing {
      * PHP names the property `$payload` and decodes it here; a payload is
      * already a table, so the raw one is `rawPayload` and this returns it.
      */
-    public payload(): JobPayload {
+    public payload(): JobPayload
+    {
         return this.rawPayload;
     }
 }

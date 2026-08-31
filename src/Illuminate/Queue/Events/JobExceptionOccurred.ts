@@ -1,11 +1,13 @@
-import type { Job } from "Illuminate/Contracts/Queue/Job";
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
 
 /** PHP: `Illuminate\Queue\Events\JobExceptionOccurred`. */
-export class JobExceptionOccurred {
+export class JobExceptionOccurred
+{
     /** Create a new event instance. */
     public constructor(
         public readonly connectionName: string,
         public readonly job: Job,
         public readonly exception: unknown,
-    ) {}
+    )
+    {}
 }

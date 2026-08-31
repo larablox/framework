@@ -1,5 +1,5 @@
-import { addVariadicDependency } from "Illuminate/Container/Attributes/Inject";
-import type { Abstract } from "Illuminate/Container/Types";
+import { addVariadicDependency } from 'Illuminate/Container/Attributes/Inject';
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * Declare a rest parameter and the abstract its elements come from.
@@ -18,12 +18,9 @@ import type { Abstract } from "Illuminate/Container/Types";
  * }
  * ```
  */
-export function Variadic(abstract: Abstract) {
-    return (
-        target: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
+export function Variadic(abstract: Abstract)
+{
+    return (target: object, propertyKey: unknown, parameterIndex: number): void => {
         addVariadicDependency(target, propertyKey, parameterIndex, abstract);
     };
 }

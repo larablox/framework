@@ -1,8 +1,8 @@
-import { Handler } from "Illuminate/Foundation/Exceptions/Handler";
-import { Pipeline as BasePipeline } from "Illuminate/Pipeline/Pipeline";
-import { Request } from "Illuminate/Http/Request";
-import { isResponsable } from "Illuminate/Contracts/Support/Responsable";
-import type { Passable } from "Illuminate/Contracts/Pipeline/Pipeline";
+import { Handler } from 'Illuminate/Foundation/Exceptions/Handler';
+import { Pipeline as BasePipeline } from 'Illuminate/Pipeline/Pipeline';
+import { Request } from 'Illuminate/Http/Request';
+import { isResponsable } from 'Illuminate/Contracts/Support/Responsable';
+import type { Passable } from 'Illuminate/Contracts/Pipeline/Pipeline';
 
 /**
  * PHP: `Illuminate\Routing\Pipeline`.
@@ -16,24 +16,21 @@ import type { Passable } from "Illuminate/Contracts/Pipeline/Pipeline";
  * type here, so the concrete handler is the key, as it is everywhere else in
  * this port.
  */
-export class Pipeline extends BasePipeline {
+export class Pipeline extends BasePipeline
+{
     /** Handle the value returned from each pipe before passing it to the next. */
-    protected handleCarry(carry: unknown): unknown {
-        return isResponsable(carry)
-            ? carry.toResponse(this.getContainer().make<Request>("request"))
-            : carry;
+    protected handleCarry(carry: unknown): unknown
+    {
+        return isResponsable(carry) ? carry.toResponse(this.getContainer().make<Request>('request')) : carry;
     }
 
     /** Handle the given exception. */
-    protected handleException(passable: Passable, e: unknown): unknown {
+    protected handleException(passable: Passable, e: unknown): unknown
+    {
         // The container is asked for directly rather than through
         // `getContainer()`: that one throws when there is none, and an
         // exception raised while handling an exception buries the first.
-        if (
-            this.container === undefined ||
-            !this.container.bound(Handler) ||
-            !(passable instanceof Request)
-        ) {
+        if (this.container === undefined || !this.container.bound(Handler) || !(passable instanceof Request)) {
             throw e;
         }
 

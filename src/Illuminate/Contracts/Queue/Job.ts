@@ -1,4 +1,4 @@
-import type { Abstract } from "Illuminate/Container/Types";
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * PHP: the `job` entry of a payload, a `Class@method` string such as
@@ -18,7 +18,8 @@ export type JobHandler = Abstract | [Abstract, string];
  * has nothing to travel through, so the job object is carried as it is and only
  * a storage driver replaces it with what `Support/Serializer` produced.
  */
-export interface JobPayloadData {
+export interface JobPayloadData
+{
     /** PHP: `get_class($job)`. */
     commandName: Abstract;
 
@@ -39,7 +40,8 @@ export interface JobPayloadData {
  * `deleteWhenMissingModels` tells the handler to drop a job whose Eloquent
  * models are gone; an `Instance` that no longer resolves is the same thing.
  */
-export interface JobPayload {
+export interface JobPayload
+{
     uuid: string;
     displayName?: string;
     job: JobHandler;
@@ -65,7 +67,8 @@ export interface JobPayload {
 }
 
 /** PHP: `Illuminate\Contracts\Queue\Job`. */
-export interface Job {
+export interface Job
+{
     /** Get the UUID of the job. */
     uuid(): string | undefined;
 

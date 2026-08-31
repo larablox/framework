@@ -1,10 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual, expectThrows } from "../../TestHelpers";
-import { BadMethodCallException } from "Illuminate/Exception";
-import {
-    ForwardsCalls,
-    throwBadMethodCallException,
-} from "Illuminate/Support/Traits/ForwardsCalls";
+import { expectDeepEqual, expectThrows } from '../../TestHelpers';
+import { BadMethodCallException } from 'Illuminate/Exception';
+import { ForwardsCalls, throwBadMethodCallException } from 'Illuminate/Support/Traits/ForwardsCalls';
 
 /**
  * PHP: `Illuminate\Tests\Support\ForwardsCallsTest`.
@@ -22,77 +19,103 @@ import {
  * rather than duplicated.
  */
 export = (): void => {
-    describe("ForwardsCalls", () => {
-        class ForwardsCallsBase {
-            public forwardedBase(
-                ...parameters: Array<unknown>
-            ): Array<unknown> {
+    describe('ForwardsCalls', () => {
+        class ForwardsCallsBase
+        {
+            public forwardedBase(...parameters: Array<unknown>): Array<unknown>
+            {
                 return parameters;
             }
         }
 
-        class ForwardsCallsTwo extends ForwardsCalls(ForwardsCallsBase) {
-            public forwardedTwo(...parameters: Array<unknown>): Array<unknown> {
+        class ForwardsCallsTwo extends ForwardsCalls(ForwardsCallsBase)
+        {
+            public forwardedTwo(...parameters: Array<unknown>): Array<unknown>
+            {
                 return parameters;
             }
 
-            public call(method: string, parameters: Array<unknown>): unknown {
+            public call(method: string, parameters: Array<unknown>): unknown
+            {
                 return this.forwardCallTo(this, method, parameters);
             }
         }
 
-        class ForwardsCallsOne extends ForwardsCalls() {
+        class ForwardsCallsOne extends ForwardsCalls()
+        {
             private readonly target = new ForwardsCallsTwo();
 
-            public call(method: string, parameters: Array<unknown>): unknown {
+            public call(method: string, parameters: Array<unknown>): unknown
+            {
                 return this.forwardCallTo(this.target, method, parameters);
             }
 
-            public throwTestException(method: string): never {
+            public throwTestException(method: string): never
+            {
                 throwBadMethodCallException(this, method);
             }
         }
 
-        it("forwards a call to the target and returns its result", () => {
+        it('forwards a call to the target and returns its result', () => {
             // PHP: ForwardsCallsTest::testForwardsCalls
             const one = new ForwardsCallsOne();
 
-            expectDeepEqual(one.call("forwardedTwo", ["foo", "bar"]), [
-                "foo",
-                "bar",
-            ]);
+            expectDeepEqual(
+                one.call('forwardedTwo', [
+                    'foo',
+                    'bar',
+                ]),
+                [
+                    'foo',
+                    'bar',
+                ],
+            );
         });
 
-        it("forwards a call through a chain of ForwardsCalls users", () => {
+        it('forwards a call through a chain of ForwardsCalls users', () => {
             // PHP: ForwardsCallsTest::testNestedForwardCalls
             const one = new ForwardsCallsOne();
 
-            expectDeepEqual(one.call("forwardedBase", ["foo", "bar"]), [
-                "foo",
-                "bar",
-            ]);
+            expectDeepEqual(
+                one.call('forwardedBase', [
+                    'foo',
+                    'bar',
+                ]),
+                [
+                    'foo',
+                    'bar',
+                ],
+            );
         });
 
-        it("throws BadMethodCallException naming the target class for a missing method", () => {
+        it('throws BadMethodCallException naming the target class for a missing method', () => {
             // PHP: ForwardsCallsTest::testMissingForwardedCallThrowsCorrectError
             const one = new ForwardsCallsOne();
 
-            expectThrows(() => one.call("missingMethod", ["foo", "bar"]));
+            expectThrows(() =>
+                one.call('missingMethod', [
+                    'foo',
+                    'bar',
+                ])
+            );
 
             let thrown: unknown;
             try {
-                one.call("missingMethod", ["foo", "bar"]);
+                one.call('missingMethod', [
+                    'foo',
+                    'bar',
+                ]);
             } catch (e) {
                 thrown = e;
             }
             expect(thrown instanceof BadMethodCallException).to.equal(true);
         });
 
-        it("throwBadMethodCallException() throws naming the given target and method", () => {
+        it('throwBadMethodCallException() throws naming the given target and method', () => {
             // PHP: ForwardsCallsTest::testThrowBadMethodCallException
             const one = new ForwardsCallsOne();
 
-            expectThrows(() => one.throwTestException("test"));
+            expectThrows(() => one.throwTestException('test'));
         });
     });
 };

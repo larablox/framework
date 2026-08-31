@@ -1,10 +1,10 @@
-import { BindingResolutionException } from "Illuminate/Contracts/Container/BindingResolutionException";
-import { Reflector } from "Illuminate/Support/Reflector";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { ContextualAttribute } from "Illuminate/Contracts/Container/ContextualAttribute";
+import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { ContextualAttribute } from 'Illuminate/Contracts/Container/ContextualAttribute';
 
 /** The method key used for constructor parameters. */
-export const CONSTRUCTOR = "constructor";
+export const CONSTRUCTOR = 'constructor';
 
 /**
  * One attribute applied to a parameter: the decorator factory, which stands in
@@ -18,7 +18,8 @@ export type ParameterAttribute = [Callback, ContextualAttribute];
  * PHP reads this off a `ReflectionParameter`: the type hint plus whatever
  * attributes were written in front of it.
  */
-export interface ParameterDependency {
+export interface ParameterDependency
+{
     /** The abstract named by `Inject`, standing in for the type hint. */
     abstract?: Abstract;
 
@@ -30,18 +31,12 @@ export interface ParameterDependency {
 }
 
 /** class -> method -> parameter index -> declaration. */
-const injected = new Map<
-    object,
-    Map<string, Map<number, ParameterDependency>>
->();
+const injected = new Map<object, Map<string, Map<number, ParameterDependency>>>();
 
 /** Get, creating on the way, the record for one parameter. */
-function declarationFor(
-    target: object,
-    propertyKey: unknown,
-    parameterIndex: number,
-): ParameterDependency {
-    const method = typeIs(propertyKey, "string") ? propertyKey : CONSTRUCTOR;
+function declarationFor(target: object, propertyKey: unknown, parameterIndex: number): ParameterDependency
+{
+    const method = typeIs(propertyKey, 'string') ? propertyKey : CONSTRUCTOR;
 
     let methods = injected.get(target);
 
@@ -79,12 +74,9 @@ function declarationFor(
  * constructor(@Inject("app") app: Application, @Inject(Dispatcher) events: Dispatcher) {}
  * ```
  */
-export function Inject(abstract: Abstract) {
-    return (
-        target: object,
-        propertyKey: unknown,
-        parameterIndex: number,
-    ): void => {
+export function Inject(abstract: Abstract)
+{
+    return (target: object, propertyKey: unknown, parameterIndex: number): void => {
         declarationFor(target, propertyKey, parameterIndex).abstract = abstract;
     };
 }
@@ -100,7 +92,8 @@ export function addVariadicDependency(
     propertyKey: unknown,
     parameterIndex: number,
     abstract: Abstract,
-): void {
+): void
+{
     const declaration = declarationFor(target, propertyKey, parameterIndex);
 
     declaration.abstract = abstract;
@@ -119,7 +112,8 @@ export function addParameterAttribute(
     parameterIndex: number,
     attribute: Callback,
     instance: ContextualAttribute,
-): void {
+): void
+{
     declarationFor(target, propertyKey, parameterIndex).attributes.push([
         attribute,
         instance,
@@ -142,11 +136,9 @@ export function addParameterAttribute(
  * declares its own constructor and annotates nothing therefore inherits the
  * parent's dependencies -- annotate it to override them.
  */
-export function getInjectedDependencies(
-    target: unknown,
-    method: string = CONSTRUCTOR,
-): Array<ParameterDependency> {
-    if (!typeIs(target, "table")) {
+export function getInjectedDependencies(target: unknown, method: string = CONSTRUCTOR): Array<ParameterDependency>
+{
+    if (!typeIs(target, 'table')) {
         return [];
     }
 
@@ -182,7 +174,8 @@ function collect(
     parameters: Map<number, ParameterDependency>,
     target: object,
     method: string,
-): Array<ParameterDependency> {
+): Array<ParameterDependency>
+{
     let highest = -1;
 
     for (const [index] of parameters) {
@@ -198,8 +191,10 @@ function collect(
 
         if (declaration === undefined) {
             throw new BindingResolutionException(
-                `Parameter #${index} of [${Reflector.className(target)}::${method}] is not annotated while a later one is. ` +
-                    `Annotated parameters have to come first; annotate it, or move it after the annotated ones so its default applies.`,
+                `Parameter #${index} of [${
+                    Reflector.className(target)
+                }::${method}] is not annotated while a later one is. `
+                    + `Annotated parameters have to come first; annotate it, or move it after the annotated ones so its default applies.`,
             );
         }
 

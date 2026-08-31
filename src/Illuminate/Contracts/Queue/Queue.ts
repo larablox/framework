@@ -1,7 +1,7 @@
-import type { Abstract } from "Illuminate/Container/Types";
-import type { ArrayAccessible } from "Illuminate/Support/Arr";
-import type { Delay } from "Illuminate/Support/InteractsWithTime";
-import type { Job, JobPayload } from "Illuminate/Contracts/Queue/Job";
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { ArrayAccessible } from 'Illuminate/Support/Arr';
+import type { Delay } from 'Illuminate/Support/InteractsWithTime';
+import type { Job, JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 /**
  * PHP: `\Closure|string|object $job` -- what may be pushed onto a queue.
@@ -15,7 +15,8 @@ export type JobTarget = string | object | [Abstract, string];
 export type { Delay };
 
 /** PHP: `Illuminate\Contracts\Queue\Queue`. */
-export interface Queue {
+export interface Queue
+{
     /** Get the size of the queue. */
     size(queue?: string): number;
 
@@ -38,34 +39,16 @@ export interface Queue {
     pushOn(queue: string, job: JobTarget, data?: unknown): unknown;
 
     /** Push a new job onto the queue. */
-    pushRaw(
-        payload: JobPayload,
-        queue?: string,
-        options?: ArrayAccessible,
-    ): unknown;
+    pushRaw(payload: JobPayload, queue?: string, options?: ArrayAccessible): unknown;
 
     /** Push a new job onto the queue after (n) seconds. */
-    later(
-        delay: Delay,
-        job: JobTarget,
-        data?: unknown,
-        queue?: string,
-    ): unknown;
+    later(delay: Delay, job: JobTarget, data?: unknown, queue?: string): unknown;
 
     /** Push a new job onto a specific queue after (n) seconds. */
-    laterOn(
-        queue: string,
-        delay: Delay,
-        job: JobTarget,
-        data?: unknown,
-    ): unknown;
+    laterOn(queue: string, delay: Delay, job: JobTarget, data?: unknown): unknown;
 
     /** Push an array of jobs onto the queue. */
-    bulk(
-        jobs: JobTarget | Array<JobTarget>,
-        data?: unknown,
-        queue?: string,
-    ): void;
+    bulk(jobs: JobTarget | Array<JobTarget>, data?: unknown, queue?: string): void;
 
     /** Pop the next job off of the queue. */
     pop(queue?: string): Job | undefined;

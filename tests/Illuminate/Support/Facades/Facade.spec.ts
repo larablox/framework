@@ -1,9 +1,9 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Application } from "Illuminate/Foundation/Application";
-import { Facade } from "Illuminate/Support/Facades/Facade";
-import { Forwards } from "Illuminate/Support/Facades/Forwards";
-import type { Forwarded } from "Illuminate/Support/Facades/Forwards";
-import type { Abstract } from "Illuminate/Container/Types";
+import { Application } from 'Illuminate/Foundation/Application';
+import { Facade } from 'Illuminate/Support/Facades/Facade';
+import { Forwards } from 'Illuminate/Support/Facades/Forwards';
+import type { Forwarded } from 'Illuminate/Support/Facades/Forwards';
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `Illuminate\Tests\Support\SupportFacadeTest`.
@@ -22,23 +22,27 @@ import type { Abstract } from "Illuminate/Container/Types";
  * PHP tests' Mockery expectation of "called exactly N times, returns 'baz'".
  */
 export = (): void => {
-    describe("Facade", () => {
-        class RootStub {
+    describe('Facade', () => {
+        class RootStub
+        {
             public calls = 0;
 
-            public bar(): string {
+            public bar(): string
+            {
                 this.calls += 1;
 
-                return "baz";
+                return 'baz';
             }
         }
 
         @Forwards()
-        class FacadeStub extends Facade {
-            declare public static bar: Forwarded<RootStub["bar"]>;
+        class FacadeStub extends Facade
+        {
+            declare public static bar: Forwarded<RootStub['bar']>;
 
-            protected static getFacadeAccessor(): Abstract {
-                return "foo";
+            protected static getFacadeAccessor(): Abstract
+            {
+                return 'foo';
             }
         }
 
@@ -52,47 +56,47 @@ export = (): void => {
             // PHP: SupportFacadeTest::testFacadeCallsUnderlyingApplication
             const app = new Application();
             const root = new RootStub();
-            app.instance("foo", root);
+            app.instance('foo', root);
 
             FacadeStub.setFacadeApplication(app);
 
-            expect(FacadeStub.bar()).to.equal("baz");
+            expect(FacadeStub.bar()).to.equal('baz');
         });
 
-        it("resolves again after clearing the specific resolved instance", () => {
+        it('resolves again after clearing the specific resolved instance', () => {
             // PHP: SupportFacadeTest::testFacadeResolvesAgainAfterClearingSpecific
             const app = new Application();
             const root = new RootStub();
-            app.instance("foo", root);
+            app.instance('foo', root);
 
             // Resolve for the first time
             FacadeStub.setFacadeApplication(app);
-            expect(FacadeStub.bar()).to.equal("baz");
+            expect(FacadeStub.bar()).to.equal('baz');
 
             // Clear resolved instance and resolve the second time
             FacadeStub.clearResolvedInstance();
-            expect(FacadeStub.bar()).to.equal("baz");
+            expect(FacadeStub.bar()).to.equal('baz');
 
             // Clear resolved instance through parent and resolve the third time
-            Facade.clearResolvedInstance("foo");
-            expect(FacadeStub.bar()).to.equal("baz");
+            Facade.clearResolvedInstance('foo');
+            expect(FacadeStub.bar()).to.equal('baz');
 
             expect(root.calls).to.equal(3);
         });
 
-        it("resolves again after clearing all resolved instances", () => {
+        it('resolves again after clearing all resolved instances', () => {
             // PHP: SupportFacadeTest::testFacadeResolvesAgainAfterClearingAll
             const app = new Application();
             const root = new RootStub();
-            app.instance("foo", root);
+            app.instance('foo', root);
 
             // Resolve for the first time
             FacadeStub.setFacadeApplication(app);
-            expect(FacadeStub.bar()).to.equal("baz");
+            expect(FacadeStub.bar()).to.equal('baz');
 
             // Clear all resolved instances and resolve a second time
             Facade.clearResolvedInstances();
-            expect(FacadeStub.bar()).to.equal("baz");
+            expect(FacadeStub.bar()).to.equal('baz');
 
             expect(root.calls).to.equal(2);
         });

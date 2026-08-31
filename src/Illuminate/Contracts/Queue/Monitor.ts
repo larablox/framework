@@ -1,7 +1,8 @@
-import type { Listener } from "Illuminate/Contracts/Events/Dispatcher";
+import type { Listener } from 'Illuminate/Contracts/Events/Dispatcher';
 
 /** PHP: `Illuminate\Contracts\Queue\Monitor`. */
-export interface Monitor {
+export interface Monitor
+{
     /** Register a callback to be executed when a daemon queue is starting. */
     starting(callback: Listener): void;
 

@@ -1,7 +1,8 @@
-import { Attributes } from "Illuminate/Container/Attributes/Attributes";
+import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
 
 /** PHP: `#[Attribute(Attribute::TARGET_CLASS)] class DeleteWhenMissingModels`. */
-export interface DeleteWhenMissingModels {
+export interface DeleteWhenMissingModels
+{
     readonly deleteWhenMissingModels: boolean;
 }
 
@@ -11,7 +12,8 @@ export interface DeleteWhenMissingModels {
  * PHP means a deleted Eloquent model; here it means an `Instance` that no
  * longer resolves -- a player who has left, a part that was destroyed.
  */
-export function DeleteWhenMissingModels(deleteWhenMissingModels = true) {
+export function DeleteWhenMissingModels(deleteWhenMissingModels = true)
+{
     return (target: object): void => {
         Attributes.add(target, DeleteWhenMissingModels, {
             deleteWhenMissingModels,

@@ -14,7 +14,8 @@
  * compute gain nothing -- there is one thread, and they will take turns on it
  * either way -- and pay the scheduler for the privilege.
  */
-export class Concurrency {
+export class Concurrency
+{
     /**
      * Run the given tasks concurrently, and answer their results in order.
      *
@@ -26,7 +27,8 @@ export class Concurrency {
      * one that answered nothing would leave a hole where the results after it
      * should be. A caller with nothing to report answers `true`.
      */
-    public static run<T extends defined>(tasks: Array<() => T>): Array<T> {
+    public static run<T extends defined>(tasks: Array<() => T>): Array<T>
+    {
         const results = new Array<T>();
         const total = tasks.size();
 

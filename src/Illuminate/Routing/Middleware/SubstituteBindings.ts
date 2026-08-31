@@ -1,8 +1,8 @@
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import type { Next } from "Illuminate/Pipeline/Pipeline";
-import type { Request } from "Illuminate/Http/Request";
-import type { Route } from "Illuminate/Routing/Route";
-import type { Router } from "Illuminate/Routing/Router";
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import type { Next } from 'Illuminate/Pipeline/Pipeline';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Route } from 'Illuminate/Routing/Route';
+import type { Router } from 'Illuminate/Routing/Router';
 
 /**
  * PHP: `Illuminate\Routing\Middleware\SubstituteBindings`.
@@ -15,12 +15,15 @@ import type { Router } from "Illuminate/Routing/Router";
  * model by its route key, and there are no models yet. The `getMissing()`
  * branch goes with it.
  */
-export class SubstituteBindings {
+export class SubstituteBindings
+{
     /** Create a new bindings substitutor. */
-    public constructor(@Inject("router") protected readonly router: Router) {}
+    public constructor(@Inject('router') protected readonly router: Router)
+    {}
 
     /** Handle an incoming request. */
-    public handle(request: Request, _next: Next): unknown {
+    public handle(request: Request, _next: Next): unknown
+    {
         this.router.substituteBindings(request.route() as Route);
 
         return _next(request);

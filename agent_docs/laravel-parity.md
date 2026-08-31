@@ -19,7 +19,7 @@
 | `Illuminate\Container\EntryNotFoundException` | `Container/EntryNotFoundException.ts` | |
 | SPL-исключения PHP (`LogicException`, `InvalidArgumentException`, `RuntimeException`, `TypeError`) | `Illuminate/Exception.ts` | глобального `Error` в Luau нет; здесь же `ItemNotFoundException` и `MultipleItemsFoundException` |
 | `Illuminate\Contracts\Foundation\Application` | `Contracts/Foundation/Application.ts` | |
-| `Illuminate\Contracts\Support\DeferrableProvider` | `Contracts/Support/DeferrableProvider.ts` | интерфейс стёрт: важен собственный `provides()` |
+| `Illuminate\Contracts\Support\DeferrableProvider` | `Contracts/Support/DeferrableProvider.ts` | интерфейс стёрт: декоратор-маркер (как `ShouldQueue`), при загрузке требует собственный `provides()` |
 | `Illuminate\Container\Attributes\{Singleton,Scoped,Bind}` | `Container/Attributes/*.ts` | декораторы + реестр |
 | `Illuminate\Container\Attributes\{Give,Config,Tag,Log,Context}` | `Container/Attributes/*.ts` | контекстные атрибуты параметров |
 | `Illuminate\Contracts\Container\ContextualAttribute` | `Contracts/Container/ContextualAttribute.ts` | хуки на экземпляре вместо статики |
@@ -94,7 +94,7 @@
 | `Illuminate\Support\Arr` | `Support/Arr.ts` | ~55 методов из ~60 |
 | `Illuminate\Support\Pluralizer` | `Support/Pluralizer.ts` | свой английский инфлектор вместо Doctrine |
 | `Illuminate\Support\Collection` | `Support/Collection.ts` | ядро, ~70 методов из ~190 |
-| глобальные хелперы (`Support/helpers.php`, `Collections/helpers.php`) | `Support/Helpers.ts` | 20 функций; имена PHP сохранены, `with` → `_with` |
+| глобальные хелперы (`Support/helpers.php`, `Collections/helpers.php`) | `Support/helpers.ts` | 20 функций; имена PHP сохранены, `with` → `_with` |
 | `Illuminate\Support\Traits\{Conditionable,Tappable,ForwardsCalls}` | `Support/Traits/*.ts` | трейт → миксин; механизм в `Support/Traits/Trait.ts` |
 | `Illuminate\Contracts\Support\{Arrayable,Jsonable,Renderable}` и PHP-шный `JsonSerializable` | `Contracts/Support/*.ts` | интерфейсы стёрты: рядом с каждым лежит duck-проверка (`isArrayable` и т.д.) |
 | SPL `BadFunctionCallException`, `BadMethodCallException` | `Illuminate/Exception.ts` | |
@@ -169,16 +169,25 @@
 
 ### Идентификаторы биндингов
 
-В PHP `$abstract` всегда строка (`'config'` или `Foo::class`). В Luau нет
-class-string, поэтому идентификатором служит либо строка, либо **сам класс**:
+В PHP `$abstract` всегда строка (`'config'`, `Foo::class` или имя интерфейса
+`SomeContract::class`). В Luau нет class-string, поэтому идентификатором
+служит строка, **сам класс** — или, для контракта-интерфейса (тот стёрт
+компиляцией), **токен `Contract<T>`**, объявляемый рядом с интерфейсом:
 
 ```ts
 app.bind("config", ...);
 app.singleton(Dispatcher);
 app.make(Dispatcher); // типизировано как Dispatcher
+
+// Contracts/Pipeline/Hub.ts
+export const HubContract = new Contract<Hub>("Illuminate\\Contracts\\Pipeline\\Hub");
+app.singleton(HubContract, (app) => new Hub(app));
+app.make(HubContract); // типизировано как Hub
 ```
 
-Тип — `Abstract = string | AbstractClass` (`Container/Types.ts`).
+Тип — `Abstract = string | AbstractClass | Contract`
+(`Container/Types.ts`, `Container/Contract.ts`). Токен обкатан на
+`PipelineServiceProvider`; остальные провайдеры пока биндят по классу.
 
 ### Автоворинг: `Inject` вместо type hint
 
@@ -259,7 +268,7 @@ export class Config extends Facade {
 
 ### Хелперы: модуль вместо глобального пространства
 
-`Support/Helpers.ts` — это `Illuminate/Support/helpers.php` плюс `data_*` из
+`Support/helpers.ts` — это `Illuminate/Support/helpers.php` плюс `data_*` из
 `Illuminate/Collections/helpers.php`. Глобальных функций нет, поэтому это
 обычные экспорты модуля; имена PHP сохранены как есть, вместе со `snake_case` —
 это функции, а не методы, и в исходниках они зовутся именно так.

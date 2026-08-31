@@ -37,7 +37,7 @@
  * class touches them, so there is nothing here to port rather than invent.
  */
 export = (): void => {
-    describe("Foundation.Configuration.Middleware", () => {
+    describe('Foundation.Configuration.Middleware', () => {
         // See the class comment: every upstream case in `MiddlewareTest.php`
         // exercises middleware this port does not have.
     });

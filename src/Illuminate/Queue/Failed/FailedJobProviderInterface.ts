@@ -1,7 +1,8 @@
-import type { JobPayload } from "Illuminate/Contracts/Queue/Job";
+import type { JobPayload } from 'Illuminate/Contracts/Queue/Job';
 
 /** A failed job as a provider hands it back. */
-export interface FailedJobRecord {
+export interface FailedJobRecord
+{
     id: string | number;
     connection: string;
     queue: string;
@@ -11,14 +12,10 @@ export interface FailedJobRecord {
 }
 
 /** PHP: `Illuminate\Queue\Failed\FailedJobProviderInterface`. */
-export interface FailedJobProviderInterface {
+export interface FailedJobProviderInterface
+{
     /** Log a failed job into storage. */
-    log(
-        connection: string,
-        queue: string,
-        payload: JobPayload,
-        exception: unknown,
-    ): string | number | undefined;
+    log(connection: string, queue: string, payload: JobPayload, exception: unknown): string | number | undefined;
 
     /** Get the IDs of all of the failed jobs. */
     ids(queue?: string): Array<string | number>;

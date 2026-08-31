@@ -1,8 +1,9 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Application } from "Illuminate/Foundation/Application";
-import { ProviderRepository } from "Illuminate/Foundation/ProviderRepository";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type { Abstract } from "Illuminate/Container/Types";
+import { Application } from 'Illuminate/Foundation/Application';
+import { DeferrableProvider } from 'Illuminate/Contracts/Support/DeferrableProvider';
+import { ProviderRepository } from 'Illuminate/Foundation/ProviderRepository';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Abstract } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `Illuminate\Tests\Foundation\FoundationProviderRepositoryTest`.
@@ -35,44 +36,51 @@ import type { Abstract } from "Illuminate/Container/Types";
  *   anything).
  */
 export = (): void => {
-    describe("Foundation.ProviderRepository", () => {
-        class EagerProviderStub extends ServiceProvider {
+    describe('Foundation.ProviderRepository', () => {
+        class EagerProviderStub extends ServiceProvider
+        {
             public static registered = false;
 
-            public register(): void {
+            public register(): void
+            {
                 EagerProviderStub.registered = true;
             }
         }
 
-        class DeferredProviderStub extends ServiceProvider {
-            public provides(): Array<Abstract> {
-                return ["foo.provides1", "foo.provides2"];
+        @DeferrableProvider()
+        class DeferredProviderStub extends ServiceProvider
+        {
+            public provides(): Array<Abstract>
+            {
+                return [
+                    'foo.provides1',
+                    'foo.provides2',
+                ];
             }
         }
 
-        it("load() registers eager providers immediately and defers the rest (adapted -- see class comment)", () => {
+        it('load() registers eager providers immediately and defers the rest (adapted -- see class comment)', () => {
             // PHP: FoundationProviderRepositoryTest::testServicesAreRegisteredWhenManifestIsNotRecompiled / testManifestIsProperlyRecompiled
             EagerProviderStub.registered = false;
 
             const app = new Application();
             const repo = new ProviderRepository(app);
 
-            repo.load([DeferredProviderStub, EagerProviderStub]);
+            repo.load([
+                DeferredProviderStub,
+                EagerProviderStub,
+            ]);
 
             expect(EagerProviderStub.registered).to.equal(true);
             expect(app.providerIsLoaded(EagerProviderStub)).to.equal(true);
 
-            expect(app.isDeferredService("foo.provides1")).to.equal(true);
-            expect(app.isDeferredService("foo.provides2")).to.equal(true);
+            expect(app.isDeferredService('foo.provides1')).to.equal(true);
+            expect(app.isDeferredService('foo.provides2')).to.equal(true);
             expect(app.providerIsLoaded(DeferredProviderStub)).to.equal(false);
 
             const deferred = app.getDeferredServices();
-            expect(deferred.get("foo.provides1")).to.equal(
-                DeferredProviderStub,
-            );
-            expect(deferred.get("foo.provides2")).to.equal(
-                DeferredProviderStub,
-            );
+            expect(deferred.get('foo.provides1')).to.equal(DeferredProviderStub);
+            expect(deferred.get('foo.provides2')).to.equal(DeferredProviderStub);
         });
     });
 };

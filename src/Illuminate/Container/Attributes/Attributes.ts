@@ -12,13 +12,11 @@
  */
 const classAttributes = new Map<object, Array<[Callback, object]>>();
 
-export class Attributes {
+export class Attributes
+{
     /** Record an attribute instance against the class it decorates. */
-    public static add(
-        target: object,
-        attribute: Callback,
-        instance: object,
-    ): void {
+    public static add(target: object, attribute: Callback, instance: object): void
+    {
         let attributes = classAttributes.get(target);
 
         if (attributes === undefined) {
@@ -26,15 +24,16 @@ export class Attributes {
             classAttributes.set(target, attributes);
         }
 
-        attributes.push([attribute, instance]);
+        attributes.push([
+            attribute,
+            instance,
+        ]);
     }
 
     /** PHP: `(new ReflectionClass($target))->getAttributes($attribute)`. */
-    public static get<T extends object>(
-        target: unknown,
-        attribute: Callback,
-    ): Array<T> {
-        if (!typeIs(target, "table")) {
+    public static get<T extends object>(target: unknown, attribute: Callback): Array<T>
+    {
+        if (!typeIs(target, 'table')) {
             return [];
         }
 
@@ -56,13 +55,15 @@ export class Attributes {
     }
 
     /** PHP: `! empty($reflection->getAttributes($attribute))`. */
-    public static has(target: unknown, attribute: Callback): boolean {
+    public static has(target: unknown, attribute: Callback): boolean
+    {
         return Attributes.get(target, attribute).size() > 0;
     }
 
     /** PHP: `(new ReflectionClass($target))->getAttributes()` with no filter. */
-    public static all(target: unknown): Array<[Callback, object]> {
-        if (!typeIs(target, "table")) {
+    public static all(target: unknown): Array<[Callback, object]>
+    {
+        if (!typeIs(target, 'table')) {
             return [];
         }
 

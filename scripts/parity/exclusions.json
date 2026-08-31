@@ -1,0 +1,29 @@
+{
+    "members": {
+        "Pipeline/Pipeline.php#Pipeline#withinTransaction@property": {
+            "php_hash": "66886a0f2b35432bfc8e8ca0e911bdd9cb489d4d",
+            "kind": "deferred",
+            "reason": "Wraps the run in a 'db' connection transaction; the port has no database component and no 'db' binding to reach for. Revisit when a database layer (e.g. over DataStore) lands and 'db' becomes bindable."
+        },
+        "Pipeline/Pipeline.php#Pipeline#withinTransaction@method": {
+            "php_hash": "9c3a4134dd863567df88e26526a4ba34383358b2",
+            "kind": "deferred",
+            "reason": "Wraps the run in a 'db' connection transaction; the port has no database component and no 'db' binding to reach for. Revisit when a database layer (e.g. over DataStore) lands and 'db' becomes bindable."
+        }
+    },
+    "paths": [
+        {
+            "glob": "Container/helpers.ts",
+            "kind": "port-only",
+            "reason": "The language compensations for PHP dynamic calls and capability checks -- call ((...)), callMethod (->{}(...)), methodExists, isCallable -- which PHP gets from the language itself. Lives at the bottom of the import graph so Support (HigherOrderWhenProxy) and Pipeline can both reach it without cycles."
+        },
+        {
+            "glob": "Pipeline/helpers.ts",
+            "kind": "port-only",
+            "reason": "Port-only helper with no upstream twin: isPipeArray/wrapPipes/isPipeWithParameters tell one parameterized pipe `[Class, 'args']` from a list of pipes -- a distinction PHP spells inside a single string ('Class:args') and never has to make, because a class is not a string on this platform. isPipeArray is Pipeline.through()/pipe()'s is_array; wrapPipes serves Routing/Route and Routing/Controller."
+        }
+    ],
+    "traits": {
+        "Illuminate\\Support\\Traits\\Macroable": "Needs __call on the class itself; deferred platform-wide, facades carry the static half."
+    }
+}

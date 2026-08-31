@@ -1,6 +1,6 @@
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import type { Request } from "Illuminate/Http/Request";
-import type { Route } from "Illuminate/Routing/Route";
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import type { Request } from 'Illuminate/Http/Request';
+import type { Route } from 'Illuminate/Routing/Route';
 
 /**
  * PHP: `Illuminate\Routing\RouteParameterBinder`.
@@ -13,22 +13,22 @@ import type { Route } from "Illuminate/Routing/Route";
  *
  * `bindHostParameters()` is absent along with domains.
  */
-export class RouteParameterBinder {
+export class RouteParameterBinder
+{
     /** Create a new Route parameter binder instance. */
-    public constructor(protected readonly route: Route) {}
+    public constructor(protected readonly route: Route)
+    {}
 
     /** Get the parameters for the route. */
-    public parameters(request: Request): OrderedMap<string, defined> {
+    public parameters(request: Request): OrderedMap<string, defined>
+    {
         return this.replaceDefaults(this.bindPathParameters(request));
     }
 
     /** Get the parameter matches for the path portion of the URI. */
-    protected bindPathParameters(
-        request: Request,
-    ): OrderedMap<string, defined> {
-        const matched = this.route
-            .getCompiled()
-            .match(request.decodedPath(), this.route.wheres);
+    protected bindPathParameters(request: Request): OrderedMap<string, defined>
+    {
+        const matched = this.route.getCompiled().match(request.decodedPath(), this.route.wheres);
 
         const parameters = new OrderedMap<string, defined>();
 
@@ -50,9 +50,8 @@ export class RouteParameterBinder {
      * a Luau table holds no nulls, so an optional parameter the path left out
      * is simply absent and only the second loop has anything to do.
      */
-    protected replaceDefaults(
-        parameters: OrderedMap<string, defined>,
-    ): OrderedMap<string, defined> {
+    protected replaceDefaults(parameters: OrderedMap<string, defined>): OrderedMap<string, defined>
+    {
         for (const [key, value] of pairs(this.route.defaultValues)) {
             if (!parameters.has(key as string)) {
                 parameters.set(key as string, value as defined);

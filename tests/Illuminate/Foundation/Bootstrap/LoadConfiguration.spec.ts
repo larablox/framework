@@ -1,7 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
-import { Application } from "Illuminate/Foundation/Application";
-import { LoadConfiguration } from "Illuminate/Foundation/Bootstrap/LoadConfiguration";
-import { Repository as ConfigRepository } from "Illuminate/Config/Repository";
+import { Application } from 'Illuminate/Foundation/Application';
+import { LoadConfiguration } from 'Illuminate/Foundation/Bootstrap/LoadConfiguration';
+import { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
 
 /**
  * PHP: `Illuminate\Tests\Foundation\Bootstrap\LoadConfigurationTest`.
@@ -31,31 +31,29 @@ import { Repository as ConfigRepository } from "Illuminate/Config/Repository";
  * refusing -- is asserted instead of the property itself).
  */
 export = (): void => {
-    describe("Foundation.Bootstrap.LoadConfiguration", () => {
-        it("bootstrap() puts the configured items behind the `config` key", () => {
+    describe('Foundation.Bootstrap.LoadConfiguration', () => {
+        it('bootstrap() puts the configured items behind the `config` key', () => {
             // PHP: LoadConfigurationTest::testLoadsBaseConfiguration
-            LoadConfiguration.using({ app: { name: "Larablox" } });
+            LoadConfiguration.using({ app: { name: 'Larablox' } });
 
             const app = new Application();
             new LoadConfiguration().bootstrap(app);
 
-            expect(
-                app.make<ConfigRepository>("config").get("app.name"),
-            ).to.equal("Larablox");
+            expect(app.make<ConfigRepository>('config').get('app.name')).to.equal('Larablox');
         });
 
-        it("bootstrap() wires an environment resolver (adapted -- see class comment)", () => {
+        it('bootstrap() wires an environment resolver (adapted -- see class comment)', () => {
             // PHP: LoadConfigurationTest::testSetsEnvironmentResolver
-            LoadConfiguration.using({ app: { env: "local" } });
+            LoadConfiguration.using({ app: { env: 'local' } });
 
             const app = new Application();
 
-            expect(app.currentEnvironmentIs("loc*")).to.equal(false);
+            expect(app.currentEnvironmentIs('loc*')).to.equal(false);
 
             new LoadConfiguration().bootstrap(app);
 
-            expect(app.currentEnvironmentIs("loc*")).to.equal(true);
-            expect(app.currentEnvironmentIs("prod*")).to.equal(false);
+            expect(app.currentEnvironmentIs('loc*')).to.equal(true);
+            expect(app.currentEnvironmentIs('prod*')).to.equal(false);
         });
     });
 };

@@ -1,22 +1,18 @@
 /// <reference types="@rbxts/testez/globals" />
-import { RuntimeException } from "Illuminate/Exception";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { JobPopped } from "Illuminate/Queue/Events/JobPopped";
-import { JobPopping } from "Illuminate/Queue/Events/JobPopping";
-import { JobProcessed } from "Illuminate/Queue/Events/JobProcessed";
-import { JobProcessing } from "Illuminate/Queue/Events/JobProcessing";
-import { WorkerOptions } from "Illuminate/Queue/WorkerOptions";
-import { WorkerStopReason } from "Illuminate/Queue/WorkerStopReason";
-import { WorkerStopping } from "Illuminate/Queue/Events/WorkerStopping";
-import { Worker } from "Illuminate/Queue/Worker";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Factory } from "Illuminate/Contracts/Queue/Factory";
-import type {
-    Job,
-    JobHandler,
-    JobPayload,
-} from "Illuminate/Contracts/Queue/Job";
-import type { Queue } from "Illuminate/Contracts/Queue/Queue";
+import { RuntimeException } from 'Illuminate/Exception';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { JobPopped } from 'Illuminate/Queue/Events/JobPopped';
+import { JobPopping } from 'Illuminate/Queue/Events/JobPopping';
+import { JobProcessed } from 'Illuminate/Queue/Events/JobProcessed';
+import { JobProcessing } from 'Illuminate/Queue/Events/JobProcessing';
+import { WorkerOptions } from 'Illuminate/Queue/WorkerOptions';
+import { WorkerStopReason } from 'Illuminate/Queue/WorkerStopReason';
+import { WorkerStopping } from 'Illuminate/Queue/Events/WorkerStopping';
+import { Worker } from 'Illuminate/Queue/Worker';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Factory } from 'Illuminate/Contracts/Queue/Factory';
+import type { Job, JobHandler, JobPayload } from 'Illuminate/Contracts/Queue/Job';
+import type { Queue } from 'Illuminate/Contracts/Queue/Queue';
 
 /**
  * PHP: `Illuminate\Tests\Queue\QueueWorkerTest`.
@@ -47,11 +43,13 @@ import type { Queue } from "Illuminate/Contracts/Queue/Queue";
  * by asserting the callback itself was invoked.
  */
 
-function fakePayload(): JobPayload {
+function fakePayload(): JobPayload
+{
     return {} as unknown as JobPayload;
 }
 
-class FakeJob implements Job {
+class FakeJob implements Job
+{
     public fired = false;
     public deletedFlag = false;
     public releasedFlag = false;
@@ -60,149 +58,179 @@ class FakeJob implements Job {
     public maxTriesValue?: number;
     public retryUntilValue?: number;
 
-    public constructor(private readonly callback?: () => void) {}
+    public constructor(private readonly callback?: () => void)
+    {}
 
-    public getJobId(): string {
-        return "";
+    public getJobId(): string
+    {
+        return '';
     }
 
-    public fire(): void {
+    public fire(): void
+    {
         this.fired = true;
         this.callback?.();
     }
 
-    public payload(): JobPayload {
+    public payload(): JobPayload
+    {
         return fakePayload();
     }
 
-    public getRawBody(): JobPayload {
+    public getRawBody(): JobPayload
+    {
         return fakePayload();
     }
 
-    public uuid(): string | undefined {
-        return "fake-uuid";
+    public uuid(): string | undefined
+    {
+        return 'fake-uuid';
     }
 
-    public attempts(): number {
+    public attempts(): number
+    {
         return this.attemptsCount;
     }
 
-    public delete(): void {
+    public delete(): void
+    {
         this.deletedFlag = true;
     }
 
-    public isDeleted(): boolean {
+    public isDeleted(): boolean
+    {
         return this.deletedFlag;
     }
 
-    public release(): void {
+    public release(): void
+    {
         this.releasedFlag = true;
     }
 
-    public isReleased(): boolean {
+    public isReleased(): boolean
+    {
         return this.releasedFlag;
     }
 
-    public isDeletedOrReleased(): boolean {
+    public isDeletedOrReleased(): boolean
+    {
         return this.deletedFlag || this.releasedFlag;
     }
 
-    public hasFailed(): boolean {
+    public hasFailed(): boolean
+    {
         return this.failedFlag;
     }
 
-    public markAsFailed(): void {
+    public markAsFailed(): void
+    {
         this.failedFlag = true;
     }
 
-    public fail(): void {
+    public fail(): void
+    {
         this.markAsFailed();
         this.deletedFlag = true;
     }
 
-    public maxTries(): number | undefined {
+    public maxTries(): number | undefined
+    {
         return this.maxTriesValue;
     }
 
-    public maxExceptions(): number | undefined {
+    public maxExceptions(): number | undefined
+    {
         return undefined;
     }
 
-    public timeout(): number | undefined {
+    public timeout(): number | undefined
+    {
         return undefined;
     }
 
-    public retryUntil(): number | undefined {
+    public retryUntil(): number | undefined
+    {
         return this.retryUntilValue;
     }
 
-    public getName(): JobHandler {
-        return "fake" as unknown as JobHandler;
+    public getName(): JobHandler
+    {
+        return 'fake' as unknown as JobHandler;
     }
 
-    public resolveName(): string {
-        return "FakeJob";
+    public resolveName(): string
+    {
+        return 'FakeJob';
     }
 
-    public resolveQueuedJobClass(): Abstract {
-        return "FakeJob" as unknown as Abstract;
+    public resolveQueuedJobClass(): Abstract
+    {
+        return 'FakeJob' as unknown as Abstract;
     }
 
-    public getConnectionName(): string {
-        return "default";
+    public getConnectionName(): string
+    {
+        return 'default';
     }
 
-    public getQueue(): string {
-        return "default";
+    public getQueue(): string
+    {
+        return 'default';
     }
 }
 
-class FakeConnection implements Partial<Queue> {
+class FakeConnection implements Partial<Queue>
+{
     public constructor(
         private readonly connectionName: string,
         private readonly jobs: Record<string, Array<Job>>,
-    ) {}
+    )
+    {}
 
-    public pop(queue?: string): Job | undefined {
-        const list = this.jobs[queue ?? "default"];
+    public pop(queue?: string): Job | undefined
+    {
+        const list = this.jobs[queue ?? 'default'];
 
         return list?.shift();
     }
 
-    public getConnectionName(): string {
+    public getConnectionName(): string
+    {
         return this.connectionName;
     }
 }
 
-class FakeManager implements Factory {
-    public constructor(private readonly connectionInstance: Queue) {}
+class FakeManager implements Factory
+{
+    public constructor(private readonly connectionInstance: Queue)
+    {}
 
-    public connection(): Queue {
+    public connection(): Queue
+    {
         return this.connectionInstance;
     }
 }
 
-function getWorker(
-    jobs: Record<string, Array<Job>>,
-): [Worker, Dispatcher, Array<unknown>] {
+function getWorker(jobs: Record<string, Array<Job>>): [Worker, Dispatcher, Array<unknown>]
+{
     const events = new Dispatcher();
     const reported = new Array<unknown>();
-    const connection = new FakeConnection("default", jobs);
+    const connection = new FakeConnection('default', jobs);
     const manager = new FakeManager(connection as unknown as Queue);
 
-    const worker = new Worker(
-        manager,
-        events,
-        (e) => (reported[reported.size()] = e),
-    );
+    const worker = new Worker(manager, events, (e) => (reported[reported.size()] = e));
 
-    return [worker, events, reported];
+    return [
+        worker,
+        events,
+        reported,
+    ];
 }
 
 export = (): void => {
-    describe("Worker", () => {
+    describe('Worker', () => {
         // PHP: QueueWorkerTest::testJobCanBeFired
-        it("runNextJob() fires the next job and dispatches its lifecycle events", () => {
+        it('runNextJob() fires the next job and dispatches its lifecycle events', () => {
             const job = new FakeJob();
             const [worker, events] = getWorker({ queue: [job] });
 
@@ -223,7 +251,7 @@ export = (): void => {
                 processed += 1;
             });
 
-            worker.runNextJob("default", "queue", new WorkerOptions());
+            worker.runNextJob('default', 'queue', new WorkerOptions());
 
             expect(job.fired).to.equal(true);
             expect(popping).to.equal(1);
@@ -233,7 +261,7 @@ export = (): void => {
         });
 
         // PHP: QueueWorkerTest::testJobPoppingEvent
-        it("the JobPopping event carries the connection and queue names", () => {
+        it('the JobPopping event carries the connection and queue names', () => {
             const job = new FakeJob();
             const [worker, events] = getWorker({ queue: [job] });
 
@@ -242,45 +270,53 @@ export = (): void => {
                 seen = event as JobPopping;
             });
 
-            worker.runNextJob("default", "queue", new WorkerOptions());
+            worker.runNextJob('default', 'queue', new WorkerOptions());
 
             expect(seen).to.be.ok();
-            expect(seen!.connectionName).to.equal("default");
-            expect(seen!.queue).to.equal("queue");
+            expect(seen!.connectionName).to.equal('default');
+            expect(seen!.queue).to.equal('queue');
         });
 
         // PHP: QueueWorkerTest::testWorkerCanWorkUntilQueueIsEmpty
-        it("daemon() with stopWhenEmpty runs until the queue is empty, then stops cleanly", () => {
+        it('daemon() with stopWhenEmpty runs until the queue is empty, then stops cleanly', () => {
             const first = new FakeJob();
             const second = new FakeJob();
-            const [worker] = getWorker({ queue: [first, second] });
+            const [worker] = getWorker({
+                queue: [
+                    first,
+                    second,
+                ],
+            });
 
             const options = new WorkerOptions();
             options.stopWhenEmpty = true;
 
-            const status = worker.daemon("default", "queue", options);
+            const status = worker.daemon('default', 'queue', options);
 
             expect(second.fired).to.equal(true);
             expect(status).to.equal(Worker.EXIT_SUCCESS);
         });
 
         // PHP: QueueWorkerTest::testJobCanBeFiredBasedOnPriority
-        it("runNextJob() honours a comma-separated priority list of queues", () => {
+        it('runNextJob() honours a comma-separated priority list of queues', () => {
             const highJob = new FakeJob();
             const secondHighJob = new FakeJob();
             const lowJob = new FakeJob();
             const [worker] = getWorker({
-                high: [highJob, secondHighJob],
+                high: [
+                    highJob,
+                    secondHighJob,
+                ],
                 low: [lowJob],
             });
 
-            worker.runNextJob("default", "high,low", new WorkerOptions());
+            worker.runNextJob('default', 'high,low', new WorkerOptions());
 
             expect(highJob.fired).to.equal(true);
             expect(secondHighJob.fired).to.equal(false);
             expect(lowJob.fired).to.equal(false);
 
-            worker.runNextJob("default", "high,low", new WorkerOptions());
+            worker.runNextJob('default', 'high,low', new WorkerOptions());
 
             expect(secondHighJob.fired).to.equal(true);
             expect(lowJob.fired).to.equal(false);
@@ -289,7 +325,7 @@ export = (): void => {
         // PHP: QueueWorkerTest::testWorkerMemoryExceededWhenMemoryIsZero /
         // testWorkerMemoryExceededWhenMemoryGreaterThanZero /
         // testWorkerMemoryExceededWhenMemoryIsNegative
-        it("memoryExceeded() is off at zero, and on above it", () => {
+        it('memoryExceeded() is off at zero, and on above it', () => {
             const [worker] = getWorker({});
 
             expect(worker.memoryExceeded(0)).to.equal(false);
@@ -302,7 +338,7 @@ export = (): void => {
         // Not directly in the PHP suite (the daemon max-jobs case is spread
         // across several upstream tests) -- exercises `stopWhenNecessary()`'s
         // `maxJobs` branch and the resulting `WorkerStopping` event's reason.
-        it("daemon() stops once maxJobs is reached, with the right stop reason", () => {
+        it('daemon() stops once maxJobs is reached, with the right stop reason', () => {
             const job = new FakeJob();
             const [worker, events] = getWorker({ queue: [job] });
 
@@ -314,7 +350,7 @@ export = (): void => {
             const options = new WorkerOptions();
             options.maxJobs = 1;
 
-            const status = worker.daemon("default", "queue", options);
+            const status = worker.daemon('default', 'queue', options);
 
             expect(status).to.equal(Worker.EXIT_SUCCESS);
             expect(reason).to.equal(WorkerStopReason.MaxJobsExceeded);
@@ -324,13 +360,13 @@ export = (): void => {
         // the guard `process()` runs before firing a job at all. Routed through
         // `runNextJob()`, since `process()`'s own failure path rethrows and
         // `runJob()` is what normally catches that (see `Worker.ts`'s `runJob()`).
-        it("a job that has exceeded its max tries fails outright, without firing", () => {
+        it('a job that has exceeded its max tries fails outright, without firing', () => {
             const job = new FakeJob();
             job.maxTriesValue = 1;
             job.attemptsCount = 2;
             const [worker] = getWorker({ queue: [job] });
 
-            worker.runNextJob("default", "queue", new WorkerOptions());
+            worker.runNextJob('default', 'queue', new WorkerOptions());
 
             expect(job.fired).to.equal(false);
             expect(job.hasFailed()).to.equal(true);
@@ -338,25 +374,25 @@ export = (): void => {
 
         // PHP: no direct equivalent -- exercises `handleJobException()`
         // releasing a job that threw and was not itself deleted/released/failed.
-        it("a job that throws is released, when it has attempts left", () => {
+        it('a job that throws is released, when it has attempts left', () => {
             let reported: unknown;
             const events = new Dispatcher();
             // An exception object, not a bare string: Luau prefixes a string
             // error with the position it was raised at, and every rethrow on
             // the way out prefixes it again -- so the value the reporter sees
             // would never compare equal to what was thrown.
-            const thrown = new RuntimeException("boom");
+            const thrown = new RuntimeException('boom');
             const job = new FakeJob(() => {
                 throw thrown;
             });
             job.maxTriesValue = 5;
-            const connection = new FakeConnection("default", { queue: [job] });
+            const connection = new FakeConnection('default', { queue: [job] });
             const manager = new FakeManager(connection as unknown as Queue);
             const worker = new Worker(manager, events, (e) => {
                 reported = e;
             });
 
-            worker.runNextJob("default", "queue", new WorkerOptions());
+            worker.runNextJob('default', 'queue', new WorkerOptions());
 
             expect(reported).to.equal(thrown);
             expect(job.isReleased()).to.equal(true);

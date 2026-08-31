@@ -13,10 +13,11 @@
  * `force` survives for shape only: it tells PHP to keep working while the
  * application is in maintenance mode, and there is no maintenance mode.
  */
-export class WorkerOptions {
+export class WorkerOptions
+{
     /** Create a new worker options instance. */
     public constructor(
-        public name = "default",
+        public name = 'default',
         public backoff: number | string = 0,
         public memory = 0,
         public timeout = 0,
@@ -28,5 +29,6 @@ export class WorkerOptions {
         public maxTime = 0,
         public rest = 0,
         public stopWhenEmptyFor = 0,
-    ) {}
+    )
+    {}
 }

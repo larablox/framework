@@ -1,4 +1,4 @@
-import { retry } from "Illuminate/Support/Helpers";
+import { retry } from 'Illuminate/Support/helpers';
 
 /**
  * A rejection the platform is responsible for, and so worth another go.
@@ -8,10 +8,19 @@ import { retry } from "Illuminate/Support/Helpers";
  * it certainly was not: `502` is a rejection and `503` a request dropped
  * before it was read, neither of which reaches the data.
  */
-const TRANSIENT = ["502", "503", "too many requests", "exceeded limit"];
+const TRANSIENT = [
+    '502',
+    '503',
+    'too many requests',
+    'exceeded limit',
+];
 
 /** How long to wait before each further attempt. */
-const BACKOFF = [1000, 2000, 4000];
+const BACKOFF = [
+    1000,
+    2000,
+    4000,
+];
 
 /**
  * A DataStore call that gets another go when the platform, and not the
@@ -39,9 +48,11 @@ const BACKOFF = [1000, 2000, 4000];
  * result through a table, and `{ nil, keyInfo }` -- which is exactly what
  * `GetAsync` answers for a key that holds nothing -- has no defined length.
  */
-export class DataStoreRequest {
+export class DataStoreRequest
+{
     /** Whether the platform, rather than the caller, refused the call. */
-    public static isTransient(exception: unknown): boolean {
+    public static isTransient(exception: unknown): boolean
+    {
         const message = tostring(exception).lower();
 
         for (const fragment of TRANSIENT) {
@@ -54,9 +65,8 @@ export class DataStoreRequest {
     }
 
     /** Make a DataStore call, repeating it while it is worth repeating. */
-    public static run<TReturn>(call: () => TReturn): TReturn {
-        return retry(BACKOFF, call, 0, (exception) =>
-            DataStoreRequest.isTransient(exception),
-        );
+    public static run<TReturn>(call: () => TReturn): TReturn
+    {
+        return retry(BACKOFF, call, 0, (exception) => DataStoreRequest.isTransient(exception));
     }
 }

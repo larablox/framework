@@ -17,26 +17,25 @@ export type Delay = number | DateTime;
  * Carbon instance, and there is neither. `runTimeForHumans()` formats worker
  * output through `CarbonInterval` and arrives with the worker.
  */
-export class InteractsWithTime {
+export class InteractsWithTime
+{
     /** Get the number of seconds until the given DateTime. */
-    public static secondsUntil(delay: Delay): number {
-        return typeIs(delay, "number")
+    public static secondsUntil(delay: Delay): number
+    {
+        return typeIs(delay, 'number')
             ? math.floor(delay)
-            : math.max(
-                  0,
-                  delay.UnixTimestamp - InteractsWithTime.currentTime(),
-              );
+            : math.max(0, delay.UnixTimestamp - InteractsWithTime.currentTime());
     }
 
     /** Get the "available at" UNIX timestamp. */
-    public static availableAt(delay: Delay = 0): number {
-        return typeIs(delay, "number")
-            ? InteractsWithTime.currentTime() + math.floor(delay)
-            : delay.UnixTimestamp;
+    public static availableAt(delay: Delay = 0): number
+    {
+        return typeIs(delay, 'number') ? InteractsWithTime.currentTime() + math.floor(delay) : delay.UnixTimestamp;
     }
 
     /** Get the current system time as a UNIX timestamp. */
-    public static currentTime(): number {
+    public static currentTime(): number
+    {
         return os.time();
     }
 }

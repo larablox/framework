@@ -1,21 +1,17 @@
 /// <reference types="@rbxts/testez/globals" />
-import { expectDeepEqual } from "../TestHelpers";
-import { Application } from "Illuminate/Foundation/Application";
-import type { Container } from "Illuminate/Contracts/Container/Container";
-import { Dispatcher } from "Illuminate/Events/Dispatcher";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { LogManager } from "Illuminate/Log/LogManager";
-import { OrderedMap } from "Illuminate/Support/OrderedMap";
-import { QueueManager } from "Illuminate/Queue/QueueManager";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { RegisterFacades } from "Illuminate/Foundation/Bootstrap/RegisterFacades";
-import { Repository as ConfigRepository } from "Illuminate/Config/Repository";
-import { ServiceProvider } from "Illuminate/Support/ServiceProvider";
-import type {
-    Abstract,
-    Concrete,
-    Constructor,
-} from "Illuminate/Container/Types";
+import { expectDeepEqual } from '../TestHelpers';
+import { Application } from 'Illuminate/Foundation/Application';
+import type { Container } from 'Illuminate/Contracts/Container/Container';
+import { Dispatcher } from 'Illuminate/Events/Dispatcher';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { LogManager } from 'Illuminate/Log/LogManager';
+import { OrderedMap } from 'Illuminate/Support/OrderedMap';
+import { QueueManager } from 'Illuminate/Queue/QueueManager';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { RegisterFacades } from 'Illuminate/Foundation/Bootstrap/RegisterFacades';
+import { Repository as ConfigRepository } from 'Illuminate/Config/Repository';
+import { ServiceProvider } from 'Illuminate/Support/ServiceProvider';
+import type { Abstract, Concrete, Constructor } from 'Illuminate/Container/Types';
 
 /**
  * PHP: `Illuminate\Tests\Foundation\FoundationApplicationTest`.
@@ -60,161 +56,197 @@ import type {
  * `register()` override, since there is no mocking framework here.
  */
 export = (): void => {
-    describe("Foundation.Application", () => {
-        class ApplicationBasicServiceProviderStub extends ServiceProvider {
+    describe('Foundation.Application', () => {
+        class ApplicationBasicServiceProviderStub extends ServiceProvider
+        {
             public registerCalls = 0;
 
-            public register(): void {
+            public register(): void
+            {
                 this.registerCalls += 1;
             }
         }
 
-        abstract class AbstractClass {}
+        abstract class AbstractClass
+        {}
 
-        class ConcreteClass extends AbstractClass {}
+        class ConcreteClass extends AbstractClass
+        {}
 
-        class NonContractBackedClass {}
+        class NonContractBackedClass
+        {}
 
-        class BindingsProviderStub extends ServiceProvider {
+        class BindingsProviderStub extends ServiceProvider
+        {
             public bindings: Array<[Abstract, Concrete]> = [
-                [AbstractClass, ConcreteClass],
+                [
+                    AbstractClass,
+                    ConcreteClass,
+                ],
             ];
         }
 
-        class SingletonsProviderStub extends ServiceProvider {
+        class SingletonsProviderStub extends ServiceProvider
+        {
             public singletons: Array<[Abstract, Concrete] | Abstract> = [
                 NonContractBackedClass,
-                [AbstractClass, ConcreteClass],
+                [
+                    AbstractClass,
+                    ConcreteClass,
+                ],
             ];
         }
 
-        class ApplicationDeferredServiceProviderStub extends ServiceProvider {
+        class ApplicationDeferredServiceProviderStub extends ServiceProvider
+        {
             public static initialized = false;
 
-            public register(): void {
+            public register(): void
+            {
                 ApplicationDeferredServiceProviderStub.initialized = true;
 
                 // PHP writes `$this->app['foo'] = 'foo'`, and
                 // `Container::offsetSet()` is a `bind()`, not an `instance()`
                 // -- which is what lets `extend()` reach the value.
-                this.app.bind("foo", () => "foo");
+                this.app.bind('foo', () => 'foo');
             }
 
-            public provides(): Array<Abstract> {
-                return ["foo"];
-            }
-        }
-
-        class ApplicationDeferredSharedServiceProviderStub extends ServiceProvider {
-            public register(): void {
-                this.app.singleton("foo", () => ({}));
-            }
-
-            public provides(): Array<Abstract> {
-                return ["foo"];
+            public provides(): Array<Abstract>
+            {
+                return ['foo'];
             }
         }
 
-        class ApplicationDeferredServiceProviderCountStub extends ServiceProvider {
+        class ApplicationDeferredSharedServiceProviderStub extends ServiceProvider
+        {
+            public register(): void
+            {
+                this.app.singleton('foo', () => ({}));
+            }
+
+            public provides(): Array<Abstract>
+            {
+                return ['foo'];
+            }
+        }
+
+        class ApplicationDeferredServiceProviderCountStub extends ServiceProvider
+        {
             public static count = 0;
 
-            public register(): void {
+            public register(): void
+            {
                 ApplicationDeferredServiceProviderCountStub.count += 1;
-                this.app.instance("foo", {});
+                this.app.instance('foo', {});
             }
 
-            public provides(): Array<Abstract> {
-                return ["foo"];
+            public provides(): Array<Abstract>
+            {
+                return ['foo'];
             }
         }
 
-        class ApplicationFactoryProviderStub extends ServiceProvider {
-            public register(): void {
+        class ApplicationFactoryProviderStub extends ServiceProvider
+        {
+            public register(): void
+            {
                 let count = 0;
 
-                this.app.bind("foo", () => {
+                this.app.bind('foo', () => {
                     count += 1;
 
                     return count;
                 });
             }
 
-            public provides(): Array<Abstract> {
-                return ["foo"];
+            public provides(): Array<Abstract>
+            {
+                return ['foo'];
             }
         }
 
-        class ApplicationMultiProviderStub extends ServiceProvider {
-            public register(): void {
-                this.app.singleton("foo", () => "foo");
-                this.app.singleton(
-                    "bar",
-                    (app: Container) => `${app.make<string>("foo")}bar`,
-                );
+        class ApplicationMultiProviderStub extends ServiceProvider
+        {
+            public register(): void
+            {
+                this.app.singleton('foo', () => 'foo');
+                this.app.singleton('bar', (app: Container) => `${app.make<string>('foo')}bar`);
             }
 
-            public provides(): Array<Abstract> {
-                return ["foo", "bar"];
+            public provides(): Array<Abstract>
+            {
+                return [
+                    'foo',
+                    'bar',
+                ];
             }
         }
 
-        abstract class SampleInterface {
+        abstract class SampleInterface
+        {
             public abstract getPrimitive(): unknown;
         }
 
-        class SampleImplementation extends SampleInterface {
+        class SampleImplementation extends SampleInterface
+        {
             // PHP reads the parameter's *name* off its reflection, which is
             // what `needs('$primitive')` matches; roblox-ts erases it, so the
             // dependency is declared with `@Inject` instead.
-            public constructor(
-                @Inject("$primitive") private readonly primitive: unknown,
-            ) {
+            public constructor(@Inject('$primitive') private readonly primitive: unknown)
+            {
                 super();
             }
 
-            public getPrimitive(): unknown {
+            public getPrimitive(): unknown
+            {
                 return this.primitive;
             }
         }
 
-        class InterfaceToImplementationDeferredServiceProvider extends ServiceProvider {
-            public register(): void {
+        class InterfaceToImplementationDeferredServiceProvider extends ServiceProvider
+        {
+            public register(): void
+            {
                 this.app.bind(SampleInterface, SampleImplementation);
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return [SampleInterface];
             }
         }
 
-        class SampleImplementationDeferredServiceProvider extends ServiceProvider {
-            public register(): void {
+        class SampleImplementationDeferredServiceProvider extends ServiceProvider
+        {
+            public register(): void
+            {
                 this.app
                     .when(SampleImplementation)
-                    .needs("$primitive")
-                    .give(() => "foo");
+                    .needs('$primitive')
+                    .give(() => 'foo');
             }
 
-            public provides(): Array<Abstract> {
+            public provides(): Array<Abstract>
+            {
                 return [SampleImplementation];
             }
         }
 
-        class ConcreteTerminator {
+        class ConcreteTerminator
+        {
             public static counter = 0;
 
-            public terminate(): void {
+            public terminate(): void
+            {
                 ConcreteTerminator.counter += 1;
             }
         }
 
         function deferredServices(
             entries: Array<[Abstract, Constructor<ServiceProvider>]>,
-        ): OrderedMap<Abstract, Constructor<ServiceProvider>> {
-            const services = new OrderedMap<
-                Abstract,
-                Constructor<ServiceProvider>
-            >();
+        ): OrderedMap<Abstract, Constructor<ServiceProvider>>
+        {
+            const services = new OrderedMap<Abstract, Constructor<ServiceProvider>>();
 
             for (const [service, provider] of entries) {
                 services.set(service, provider);
@@ -223,10 +255,8 @@ export = (): void => {
             return services;
         }
 
-        function hasLoadedProvider(
-            app: Application,
-            ctor: Constructor<ServiceProvider>,
-        ): boolean {
+        function hasLoadedProvider(app: Application, ctor: Constructor<ServiceProvider>): boolean
+        {
             for (const [provider] of app.getLoadedProviders()) {
                 if (provider === ctor) {
                     return true;
@@ -236,16 +266,14 @@ export = (): void => {
             return false;
         }
 
-        it("register() runs the provider and marks it loaded", () => {
+        it('register() runs the provider and marks it loaded', () => {
             // PHP: FoundationApplicationTest::testServiceProvidersAreCorrectlyRegistered
             const app = new Application();
             const provider = new ApplicationBasicServiceProviderStub(app);
             app.register(provider);
 
             expect(provider.registerCalls).to.equal(1);
-            expect(
-                hasLoadedProvider(app, ApplicationBasicServiceProviderStub),
-            ).to.equal(true);
+            expect(hasLoadedProvider(app, ApplicationBasicServiceProviderStub)).to.equal(true);
         });
 
         it("register() binds classes declared on the provider's `bindings`", () => {
@@ -267,9 +295,7 @@ export = (): void => {
             const provider = new SingletonsProviderStub(app);
             app.register(provider);
 
-            expect(hasLoadedProvider(app, SingletonsProviderStub)).to.equal(
-                true,
-            );
+            expect(hasLoadedProvider(app, SingletonsProviderStub)).to.equal(true);
 
             const instance = app.make(AbstractClass);
             expect(instance instanceof ConcreteClass).to.equal(true);
@@ -282,7 +308,8 @@ export = (): void => {
 
         it("register()'s default `register()` is a no-op, and the provider still loads", () => {
             // PHP: FoundationApplicationTest::testServiceProvidersAreCorrectlyRegisteredWhenRegisterMethodIsNotFilled
-            class BareProviderStub extends ServiceProvider {}
+            class BareProviderStub extends ServiceProvider
+            {}
 
             const app = new Application();
             app.register(new BareProviderStub(app));
@@ -290,145 +317,150 @@ export = (): void => {
             expect(hasLoadedProvider(app, BareProviderStub)).to.equal(true);
         });
 
-        it("providerIsLoaded() answers per class", () => {
+        it('providerIsLoaded() answers per class', () => {
             // PHP: FoundationApplicationTest::testServiceProvidersCouldBeLoaded
             const app = new Application();
             app.register(new ApplicationBasicServiceProviderStub(app));
 
-            expect(
-                app.providerIsLoaded(ApplicationBasicServiceProviderStub),
-            ).to.equal(true);
+            expect(app.providerIsLoaded(ApplicationBasicServiceProviderStub)).to.equal(true);
             expect(app.providerIsLoaded(BindingsProviderStub)).to.equal(false);
         });
 
-        it("a deferred service is bound before its provider registers", () => {
+        it('a deferred service is bound before its provider registers', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesMarkedAsBound
             const app = new Application();
-            app.setDeferredServices(
-                deferredServices([
-                    ["foo", ApplicationDeferredServiceProviderStub],
-                ]),
-            );
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderStub,
+                ],
+            ]));
 
-            expect(app.bound("foo")).to.equal(true);
-            expect(app.make("foo")).to.equal("foo");
+            expect(app.bound('foo')).to.equal(true);
+            expect(app.make('foo')).to.equal('foo');
         });
 
-        it("a deferred singleton is shared once its provider registers", () => {
+        it('a deferred singleton is shared once its provider registers', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesAreSharedProperly
             const app = new Application();
-            app.setDeferredServices(
-                deferredServices([
-                    ["foo", ApplicationDeferredSharedServiceProviderStub],
-                ]),
-            );
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredSharedServiceProviderStub,
+                ],
+            ]));
 
-            expect(app.bound("foo")).to.equal(true);
+            expect(app.bound('foo')).to.equal(true);
 
-            const one = app.make("foo");
-            const two = app.make("foo");
+            const one = app.make('foo');
+            const two = app.make('foo');
             expect(one).to.equal(two);
         });
 
-        it("extend() reaches a deferred service once it resolves", () => {
+        it('extend() reaches a deferred service once it resolves', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesCanBeExtended
             const app = new Application();
-            app.setDeferredServices(
-                deferredServices([
-                    ["foo", ApplicationDeferredServiceProviderStub],
-                ]),
-            );
-            app.extend("foo", (instance: unknown) => `${instance}bar`);
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderStub,
+                ],
+            ]));
+            app.extend('foo', (instance: unknown) => `${instance}bar`);
 
-            expect(app.make("foo")).to.equal("foobar");
+            expect(app.make('foo')).to.equal('foobar');
         });
 
-        it("a deferred provider only registers once", () => {
+        it('a deferred provider only registers once', () => {
             // PHP: FoundationApplicationTest::testDeferredServiceProviderIsRegisteredOnlyOnce
             ApplicationDeferredServiceProviderCountStub.count = 0;
 
             const app = new Application();
-            app.setDeferredServices(
-                deferredServices([
-                    ["foo", ApplicationDeferredServiceProviderCountStub],
-                ]),
-            );
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderCountStub,
+                ],
+            ]));
 
-            const obj = app.make("foo");
-            expect(obj).to.equal(app.make("foo"));
-            expect(ApplicationDeferredServiceProviderCountStub.count).to.equal(
-                1,
-            );
+            const obj = app.make('foo');
+            expect(obj).to.equal(app.make('foo'));
+            expect(ApplicationDeferredServiceProviderCountStub.count).to.equal(1);
         });
 
-        it("an existing instance short-circuits the deferred provider", () => {
+        it('an existing instance short-circuits the deferred provider', () => {
             // PHP: FoundationApplicationTest::testDeferredServiceDontRunWhenInstanceSet
             const app = new Application();
-            app.setDeferredServices(
-                deferredServices([
-                    ["foo", ApplicationDeferredServiceProviderStub],
-                ]),
-            );
-            app.instance("foo", "bar");
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderStub,
+                ],
+            ]));
+            app.instance('foo', 'bar');
 
-            expect(app.make("foo")).to.equal("bar");
+            expect(app.make('foo')).to.equal('bar');
         });
 
-        it("a deferred provider is not registered until the service is actually resolved", () => {
+        it('a deferred provider is not registered until the service is actually resolved', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesAreLazilyInitialized
             ApplicationDeferredServiceProviderStub.initialized = false;
 
             const app = new Application();
-            app.setDeferredServices(
-                deferredServices([
-                    ["foo", ApplicationDeferredServiceProviderStub],
-                ]),
-            );
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationDeferredServiceProviderStub,
+                ],
+            ]));
 
-            expect(app.bound("foo")).to.equal(true);
-            expect(ApplicationDeferredServiceProviderStub.initialized).to.equal(
-                false,
-            );
+            expect(app.bound('foo')).to.equal(true);
+            expect(ApplicationDeferredServiceProviderStub.initialized).to.equal(false);
 
-            app.extend("foo", (instance: unknown) => `${instance}bar`);
-            expect(ApplicationDeferredServiceProviderStub.initialized).to.equal(
-                false,
-            );
+            app.extend('foo', (instance: unknown) => `${instance}bar`);
+            expect(ApplicationDeferredServiceProviderStub.initialized).to.equal(false);
 
-            expect(app.make("foo")).to.equal("foobar");
-            expect(ApplicationDeferredServiceProviderStub.initialized).to.equal(
-                true,
-            );
+            expect(app.make('foo')).to.equal('foobar');
+            expect(ApplicationDeferredServiceProviderStub.initialized).to.equal(true);
         });
 
-        it("a deferred provider may bind a factory instead of a singleton", () => {
+        it('a deferred provider may bind a factory instead of a singleton', () => {
             // PHP: FoundationApplicationTest::testDeferredServicesCanRegisterFactories
             const app = new Application();
-            app.setDeferredServices(
-                deferredServices([["foo", ApplicationFactoryProviderStub]]),
-            );
+            app.setDeferredServices(deferredServices([
+                [
+                    'foo',
+                    ApplicationFactoryProviderStub,
+                ],
+            ]));
 
-            expect(app.bound("foo")).to.equal(true);
-            expect(app.make("foo")).to.equal(1);
-            expect(app.make("foo")).to.equal(2);
-            expect(app.make("foo")).to.equal(3);
+            expect(app.bound('foo')).to.equal(true);
+            expect(app.make('foo')).to.equal(1);
+            expect(app.make('foo')).to.equal(2);
+            expect(app.make('foo')).to.equal(3);
         });
 
-        it("one provider may supply several deferred services", () => {
+        it('one provider may supply several deferred services', () => {
             // PHP: FoundationApplicationTest::testSingleProviderCanProvideMultipleDeferredServices
             const app = new Application();
             app.setDeferredServices(
                 deferredServices([
-                    ["foo", ApplicationMultiProviderStub],
-                    ["bar", ApplicationMultiProviderStub],
+                    [
+                        'foo',
+                        ApplicationMultiProviderStub,
+                    ],
+                    [
+                        'bar',
+                        ApplicationMultiProviderStub,
+                    ],
                 ]),
             );
 
-            expect(app.make("foo")).to.equal("foo");
-            expect(app.make("bar")).to.equal("foobar");
+            expect(app.make('foo')).to.equal('foo');
+            expect(app.make('bar')).to.equal('foobar');
         });
 
-        it("resolving through an interface loads the deferred provider that binds it", () => {
+        it('resolving through an interface loads the deferred provider that binds it', () => {
             // PHP: FoundationApplicationTest::testDeferredServiceIsLoadedWhenAccessingImplementationThroughInterface
             const app = new Application();
             app.setDeferredServices(
@@ -445,41 +477,47 @@ export = (): void => {
             );
 
             const instance = app.make<SampleInterface>(SampleInterface);
-            expect(instance.getPrimitive()).to.equal("foo");
+            expect(instance.getPrimitive()).to.equal('foo');
         });
 
-        it("environment() reads and matches the bound `env` value", () => {
+        it('environment() reads and matches the bound `env` value', () => {
             // PHP: FoundationApplicationTest::testEnvironment
             const app = new Application();
-            app.instance("env", "foo");
+            app.instance('env', 'foo');
 
-            expect(app.environment()).to.equal("foo");
+            expect(app.environment()).to.equal('foo');
 
-            expect(app.environment("foo")).to.equal(true);
-            expect(app.environment("f*")).to.equal(true);
-            expect(app.environment("foo", "bar")).to.equal(true);
-            expect(app.environment(["foo", "bar"])).to.equal(true);
+            expect(app.environment('foo')).to.equal(true);
+            expect(app.environment('f*')).to.equal(true);
+            expect(app.environment('foo', 'bar')).to.equal(true);
+            expect(app.environment([
+                'foo',
+                'bar',
+            ])).to.equal(true);
 
-            expect(app.environment("qux")).to.equal(false);
-            expect(app.environment("q*")).to.equal(false);
-            expect(app.environment("qux", "bar")).to.equal(false);
-            expect(app.environment(["qux", "bar"])).to.equal(false);
+            expect(app.environment('qux')).to.equal(false);
+            expect(app.environment('q*')).to.equal(false);
+            expect(app.environment('qux', 'bar')).to.equal(false);
+            expect(app.environment([
+                'qux',
+                'bar',
+            ])).to.equal(false);
         });
 
-        it("isLocal()/isProduction() read the `env` value (adapted -- see class comment)", () => {
+        it('isLocal()/isProduction() read the `env` value (adapted -- see class comment)', () => {
             // PHP: FoundationApplicationTest::testEnvironmentHelpers
             const localApp = new Application();
-            localApp.instance("env", "local");
+            localApp.instance('env', 'local');
             expect(localApp.isLocal()).to.equal(true);
             expect(localApp.isProduction()).to.equal(false);
 
             const production = new Application();
-            production.instance("env", "production");
+            production.instance('env', 'production');
             expect(production.isProduction()).to.equal(true);
             expect(production.isLocal()).to.equal(false);
         });
 
-        it("beforeBootstrapping() registers a `bootstrapping: <name>` listener", () => {
+        it('beforeBootstrapping() registers a `bootstrapping: <name>` listener', () => {
             // PHP: FoundationApplicationTest::testBeforeBootstrappingAddsClosure
             const app = new Application();
             const closure = (): void => {};
@@ -487,12 +525,10 @@ export = (): void => {
             app.beforeBootstrapping(RegisterFacades, closure);
 
             const name = `bootstrapping: ${Reflector.className(RegisterFacades)}`;
-            expect(
-                app.make<Dispatcher>("events").getListeners(name).size() > 0,
-            ).to.equal(true);
+            expect(app.make<Dispatcher>('events').getListeners(name).size() > 0).to.equal(true);
         });
 
-        it("afterBootstrapping() registers a `bootstrapped: <name>` listener", () => {
+        it('afterBootstrapping() registers a `bootstrapped: <name>` listener', () => {
             // PHP: FoundationApplicationTest::testAfterBootstrappingAddsClosure
             const app = new Application();
             const closure = (): void => {};
@@ -500,12 +536,10 @@ export = (): void => {
             app.afterBootstrapping(RegisterFacades, closure);
 
             const name = `bootstrapped: ${Reflector.className(RegisterFacades)}`;
-            expect(
-                app.make<Dispatcher>("events").getListeners(name).size() > 0,
-            ).to.equal(true);
+            expect(app.make<Dispatcher>('events').getListeners(name).size() > 0).to.equal(true);
         });
 
-        it("terminate() runs the terminating callbacks in order", () => {
+        it('terminate() runs the terminating callbacks in order', () => {
             // PHP: FoundationApplicationTest::testTerminationTests
             const app = new Application();
             const result = new Array<number>();
@@ -516,10 +550,14 @@ export = (): void => {
 
             app.terminate();
 
-            expectDeepEqual(result, [1, 2, 3]);
+            expectDeepEqual(result, [
+                1,
+                2,
+                3,
+            ]);
         });
 
-        it("terminating() accepts a [instance, method] callable", () => {
+        it('terminating() accepts a [instance, method] callable', () => {
             // PHP: FoundationApplicationTest::testTerminationCallbacksCanAcceptAtNotation
             //
             // PHP registers `ConcreteTerminator::class.'@terminate'`, a string
@@ -530,14 +568,17 @@ export = (): void => {
             ConcreteTerminator.counter = 0;
 
             const app = new Application();
-            app.terminating([new ConcreteTerminator(), "terminate"]);
+            app.terminating([
+                new ConcreteTerminator(),
+                'terminate',
+            ]);
 
             app.terminate();
 
             expect(ConcreteTerminator.counter).to.equal(1);
         });
 
-        it("boot() fires the booting callbacks once", () => {
+        it('boot() fires the booting callbacks once', () => {
             // PHP: FoundationApplicationTest::testBootingCallbacks
             const app = new Application();
             let counter = 0;
@@ -556,7 +597,7 @@ export = (): void => {
             expect(counter).to.equal(2);
         });
 
-        it("booted() fires immediately once already booted, otherwise on boot()", () => {
+        it('booted() fires immediately once already booted, otherwise on boot()', () => {
             // PHP: FoundationApplicationTest::testBootedCallbacks
             const app = new Application();
             let counter = 0;
@@ -577,21 +618,21 @@ export = (): void => {
             expect(counter).to.equal(4);
         });
 
-        it("registers the core container aliases this port supports (adapted -- see class comment)", () => {
+        it('registers the core container aliases this port supports (adapted -- see class comment)', () => {
             // PHP: FoundationApplicationTest::testCoreContainerAliasesAreRegisteredByDefault
             const app = new Application();
 
             expect(app.isAlias(ConfigRepository)).to.equal(true);
-            expect(app.getAlias(ConfigRepository)).to.equal("config");
+            expect(app.getAlias(ConfigRepository)).to.equal('config');
 
             expect(app.isAlias(Dispatcher)).to.equal(true);
-            expect(app.getAlias(Dispatcher)).to.equal("events");
+            expect(app.getAlias(Dispatcher)).to.equal('events');
 
             expect(app.isAlias(LogManager)).to.equal(true);
-            expect(app.getAlias(LogManager)).to.equal("log");
+            expect(app.getAlias(LogManager)).to.equal('log');
 
             expect(app.isAlias(QueueManager)).to.equal(true);
-            expect(app.getAlias(QueueManager)).to.equal("queue");
+            expect(app.getAlias(QueueManager)).to.equal('queue');
         });
     });
 };

@@ -1,0 +1,42 @@
+{
+    "lineWidth": 120,
+    "indentWidth": 4,
+    "typescript": {
+        "module.sortImportDeclarations": "maintain",
+        "module.sortExportDeclarations": "maintain",
+        "importDeclaration.sortNamedImports": "maintain",
+        "exportDeclaration.sortNamedExports": "maintain",
+        "quoteStyle": "preferSingle",
+        "semiColons": "always",
+        "trailingCommas": "onlyMultiLine",
+        "preferSingleLine": false,
+        "bracePosition": "nextLine",
+        "arrowFunction.bracePosition": "sameLine",
+        "classExpression.bracePosition": "sameLine",
+        "doWhileStatement.bracePosition": "sameLine",
+        "forStatement.bracePosition": "sameLine",
+        "forInStatement.bracePosition": "sameLine",
+        "forOfStatement.bracePosition": "sameLine",
+        "functionExpression.bracePosition": "sameLine",
+        "ifStatement.bracePosition": "sameLine",
+        "staticBlock.bracePosition": "sameLine",
+        "switchCase.bracePosition": "sameLine",
+        "switchStatement.bracePosition": "sameLine",
+        "tryStatement.bracePosition": "sameLine",
+        "whileStatement.bracePosition": "sameLine",
+        "nextControlFlowPosition": "sameLine"
+    },
+    "excludes": [
+        "**/node_modules",
+        "out/**",
+        "out-tests/**",
+        "include/**",
+        ".workbench/**",
+        ".upstream/**",
+        "reports/**",
+        "index.d.ts"
+    ],
+    "plugins": [
+        "npm:@dprint/typescript@0.96.1"
+    ]
+}

@@ -1,12 +1,12 @@
-import { Arr } from "Illuminate/Support/Arr";
-import { Collection } from "Illuminate/Support/Collection";
-import { Conditionable } from "Illuminate/Support/Traits/Conditionable";
-import { DeterminesStatusCode } from "Illuminate/Http/Client/Concerns/DeterminesStatusCode";
-import { RequestException } from "Illuminate/Http/Client/RequestException";
-import { data_get } from "Illuminate/Support/Helpers";
+import { Arr } from 'Illuminate/Support/Arr';
+import { Collection } from 'Illuminate/Support/Collection';
+import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
+import { DeterminesStatusCode } from 'Illuminate/Http/Client/Concerns/DeterminesStatusCode';
+import { RequestException } from 'Illuminate/Http/Client/RequestException';
+import { data_get } from 'Illuminate/Support/helpers';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- unused in the code, but declaration emit writes the specifier from this import; without it the `.d.ts` keeps the baseUrl path, which no consumer can resolve.
-import type { ConditionableShape } from "Illuminate/Support/Traits/Conditionable";
-import type { ResponseEnvelope } from "Illuminate/Http/Remote";
+import type { ConditionableShape } from 'Illuminate/Support/Traits/Conditionable';
+import type { ResponseEnvelope } from 'Illuminate/Http/Remote';
 
 /**
  * PHP: `Illuminate\Http\Client\Response`.
@@ -20,19 +20,23 @@ import type { ResponseEnvelope } from "Illuminate/Http/Remote";
  * `handlerStats()`, `close()`, the PSR conversions, `redirect()`, and the
  * `dump`/`dd` family.
  */
-export class Response extends DeterminesStatusCode(Conditionable()) {
+export class Response extends DeterminesStatusCode(Conditionable())
+{
     /** Create a new response instance. */
-    public constructor(protected readonly envelope: ResponseEnvelope) {
+    public constructor(protected readonly envelope: ResponseEnvelope)
+    {
         super();
     }
 
     /** Get the body of the response. */
-    public body(): unknown {
+    public body(): unknown
+    {
         return this.envelope.data;
     }
 
     /** Get the decoded body of the response. */
-    public json(key?: string, defaultValue?: unknown): unknown {
+    public json(key?: string, defaultValue?: unknown): unknown
+    {
         if (key === undefined) {
             return this.envelope.data;
         }
@@ -41,57 +45,64 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     }
 
     /** Get the JSON decoded body of the response as a collection. */
-    public collect(key?: string): Collection<defined, defined> {
+    public collect(key?: string): Collection<defined, defined>
+    {
         const value = this.json(key);
 
         if (Arr.accessible(value)) {
             return new Collection(value as Record<string, defined>);
         }
 
-        return new Collection(
-            value === undefined ? new Array<defined>() : [value as defined],
-        );
+        return new Collection(value === undefined ? new Array<defined>() : [value as defined]);
     }
 
     /** Get a header from the response. */
-    public header(header: string): string {
-        return this.envelope.headers?.[header] ?? "";
+    public header(header: string): string
+    {
+        return this.envelope.headers?.[header] ?? '';
     }
 
     /** Get the headers from the response. */
-    public headers(): Record<string, string> {
+    public headers(): Record<string, string>
+    {
         const headers = this.envelope.headers;
 
         return headers === undefined ? {} : table.clone(headers);
     }
 
     /** Get the status code of the response. */
-    public status(): number {
+    public status(): number
+    {
         return this.envelope.status;
     }
 
     /** Determine if the request was successful. */
-    public successful(): boolean {
+    public successful(): boolean
+    {
         return this.status() >= 200 && this.status() < 300;
     }
 
     /** Determine if the response indicates a client or server error occurred. */
-    public failed(): boolean {
+    public failed(): boolean
+    {
         return this.serverError() || this.clientError();
     }
 
     /** Determine if the response indicates a client error occurred. */
-    public clientError(): boolean {
+    public clientError(): boolean
+    {
         return this.status() >= 400 && this.status() < 500;
     }
 
     /** Determine if the response indicates a server error occurred. */
-    public serverError(): boolean {
+    public serverError(): boolean
+    {
         return this.status() >= 500;
     }
 
     /** Execute the given callback if there was a server or client error. */
-    public onError(callback: (response: this) => void): this {
+    public onError(callback: (response: this) => void): this
+    {
         if (this.failed()) {
             callback(this);
         }
@@ -100,14 +111,14 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     }
 
     /** Create an exception if a server or client error occurred. */
-    public toException(): RequestException | undefined {
+    public toException(): RequestException | undefined
+    {
         return this.failed() ? new RequestException(this) : undefined;
     }
 
     /** Throw an exception if a server or client error occurred. */
-    public throw(
-        callback?: (response: this, exception: RequestException) => void,
-    ): this {
+    public throw(callback?: (response: this, exception: RequestException) => void): this
+    {
         if (this.failed()) {
             const exception = new RequestException(this);
 
@@ -125,8 +136,9 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     public throwIf(
         condition: boolean | ((response: this) => boolean),
         callback?: (response: this, exception: RequestException) => void,
-    ): this {
-        const met: boolean = typeIs(condition, "function")
+    ): this
+    {
+        const met: boolean = typeIs(condition, 'function')
             ? (condition as (response: this) => boolean)(this)
             : condition;
 
@@ -134,14 +146,10 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     }
 
     /** Throw an exception if the response status code matches the given code. */
-    public throwIfStatus(
-        status: number | ((status: number, response: this) => boolean),
-    ): this {
-        const met: boolean = typeIs(status, "function")
-            ? (status as (status: number, response: this) => boolean)(
-                  this.status(),
-                  this,
-              )
+    public throwIfStatus(status: number | ((status: number, response: this) => boolean)): this
+    {
+        const met: boolean = typeIs(status, 'function')
+            ? (status as (status: number, response: this) => boolean)(this.status(), this)
             : this.status() === status;
 
         // PHP raises the exception here itself rather than going through
@@ -155,14 +163,10 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     }
 
     /** Throw an exception unless the response status code matches the given code. */
-    public throwUnlessStatus(
-        status: number | ((status: number, response: this) => boolean),
-    ): this {
-        const met: boolean = typeIs(status, "function")
-            ? (status as (status: number, response: this) => boolean)(
-                  this.status(),
-                  this,
-              )
+    public throwUnlessStatus(status: number | ((status: number, response: this) => boolean)): this
+    {
+        const met: boolean = typeIs(status, 'function')
+            ? (status as (status: number, response: this) => boolean)(this.status(), this)
             : this.status() === status;
 
         // Raised directly, for the same reason as in `throwIfStatus()`.
@@ -174,12 +178,14 @@ export class Response extends DeterminesStatusCode(Conditionable()) {
     }
 
     /** Throw an exception if the response status code is a 4xx level code. */
-    public throwIfClientError(): this {
+    public throwIfClientError(): this
+    {
         return this.clientError() ? this.throw() : this;
     }
 
     /** Throw an exception if the response status code is a 5xx level code. */
-    public throwIfServerError(): this {
+    public throwIfServerError(): this
+    {
         return this.serverError() ? this.throw() : this;
     }
 }

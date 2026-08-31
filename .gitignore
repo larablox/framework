@@ -15,3 +15,7 @@
 # luau-lsp analyze (generated, fetch via `npm run types:roblox`)
 /sourcemap.json
 /globalTypes.None.d.luau
+
+# parity tooling (`npm run parity`)
+/.upstream/vendor
+/reports

@@ -1,0 +1,67 @@
+{
+    "renames": {
+        "array_reverse": "Arr.reverse",
+        "array_pad": "Arr.pad",
+        "array_merge": "Arr.merge",
+        "explode": "Str.explode",
+        "call_user_func": "call",
+        "method_exists": "methodExists",
+        "is_callable": "isCallable",
+        "is_object": "isPipeInstance",
+        "null": "undefined"
+    },
+    "structural": [
+        {
+            "name": "underscore",
+            "rule": "A TS identifier `_x` spells PHP `x` when the name is reserved or collides (property beside method); the verifier strips the underscore before comparing."
+        },
+        {
+            "name": "elvis",
+            "rule": "`$value ?: $fallback` spells as `Util.elvis(value, fallback)` -- an operator became a call, so tokens realign around it."
+        },
+        {
+            "name": "truthiness",
+            "rule": "A bare `if ($value)` / `!empty()` spells as `Util.truthy(value)`."
+        },
+        {
+            "name": "isset",
+            "rule": "`isset($x[$k])` spells as an `=== undefined` test on the index (absence is `undefined` here)."
+        },
+        {
+            "name": "inject",
+            "rule": "A constructor type hint PHP reads by reflection spells as `@Inject(...)` on the parameter."
+        },
+        {
+            "name": "contract-token",
+            "rule": "An interface used as a container key spells as its `Contract<T>` token (`HubContract`, `ContainerContract`)."
+        },
+        {
+            "name": "self-parameter",
+            "rule": "A dynamic method call passes the target explicitly (`callMethod(target, name, ...)` / `handler(target, ...)`) -- the self PHP passes implicitly."
+        },
+        {
+            "name": "assoc-array",
+            "rule": "A PHP associative array whose iteration order is observable is an `OrderedMap`; one touched only by keyed get/set may be a plain `Record` literal."
+        },
+        {
+            "name": "casts",
+            "rule": "Type assertions (`as T`) carry types PHP never wrote; the verifier ignores them, and repeated identical casts at one site mean a compensation is missing."
+        },
+        {
+            "name": "nullable-default",
+            "rule": "A PHP = null parameter default spells as TS ? optionality -- absence is undefined here."
+        },
+        {
+            "name": "instanceof-closure",
+            "rule": "\\ instanceof Closure spells as \typeIs(x, 'function') -- a closure is a bare function value."
+        },
+        {
+            "name": "magic-members",
+            "rule": "PHP magic methods port as named members dispatched off one __index metamethod (HigherOrderWhenProxy). __get is a legal TS name as-is; roblox-ts reserves the actual Lua metamethod names (__call, __index, __tostring, ...) in class definitions, so those take the underscore convention one step further -- ___call -- and the comparator and verifier fold the leading underscore back to match the PHP twin."
+        }
+    ],
+    "markerDecorators": {
+        "DeferrableProvider": "DeferrableProvider",
+        "ShouldQueue": "ShouldQueue"
+    }
+}

@@ -1,9 +1,9 @@
-import { Container } from "Illuminate/Container/Container";
-import { Dispatcher } from "Illuminate/Bus/Dispatcher";
-import { PendingChain } from "Illuminate/Foundation/Bus/PendingChain";
-import { PendingDispatch } from "Illuminate/Foundation/Bus/PendingDispatch";
-import { Batchable } from "Illuminate/Bus/Batchable";
-import { Queueable } from "Illuminate/Bus/Queueable";
+import { Container } from 'Illuminate/Container/Container';
+import { Dispatcher } from 'Illuminate/Bus/Dispatcher';
+import { PendingChain } from 'Illuminate/Foundation/Bus/PendingChain';
+import { PendingDispatch } from 'Illuminate/Foundation/Bus/PendingDispatch';
+import { Batchable } from 'Illuminate/Bus/Batchable';
+import { Queueable } from 'Illuminate/Bus/Queueable';
 
 /**
  * The job class as its own statics see it.
@@ -13,9 +13,7 @@ import { Queueable } from "Illuminate/Bus/Queueable";
  * constructor of whichever subclass the static was called on, so the arguments
  * are checked against *that* constructor.
  */
-type JobClass<T extends Queueable, A extends Array<unknown>> = new (
-    ...args: A
-) => T;
+type JobClass<T extends Queueable, A extends Array<unknown>> = new(...args: A) => T;
 
 /**
  * PHP: `Illuminate\Foundation\Bus\Dispatchable`.
@@ -37,12 +35,14 @@ type JobClass<T extends Queueable, A extends Array<unknown>> = new (
  *
  * `dispatchAfterResponse()` is not ported: there is no response.
  */
-export abstract class Dispatchable extends Batchable {
+export abstract class Dispatchable extends Batchable
+{
     /** Dispatch the job with the given arguments. */
     public static dispatch<T extends Queueable, A extends Array<unknown>>(
         this: JobClass<T, A>,
         ...args: A
-    ): PendingDispatch {
+    ): PendingDispatch
+    {
         return new PendingDispatch(new this(...args));
     }
 
@@ -51,7 +51,8 @@ export abstract class Dispatchable extends Batchable {
         this: JobClass<T, A>,
         condition: boolean,
         ...args: A
-    ): PendingDispatch | undefined {
+    ): PendingDispatch | undefined
+    {
         return condition ? new PendingDispatch(new this(...args)) : undefined;
     }
 
@@ -60,7 +61,8 @@ export abstract class Dispatchable extends Batchable {
         this: JobClass<T, A>,
         condition: boolean,
         ...args: A
-    ): PendingDispatch | undefined {
+    ): PendingDispatch | undefined
+    {
         return condition ? undefined : new PendingDispatch(new this(...args));
     }
 
@@ -68,7 +70,8 @@ export abstract class Dispatchable extends Batchable {
     public static dispatchSync<T extends Queueable, A extends Array<unknown>>(
         this: JobClass<T, A>,
         ...args: A
-    ): unknown {
+    ): unknown
+    {
         return Container.getInstance()
             .make<Dispatcher>(Dispatcher)
             .dispatchSync(new this(...args));
@@ -78,7 +81,8 @@ export abstract class Dispatchable extends Batchable {
     public static withChain<T extends Queueable, A extends Array<unknown>>(
         this: JobClass<T, A>,
         chain: Array<object>,
-    ): PendingChain<T, A> {
+    ): PendingChain<T, A>
+    {
         return new PendingChain(this, chain);
     }
 }

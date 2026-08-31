@@ -1,13 +1,13 @@
-import { Container } from "Illuminate/Container/Container";
-import { Inject } from "Illuminate/Container/Attributes/Inject";
-import { InteractsWithQueue } from "Illuminate/Queue/InteractsWithQueue";
-import { Queueable } from "Illuminate/Bus/Queueable";
-import { Reflector } from "Illuminate/Support/Reflector";
-import { ShouldQueue } from "Illuminate/Contracts/Queue/ShouldQueue";
-import type { Abstract } from "Illuminate/Container/Types";
-import type { Container as ContainerContract } from "Illuminate/Contracts/Container/Container";
-import type { EventPayload } from "Illuminate/Contracts/Events/Dispatcher";
-import type { Job } from "Illuminate/Contracts/Queue/Job";
+import { Container } from 'Illuminate/Container/Container';
+import { Inject } from 'Illuminate/Container/Attributes/Inject';
+import { InteractsWithQueue } from 'Illuminate/Queue/InteractsWithQueue';
+import { Queueable } from 'Illuminate/Bus/Queueable';
+import { Reflector } from 'Illuminate/Support/Reflector';
+import { ShouldQueue } from 'Illuminate/Contracts/Queue/ShouldQueue';
+import type { Abstract } from 'Illuminate/Container/Types';
+import type { Container as ContainerContract } from 'Illuminate/Contracts/Container/Container';
+import type { EventPayload } from 'Illuminate/Contracts/Events/Dispatcher';
+import type { Job } from 'Illuminate/Contracts/Queue/Job';
 
 /**
  * PHP: `Illuminate\Events\CallQueuedListener`.
@@ -26,7 +26,8 @@ import type { Job } from "Illuminate/Contracts/Queue/Job";
  * left undone, not a wall.
  */
 @ShouldQueue()
-export class CallQueuedListener extends Queueable {
+export class CallQueuedListener extends Queueable
+{
     /** The number of times the job may be attempted. */
     public tries?: number;
 
@@ -53,34 +54,25 @@ export class CallQueuedListener extends Queueable {
         public readonly listenerClass: Abstract,
         public readonly method: string,
         public readonly data: EventPayload,
-    ) {
+    )
+    {
         super();
     }
 
     /** Handle the queued job. */
-    public handle(@Inject("app") container: ContainerContract): void {
-        const handler = this.setJobInstanceIfNecessary(
-            this.job,
-            container.make(this.listenerClass) as object,
-        );
+    public handle(@Inject('app') container: ContainerContract): void
+    {
+        const handler = this.setJobInstanceIfNecessary(this.job, container.make(this.listenerClass) as object);
 
         const callable = (handler as Record<string, unknown>)[this.method];
 
-        (callable as (self: object, ...args: Array<never>) => void)(
-            handler,
-            ...(this.data as Array<never>),
-        );
+        (callable as (self: object, ...args: Array<never>) => void)(handler, ...(this.data as Array<never>));
     }
 
     /** Set the job instance of the given class if necessary. */
-    protected setJobInstanceIfNecessary(
-        job: Job | undefined,
-        instance: object,
-    ): object {
-        if (
-            job !== undefined &&
-            Reflector.isInstanceOf(instance, InteractsWithQueue)
-        ) {
+    protected setJobInstanceIfNecessary(job: Job | undefined, instance: object): object
+    {
+        if (job !== undefined && Reflector.isInstanceOf(instance, InteractsWithQueue)) {
             (instance as InteractsWithQueue).setJob(job);
         }
 
@@ -88,17 +80,19 @@ export class CallQueuedListener extends Queueable {
     }
 
     /** Call the failed method on the job instance. */
-    public failed(e: unknown): void {
-        const handler = Container.getInstance().make(
-            this.listenerClass,
-        ) as Record<string, unknown>;
+    public failed(e: unknown): void
+    {
+        const handler = Container.getInstance().make(this.listenerClass) as Record<string, unknown>;
 
         const callable = handler.failed;
 
-        if (typeIs(callable, "function")) {
+        if (typeIs(callable, 'function')) {
             (callable as (self: object, ...args: Array<never>) => void)(
                 handler as unknown as object,
-                ...([...this.data, e] as Array<never>),
+                ...([
+                    ...this.data,
+                    e,
+                ] as Array<never>),
             );
         }
     }

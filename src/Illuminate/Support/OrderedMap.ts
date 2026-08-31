@@ -7,20 +7,24 @@
  * `pairs` has no defined order, so the ported code stores its "arrays" here
  * instead of in a plain `Map`.
  */
-export class OrderedMap<K extends defined, V extends defined> {
+export class OrderedMap<K extends defined, V extends defined>
+{
     private readonly entriesByKey = new Map<K, V>();
 
     private readonly insertionOrder = new Array<K>();
 
-    public has(key: K): boolean {
+    public has(key: K): boolean
+    {
         return this.entriesByKey.has(key);
     }
 
-    public get(key: K): V | undefined {
+    public get(key: K): V | undefined
+    {
         return this.entriesByKey.get(key);
     }
 
-    public set(key: K, value: V): void {
+    public set(key: K, value: V): void
+    {
         if (!this.entriesByKey.has(key)) {
             this.insertionOrder.push(key);
         }
@@ -28,7 +32,8 @@ export class OrderedMap<K extends defined, V extends defined> {
         this.entriesByKey.set(key, value);
     }
 
-    public delete(key: K): boolean {
+    public delete(key: K): boolean
+    {
         if (!this.entriesByKey.has(key)) {
             return false;
         }
@@ -44,25 +49,30 @@ export class OrderedMap<K extends defined, V extends defined> {
         return true;
     }
 
-    public size(): number {
+    public size(): number
+    {
         return this.insertionOrder.size();
     }
 
-    public isEmpty(): boolean {
+    public isEmpty(): boolean
+    {
         return this.insertionOrder.isEmpty();
     }
 
-    public clear(): void {
+    public clear(): void
+    {
         this.entriesByKey.clear();
         this.insertionOrder.clear();
     }
 
     /** A copy, so callers may mutate the map while walking the result. */
-    public keys(): Array<K> {
+    public keys(): Array<K>
+    {
         return table.clone(this.insertionOrder);
     }
 
-    public values(): Array<V> {
+    public values(): Array<V>
+    {
         const values = new Array<V>();
 
         for (const key of this.insertionOrder) {
@@ -78,7 +88,8 @@ export class OrderedMap<K extends defined, V extends defined> {
      * What PHP gets for free when an array is assigned or an object holding
      * one is cloned. Nothing here copies by value, so the copy is explicit.
      */
-    public clone(): OrderedMap<K, V> {
+    public clone(): OrderedMap<K, V>
+    {
         const copy = new OrderedMap<K, V>();
 
         for (const key of this.insertionOrder) {
@@ -88,11 +99,15 @@ export class OrderedMap<K extends defined, V extends defined> {
         return copy;
     }
 
-    public entries(): Array<[K, V]> {
+    public entries(): Array<[K, V]>
+    {
         const entries = new Array<[K, V]>();
 
         for (const key of this.insertionOrder) {
-            entries.push([key, this.entriesByKey.get(key) as V]);
+            entries.push([
+                key,
+                this.entriesByKey.get(key) as V,
+            ]);
         }
 
         return entries;

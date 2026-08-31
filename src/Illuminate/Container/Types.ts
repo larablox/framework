@@ -43,6 +43,9 @@ export type BeforeResolvingCallback = (
 /** PHP: the `\Closure` passed to `resolving()` and `afterResolving()`. */
 export type ResolvingCallback = (instance: never, container: Container) => void;
 
+/** PHP: the `\Closure` passed to `rebinding()`, fired as `(container, instance)`. */
+export type ReboundCallback = (container: Container, instance: never) => void;
+
 /** PHP: `callable|string $callback` accepted by `Container::call()`. */
 export type CallableTarget = Callback | [object | Abstract, string] | string;
 

@@ -34,7 +34,7 @@ export interface Container
     alias(abstract: Abstract, alias: Abstract): void;
 
     /** Assign a set of tags to a given binding. */
-    tag(abstracts: Abstract | Array<Abstract>, tags: string | Array<string>): void;
+    tag(abstracts: Abstract | Array<Abstract>, ...tags: Array<string | Array<string>>): void;
 
     /** Resolve all of the bindings for a given tag. */
     tagged(tag: string): RewindableGenerator;

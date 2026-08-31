@@ -58,12 +58,6 @@ import type { ParameterOverrides } from 'Illuminate/Container/Types';
  *   ever bound -- there is no "unbound → null" outcome to reproduce, the
  *   same limitation `ContainerCall.spec.ts`'s
  *   `testCallWithNullableClassParameterDefaultValue` note documents.
- * - `testItThrowsExceptionOnCircularAliasReference`,
- *   `testItThrowsExceptionOnIndirectCircularAliasReference`: both expect a
- *   circular `alias()` chain to throw. `Container::getAlias()` here
- *   (`Container.ts`) has no cycle guard -- it recurses on
- *   `this.aliases.get(abstract)` unconditionally -- so a circular chain
- *   would recurse without bound instead of throwing.
  * - `testMakeWithMethodIsAnAliasForMakeMethod`: builds a partial mock of
  *   `Container` and asserts `makeWith()` calls `make()` exactly once with
  *   the given arguments. No mocking library exists here (`CLAUDE.md`).
@@ -876,6 +870,25 @@ export = (): void => {
             const container = new Container();
 
             expectThrows(() => container.alias('name', 'name'), '[name] is aliased to itself.');
+        });
+
+        it('getAlias() throws on a circular alias reference', () => {
+            // PHP: ContainerTest::testItThrowsExceptionOnCircularAliasReference
+            const container = new Container();
+            container.alias('a', 'b');
+            container.alias('b', 'a');
+
+            expectThrows(() => container.getAlias('a'), 'Circular alias reference for [a].');
+        });
+
+        it('getAlias() throws on an indirect circular alias reference', () => {
+            // PHP: ContainerTest::testItThrowsExceptionOnIndirectCircularAliasReference
+            const container = new Container();
+            container.alias('a', 'b');
+            container.alias('b', 'c');
+            container.alias('c', 'a');
+
+            expectThrows(() => container.getAlias('a'), 'Circular alias reference for [a].');
         });
 
         it('factory() returns a closure that resolves the abstract on demand', () => {

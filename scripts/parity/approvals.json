@@ -95,6 +95,69 @@
         "note": "Mirrored. The full upstream body, proxy branches included: func_num_args() is the rest parameter's size() (a trailing explicit undefined is uncountable -- when(undefined) reads as when(), where PHP counts one; the file docblock records it), the named parameters destructure from the rest tuple, and the remaining residues are the standing conventions -- truthiness, instanceof-closure, nullable-default, _default under the underscore convention. The one-argument form passes Util.truthy(value) -- condition() takes the docblock bool, where PHP hands over the raw value.",
         "approved_at": "2026-08-28"
     },
+    "Container/BoundMethod.php#BoundMethod#call": {
+        "php_hash": "a6095386f1618150dd0ead36f6d536f81bf0b0b8",
+        "ts_hash": "f22e23f82edaef09f2025bf72318caae958cdce2",
+        "status": "decision",
+        "proposed_at": "2026-08-31",
+        "note": "DECISION: upstream's first branch promotes an invokable class (is_string + method_exists(callback, '__invoke')) to defaultMethod='__invoke'; the port omits it -- a string key here is never a class, and the class-table spelling of an invokable target has no settled encoding. Implement for class tables (isClass + a recorded __invoke member) or defer with this sketch?"
+    },
+    "Container/BoundMethod.php#BoundMethod#getMethodDependencies": {
+        "php_hash": "bcd7e7547ea977dbef49ddb8a0d0cc54341c918e",
+        "ts_hash": "056f43d0866bcd58ae8a9147ba407e3767036219",
+        "status": "rejected",
+        "proposed_at": "2026-08-31",
+        "note": "REJECTED: upstream's addDependencyForCallParameter fires fireAfterResolvingAttributeCallbacks for every pending dependency, override values included; the port continues past the fire for override-supplied values, so afterResolvingAttribute callbacks never see explicitly passed parameters. Also open: overrides are keyed by abstract/position (names are erased) and abstract-keyed leftovers are dropped where upstream appends array_values(parameters)."
+    },
+    "Container/BoundMethod.php#BoundMethod#normalizeMethod": {
+        "php_hash": "9ca3502d94af4bc9590f2623a3b70af929bee9d1",
+        "ts_hash": "9b272112593be9f357c6156211b1d262e6070098",
+        "status": "decision",
+        "proposed_at": "2026-08-31",
+        "note": "DECISION: PHP flattens the callable to a Class@method string key; the port keys by the (target, method) pair because a compiled class name carries no namespace and two same-named classes would collide on a string key. Keep the pair keying (with parseBindMethod/bindMethod/hasMethodBinding/callMethodBinding nesting one level), or accept the collision and mirror the string?"
+    },
+    "Container/Container.php#Container#buildSelfBuildingInstance": {
+        "php_hash": "ac6ac4a04afeebcaf127f3e2da15318822b1051f",
+        "ts_hash": "9bb283b351190c380d180e1af8d16e1de4b50aed",
+        "status": "rejected",
+        "proposed_at": "2026-08-31",
+        "note": "REJECTED: upstream fires fireAfterResolvingAttributeCallbacks(reflector attributes, instance) after newInstance and guards with method_exists throwing [No newInstance method exists for ...]; the port does neither -- class attributes on a SelfBuilding class never fire their after callbacks, and a missing newInstance surfaces as invoke's generic error instead of upstream's message."
+    },
+    "Container/Container.php#Container#getAlias": {
+        "php_hash": "c602e29bad977c8b9bb824175cb8151ae31b7079",
+        "ts_hash": "9e849e24063ff4e0754ded21bbeb34341dfde082",
+        "status": "rejected",
+        "proposed_at": "2026-08-31",
+        "note": "REJECTED: the port recurses with no seen-set, so a circular alias pair (alias(a,b); alias(b,a); getAlias(a)) overflows the stack instead of throwing upstream's LogicException [Circular alias reference]. Spell upstream's while loop with a seen map."
+    },
+    "Container/Container.php#Container#parseBindMethod": {
+        "php_hash": "788d087f1583802949b6092b021af168c7148d75",
+        "ts_hash": "e3b57a52eb6ab248498a07a77d8f39a0432c87bd",
+        "status": "decision",
+        "proposed_at": "2026-08-31",
+        "note": "DECISION: same question as BoundMethod#normalizeMethod -- upstream returns the Class@method string, the port returns the [target, method] pair and methodBindings nests target -> method. The string form of the argument is still split on @ for plain-string targets."
+    },
+    "Container/Container.php#Container#rebound": {
+        "php_hash": "27e0c5a10879d146c33fe6070f24f6663fda221c",
+        "ts_hash": "969936d07a80a970cf2184daee2f63d9c9c45df9",
+        "status": "rejected",
+        "proposed_at": "2026-08-31",
+        "note": "REJECTED: upstream fires rebound callbacks as callback(container, instance); the port fires callback(instance, container). A Laravel-shaped rebinding closure function(app, instance) receives the instance in the app slot. Fix: fire (this, instance), give rebinding its own ReboundCallback type, and pass refresh's closure both arguments as upstream does."
+    },
+    "Container/Container.php#Container#tag": {
+        "php_hash": "64fd25a3469d691981f354b0eaa179957e98ce19",
+        "ts_hash": "34446dec3adcd38148ac82246aa2bd83a10fc91f",
+        "status": "decision",
+        "proposed_at": "2026-08-31",
+        "note": "DECISION: upstream accepts tag(abstracts, ...tags) via func_get_args; the port signature takes only string | Array<string>, so tag(x, t1, t2) is unspellable. A rest parameter (...tags) mirrors it -- widen the signature (and the contract) or keep the narrow form?"
+    },
+    "Container/ContextualBindingBuilder.php#ContextualBindingBuilder#giveTagged": {
+        "php_hash": "603f7ab3cd9abd129af95f3d1ee677687abc1381",
+        "ts_hash": "af1562337669ef72030037b49b00d8d8b8f94dd2",
+        "status": "decision",
+        "proposed_at": "2026-08-31",
+        "note": "DECISION: upstream guards with is_array(taggedServices) before iterator_to_array because the contract types tagged() as iterable; the port's tagged() always returns RewindableGenerator, so the branch is dead by typing and the body collapsed to .toArray(). Keep the collapse, or restore the dead guard for the letter?"
+    },
     "Pipeline/Hub.php#Hub#__construct": {
         "php_hash": "d4b451163e908c97e7f8eb0da70770262fc37c1e",
         "ts_hash": "eeb15bae042ed94224a8ccd983cc71cc89c05fd4",

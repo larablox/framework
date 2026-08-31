@@ -1,3 +1,4 @@
+import { Arr } from 'Illuminate/Support/Arr';
 import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
 import { InvalidArgumentException } from 'Illuminate/Exception';
 import { Reflector } from 'Illuminate/Support/Reflector';
@@ -18,6 +19,15 @@ export class BoundMethod
         defaultMethod?: string,
     ): unknown
     {
+        // @deferred Upstream first promotes an invokable target to
+        // `$defaultMethod = '__invoke'`; a string key here is never a class, and
+        // the class-table spelling waits on an encoding for recorded `__invoke`
+        // members (tracked in scripts/parity/approvals.json).
+        //
+        // @example
+        // if (Util.isClass(callback) && defaultMethod === undefined && methodExists(callback, '__invoke')) {
+        //     defaultMethod = '__invoke';
+        // }
         if (BoundMethod.isCallableWithAtSign(callback) || defaultMethod !== undefined) {
             return BoundMethod.callClass(container, callback as string, parameters, defaultMethod);
         }
@@ -112,56 +122,49 @@ export class BoundMethod
         parameters: ParameterOverrides,
     ): Array<defined>
     {
-        const dependencies = new Array<defined>();
+        let dependencies = new Array<defined>();
         const consumed = new Set<Abstract | number>();
         const declared = BoundMethod.getCallDependencies(callback);
 
         for (let index = 0; index < declared.size(); index++) {
             const dependency = declared[index];
             const abstract = dependency.abstract;
+            let pendingDependencies = new Array<defined>();
 
             if (abstract !== undefined && parameters.has(abstract)) {
-                dependencies.push(parameters.get(abstract) as defined);
+                pendingDependencies.push(parameters.get(abstract) as defined);
+
                 consumed.add(abstract);
+            } else if (parameters.has(index + 1)) {
+                pendingDependencies.push(parameters.get(index + 1) as defined);
 
-                continue;
-            }
-
-            if (parameters.has(index + 1)) {
-                dependencies.push(parameters.get(index + 1) as defined);
                 consumed.add(index + 1);
+            } else {
+                const attribute = Util.getContextualAttributeFromDependency(dependency);
 
-                continue;
-            }
+                if (attribute !== undefined) {
+                    pendingDependencies.push(container.resolveFromAttribute(attribute) as defined);
+                } else if (abstract === undefined) {
+                    throw new BindingResolutionException(
+                        `Unresolvable dependency: parameter #${index + 1} declares no binding.`,
+                    );
+                } else if (dependency.variadic === true) {
+                    const variadicDependencies = container.make(abstract);
 
-            const attribute = Util.getContextualAttributeFromDependency(dependency);
-
-            const resolved = attribute !== undefined
-                ? container.resolveFromAttribute(attribute)
-                : abstract !== undefined
-                ? container.make(abstract)
-                : undefined;
-
-            if (resolved === undefined && abstract === undefined) {
-                throw new BindingResolutionException(
-                    `Unresolvable dependency: parameter #${index + 1} declares no binding.`,
-                );
-            }
-
-            container.fireAfterResolvingAttributeCallbacks(dependency.attributes, resolved);
-
-            // A variadic parameter contributes its elements, not the list --
-            // PHP: `array_merge($dependencies, is_array($v) ? $v : [$v])`,
-            // the same rule `Container.resolveDependencies()` follows.
-            if (dependency.variadic === true) {
-                for (const value of Util.arrayWrap(resolved as defined | Array<defined> | undefined)) {
-                    dependencies.push(value);
+                    pendingDependencies = Arr.merge(
+                        pendingDependencies,
+                        Util.arrayWrap(variadicDependencies as defined | Array<defined> | undefined),
+                    );
+                } else {
+                    pendingDependencies.push(container.make(abstract) as defined);
                 }
-
-                continue;
             }
 
-            dependencies.push(resolved as defined);
+            for (const pending of pendingDependencies) {
+                container.fireAfterResolvingAttributeCallbacks(dependency.attributes, pending);
+            }
+
+            dependencies = Arr.merge(dependencies, pendingDependencies);
         }
 
         const leftovers = new Array<[number, defined]>();
@@ -229,6 +232,6 @@ export class BoundMethod
     /** Determine if the given string is in Class@method syntax. */
     private static isCallableWithAtSign(callback: CallableTarget): boolean
     {
-        return typeIs(callback, 'string') && callback.find('@', 1, true)[0] !== undefined;
+        return typeIs(callback, 'string') && Str.contains(callback, '@');
     }
 }

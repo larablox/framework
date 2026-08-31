@@ -32,6 +32,19 @@ export class OrderedMap<K extends defined, V extends defined>
         this.entriesByKey.set(key, value);
     }
 
+    /** PHP's `$map[$key][] = $value`: append under the key, creating the list on first use. */
+    public push<T extends defined>(this: OrderedMap<K, Array<T>>, key: K, value: T): void
+    {
+        let values = this.get(key);
+
+        if (values === undefined) {
+            values = new Array<T>();
+            this.set(key, values);
+        }
+
+        values.push(value);
+    }
+
     public delete(key: K): boolean
     {
         if (!this.entriesByKey.has(key)) {

@@ -114,4 +114,35 @@ export class Util
     {
         return Util.truthy(value) ? (value as T) : fallback;
     }
+
+    /** PHP's `$map[$key][] = $value`: append under the key, creating the list on first use. */
+    public static pushInto<K extends defined, V extends defined>(map: Map<K, Array<V>>, key: K, value: V): void
+    {
+        let values = map.get(key);
+
+        if (values === undefined) {
+            values = new Array<V>();
+            map.set(key, values);
+        }
+
+        values.push(value);
+    }
+
+    /** PHP's `$map[$outer][$inner] = $value`: set in the nested map, creating it on first use. */
+    public static setInto<K extends defined, IK extends defined, IV extends defined>(
+        map: Map<K, Map<IK, IV>>,
+        outer: K,
+        inner: IK,
+        value: IV,
+    ): void
+    {
+        let entries = map.get(outer);
+
+        if (entries === undefined) {
+            entries = new Map<IK, IV>();
+            map.set(outer, entries);
+        }
+
+        entries.set(inner, value);
+    }
 }

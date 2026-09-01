@@ -156,6 +156,9 @@ export class Container implements ContainerContract
             || this.isAlias(abstract);
     }
 
+    /**
+     * @inheritDoc
+     */
     public has(id: Abstract): boolean
     {
         return this.bound(id);

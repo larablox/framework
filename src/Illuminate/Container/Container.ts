@@ -6,7 +6,7 @@ import { CircularDependencyException } from 'Illuminate/Contracts/Container/Circ
 import { BoundMethod } from 'Illuminate/Container/BoundMethod';
 import { ContextualBindingBuilder } from 'Illuminate/Container/ContextualBindingBuilder';
 import { EntryNotFoundException } from 'Illuminate/Container/EntryNotFoundException';
-import { Exception, LogicException } from 'Illuminate/Exception';
+import { Exception, LogicException, TypeError } from 'Illuminate/Exception';
 import { OrderedMap } from 'Illuminate/Support/OrderedMap';
 import { Reflector } from 'Illuminate/Support/Reflector';
 import { RewindableGenerator } from 'Illuminate/Container/RewindableGenerator';
@@ -151,7 +151,9 @@ export class Container implements ContainerContract
     /** Determine if the given abstract type has been bound. */
     public bound(abstract: Abstract): boolean
     {
-        return this.bindings.has(abstract) || this.instances.has(abstract) || this.isAlias(abstract);
+        return this.bindings.has(abstract)
+            || this.instances.has(abstract)
+            || this.isAlias(abstract);
     }
 
     public has(id: Abstract): boolean
@@ -249,6 +251,10 @@ export class Container implements ContainerContract
         // bound into this container to the abstract type and we will just wrap it
         // up inside its own Closure to give us more convenience when extending.
         if (!typeIs(concrete, 'function')) {
+            if (!typeIs(concrete, 'string') && !typeIs(concrete, 'table')) {
+                throw new TypeError('Container::bind(): Argument #2 ($concrete) must be of type Closure|string|null');
+            }
+
             concrete = this.getClosure(abstract, concrete);
         }
 

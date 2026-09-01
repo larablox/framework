@@ -272,10 +272,10 @@
     },
     "Container/Container.php#Container#bind": {
         "php_hash": "8798a019a4c6cefb85fb9a75ccbb2c53d446e1ff",
-        "ts_hash": "f78af750e11bce048bd2abf356cc4f3d0d0045e7",
+        "ts_hash": "dad58ea9b2561d95c76c0e44c1b7782ff785265c",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. Dismissals: the Closure-abstract overload rides on closureReturnTypes and is waived with bindBasedOnClosureReturnTypes (rbxtsc erases types); the TypeError guard on a non-Closure non-string concrete is the compile-time type of Concrete -- no runtime spelling owed; collection-ops for the bindings write."
+        "note": "Mirrored. Restored the TypeError guard on a non-Closure/non-string/non-table concrete, matching upstream's runtime check -- Concrete being statically typed at the TS boundary does not hold at the Luau runtime boundary, so the check is still owed. Dismissals: the Closure-abstract overload rides on closureReturnTypes and is waived with bindBasedOnClosureReturnTypes (rbxtsc erases types); collection-ops for the bindings write."
     },
     "Container/Container.php#Container#bindIf": {
         "php_hash": "a4195645adb39ff3318ca151b7d5f9bab12dd6c7",

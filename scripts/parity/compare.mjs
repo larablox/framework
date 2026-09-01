@@ -676,5 +676,6 @@ export const MEMBER_COLUMNS = [
     'ts_line',
     'php_hash',
     'ts_hash',
+    'mirror_fidelity',
     'note',
 ];

@@ -36,6 +36,7 @@ const reportsDir = join(root, 'reports', 'parity');
 const aliasesPath = join(scriptDir, 'aliases.json');
 const exclusionsPath = join(scriptDir, 'exclusions.json');
 const approvalsPath = join(scriptDir, 'approvals.json');
+const fidelityCachePath = join(reportsDir, 'fidelity-cache.json');
 
 function fail(message)
 {
@@ -155,6 +156,56 @@ function findTsMember(php, ts, aliases, key)
     const candidates = aliased !== undefined ? [aliased] : [normalized, `_${normalized}`];
     const member = tsDecl.members.find((m) => candidates.includes(m.name));
     return member ? { path: tsPath, decl: tsDecl, member } : null;
+}
+
+// Fills in each reviewable row's mirror_fidelity column: the same
+// (total - disagreeing) / total ratio --verify prints, from verifyMember's
+// normalized token diff. Cached by the hash pair already pinning the row's
+// review (identical bodies always verify identically), so a run.mjs
+// invocation that touches no source only pays the tokenizer cost once per
+// distinct body pair, ever -- relation rows (heritage/trait/interface) and
+// anything without a real body (empty php_line/ts_line) are left blank, not
+// zero, since there is no source span to diff.
+function computeMirrorFidelity(php, ts, aliases, conventions, rows)
+{
+    const eligible = rows.filter((row) =>
+        row.status === 'both' && row.php_hash !== '' && row.ts_hash !== ''
+        && row.php_line !== '' && row.ts_line !== ''
+    );
+    if (eligible.length === 0) return;
+
+    const cache = readJson(fidelityCachePath, {});
+    let cacheChanged = false;
+
+    for (const row of eligible) {
+        const cacheKey = `${row.php_hash}:${row.ts_hash}`;
+        let entry = cache[cacheKey];
+        if (!entry) {
+            const key = approvalKey(row.laravel_path, row.declaration, row.member, row.kind);
+            const phpFound = findPhpMember(php, key);
+            const tsFound = findTsMember(php, ts, aliases, key);
+            if (!phpFound?.member.lines || !tsFound?.member.lines) continue;
+            const phpFile = phpFound.member.file
+                ? join(vendorRoot, phpFound.member.file)
+                : join(upstreamSrc, phpFound.path);
+            const { disagreeing, total } = verifyMember({
+                scriptDir,
+                phpFile,
+                phpLines: phpFound.member.lines,
+                tsFile: join(portSrc, tsFound.path),
+                tsLines: tsFound.member.lines,
+                conventions,
+            });
+            entry = { disagreeing, total };
+            cache[cacheKey] = entry;
+            cacheChanged = true;
+        }
+        row.mirror_fidelity = String(
+            entry.total > 0 ? Math.round(((entry.total - entry.disagreeing) / entry.total) * 100) : 100,
+        );
+    }
+
+    if (cacheChanged) writeFileSync(fidelityCachePath, JSON.stringify(cache));
 }
 
 function printSlice(label, absolutePath, lines)
@@ -327,6 +378,7 @@ function main()
     }
 
     // ---- reports ----------------------------------------------------------
+    computeMirrorFidelity(php, ts, aliases, conventions, result.memberRows);
     writeFileSync(join(reportsDir, 'files.csv'), toCsv(result.fileRows, FILE_COLUMNS));
     writeFileSync(join(reportsDir, 'members.csv'), toCsv(result.memberRows, MEMBER_COLUMNS));
     const summary = summaryText(result.summary, upstreamVersion());
@@ -371,7 +423,9 @@ function main()
             console.log(`VERBATIM: token streams align (${total} tokens) -- 100% mirrored`);
         } else {
             const fidelity = total > 0 ? Math.round(((total - disagreeing) / total) * 100) : 100;
-            console.log(`RESIDUE: ${residue.length} run(s), ${disagreeing}/${total} tokens disagree -- ${fidelity}% mirrored`);
+            console.log(
+                `RESIDUE: ${residue.length} run(s), ${disagreeing}/${total} tokens disagree -- ${fidelity}% mirrored`,
+            );
             for (const run of residue) {
                 console.log(`  php: ${run.php.join(' ') || '(nothing)'}`);
                 console.log(`  ts : ${run.ts.join(' ') || '(nothing)'}`);

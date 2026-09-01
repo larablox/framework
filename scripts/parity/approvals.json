@@ -329,7 +329,7 @@
     },
     "Container/Container.php#Container#call": {
         "php_hash": "c1190e9a2324ecb35e36948e00e102321133fd6a",
-        "ts_hash": "0f8c352450e9277e8ae2a88abca8e4d91ff4f116",
+        "ts_hash": "3b3a8f13038aca89ddd35d01adc95409b5009e7a",
         "status": "pending",
         "proposed_at": "2026-08-31",
         "note": "Mirrored. hoisted-assignment for the className condition; parameter-overrides (normalizeParameters at the public edge); collection-ops (in_array/array_pop); getClassForCallable carries its own note on the closure-scope boundary."
@@ -741,17 +741,17 @@
     },
     "Container/Container.php#Container#make": {
         "php_hash": "da16175648724fec9febb33fad8fea06fc7aa817",
-        "ts_hash": "318a2cb4c7734f9509b6c712071c8a0f52278d87",
+        "ts_hash": "4156564f4dec2b7230d0525b3e7a2a66f7ac4916",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default; parameter-overrides (normalizeParameters at the public edge)."
+        "note": "Mirrored. Ported the empty-array default (= []) literally instead of a bare optional, closing the erased-default gap; parameter-overrides (normalizeParameters at the public edge)."
     },
     "Container/Container.php#Container#makeWith": {
         "php_hash": "d0eeec7fd61dc2c60cd28fd00b7dfe2df80e500a",
-        "ts_hash": "f4e651fd56f3c24038f153cab5fcb3a62c5cac08",
+        "ts_hash": "d877bb3ac2d1099a3479b257181f7674c0992e5a",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default."
+        "note": "Verbatim. Ported the empty-array default (= []) literally instead of a bare optional."
     },
     "Container/Container.php#Container#methodBindings@property": {
         "php_hash": "72b09fd41cf0e9e388817b343a2c187f27c2df62",

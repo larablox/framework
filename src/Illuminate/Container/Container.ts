@@ -562,7 +562,7 @@ export class Container implements ContainerContract
      * bindings apply; a closure's scope cannot be recovered here, so only array
      * callables contribute a class.
      */
-    public call(callback: CallableTarget, parameters?: ParameterList, defaultMethod?: string): unknown
+    public call(callback: CallableTarget, parameters: ParameterList = [], defaultMethod?: string): unknown
     {
         let pushedToBuildStack = false;
 
@@ -606,7 +606,7 @@ export class Container implements ContainerContract
     }
 
     /** An alias function name for make(). */
-    public makeWith(abstract: Abstract, parameters?: ParameterList): unknown
+    public makeWith(abstract: Abstract, parameters: ParameterList = []): unknown
     {
         return this.make(abstract, parameters);
     }
@@ -616,7 +616,7 @@ export class Container implements ContainerContract
     public make<T>(abstract: Contract<T>, parameters?: ParameterList): T;
     public make<T = unknown>(abstract: string, parameters?: ParameterList): T;
     public make(abstract: Abstract, parameters?: ParameterList): unknown;
-    public make(abstract: Abstract, parameters?: ParameterList): unknown
+    public make(abstract: Abstract, parameters: ParameterList = []): unknown
     {
         return this.resolve(abstract, this.normalizeParameters(parameters));
     }

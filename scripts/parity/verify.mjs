@@ -76,14 +76,20 @@ const PHP_DROPPED = new Set([
     'object',
 ]);
 
-// conventions.json's `nullable-default` rule: a PHP `= null` parameter
-// default spells as TS `?` optionality, which erases the default entirely on
-// compile (`concrete?: Concrete` emits a bare `concrete`, no initializer) --
-// so nothing on the TS side can ever line up with it. Only the member's own
-// signature counts (the first top-level paren group before its body), not a
-// same-shaped `= null` sitting in an ordinary statement further down, which
-// is a real assignment and stays a real diff if the TS side dropped it.
-function stripNullableDefaults(tokens)
+// Two more things `ts.transpileModule` erases completely, so nothing on the
+// TS side can ever line up with either: conventions.json's `nullable-default`
+// rule (a PHP `= null` parameter default spells as TS `?` optionality --
+// `concrete?: Concrete` emits a bare `concrete`, no initializer at all) and a
+// PHP return-type declaration (`: bool`, `: void`, `: static`, ...), which
+// TS erases the same way regardless of what the type is -- PHP_DROPPED only
+// covers the handful of primitive names, so a return type it does not list
+// (`void`, a class name, a union) would otherwise sit in the residue as a
+// phantom the port never had a chance to mirror. Both are scoped to the
+// member's own signature -- the first top-level paren group and whatever
+// sits between its close and the body's `{` -- not a same-shaped `= null`
+// sitting in an ordinary statement further down, which is a real assignment
+// and stays a real diff if the TS side dropped it.
+function stripSignatureNoise(tokens)
 {
     const openIndex = tokens.indexOf('(');
     if (openIndex === -1) return tokens;
@@ -100,12 +106,21 @@ function stripNullableDefaults(tokens)
         }
     }
     if (closeIndex === -1) return tokens;
+
+    // The return-type annotation, if any: the `:` right after the closing
+    // paren through to (not including) the body's `{`.
+    let bodyIndex = closeIndex + 1;
+    if (tokens[bodyIndex] === ':') {
+        while (bodyIndex < tokens.length && tokens[bodyIndex] !== '{') bodyIndex++;
+    }
+
     const out = [];
     for (let i = 0; i < tokens.length; i++) {
         if (i > openIndex && i < closeIndex && tokens[i] === '=' && tokens[i + 1] === 'null') {
             i++;
             continue;
         }
+        if (i > closeIndex && i < bodyIndex) continue;
         out.push(tokens[i]);
     }
     return out;
@@ -138,7 +153,7 @@ function canonicalizePhp(tokens)
     // A method declaration's `function` keyword; JS spells the name alone.
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
-    return stripNullableDefaults(out);
+    return stripSignatureNoise(out);
 }
 
 function canonicalizeTs(tokens, renames)

@@ -76,6 +76,41 @@ const PHP_DROPPED = new Set([
     'object',
 ]);
 
+// conventions.json's `nullable-default` rule: a PHP `= null` parameter
+// default spells as TS `?` optionality, which erases the default entirely on
+// compile (`concrete?: Concrete` emits a bare `concrete`, no initializer) --
+// so nothing on the TS side can ever line up with it. Only the member's own
+// signature counts (the first top-level paren group before its body), not a
+// same-shaped `= null` sitting in an ordinary statement further down, which
+// is a real assignment and stays a real diff if the TS side dropped it.
+function stripNullableDefaults(tokens)
+{
+    const openIndex = tokens.indexOf('(');
+    if (openIndex === -1) return tokens;
+    let depth = 0;
+    let closeIndex = -1;
+    for (let i = openIndex; i < tokens.length; i++) {
+        if (tokens[i] === '(') depth++;
+        else if (tokens[i] === ')') {
+            depth--;
+            if (depth === 0) {
+                closeIndex = i;
+                break;
+            }
+        }
+    }
+    if (closeIndex === -1) return tokens;
+    const out = [];
+    for (let i = 0; i < tokens.length; i++) {
+        if (i > openIndex && i < closeIndex && tokens[i] === '=' && tokens[i + 1] === 'null') {
+            i++;
+            continue;
+        }
+        out.push(tokens[i]);
+    }
+    return out;
+}
+
 function canonicalizePhp(tokens)
 {
     const out = [];
@@ -103,7 +138,7 @@ function canonicalizePhp(tokens)
     // A method declaration's `function` keyword; JS spells the name alone.
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
-    return out;
+    return stripNullableDefaults(out);
 }
 
 function canonicalizeTs(tokens, renames)

@@ -280,9 +280,10 @@
     "Container/Container.php#Container#bindIf": {
         "php_hash": "a4195645adb39ff3318ca151b7d5f9bab12dd6c7",
         "ts_hash": "48b5657640917bc63067a5a8dd2ae2004a862c1f",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default."
+        "note": "Mirrored. nullable-default.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#bindings@property": {
         "php_hash": "ab76fb1bf71511408614e23ae1cdf4a3a04966d3",
@@ -944,9 +945,10 @@
     "Container/Container.php#Container#scopedIf": {
         "php_hash": "587b5e06d08b5935e8d941c30d2b551546b991c1",
         "ts_hash": "159f1288f6d23cc401ddd5bcb96bfc810651553e",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default."
+        "note": "Mirrored. nullable-default.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#scopedInstances@property": {
         "php_hash": "5ee5c1e86973453ee53ea5bbe3ea36b6653b450f",
@@ -965,16 +967,18 @@
     "Container/Container.php#Container#singleton": {
         "php_hash": "368e4aa4838008658370a6931af5ed7b69c6efca",
         "ts_hash": "1168ff90d5679cb2b8beeb27403ea3aa59dd33c8",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default."
+        "note": "Mirrored. nullable-default.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#singletonIf": {
         "php_hash": "b20d0f3b9ca8bf6fdb6678fb6d50afc4ae5f62aa",
         "ts_hash": "482044ab69b99d1cc2f7b20bade457ec937de663",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default."
+        "note": "Mirrored. nullable-default.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#tag": {
         "php_hash": "64fd25a3469d691981f354b0eaa179957e98ce19",

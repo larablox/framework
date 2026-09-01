@@ -441,9 +441,10 @@
     "Container/Container.php#Container#factory": {
         "php_hash": "455b03220b97d15541fcfbe0d663f4e55463b135",
         "ts_hash": "5bc4733ea7e4e2e646ea052ecfafa39d8447b2b2",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim."
+        "note": "Verbatim.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#findInContextualBindings": {
         "php_hash": "bfe47a8a1c51eff195a57ee6543d2c346435b6be",
@@ -462,9 +463,10 @@
     "Container/Container.php#Container#fireAfterResolvingCallbacks": {
         "php_hash": "afc041cb20db9eebfcdf633fb7b893d4308d5048",
         "ts_hash": "d64a204fbf68942b7addc9bbdbc9777a010334a6",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim."
+        "note": "Verbatim.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#fireBeforeCallbackArray": {
         "php_hash": "8286a2f52b903bbb17fa446d99244074d750e609",
@@ -490,9 +492,10 @@
     "Container/Container.php#Container#fireResolvingCallbacks": {
         "php_hash": "898143f7fb4f1ff539dd09fbf051049cb34cf8e1",
         "ts_hash": "1702d0e4ed652eb32918f6681dfef3ed2e566957",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim."
+        "note": "Verbatim.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#flush": {
         "php_hash": "d38128c26b28c1211404802d2cc12db73e6edf8b",
@@ -679,16 +682,18 @@
     "Container/Container.php#Container#instance": {
         "php_hash": "5301334911db91a2d845285e3001f8aa8bebe441",
         "ts_hash": "a915e0238dba7d3cbe0c3b4476b711b22b92ea0c",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim."
+        "note": "Verbatim.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#instance@property": {
         "php_hash": "6b0041e57d811f70af05022421590596b40588a0",
         "ts_hash": "9b0db9268ca715880f2ba4c7aea62bde7269879a",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim. Underscore: static _instance beside instance()."
+        "note": "Verbatim. Underscore: static _instance beside instance().",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#instances@property": {
         "php_hash": "79a2bbb6c01e8536c9e4b63700610a7e5919c759",
@@ -889,9 +894,10 @@
     "Container/Container.php#Container#resolveEnvironmentUsing": {
         "php_hash": "96f14992556b8998c6f464835da9af946d38ae35",
         "ts_hash": "410ebcd0cc1439fa5509ced99b8d1a3f8aacd807",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim."
+        "note": "Verbatim.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#resolveFromAttribute": {
         "php_hash": "68c820cce080b715d743f1d43d11fc002ad213d3",

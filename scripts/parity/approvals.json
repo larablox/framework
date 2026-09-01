@@ -662,9 +662,10 @@
     "Container/Container.php#Container#has": {
         "php_hash": "6179c61e045a9e710d53b08b425c94ddf6e1d96e",
         "ts_hash": "a074781efcb384d7a8dca53e49bea162f7d7d2f4",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim. Only the PHP return-type annotation drops."
+        "note": "Verbatim. Only the PHP return-type annotation drops.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#hasMethodBinding": {
         "php_hash": "6e8248b33c501829699cf18d27ba4a4336a2c748",
@@ -776,16 +777,18 @@
     "Container/Container.php#Container#offsetExists": {
         "php_hash": "512620bbf4443fea0633624b1fe70a8644e7e4b6",
         "ts_hash": "ec85c26c189071afab4de9d67da6148fea7f22e3",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim."
+        "note": "Verbatim.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#offsetGet": {
         "php_hash": "9fa57da3312c4c98436a3d0970dc81d62e31780b",
         "ts_hash": "904afa023ba3956e553c8847a75ea08aa4f75175",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim."
+        "note": "Verbatim.",
+        "approved_at": "2026-09-01"
     },
     "Container/Container.php#Container#offsetSet": {
         "php_hash": "98c0730e98a9dba454b92c95209d4dddf2e68dfb",

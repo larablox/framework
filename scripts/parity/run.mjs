@@ -368,9 +368,10 @@ function main()
             conventions,
         });
         if (residue.length === 0) {
-            console.log(`VERBATIM: token streams align (${total} tokens)`);
+            console.log(`VERBATIM: token streams align (${total} tokens) -- 100% mirrored`);
         } else {
-            console.log(`RESIDUE: ${residue.length} run(s), ${disagreeing}/${total} tokens disagree`);
+            const fidelity = total > 0 ? Math.round(((total - disagreeing) / total) * 100) : 100;
+            console.log(`RESIDUE: ${residue.length} run(s), ${disagreeing}/${total} tokens disagree -- ${fidelity}% mirrored`);
             for (const run of residue) {
                 console.log(`  php: ${run.php.join(' ') || '(nothing)'}`);
                 console.log(`  ts : ${run.ts.join(' ') || '(nothing)'}`);

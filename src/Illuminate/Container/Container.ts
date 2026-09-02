@@ -826,13 +826,7 @@ export class Container implements ContainerContract
     /** Find the concrete binding for the given abstract in the contextual binding array. */
     protected findInContextualBindings(abstract: Abstract): ContextualImplementation | undefined
     {
-        const context = this.buildStack[this.buildStack.size() - 1];
-
-        if (context === undefined) {
-            return undefined;
-        }
-
-        return this.contextual.get(context)?.get(abstract);
+        return this.contextual.get(this.buildStack[this.buildStack.size() - 1])?.get(abstract);
     }
 
     /** Determine if the given concrete is buildable. */

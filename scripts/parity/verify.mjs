@@ -442,6 +442,14 @@ function canonicalizePhp(tokens)
             out.push('else', 'if');
             continue;
         }
+        // `expr ?? null` is mathematically redundant -- the fallback for a
+        // null/unset left side is null either way -- so it is safe to drop
+        // unconditionally, wherever it appears, unlike a fallback to any
+        // other value.
+        if (token === '??' && tokens[index + 1] === 'null') {
+            index++;
+            continue;
+        }
         // instanceof-closure: `$x instanceof Closure` spells as
         // `typeIs(x, 'function')` -- a closure is a bare function value.
         // 'Closure' has already been caught by PHP_DROPPED everywhere it is

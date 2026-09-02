@@ -469,10 +469,10 @@
     },
     "Container/Container.php#Container#findInContextualBindings": {
         "php_hash": "bfe47a8a1c51eff195a57ee6543d2c346435b6be",
-        "ts_hash": "ed9f9fd51208c31880de6bb4a3d0c186f52752b1",
+        "ts_hash": "f93c67edbdccbe32ce63b93d0d57ea499e17fb23",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops (end() -> [size()-1], hoisted); the ?? null collapses into the guarded get chain."
+        "note": "Mirrored. collection-ops (end() -> [size()-1]), now inline in one expression matching upstream's own single return -- confirmed safe: a Luau table read with a nil key returns nil (never errors), the same graceful short-circuit `??` gets on a missing PHP array key, so `this.buildStack[this.buildStack.size() - 1]` needs no separate undefined-guard before `.get()`. The trailing ?? null is dropped (mathematically redundant, verify.mjs strips it unconditionally now)."
     },
     "Container/Container.php#Container#fireAfterResolvingAttributeCallbacks": {
         "php_hash": "202a11c8f2a88bb205c9e41b5c5f1692a1c306ae",

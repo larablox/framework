@@ -126,6 +126,135 @@ function stripSignatureNoise(tokens)
     return out;
 }
 
+// collection-ops: `unset -> .delete()`. PHP's unset() takes any number of
+// comma-separated targets in one call; the port has no such form and spells
+// each target as its own `.delete()` statement. Splits the (bracket-depth
+// aware) comma list and rewrites each `RECEIVER [ KEY ]` group into
+// `RECEIVER . delete ( KEY )`, matching the shape TS already reads in.
+// Bails out untouched (rather than guess) on anything that does not look
+// like a plain `X[Y]` target, so a real divergence there still shows.
+function expandUnset(tokens)
+{
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if (tokens[i] === 'unset' && tokens[i + 1] === '(') {
+            const openIndex = i + 1;
+            let depth = 0;
+            let closeIndex = -1;
+            for (let j = openIndex; j < tokens.length; j++) {
+                if (tokens[j] === '(') depth++;
+                else if (tokens[j] === ')') {
+                    depth--;
+                    if (depth === 0) {
+                        closeIndex = j;
+                        break;
+                    }
+                }
+            }
+            if (closeIndex !== -1) {
+                const inner = tokens.slice(openIndex + 1, closeIndex);
+                const groups = [];
+                let current = [];
+                let innerDepth = 0;
+                for (const t of inner) {
+                    if (t === ',' && innerDepth === 0) {
+                        groups.push(current);
+                        current = [];
+                        continue;
+                    }
+                    if (t === '(' || t === '[') innerDepth++;
+                    else if (t === ')' || t === ']') innerDepth--;
+                    current.push(t);
+                }
+                if (current.length > 0) groups.push(current);
+
+                const rewritten = [];
+                let ok = groups.length > 0;
+                for (const group of groups) {
+                    if (!ok || group[group.length - 1] !== ']') {
+                        ok = false;
+                        break;
+                    }
+                    let bracketDepth = 0;
+                    let openBracket = -1;
+                    for (let k = group.length - 1; k >= 0; k--) {
+                        if (group[k] === ']') bracketDepth++;
+                        else if (group[k] === '[') {
+                            bracketDepth--;
+                            if (bracketDepth === 0) {
+                                openBracket = k;
+                                break;
+                            }
+                        }
+                    }
+                    if (openBracket <= 0) {
+                        ok = false;
+                        break;
+                    }
+                    const receiver = group.slice(0, openBracket);
+                    const key = group.slice(openBracket + 1, group.length - 1);
+                    rewritten.push(...receiver, '.', 'delete', '(', ...key, ')');
+                }
+                if (ok) {
+                    out.push(...rewritten);
+                    i = closeIndex + 1;
+                    continue;
+                }
+            }
+        }
+        out.push(tokens[i]);
+        i++;
+    }
+    return out;
+}
+
+// collection-ops: `end()/array_last() -> [size() - 1]`. Both PHP builtins
+// return the last element of a list; the port has no such call and indexes
+// the receiver directly, which duplicates the receiver's own tokens (once
+// to index into, once inside `.size()`). Only the bare form folds --
+// `array_last($x) ?: null` / `end($x)` alone -- a ternary or `??` wrapped
+// around one (getLastParameterOverride's `count($x) ? array_last($x) : []`)
+// reshapes the whole expression, not just this call, and is left as the
+// real residue it is.
+function foldArrayLast(tokens)
+{
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if ((tokens[i] === 'array_last' || tokens[i] === 'end') && tokens[i + 1] === '(') {
+            const openIndex = i + 1;
+            let depth = 0;
+            let closeIndex = -1;
+            for (let j = openIndex; j < tokens.length; j++) {
+                if (tokens[j] === '(') depth++;
+                else if (tokens[j] === ')') {
+                    depth--;
+                    if (depth === 0) {
+                        closeIndex = j;
+                        break;
+                    }
+                }
+            }
+            if (closeIndex !== -1) {
+                const expr = tokens.slice(openIndex + 1, closeIndex);
+                out.push(...expr, '[', ...expr, '.', 'size', '(', ')', '-', '1', ']');
+                i = closeIndex + 1;
+                // PHP's own null-safety on a possibly-empty list, redundant
+                // once indexing already returns undefined for one. The `?`
+                // half of `?:` is already gone by the time this runs --
+                // PHP_DROPPED strips it too, doubling as the `?Type`
+                // nullable-hint marker.
+                if (tokens[i] === ':' && tokens[i + 1] === 'null') i += 2;
+                continue;
+            }
+        }
+        out.push(tokens[i]);
+        i++;
+    }
+    return out;
+}
+
 // `foreach ($list as $item)` and `for (const item of list)` hold the same
 // tokens in reversed order -- PHP names the collection first, TS/Luau name
 // the loop variable first, since there is no `foreach` there. Only the
@@ -205,7 +334,7 @@ function canonicalizePhp(tokens)
     // A method declaration's `function` keyword; JS spells the name alone.
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
-    return stripPropertyNullDefault(reorderForeach(stripSignatureNoise(out)));
+    return stripPropertyNullDefault(foldArrayLast(expandUnset(reorderForeach(stripSignatureNoise(out)))));
 }
 
 // The same erased-default problem stripSignatureNoise handles for a method
@@ -253,6 +382,17 @@ function canonicalizeTs(tokens, renames)
             && tokens[index + 3] === ')'
         ) {
             out.push('[', ']');
+            index += 3;
+            continue;
+        }
+        // collection-ops, last clause: "a reset to [] spells .clear()" --
+        // PHP's `$this->aliases = [];` re-assigns the property to a fresh
+        // empty array; the port calls .clear() on the existing collection
+        // instead of replacing it. Same receiver either way, so folding the
+        // suffix down to `= [ ]` lines the two up without touching whatever
+        // (however long) dotted path names the receiver.
+        if (token === '.' && tokens[index + 1] === 'clear' && tokens[index + 2] === '(' && tokens[index + 3] === ')') {
+            out.push('=', '[', ']');
             index += 3;
             continue;
         }

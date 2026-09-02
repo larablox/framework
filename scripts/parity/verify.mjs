@@ -51,7 +51,12 @@ function canonicalString(token)
     return 'str:' + body
         .replaceAll('${', '{')
         .replaceAll('{$', '{')
-        .replaceAll('$', '');
+        .replaceAll('$', '')
+        // class-name-in-message: an Abstract interpolated into a message
+        // spells as `Reflector.className(x)` -- a bare table would
+        // interpolate as an address -- so the port always wraps it where
+        // PHP just names the variable.
+        .replace(/Reflector\.className\(([^)]*)\)/g, '$1');
 }
 
 // PHP-side noise with no JS counterpart: visibility (verified by its own CSV
@@ -382,6 +387,41 @@ const EMPTY_COLLECTION_CTORS = new Set([
     'OrderedMap',
 ]);
 
+// Splits a call's arguments at `openIndex` (pointing at `(`) into top-level
+// comma-separated token groups. Returns null on an unmatched paren.
+function matchCallArgs(tokens, openIndex)
+{
+    let depth = 0;
+    let closeIndex = -1;
+    for (let j = openIndex; j < tokens.length; j++) {
+        if (tokens[j] === '(') depth++;
+        else if (tokens[j] === ')') {
+            depth--;
+            if (depth === 0) {
+                closeIndex = j;
+                break;
+            }
+        }
+    }
+    if (closeIndex === -1) return null;
+    const inner = tokens.slice(openIndex + 1, closeIndex);
+    const args = [];
+    let current = [];
+    let innerDepth = 0;
+    for (const t of inner) {
+        if (t === ',' && innerDepth === 0) {
+            args.push(current);
+            current = [];
+            continue;
+        }
+        if (t === '(' || t === '[' || t === '{') innerDepth++;
+        else if (t === ')' || t === ']' || t === '}') innerDepth--;
+        current.push(t);
+    }
+    if (current.length > 0 || args.length > 0) args.push(current);
+    return { closeIndex, args };
+}
+
 function canonicalizeTs(tokens, renames)
 {
     const tsToCanon = new Map();
@@ -414,6 +454,70 @@ function canonicalizeTs(tokens, renames)
             out.push('=', '[', ']');
             index += 3;
             continue;
+        }
+        // collection-ops: a keyed read (`.get(k)`) spells `[ k ]` -- same
+        // receiver-stays-put reasoning as `.set`/`.push` below.
+        if (token === '.' && tokens[index + 1] === 'get' && tokens[index + 2] === '(') {
+            const matched = matchCallArgs(tokens, index + 2);
+            if (matched && matched.args.length === 1) {
+                out.push('[', ...matched.args[0], ']');
+                index = matched.closeIndex;
+                continue;
+            }
+        }
+        // collection-ops: a keyed write (`.set(k, v)`) spells `[ k ] = v`;
+        // `.push` reads two ways depending on arity -- one argument is a
+        // plain list append (`$x[] = v`), two is OrderedMap's own keyed
+        // push (`$x[k][] = v`, the same target shape autovivification
+        // reaches for below). The receiver needs no capturing here: it
+        // already sits in `out` from earlier iterations, in the same
+        // position PHP's own receiver-first `$x[k] = v` puts it.
+        if (
+            token === '.' && (tokens[index + 1] === 'set' || tokens[index + 1] === 'push') && tokens[index + 2] === '('
+        ) {
+            const matched = matchCallArgs(tokens, index + 2);
+            if (matched) {
+                const { closeIndex, args } = matched;
+                if (tokens[index + 1] === 'set' && args.length === 2) {
+                    out.push('[', ...args[0], ']', '=', ...args[1]);
+                    index = closeIndex;
+                    continue;
+                }
+                if (tokens[index + 1] === 'push' && args.length === 1) {
+                    out.push('[', ']', '=', ...args[0]);
+                    index = closeIndex;
+                    continue;
+                }
+                if (tokens[index + 1] === 'push' && args.length === 2) {
+                    out.push('[', ...args[0], ']', '[', ']', '=', ...args[1]);
+                    index = closeIndex;
+                    continue;
+                }
+            }
+        }
+        // autovivification: `Util.pushInto(x, k, v)` is PHP's
+        // `$x[$k][] = $v`; `Util.setInto(x, k1, k2, v)` is `$x[$k1][$k2] =
+        // $v`. Unlike `.set`/`.push` above, the receiver is the call's own
+        // first argument, not a preceding token, so it has to be relocated
+        // to the front of the rewrite.
+        if (
+            token === 'Util' && (tokens[index + 1] === '.')
+            && (tokens[index + 2] === 'pushInto' || tokens[index + 2] === 'setInto') && tokens[index + 3] === '('
+        ) {
+            const matched = matchCallArgs(tokens, index + 3);
+            if (matched) {
+                const { closeIndex, args } = matched;
+                if (tokens[index + 2] === 'pushInto' && args.length === 3) {
+                    out.push(...args[0], '[', ...args[1], ']', '[', ']', '=', ...args[2]);
+                    index = closeIndex;
+                    continue;
+                }
+                if (tokens[index + 2] === 'setInto' && args.length === 4) {
+                    out.push(...args[0], '[', ...args[1], ']', '[', ...args[2], ']', '=', ...args[3]);
+                    index = closeIndex;
+                    continue;
+                }
+            }
         }
         // `A.b` may canonicalize as one dotted name (Arr.reverse -> array_reverse).
         const dotted = `${token}.${tokens[index + 2] ?? ''}`;

@@ -1050,10 +1050,10 @@
     },
     "Container/Container.php#Container#unresolvablePrimitive": {
         "php_hash": "6f730100d9e3eb87ed232e7323f47179ea560b54",
-        "ts_hash": "6a85d72434de7dd25144eb1707e725b579caa8d1",
+        "ts_hash": "89ecf6a2733e96854ebc2d7925dc966643de35c9",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. class-name-in-message. The in-class half of the message drops: a ParameterDependency records no declaring class (reflection-registry)."
+        "note": "Restored the 'in class X' clause the message used to drop: currentlyResolving() reads the declaring class off the build stack's top entry instead of ParameterDependency (which still carries none) -- only ever reached while build() is resolving that class's own constructor parameters, since a Closure concrete returns before dependencies are ever resolved, so the stack top is always the right class. class-name-in-message for both interpolations."
     },
     "Container/Container.php#Container#when": {
         "php_hash": "952a76a98b8c3fa8e7c41611cb4f86005b12c335",

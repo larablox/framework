@@ -155,6 +155,14 @@ export = (): void => {
             {}
         }
 
+        class UnresolvablePrimitiveStub
+        {
+            public constructor(
+                @Inject('$missing') public readonly missing: unknown,
+            )
+            {}
+        }
+
         class ContainerNestedDependentStub
         {
             public constructor(
@@ -859,6 +867,32 @@ export = (): void => {
 
             const [found] = message.find('does not exist', 1, true);
             expect(found).never.to.equal(undefined);
+        });
+
+        it('an unresolvable primitive names both the parameter and its declaring class', () => {
+            // Not a ported PHP test -- regression coverage for a review
+            // finding: unresolvablePrimitive() (Container.ts) used to drop
+            // upstream's "in class {$parameter->getDeclaringClass()->getName()}"
+            // clause entirely. this.currentlyResolving() stands in for it
+            // (the build stack's top entry is always the class currently
+            // being built, at the point this can fire).
+            const container = new Container();
+            let message = '';
+
+            try {
+                container.make(UnresolvablePrimitiveStub);
+            } catch (e) {
+                if (e instanceof BindingResolutionException) {
+                    message = e.getMessage();
+                } else {
+                    throw e;
+                }
+            }
+
+            const [foundParameter] = message.find('Unresolvable dependency resolving', 1, true);
+            expect(foundParameter).never.to.equal(undefined);
+            const [foundClass] = message.find('UnresolvablePrimitiveStub', 1, true);
+            expect(foundClass).never.to.equal(undefined);
         });
 
         it('forgetInstance() forgets a single instance', () => {

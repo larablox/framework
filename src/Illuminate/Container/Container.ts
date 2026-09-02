@@ -1179,7 +1179,18 @@ export class Container implements ContainerContract
     /** Throw an exception for an unresolvable primitive. */
     protected unresolvablePrimitive(parameter: Abstract): never
     {
-        throw new BindingResolutionException(`Unresolvable dependency resolving [${Reflector.className(parameter)}].`);
+        // Only ever reached while build() is resolving a class's own
+        // constructor parameters (a Closure concrete returns early, before
+        // dependencies are ever resolved), so the build stack's top entry
+        // is always that class -- PHP reaches the same by reflecting the
+        // parameter's own declaring class instead.
+        const declaringClass = this.currentlyResolving() as Abstract;
+
+        throw new BindingResolutionException(
+            `Unresolvable dependency resolving [${Reflector.className(parameter)}] in class ${
+                Reflector.className(declaringClass)
+            }`,
+        );
     }
 
     /** Register a new before resolving callback for all types. */

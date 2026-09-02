@@ -20,7 +20,7 @@
 | SPL-исключения PHP (`LogicException`, `InvalidArgumentException`, `RuntimeException`, `TypeError`) | `Illuminate/Exception.ts` | глобального `Error` в Luau нет; здесь же `ItemNotFoundException` и `MultipleItemsFoundException` |
 | `Illuminate\Contracts\Foundation\Application` | `Contracts/Foundation/Application.ts` | |
 | `Illuminate\Contracts\Support\DeferrableProvider` | `Contracts/Support/DeferrableProvider.ts` | интерфейс стёрт: декоратор-маркер (как `ShouldQueue`), при загрузке требует собственный `provides()` |
-| `Illuminate\Container\Attributes\{Singleton,Scoped,Bind}` | `Container/Attributes/*.ts` | декораторы + реестр |
+| `Illuminate\Container\Attributes\{Singleton,Scoped,Bind,BindWhen}` | `Container/Attributes/*.ts` | декораторы + реестр |
 | `Illuminate\Container\Attributes\{Give,Config,Tag,Log,Context}` | `Container/Attributes/*.ts` | контекстные атрибуты параметров |
 | `Illuminate\Contracts\Container\ContextualAttribute` | `Contracts/Container/ContextualAttribute.ts` | хуки на экземпляре вместо статики |
 | `Illuminate\Contracts\Container\*` | `Contracts/Container/*.ts` | |

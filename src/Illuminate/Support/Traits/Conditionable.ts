@@ -9,7 +9,13 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
     return class extends Base
     {
         public when(): PendingHigherOrderWhenProxy<this>;
+        public when(value: (instance: this) => unknown): ResolvedHigherOrderWhenProxy<this>;
         public when(value: unknown): ResolvedHigherOrderWhenProxy<this>;
+        public when(
+            value: (instance: this) => unknown,
+            callback: (instance: this, value: unknown) => unknown,
+            _default?: (instance: this, value: unknown) => unknown,
+        ): unknown;
         public when(
             value: unknown,
             callback: (instance: this, value: unknown) => unknown,
@@ -41,7 +47,13 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
         }
 
         public unless(): PendingHigherOrderWhenProxy<this>;
+        public unless(value: (instance: this) => unknown): ResolvedHigherOrderWhenProxy<this>;
         public unless(value: unknown): ResolvedHigherOrderWhenProxy<this>;
+        public unless(
+            value: (instance: this) => unknown,
+            callback: (instance: this, value: unknown) => unknown,
+            _default?: (instance: this, value: unknown) => unknown,
+        ): unknown;
         public unless(
             value: unknown,
             callback: (instance: this, value: unknown) => unknown,

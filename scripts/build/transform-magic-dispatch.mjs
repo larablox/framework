@@ -3,18 +3,44 @@
 // src/Illuminate/Support/MagicDispatch.ts) into an explicit __get/___call
 // call, before rbxtsc ever sees the source. rbxtsc has no
 // customTransformers/plugins hook, so this runs as its own pass, writing a
-// shadow copy of src/ that tsconfig.magic-dispatch.json points rbxtsc at --
-// every file is copied through, transformed or not, so the shadow tree
-// always mirrors src/ exactly and imports resolve the same way in both.
+// shadow copy that tsconfig.magic-dispatch.json/tsconfig.tests.json point
+// rbxtsc at instead -- every file is copied through, transformed or not, so
+// the shadow tree always mirrors the real one and imports resolve the same
+// way in both.
+//
+// src/ and tests/ get their own separate shadow trees, not one merged tree:
+// a test-only support file (tests/globals.ts, declaring the ambient
+// describe/it/expect globals) has to stay out of the package build, and
+// once it's physically sitting in the same directory as the real src/
+// files there's no way to exclude "everything that came from tests/"
+// without matching by name, which doesn't generalize. tsconfig.tests.json
+// uses `rootDirs` to still resolve `import ... from "Illuminate/Support/..."`
+// in a spec file against src/'s shadow tree -- the same virtual-merge
+// TypeScript feature this project's old (deleted) test setup used, per its
+// own since-removed comment: "src and tests are merged into one virtual
+// directory instead of [...]".
 import ts from 'typescript';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
 const projectRoot = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
-const srcRoot = path.join(projectRoot, 'src');
-const outRoot = path.join(projectRoot, '.magic-dispatch');
 const MARKER_PROPERTY = '__magicDispatch';
+
+// Both shadow trees nest under one shared parent (rather than sitting as
+// siblings of the project root) so tsconfig.tests.json's `rootDir` -- needed
+// for rbxtsc to compute out-tests/'s layout -- can be that shared parent
+// without also covering (and trying to copy as assets) the rest of the repo.
+const shadowRoot = path.join(projectRoot, '.magic-dispatch');
+const roots = [
+    { real: path.join(projectRoot, 'src'), shadow: path.join(shadowRoot, 'src') },
+    { real: path.join(projectRoot, 'tests'), shadow: path.join(shadowRoot, 'tests') },
+].filter((root) => fs.existsSync(root.real));
+
+function rootFor(fileName)
+{
+    return roots.find((root) => fileName.startsWith(root.real + path.sep));
+}
 
 function loadProgram()
 {
@@ -22,7 +48,13 @@ function loadProgram()
     const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
     const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, projectRoot);
 
-    return ts.createProgram({ rootNames: parsed.fileNames, options: parsed.options });
+    // tsconfig.json's own `include` only covers src/**/*.ts -- tests/ isn't
+    // a real compiler entry point (there is no tsconfig for it that rbxtsc
+    // itself runs), so its files are found and added by hand here.
+    const testsRoot = path.join(projectRoot, 'tests');
+    const testFiles = fs.existsSync(testsRoot) ? ts.sys.readDirectory(testsRoot, ['.ts']) : [];
+
+    return ts.createProgram({ rootNames: [...parsed.fileNames, ...testFiles], options: parsed.options });
 }
 
 function isMagicDispatchType(checker, type)
@@ -148,9 +180,9 @@ function run()
     const program = loadProgram();
 
     // Surface the developer's own type errors against the real source
-    // before rewriting anything -- a diagnostic pointing at the shadow
-    // tree instead of src/ would be useless.
-    const diagnostics = ts.getPreEmitDiagnostics(program).filter((d) => d.file?.fileName.startsWith(srcRoot));
+    // before rewriting anything -- a diagnostic pointing at a shadow tree
+    // instead of src/tests would be useless.
+    const diagnostics = ts.getPreEmitDiagnostics(program).filter((d) => d.file && rootFor(d.file.fileName));
     if (diagnostics.length > 0) {
         const formatted = ts.formatDiagnosticsWithColorAndContext(diagnostics, {
             getCurrentDirectory: () => projectRoot,
@@ -165,40 +197,41 @@ function run()
     const checker = program.getTypeChecker();
     let totalEdits = 0;
     let fileCount = 0;
-    const expectedRelativePaths = new Set();
+    const expectedRelativePathsByShadow = new Map(roots.map((root) => [root.shadow, new Set()]));
 
-    // No wholesale fs.rmSync(outRoot) up front: rbxtsc -w watches this same
-    // directory concurrently in `npm run watch`, and a delete-then-rewrite
-    // pass leaves a window where it sees the tree emptied but not yet
+    // No wholesale fs.rmSync(outRoot) up front: rbxtsc -w watches these same
+    // directories concurrently in `npm run watch`, and a delete-then-rewrite
+    // pass leaves a window where it sees a tree emptied but not yet
     // refilled, mid-run -- caught this once as a bogus "MacroManager could
     // not find symbol for Promise" error. Writing files in place (only
-    // touching ones whose content actually changed) means the tree is
-    // never observably incomplete; stale files get swept after.
+    // touching ones whose content actually changed) means a tree is never
+    // observably incomplete; stale files get swept after.
     for (const sourceFile of program.getSourceFiles()) {
         if (sourceFile.isDeclarationFile) continue;
-        if (!sourceFile.fileName.startsWith(srcRoot + path.sep)) continue;
+        const root = rootFor(sourceFile.fileName);
+        if (!root) continue;
 
         const { text, editCount } = transformSourceFile(checker, sourceFile);
         totalEdits += editCount;
         fileCount++;
 
-        const relative = path.relative(srcRoot, sourceFile.fileName);
-        expectedRelativePaths.add(relative);
+        const relative = path.relative(root.real, sourceFile.fileName);
+        expectedRelativePathsByShadow.get(root.shadow).add(relative);
 
-        const outPath = path.join(outRoot, relative);
+        const outPath = path.join(root.shadow, relative);
         if (!fs.existsSync(outPath) || fs.readFileSync(outPath, 'utf8') !== text) {
             fs.mkdirSync(path.dirname(outPath), { recursive: true });
             fs.writeFileSync(outPath, text);
         }
     }
 
-    removeStaleFiles(outRoot, expectedRelativePaths);
+    for (const [shadow, expected] of expectedRelativePathsByShadow) removeStaleFiles(shadow, expected);
 
     console.log(`transform-magic-dispatch: ${fileCount} file(s), ${totalEdits} magic-dispatch access site(s) rewritten.`);
 }
 
-// Deletes anything under outRoot that doesn't correspond to a current src/
-// file -- handles a source file being renamed or removed between runs.
+// Deletes anything under a shadow tree that doesn't correspond to a current
+// source file -- handles a source file being renamed or removed between runs.
 function removeStaleFiles(dir, expectedRelativePaths, base = dir)
 {
     if (!fs.existsSync(dir)) return;
@@ -219,28 +252,30 @@ function removeStaleFiles(dir, expectedRelativePaths, base = dir)
 
 if (process.argv.includes('--watch')) {
     // Not the built-in fs.watch({recursive: true}): confirmed empirically
-    // that it reliably catches the *first* change under src/ and then goes
-    // silent on Linux, no error, no further events. ts.sys.watchDirectory is
-    // the same watch abstraction rbxtsc's own -w mode is built on -- already
-    // proven reliable for repeated changes in this same setup.
+    // that it reliably catches the *first* change under a watched directory
+    // and then goes silent on Linux, no error, no further events.
+    // ts.sys.watchDirectory is the same watch abstraction rbxtsc's own -w
+    // mode is built on -- already proven reliable for repeated changes in
+    // this same setup.
     //
     // Registered before the first run(), not after: run() rebuilds a whole
     // ts.Program (not instant), and a change landing in that window would
     // otherwise never reach a listener that isn't attached yet.
     let debounce;
-    ts.sys.watchDirectory(srcRoot, (filename) => {
+    const onChange = (filename) => {
         if (!filename.endsWith('.ts')) return;
         // A single save reliably fires more than one watch event; without
         // this, that was three overlapping run()s -- of a function that
         // mkdirs/writes files -- racing each other.
         clearTimeout(debounce);
         debounce = setTimeout(() => {
-            console.log(`transform-magic-dispatch: ${path.relative(srcRoot, filename)} changed, re-running...`);
+            console.log(`transform-magic-dispatch: ${filename} changed, re-running...`);
             run();
         }, 100);
-    }, /* recursive */ true);
+    };
+    for (const root of roots) ts.sys.watchDirectory(root.real, onChange, /* recursive */ true);
     run();
-    console.log('transform-magic-dispatch: watching src/ for changes.');
+    console.log(`transform-magic-dispatch: watching ${roots.map((r) => path.relative(projectRoot, r.real)).join(', ')} for changes.`);
 } else {
     run();
 }

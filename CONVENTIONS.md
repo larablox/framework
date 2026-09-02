@@ -53,3 +53,33 @@ unnecessary, not just an alternative -- `when()`/`unless()` return a plain
 `.isAdmin` on it route to the real methods directly. Reach for it any time a
 `MagicDispatch<T>`-typed value needs the same, whether or not a runtime
 check happens to be available -- it's simpler either way.
+
+## Testing under Lune
+
+`rbxtsc`'s compiled output always resolves other modules the Roblox way --
+`TS.import(script, ancestor, ...segments)`, itself built on `local TS =
+_G[script]` and, transitively, on `require(instance)`. That is correct for
+`out/` (a real Roblox DataModel gives every script a `script` global, and
+Roblox's own `require` accepts an Instance) and unusable for `npm test`:
+Lune has no `script` global, and its `require` rejects an Instance outright
+(confirmed empirically -- `bad argument #1 to 'require' (string expected,
+got userdata)`). There is no `rbxtsc` flag for a different import style;
+Roblox-shaped output is the only kind it produces.
+
+Two things patch around that gap, both Lune-only -- `out/` is never touched
+by either:
+
+- `@rbxts/testez`'s own runtime has the identical problem one level down
+  (`require(script.Parent.X)` inside the library itself), so the pieces
+  this project needs are vendored into `scripts/lune/testez/` with just
+  those `require` calls rewritten to plain relative paths -- see that
+  directory's own README for exactly what changed and why.
+- `scripts/lune/patch-requires.mjs` runs after `rbxtsc` (`npm run
+  test:build`) and rewrites every `TS.import(...)` call under `out-tests/`
+  into the equivalent `require("...")`, computed from `test.project.json`'s
+  own mount points (`Illuminate` -> `out-tests/src/Illuminate`,
+  `IlluminateTests` -> `out-tests/tests/Illuminate`). `scripts/lune/
+  RunTests.luau` then discovers specs by walking `out-tests/` on disk and
+  feeds them to `TestPlanner.createPlan()` directly -- not TestEZ's own
+  `TestBootstrap:run()`, which (like the library internals above) expects
+  to scan a real Instance tree.

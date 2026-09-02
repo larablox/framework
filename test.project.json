@@ -1,0 +1,25 @@
+{
+	"name": "larablox/framework (tests)",
+	"globIgnorePaths": [
+		"**/package.json",
+		"**/tsconfig.json"
+	],
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"node_modules": {
+				"$className": "Folder",
+				"@rbxts": {
+					"$path": "node_modules/@rbxts"
+				}
+			},
+			"Illuminate": {
+				"$path": "out-tests/src/Illuminate"
+			},
+			"IlluminateTests": {
+				"$path": "out-tests/tests/Illuminate"
+			}
+		}
+	}
+}

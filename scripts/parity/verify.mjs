@@ -280,6 +280,35 @@ function foldArrayLast(tokens)
     return out;
 }
 
+// `is_null(x)` spells as `x === null` (undefined, canonicalized back to
+// `null` by the renames table); `! is_null(x)` as `x !== null` -- a prefix
+// `!` turns into a different operator entirely, not a wrapped negation, so
+// it has to be consumed here rather than left for the general token stream
+// to line up on its own. Bails out untouched when the argument itself holds
+// a bare `=` (hoisted-assignment-in-condition, e.g.
+// `is_null($binding = $this->find(...))`): that construct is its own
+// unmechanized structural rule, reviewed case by case, never folded blindly.
+function foldIsNull(tokens)
+{
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if (tokens[i] === 'is_null' && tokens[i + 1] === '(') {
+            const matched = matchCallArgs(tokens, i + 1);
+            if (matched && matched.args.length === 1 && !matched.args[0].includes('=')) {
+                const negated = out[out.length - 1] === '!';
+                if (negated) out.pop();
+                out.push(...matched.args[0], negated ? '!==' : '===', 'null');
+                i = matched.closeIndex + 1;
+                continue;
+            }
+        }
+        out.push(tokens[i]);
+        i++;
+    }
+    return out;
+}
+
 // `foreach ($list as $item)` and `for (const item of list)` hold the same
 // tokens in reversed order -- PHP names the collection first, TS/Luau name
 // the loop variable first, since there is no `foreach` there. Only the
@@ -354,12 +383,28 @@ function canonicalizePhp(tokens)
             out.push('else', 'if');
             continue;
         }
+        // instanceof-closure: `$x instanceof Closure` spells as
+        // `typeIs(x, 'function')` -- a closure is a bare function value.
+        // 'Closure' has already been caught by PHP_DROPPED everywhere it is
+        // just a type hint, so it must be intercepted here, one token early,
+        // while it still marks this specific construct. Only the single-
+        // token receiver every occurrence in this file actually has (a bare
+        // `$var`, never a dotted expression) is handled; anything else is
+        // left alone rather than guessed at.
+        if (token === 'instanceof' && tokens[index + 1] === 'Closure' && out.length > 0) {
+            const receiver = out.pop();
+            out.push('typeIs', '(', receiver, ',', 'str:function', ')');
+            index++;
+            continue;
+        }
         out.push(token);
     }
     // A method declaration's `function` keyword; JS spells the name alone.
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
-    return stripPropertyNullDefault(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out))))));
+    return stripPropertyNullDefault(
+        foldIsNull(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out)))))),
+    );
 }
 
 // The same erased-default problem stripSignatureNoise handles for a method

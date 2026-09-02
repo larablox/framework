@@ -477,7 +477,16 @@ function canonicalizeTs(tokens, renames)
     const out = [];
     for (let index = 0; index < tokens.length; index++) {
         let token = tokens[index];
-        if (token === ';') continue;
+        // PHP has no local-variable-declaration keyword at all -- the first
+        // assignment doubles as the declaration -- so a statement-level
+        // `const`/`let` never has anything on the PHP side to line up with.
+        // Not inside a `for (...)` header, though: reorderForeach's own PHP
+        // output inserts the literal token `const` to match
+        // `for (const x of list)`, and a C-style `for (let i = 0; ...)` has
+        // no PHP counterpart shape to strip toward either -- both are
+        // recognized by the `(` that always precedes a for-header's own
+        // declaration, never a statement's.
+        if (token === ';' || ((token === 'const' || token === 'let') && tokens[index - 1] !== '(')) continue;
         if (isStringToken(token)) {
             out.push(canonicalString(token));
             continue;

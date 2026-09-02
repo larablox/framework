@@ -1,6 +1,7 @@
 import { Arr } from 'Illuminate/Support/Arr';
 import { Attributes } from 'Illuminate/Container/Attributes/Attributes';
 import { Bind } from 'Illuminate/Container/Attributes/Bind';
+import { BindWhen } from 'Illuminate/Container/Attributes/BindWhen';
 import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
 import { CircularDependencyException } from 'Illuminate/Contracts/Container/CircularDependencyException';
 import { BoundMethod } from 'Illuminate/Container/BoundMethod';
@@ -721,18 +722,14 @@ export class Container implements ContainerContract
             return binding.concrete;
         }
 
-        if (
-            this.environmentResolver === undefined
-            || this.checkedForAttributeBindings.get(abstract) === true
-            || !Util.isClass(abstract)
-        ) {
+        if (this.checkedForAttributeBindings.get(abstract) === true || !Util.isClass(abstract)) {
             return abstract;
         }
 
         return this.getConcreteBindingFromAttributes(abstract);
     }
 
-    /** Get the concrete binding for an abstract from the Bind attribute. */
+    /** Get the concrete binding for an abstract from the BindWhen or Bind attributes. */
     protected getConcreteBindingFromAttributes(abstract: Abstract): Concrete
     {
         this.checkedForAttributeBindings.set(abstract, true);
@@ -740,6 +737,13 @@ export class Container implements ContainerContract
         const concrete = this.resolveConcreteFromAttributes(abstract);
 
         if (concrete === undefined) {
+            if (
+                Attributes.has(abstract, BindWhen)
+                || (this.environmentResolver === undefined && Attributes.has(abstract, Bind))
+            ) {
+                this.checkedForAttributeBindings.delete(abstract);
+            }
+
             return abstract;
         }
 
@@ -756,12 +760,28 @@ export class Container implements ContainerContract
         return (this.bindings.get(abstract) as Binding).concrete;
     }
 
-    /** Resolve the concrete from the Bind attributes in declaration order. */
+    /** Resolve the concrete from the Bind and BindWhen attributes in declaration order. */
     protected resolveConcreteFromAttributes(abstract: Abstract): Concrete | undefined
     {
         let wildcard: Concrete | undefined;
 
-        for (const attribute of Attributes.get<Bind>(abstract, Bind)) {
+        for (const [factory, instance] of Attributes.all(abstract)) {
+            if (factory === BindWhen) {
+                const attribute = instance as unknown as BindWhen;
+
+                if (attribute.condition(this)) {
+                    return attribute.concrete;
+                }
+
+                continue;
+            }
+
+            if (factory !== Bind || this.environmentResolver === undefined) {
+                continue;
+            }
+
+            const attribute = instance as unknown as Bind;
+
             if (attribute.environments.size() === 1 && attribute.environments[0] === '*') {
                 wildcard ??= attribute.concrete;
 

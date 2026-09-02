@@ -577,17 +577,17 @@
     },
     "Container/Container.php#Container#getConcrete": {
         "php_hash": "bd93757efb5c2eb253a66280a94720bbb93d5bf1",
-        "ts_hash": "10c2dd2ed37a7d94e054949a1f886563812d1c8c",
+        "ts_hash": "05110736052b2b97e1c81583b0c55e48c04b046b",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops; reflection-registry. Dismissal: the environmentResolver === undefined short-circuit is upstream's null-resolver outcome computed up front -- with no resolver upstream's walk binds nothing and uncaches, and BindWhen (the other uncache client) does not exist here, so never caching is the same observable behavior."
+        "note": "Mirrored. collection-ops; reflection-registry. The environmentResolver === undefined short-circuit is gone now that BindWhen is ported -- BindWhen has no resolver gate of its own, so skipping the whole attribute walk without one would have started silently ignoring it."
     },
     "Container/Container.php#Container#getConcreteBindingFromAttributes": {
         "php_hash": "93f14002638c8d02f79f8abd4036e41791376f4b",
-        "ts_hash": "df6d90f80cd0921905b6a8f1809a069c7ab81ce1",
+        "ts_hash": "4c45036a4f963d4ea84941cc34392933e286ac60",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored after the review split restored upstream's two methods. Dismissals: new ReflectionClass + catch spell as the registry read (nothing to throw); match -> if/else chain; the null-concrete uncache branch serves BindWhen and the null-resolver case, both unreachable here."
+        "note": "Mirrored after the review split restored upstream's two methods. Dismissals: new ReflectionClass + catch spell as the registry read (nothing to throw); match -> if/else chain. The null-concrete uncache branch is restored now that BindWhen is ported: Attributes.has(abstract, BindWhen) || (environmentResolver === undefined && Attributes.has(abstract, Bind)) mirrors the two conditions PHP checks before unsetting checkedForAttributeBindings."
     },
     "Container/Container.php#Container#getContextualConcrete": {
         "php_hash": "de627e1ffdd1c981d89f591105b47eb2448e905b",
@@ -855,10 +855,10 @@
     },
     "Container/Container.php#Container#resolveConcreteFromAttributes": {
         "php_hash": "9bb943bd9a38e7b2b915e7a969768ffc8d1b8404",
-        "ts_hash": "bf7154719283a3fdbe4d50404642f045a73cea50",
+        "ts_hash": "d9781f5b2fad827d71344d11e70ca94a0c57bb7b",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored through reflection-registry: the attribute walk reads Attributes.get(Bind) -- the BindWhen branch is absent with the unported attribute; wildcard ??= keeps upstream's first-wildcard-wins (the fused version had last-wins, fixed in the split)."
+        "note": "Mirrored through reflection-registry: the attribute walk now reads Attributes.all(abstract), not just Attributes.get(Bind), restoring the BindWhen branch (Container/Attributes/BindWhen.ts) in true declaration order alongside Bind -- factory identity stands in for $reflectedAttribute->getName() === X::class. wildcard ??= keeps upstream's first-wildcard-wins (the fused version had last-wins, fixed in an earlier split)."
     },
     "Container/Container.php#Container#resolved": {
         "php_hash": "86f20925cce3a5ad3dcce1a6e7437d74f222c91b",

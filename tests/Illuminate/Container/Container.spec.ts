@@ -1,6 +1,7 @@
 /// <reference types="@rbxts/testez/globals" />
 import { expectThrows } from '../TestHelpers';
 import { Bind } from 'Illuminate/Container/Attributes/Bind';
+import { BindWhen } from 'Illuminate/Container/Attributes/BindWhen';
 import { BindingResolutionException } from 'Illuminate/Contracts/Container/BindingResolutionException';
 import { Container } from 'Illuminate/Container/Container';
 import { EntryNotFoundException } from 'Illuminate/Container/EntryNotFoundException';
@@ -61,16 +62,6 @@ import type { ParameterOverrides } from 'Illuminate/Container/Types';
  * - `testMakeWithMethodIsAnAliasForMakeMethod`: builds a partial mock of
  *   `Container` and asserts `makeWith()` calls `make()` exactly once with
  *   the given arguments. No mocking library exists here (`CLAUDE.md`).
- * - `testBindWhenBindsFirstConditionThatPasses`,
- *   `testBindWhenSingletonAttribute`, `testBindWhenThrowsWhenNoConditionPasses`,
- *   `testBindWhenIsReevaluatedAfterAnInitialMiss`,
- *   `testBindWhenTakesPrecedenceOverBind`, `testBindWhenFallsThroughToBind`,
- *   `testBindAndBindWhenResolveInDeclarationOrder`: all six exercise the
- *   `#[BindWhen]` attribute (`Illuminate\Container\Attributes\BindWhen`,
- *   PHP 8.5+ only, loaded from `Fixtures/ContainerBindWhenFixtures.php`).
- *   Only `Bind`, `Scoped`, and `Singleton` were ported to
- *   `Container/Attributes/*.ts` (`agent_docs/laravel-parity.md`'s
- *   component table) -- there is no `BindWhen.ts` to exercise.
  * - The commented-out `testContainerCanCatchCircularDependency` at the
  *   bottom of the PHP file is left commented out here too, matching upstream.
  *
@@ -125,6 +116,20 @@ import type { ParameterOverrides } from 'Illuminate/Container/Types';
  *   `ContainerBindSingletonTestInterface`'s two `Bind` environments) is
  *   inlined as its string value (`"bar"`); nothing here depends on it being
  *   an enum case rather than a plain string.
+ * - `testBindWhenBindsFirstConditionThatPasses`, `testBindWhenSingletonAttribute`,
+ *   `testBindWhenThrowsWhenNoConditionPasses`, `testBindWhenIsReevaluatedAfterAnInitialMiss`,
+ *   `testBindWhenTakesPrecedenceOverBind`, `testBindWhenFallsThroughToBind`,
+ *   `testBindAndBindWhenResolveInDeclarationOrder` are written from their PHP
+ *   names and `BindWhen`'s documented behavior, not copied from source: `.upstream`
+ *   is a `composer install` of the package only, and PHPUnit's fixtures
+ *   (`Fixtures/ContainerBindWhenFixtures.php`) ship in the repository's test
+ *   suite, not the distributed package. Modeled on the environment-binding
+ *   tests immediately above (`testBindInterfaceToSingleton` and neighbors),
+ *   the same way `Container/Attributes/BindWhen.ts` mirrors `Bind.ts`.
+ *   `testBindWhenTakesPrecedenceOverBind` and
+ *   `testBindAndBindWhenResolveInDeclarationOrder` additionally rely on
+ *   class decorators applying bottom-to-top (the fixtures' own comments spell
+ *   out which attribute that puts first).
  */
 export = (): void => {
     describe('Container', () => {
@@ -324,6 +329,96 @@ export = (): void => {
         @Bind(IsScopedConcrete)
         @Singleton()
         abstract class IsSingleton
+        {}
+
+        class BindWhenFirstConcrete
+        {}
+
+        class BindWhenSecondConcrete
+        {}
+
+        // Both conditions pass; the first one wins. Class decorators apply
+        // bottom-to-top (the closest one to the class runs first -- TC39
+        // semantics), so the intended "first" attribute is written last here.
+
+        @BindWhen(BindWhenSecondConcrete, () => true)
+        @BindWhen(BindWhenFirstConcrete, () => true)
+        abstract class BindWhenFirstMatchInterface
+        {}
+
+        class BindWhenSingletonConcrete
+        {}
+
+        @BindWhen(BindWhenSingletonConcrete, () => true)
+        @Singleton()
+        abstract class BindWhenIsSingleton
+        {}
+
+        class BindWhenUnreachableConcrete
+        {}
+
+        @BindWhen(BindWhenUnreachableConcrete, () => false)
+        abstract class BindWhenNoMatchInterface
+        {}
+
+        class BindWhenReevaluatedFlag
+        {
+            public static shouldBind = false;
+        }
+
+        class BindWhenReevaluatedConcrete
+        {}
+
+        @BindWhen(BindWhenReevaluatedConcrete, () => BindWhenReevaluatedFlag.shouldBind)
+        abstract class BindWhenReevaluatedInterface
+        {}
+
+        class BindWhenPrecedenceConcrete
+        {}
+
+        class BindPrecedenceConcrete
+        {}
+
+        // Class decorators apply bottom-to-top (the one closest to the class
+        // runs first -- TC39 semantics), the reverse of how PHP reads
+        // attributes top-to-bottom in source. @BindWhen is written second but
+        // applies first, so it is what Attributes.all() (Container.ts's
+        // resolveConcreteFromAttributes()) reaches first below.
+
+        @Bind(BindPrecedenceConcrete)
+        @BindWhen(BindWhenPrecedenceConcrete, () => true)
+        abstract class BindWhenPrecedenceInterface
+        {}
+
+        class BindWhenFallthroughConcrete
+        {}
+
+        class BindFallthroughConcrete
+        {}
+
+        @Bind(BindFallthroughConcrete)
+        @BindWhen(BindWhenFallthroughConcrete, () => false)
+        abstract class BindWhenFallthroughInterface
+        {}
+
+        class DeclarationOrderBindConcrete
+        {}
+
+        class DeclarationOrderBindWhenConcrete
+        {}
+
+        // Same bottom-applies-first rule as BindWhenPrecedenceInterface above,
+        // but the other way around: @Bind is written second (closer to the
+        // class), so it applies -- and is checked -- before @BindWhen, even
+        // though @BindWhen's condition would also match. A specific
+        // (non-wildcard) environment is required on @Bind here: a wildcard
+        // is only ever remembered as a fallback (Container.ts's
+        // resolveConcreteFromAttributes()), never returned immediately, so
+        // it would not settle which one actually wins first.
+
+        @BindWhen(DeclarationOrderBindWhenConcrete, () => true)
+        @Bind(DeclarationOrderBindConcrete, 'declaration-order-env')
+        abstract class DeclarationOrderInterface
         {}
 
         abstract class RequestDtoDependencyContract
@@ -1230,6 +1325,76 @@ export = (): void => {
             const same = container.make(IsSingleton);
 
             expect(same).to.equal(original);
+        });
+
+        it('@BindWhen() binds through the first condition that passes', () => {
+            // PHP: ContainerTest::testBindWhenBindsFirstConditionThatPasses
+            const container = new Container();
+
+            const instance = container.make(BindWhenFirstMatchInterface);
+
+            expect(instance instanceof BindWhenFirstConcrete).to.equal(true);
+        });
+
+        it('@BindWhen() combined with @Singleton() stays shared', () => {
+            // PHP: ContainerTest::testBindWhenSingletonAttribute
+            const container = new Container();
+
+            const original = container.make(BindWhenIsSingleton);
+            const same = container.make(BindWhenIsSingleton);
+
+            expect(same).to.equal(original);
+        });
+
+        it('no matching @BindWhen() condition throws', () => {
+            // PHP: ContainerTest::testBindWhenThrowsWhenNoConditionPasses
+            const container = new Container();
+
+            expectThrows(() => container.make(BindWhenNoMatchInterface), BindingResolutionException);
+        });
+
+        it('a @BindWhen() is rechecked once its condition becomes true', () => {
+            // PHP: ContainerTest::testBindWhenIsReevaluatedAfterAnInitialMiss
+            const container = new Container();
+            BindWhenReevaluatedFlag.shouldBind = false;
+
+            expectThrows(() => container.make(BindWhenReevaluatedInterface), BindingResolutionException);
+
+            BindWhenReevaluatedFlag.shouldBind = true;
+
+            expect(container.make(BindWhenReevaluatedInterface) instanceof BindWhenReevaluatedConcrete).to.equal(
+                true,
+            );
+        });
+
+        it('a matching @BindWhen() takes precedence over @Bind() (adapted -- see class comment)', () => {
+            // PHP: ContainerTest::testBindWhenTakesPrecedenceOverBind
+            const container = new Container();
+            container.resolveEnvironmentUsing(() => true);
+
+            const instance = container.make(BindWhenPrecedenceInterface);
+
+            expect(instance instanceof BindWhenPrecedenceConcrete).to.equal(true);
+        });
+
+        it('a non-matching @BindWhen() falls through to @Bind()', () => {
+            // PHP: ContainerTest::testBindWhenFallsThroughToBind
+            const container = new Container();
+            container.resolveEnvironmentUsing(() => true);
+
+            const instance = container.make(BindWhenFallthroughInterface);
+
+            expect(instance instanceof BindFallthroughConcrete).to.equal(true);
+        });
+
+        it('@Bind() and @BindWhen() resolve in declaration order (adapted -- see class comment)', () => {
+            // PHP: ContainerTest::testBindAndBindWhenResolveInDeclarationOrder
+            const container = new Container();
+            container.resolveEnvironmentUsing((env) => (env as Array<string>).includes('declaration-order-env'));
+
+            const instance = container.make(DeclarationOrderInterface);
+
+            expect(instance instanceof DeclarationOrderBindConcrete).to.equal(true);
         });
 
         it('a SelfBuilding class builds itself through newInstance(), injecting a dependency (adapted -- see class comment)', () => {

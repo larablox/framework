@@ -15,3 +15,6 @@
 
 # transform-magic-dispatch shadow tree (generated from src/ and tests/, see scripts/build)
 /.magic-dispatch
+
+# scripts/parity/check.mjs --out= reports
+/reports

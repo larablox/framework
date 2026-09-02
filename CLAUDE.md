@@ -17,3 +17,6 @@ Mirrors [`laravel/framework`](https://github.com/laravel/framework):
 ## Rules
 
 - Keep all code, identifiers, and commit messages in English.
+- Port letter-for-letter: same constructs, same variable names as the PHP.
+  Diverge only where TypeScript/roblox-ts/Luau genuinely forces it, and
+  record that divergence in `CONVENTIONS.md`.

@@ -1464,9 +1464,7 @@ export class Container implements ContainerContract
     /** Get the globally available instance of the container. */
     public static getInstance(): Container
     {
-        Container._instance ??= new Container();
-
-        return Container._instance;
+        return Container._instance ??= new Container();
     }
 
     /**

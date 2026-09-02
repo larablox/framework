@@ -632,10 +632,10 @@
     },
     "Container/Container.php#Container#getInstance": {
         "php_hash": "02e317af3e03665a7920506210bfc507bf2d8eac",
-        "ts_hash": "7413e801459ef38199dd32b2ab07376d02b4e2d2",
+        "ts_hash": "cc008ddb9bb7e54cb67c5cd37f5d4ccd2c5f217b",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. ??= as a statement plus the hoisted return -- an assignment is not an expression in Luau."
+        "note": "Verbatim. `return Container._instance ??= new Container()`, in one expression matching upstream's single return -- confirmed safe by comparing compiled output: rbxtsc lowers `x ??= y` to the same if-check-then-assign Luau either way the source is written, so the earlier hoisted-statement form was never load-bearing for correctness."
     },
     "Container/Container.php#Container#getLastParameterOverride": {
         "php_hash": "32737420b8d6f60706d535dacfb3d4c4283abd54",

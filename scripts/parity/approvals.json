@@ -203,16 +203,18 @@
     "Container/Container.php#Container#abstractAliases@property": {
         "php_hash": "c88461bb114e298888857e2dffd732139010b558",
         "ts_hash": "66c963ed79971e479f8bedf3477eface2db4eda6",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Iterated only by removeAbstractAlias, whose outcome is order-independent."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Iterated only by removeAbstractAlias, whose outcome is order-independent.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#addContextualBinding": {
         "php_hash": "df79885b9843cb73dda46beef4e7f38cc30e61c0",
         "ts_hash": "b009b16d1431dd823218003bdded148c5fd00f9f",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. autovivification (setInto)."
+        "note": "Mirrored. autovivification (setInto).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#afterResolving": {
         "php_hash": "4c17ff049e8f49f98350383582e8bcf15af576ea",
@@ -224,37 +226,42 @@
     "Container/Container.php#Container#afterResolvingAttribute": {
         "php_hash": "ad9daa236fa23bda9865fb77efe49c67594ea173",
         "ts_hash": "269c70e8a3da80006cdc1869b94ede61c72542b7",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. autovivification (pushInto); reflection-registry key."
+        "note": "Mirrored. autovivification (pushInto); reflection-registry key.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#afterResolvingAttributeCallbacks@property": {
         "php_hash": "07f179b762f0540820f8d0fe9a1a354169e41d13",
         "ts_hash": "5f940b3f72735d31731cb54b7ece942b9df88c82",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Keyed by the decorator factory (reflection-registry)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Keyed by the decorator factory (reflection-registry).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#afterResolvingCallbacks@property": {
         "php_hash": "8dda37eaf038e09b1b461fa2531727d2d1722624",
         "ts_hash": "ac5fe0d6adcc212726aed94adb5367ed8e5ed187",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: iteration order observable, so OrderedMap. Cross-type firing order is observable in getCallbacksForType."
+        "note": "Mirrored. collection-ops initializer; assoc-array: iteration order observable, so OrderedMap. Cross-type firing order is observable in getCallbacksForType.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#alias": {
         "php_hash": "2717eb1123f760d0b7bb909f35e044e10d2e2baa",
         "ts_hash": "e1864de0ece399a71c11fd8202b6f34ff2483066",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops; autovivification (pushInto); class-name-in-message."
+        "note": "Mirrored. collection-ops; autovivification (pushInto); class-name-in-message.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#aliases@property": {
         "php_hash": "3d2d2db738008d3b1171bb425ccae2b0acbcbf1c",
         "ts_hash": "a8f0d5a75eb35e1961505063935262a078306796",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#beforeResolving": {
         "php_hash": "3b2fef5a310bb7a77098ef468ee15e3e9d20681d",
@@ -266,9 +273,10 @@
     "Container/Container.php#Container#beforeResolvingCallbacks@property": {
         "php_hash": "da8ef0eed38c11f2e7596b7303349ebaba07f60d",
         "ts_hash": "528e7386513fbe71b41ee8690c0af5671997d1a1",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: iteration order observable, so OrderedMap. Cross-type firing order is observable in fireBeforeResolvingCallbacks."
+        "note": "Mirrored. collection-ops initializer; assoc-array: iteration order observable, so OrderedMap. Cross-type firing order is observable in fireBeforeResolvingCallbacks.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#bind": {
         "php_hash": "8798a019a4c6cefb85fb9a75ccbb2c53d446e1ff",
@@ -288,9 +296,10 @@
     "Container/Container.php#Container#bindings@property": {
         "php_hash": "ab76fb1bf71511408614e23ae1cdf4a3a04966d3",
         "ts_hash": "f072118d2b8b78697cd27f47315c80e8e61ed7fe",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: iteration order observable, so OrderedMap. getBindings() returns the entries in insertion order."
+        "note": "Mirrored. collection-ops initializer; assoc-array: iteration order observable, so OrderedMap. getBindings() returns the entries in insertion order.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#bindMethod": {
         "php_hash": "c63f9c6fa1d045c38856d1660657f93f84b97177",
@@ -302,9 +311,10 @@
     "Container/Container.php#Container#bound": {
         "php_hash": "fc5ca5cc05b5d512ba392f396c1e08ce63a853a4",
         "ts_hash": "8d4775a2fc5c8f1703eb82c6b81d50179eb9f0a6",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops (isset -> has)."
+        "note": "Mirrored. collection-ops (isset -> has).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#build": {
         "php_hash": "6f8bbe80b1e1c9823087402354be6d8dde1d2853",
@@ -323,9 +333,10 @@
     "Container/Container.php#Container#buildStack@property": {
         "php_hash": "4cccfbbdb0c3c60d522e3c67ec710dd756acbe42",
         "ts_hash": "a1e115b37f420dc286e5987ed84874eb59288e58",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer."
+        "note": "Mirrored. collection-ops initializer.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#call": {
         "php_hash": "c1190e9a2324ecb35e36948e00e102321133fd6a",
@@ -344,16 +355,18 @@
     "Container/Container.php#Container#checkedForAttributeBindings@property": {
         "php_hash": "7c83c3e97aa6e6b9b2bf7a39f71a1da44e4f8e65",
         "ts_hash": "d46bd912f1d39a749fd84f2fabd066f4dd5e8b70",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#checkedForSingletonOrScopedAttributes@property": {
         "php_hash": "0ad0d357801eb8f011105e62371c31cb55cce1d5",
         "ts_hash": "1cbd6382d4055f06829f5d507d3bd81716208fe6",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Caches ScopedType, whose false spells PHP's null (a Map cannot hold nil)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Caches ScopedType, whose false spells PHP's null (a Map cannot hold nil).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#cloneArrayMap": {
         "php_hash": null,
@@ -379,16 +392,18 @@
     "Container/Container.php#Container#contextual@property": {
         "php_hash": "5e1624f5649838f5980838f4765abeaffc1b434f",
         "ts_hash": "4f7cc71ec5f9ce432f4a9e4336fede45461a60b8",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#contextualAttributes@property": {
         "php_hash": "6f24d73d17d10ef7ae98fd21e9b143fbc6bf236d",
         "ts_hash": "dd6cfa4f35d8711f127b5922f262f6e04a67de1d",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Keyed by the decorator factory (reflection-registry)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Keyed by the decorator factory (reflection-registry).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#copyStateTo": {
         "php_hash": null,
@@ -407,37 +422,42 @@
     "Container/Container.php#Container#currentlyResolving": {
         "php_hash": "597403d1c3828c9601dc5d99b50430ac0e308ddb",
         "ts_hash": "39b35f610153ff235dd13822b4ecea5af7decb7b",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops (array_last -> [size()-1]); the ?: null collapses -- an empty stack already indexes to undefined."
+        "note": "Mirrored. collection-ops (array_last -> [size()-1]); the ?: null collapses -- an empty stack already indexes to undefined.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#dropStaleInstances": {
         "php_hash": "7e99add8152dbb4e803df44c061210b03cf7c5b1",
         "ts_hash": "bfd3859c9c18180b02300a27991c3c25f12ed15a",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops."
+        "note": "Mirrored. collection-ops.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#environmentResolver@property": {
         "php_hash": "3c5ea8ee88b9040ae38f82daaef9dcfe9e78fbbb",
         "ts_hash": "de020d4f3d15e41374b6237d5df2bc4f75f6d3c7",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default."
+        "note": "Mirrored. nullable-default.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#extend": {
         "php_hash": "2736a66f949aff102b30308642cda01842f3cff2",
         "ts_hash": "3267ad45194a19e590c29d74d7be348ab622486d",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops; autovivification (pushInto)."
+        "note": "Mirrored. collection-ops; autovivification (pushInto).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#extenders@property": {
         "php_hash": "b7e51a43389610095c877682d6b51cd3ab01aa4b",
         "ts_hash": "d42312c5dc535bcec70c3071a9abb45cf9fa2b93",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#factory": {
         "php_hash": "455b03220b97d15541fcfbe0d663f4e55463b135",
@@ -472,9 +492,10 @@
     "Container/Container.php#Container#fireBeforeCallbackArray": {
         "php_hash": "8286a2f52b903bbb17fa446d99244074d750e609",
         "ts_hash": "f0b8f02c15a759378d16fa32d2116d65e8bb6e87",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored."
+        "note": "Mirrored.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#fireBeforeResolvingCallbacks": {
         "php_hash": "83780f96e22431726ea0a3f4392485896a019b63",
@@ -486,9 +507,10 @@
     "Container/Container.php#Container#fireCallbackArray": {
         "php_hash": "c279e0c55f26d248bf89c998df8c1256a3769bd8",
         "ts_hash": "85d92e65f62c714ce39916b96a7f238b94c51925",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored."
+        "note": "Mirrored.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#fireResolvingCallbacks": {
         "php_hash": "898143f7fb4f1ff539dd09fbf051049cb34cf8e1",
@@ -501,30 +523,34 @@
     "Container/Container.php#Container#flush": {
         "php_hash": "d38128c26b28c1211404802d2cc12db73e6edf8b",
         "ts_hash": "c75eaf7a542150ad578c8e8351221cbec33a8e15",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops (= [] -> clear, per store)."
+        "note": "Mirrored. collection-ops (= [] -> clear, per store).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#forgetExtenders": {
         "php_hash": "dc1aa30cdd06205843f29548ea5b2f9c37691b67",
         "ts_hash": "93c6b4801afed5f65dced1bf310b074c08153d92",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops."
+        "note": "Mirrored. collection-ops.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#forgetInstance": {
         "php_hash": "7f96180e459a5aaaca802d5d1b99a539ccebd7f3",
         "ts_hash": "052cc0d956ba18202c44fa632983f270fbe960a0",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops."
+        "note": "Mirrored. collection-ops.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#forgetInstances": {
         "php_hash": "ea1a176042c502a8474691765685104de087f74c",
         "ts_hash": "23b5a6a6f3304aa49134cb46c90c69c2ccb682dc",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops (= [] -> clear)."
+        "note": "Mirrored. collection-ops (= [] -> clear).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#forgetScopedInstances": {
         "php_hash": "efa43319af8430be20d464967ddfa82f2a9891cd",
@@ -599,9 +625,10 @@
     "Container/Container.php#Container#getExtenders": {
         "php_hash": "5720951e5f3fbd4d6db9708d8f935cacca63adb1",
         "ts_hash": "b0558a613c639d8877e13db3db1e536680a1f36c",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops."
+        "note": "Mirrored. collection-ops.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#getInstance": {
         "php_hash": "02e317af3e03665a7920506210bfc507bf2d8eac",
@@ -627,9 +654,10 @@
     "Container/Container.php#Container#getReboundCallbacks": {
         "php_hash": "04d95eb04feffddab704479ff3d406b932ad45c9",
         "ts_hash": "658b0b4b18cd67b7e027fe1c8e4c9ece1af0c451",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops."
+        "note": "Mirrored. collection-ops.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#getScopedTyped": {
         "php_hash": "f68d70925879e104d2709f953cd08a523395ac0e",
@@ -641,23 +669,26 @@
     "Container/Container.php#Container#globalAfterResolvingCallbacks@property": {
         "php_hash": "565decf64e443a2ec65a8a46e46382ea45825550",
         "ts_hash": "fa28d8f613589ba17638ad41d5eaf28d7b591fbb",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer."
+        "note": "Mirrored. collection-ops initializer.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#globalBeforeResolvingCallbacks@property": {
         "php_hash": "bc45b6ad257658701c3e2f4bcd4bcfeef4915edc",
         "ts_hash": "791fb2a5e191d87ff62211649b23e5d1f6e9805e",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer."
+        "note": "Mirrored. collection-ops initializer.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#globalResolvingCallbacks@property": {
         "php_hash": "0ccdef52ae829d25bed78d5e7b574e835b61a6e8",
         "ts_hash": "668d8516fa59a33186c29a834fe827e23c08435c",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer."
+        "note": "Mirrored. collection-ops initializer.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#has": {
         "php_hash": "6179c61e045a9e710d53b08b425c94ddf6e1d96e",
@@ -700,16 +731,18 @@
     "Container/Container.php#Container#instances@property": {
         "php_hash": "79a2bbb6c01e8536c9e4b63700610a7e5919c759",
         "ts_hash": "55a70fde4cc73be879450a6ae5dc60fd28c9246d",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#isAlias": {
         "php_hash": "092da6c58a97084e09912cbb3ee54cecd6953cda",
         "ts_hash": "bb2550ce0fa5bbfd1b96cc0ba7074cb9291ac301",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops."
+        "note": "Mirrored. collection-ops.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#isBuildable": {
         "php_hash": "663a0ad5bdb93e36cb19903134e071bd5c640c23",
@@ -742,23 +775,26 @@
     "Container/Container.php#Container#make": {
         "php_hash": "da16175648724fec9febb33fad8fea06fc7aa817",
         "ts_hash": "5fd6be147fb3b2e87b902aac36e9445b8fdb291f",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. Ported the empty-array default (= []) literally instead of a bare optional, closing the erased-default gap; parameters cast straight to ParameterOverrides at the call site (see ParameterList's docblock)."
+        "note": "Mirrored. Ported the empty-array default (= []) literally instead of a bare optional, closing the erased-default gap; parameters cast straight to ParameterOverrides at the call site (see ParameterList's docblock).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#makeWith": {
         "php_hash": "d0eeec7fd61dc2c60cd28fd00b7dfe2df80e500a",
         "ts_hash": "d877bb3ac2d1099a3479b257181f7674c0992e5a",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Verbatim. Ported the empty-array default (= []) literally instead of a bare optional."
+        "note": "Verbatim. Ported the empty-array default (= []) literally instead of a bare optional.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#methodBindings@property": {
         "php_hash": "72b09fd41cf0e9e388817b343a2c187f27c2df62",
         "ts_hash": "1234de82038f30f44ce8559c38e4beb521b5cfb9",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Nests target -> method per the resolved pair-keying decision."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Nests target -> method per the resolved pair-keying decision.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#notInstantiable": {
         "php_hash": "50a96b29208c93bc40961935ddc7d2b92eef2fc3",
@@ -793,9 +829,10 @@
     "Container/Container.php#Container#offsetUnset": {
         "php_hash": "284339b59aeaff4f980d4be8b5529208e7b606f2",
         "ts_hash": "eecd38c3be4970e3fc1a68f334ab07aa8ce843a0",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops."
+        "note": "Mirrored. collection-ops.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#parseBindMethod": {
         "php_hash": "788d087f1583802949b6092b021af168c7148d75",
@@ -821,9 +858,10 @@
     "Container/Container.php#Container#reboundCallbacks@property": {
         "php_hash": "e7a6b1bda0df0c12a99112bdceb36981ab73beca",
         "ts_hash": "650544e90fbcc3c00259c5f4fd3aa38925f2e7fb",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#refresh": {
         "php_hash": "6cbcc2c119547315416db234cdc8d39cdf8ebd25",
@@ -863,16 +901,18 @@
     "Container/Container.php#Container#resolved": {
         "php_hash": "86f20925cce3a5ad3dcce1a6e7437d74f222c91b",
         "ts_hash": "cfa99ea0571d7dbbd3a22220b18d5558687a996d",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops; underscore (_resolved)."
+        "note": "Mirrored. collection-ops; underscore (_resolved).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#resolved@property": {
         "php_hash": "7e747851a8a32f0c598999b7d600c8a499b6f998",
         "ts_hash": "3ac404744baf4c60d95129d045acfc28b02545c9",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Underscore: _resolved beside resolved()."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Underscore: _resolved beside resolved().",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#resolveDeclaredDependency": {
         "php_hash": null,
@@ -927,16 +967,18 @@
     "Container/Container.php#Container#resolvingCallbacks@property": {
         "php_hash": "7f3ba235fb667b5ea47fac3d6401c5b9c537ae03",
         "ts_hash": "8cb5da6b5507c9fd332d1754a19dbf055bbaf0cc",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: iteration order observable, so OrderedMap. Cross-type firing order is observable in getCallbacksForType."
+        "note": "Mirrored. collection-ops initializer; assoc-array: iteration order observable, so OrderedMap. Cross-type firing order is observable in getCallbacksForType.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#scoped": {
         "php_hash": "056d7c50c97e4e694a136d1525949820297055d9",
         "ts_hash": "b78201a14583ec99323b47f5f74e171dc10ab8f7",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default; collection-ops."
+        "note": "Mirrored. nullable-default; collection-ops.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#scopedIf": {
         "php_hash": "587b5e06d08b5935e8d941c30d2b551546b991c1",
@@ -949,9 +991,10 @@
     "Container/Container.php#Container#scopedInstances@property": {
         "php_hash": "5ee5c1e86973453ee53ea5bbe3ea36b6653b450f",
         "ts_hash": "6d63be50d0c23fac5d22f224ec6e41abdd8e1d3d",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer."
+        "note": "Mirrored. collection-ops initializer.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#setInstance": {
         "php_hash": "a195230024b75ff3eb61148d03fed5983ffb3c34",
@@ -1000,9 +1043,10 @@
     "Container/Container.php#Container#tags@property": {
         "php_hash": "0f234cbf4f3a17c39bce8a1c4c497437aa6fd62e",
         "ts_hash": "a9a0a35600eb83a8b7e9ecb8dc87a88ee4ed5b4f",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime)."
+        "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime).",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#unresolvablePrimitive": {
         "php_hash": "6f730100d9e3eb87ed232e7323f47179ea560b54",
@@ -1021,23 +1065,26 @@
     "Container/Container.php#Container#whenHasAttribute": {
         "php_hash": "5b5df5504a9557ebd35f116182868d629d636d5d",
         "ts_hash": "66d1638d6e738f5d7019462e0a800f7bc795c7a9",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops; reflection-registry: the attribute name keys as its decorator factory."
+        "note": "Mirrored. collection-ops; reflection-registry: the attribute name keys as its decorator factory.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#with@property": {
         "php_hash": "5337174c4610ba2230e42e5085e5ded0a05069b2",
         "ts_hash": "e8b54fe36c791fe0ed877f746964dc07192e2170",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops initializer."
+        "note": "Mirrored. collection-ops initializer.",
+        "approved_at": "2026-09-02"
     },
     "Container/Container.php#Container#wrap": {
         "php_hash": "a901a03c69597c4beb4c94d33c2e7566f70f7dd4",
         "ts_hash": "1a8e2c41da434084323936665669633abe149347",
-        "status": "pending",
+        "status": "approved",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. Ported the empty-array default (= []) literally instead of a bare optional. The php-call/ts-call_user_func run is the verifier's rename table biting its own tail on the member named call."
+        "note": "Mirrored. Ported the empty-array default (= []) literally instead of a bare optional. The php-call/ts-call_user_func run is the verifier's rename table biting its own tail on the member named call.",
+        "approved_at": "2026-09-02"
     },
     "Container/ContextualBindingBuilder.php#ContextualBindingBuilder#__construct": {
         "php_hash": "13e21d08074441b8608d31c8b46c26c92d64d190",

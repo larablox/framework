@@ -73,7 +73,11 @@ export interface Binding
 
 /**
  * What the public API accepts for `$parameters`: either the keyed override map
- * or a plain list, which is read as index-keyed overrides.
+ * or a plain list, which is read as index-keyed overrides. The cast from one to
+ * the other at a call site is not a conversion: `Map` and `Array` compile to the
+ * same bare Luau table here (`.get`/`.has`/`.size` are plain indexing macros, no
+ * runtime class backs either), and Luau's own list indices start at one, the
+ * same base a positional key in `ParameterOverrides` uses.
  */
 export type ParameterList = ParameterOverrides | Array<unknown>;
 

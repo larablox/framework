@@ -574,7 +574,7 @@ export class Container implements ContainerContract
             pushedToBuildStack = true;
         }
 
-        const result = BoundMethod.call(this, callback, this.normalizeParameters(parameters), defaultMethod);
+        const result = BoundMethod.call(this, callback, parameters as ParameterOverrides, defaultMethod);
 
         if (pushedToBuildStack) {
             this.buildStack.pop();
@@ -618,7 +618,7 @@ export class Container implements ContainerContract
     public make(abstract: Abstract, parameters?: ParameterList): unknown;
     public make(abstract: Abstract, parameters: ParameterList = []): unknown
     {
-        return this.resolve(abstract, this.normalizeParameters(parameters));
+        return this.resolve(abstract, parameters as ParameterOverrides);
     }
 
     /** Resolve the given type from the container, as PSR-11's `get()`. */
@@ -1488,37 +1488,5 @@ export class Container implements ContainerContract
         Container._instance = container;
 
         return container;
-    }
-
-    /**
-     * Normalize the public `$parameters` argument into the override map.
-     *
-     * A plain list is read as position-keyed overrides, which is the closest
-     * thing to PHP's positional-by-name matching that survives compilation.
-     * The positions are numbered from one, like a Luau list's own indices --
-     * which is what keeps the two forms from colliding. A `Map` holding only
-     * the key `1` *is* the one-element list `[value]` as far as Luau is
-     * concerned, and there is no telling them apart; numbering from one at
-     * least makes them mean the same thing. Numbered from zero they would
-     * not, and overriding the second parameter alone would be unsayable.
-     */
-    protected normalizeParameters(parameters?: ParameterList): ParameterOverrides
-    {
-        if (parameters === undefined) {
-            return new Map();
-        }
-
-        if (!Util.isArray(parameters)) {
-            return parameters as ParameterOverrides;
-        }
-
-        const overrides: ParameterOverrides = new Map();
-        const list = parameters as Array<unknown>;
-
-        for (let index = 0; index < list.size(); index++) {
-            overrides.set(index + 1, list[index]);
-        }
-
-        return overrides;
     }
 }

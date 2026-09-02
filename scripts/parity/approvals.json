@@ -329,10 +329,10 @@
     },
     "Container/Container.php#Container#call": {
         "php_hash": "c1190e9a2324ecb35e36948e00e102321133fd6a",
-        "ts_hash": "3b3a8f13038aca89ddd35d01adc95409b5009e7a",
+        "ts_hash": "2261b38009b4cbd5649ad9a438fd815b88259cc3",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. hoisted-assignment for the className condition; parameter-overrides (normalizeParameters at the public edge); collection-ops (in_array/array_pop); getClassForCallable carries its own note on the closure-scope boundary."
+        "note": "Mirrored. hoisted-assignment for the className condition; parameters cast straight to ParameterOverrides at the call site (see ParameterList's docblock: Map/Array compile to the same bare table here, so the cast is not a conversion); collection-ops (in_array/array_pop); getClassForCallable carries its own note on the closure-scope boundary."
     },
     "Container/Container.php#Container#callMethodBinding": {
         "php_hash": "8aca99187621a6b9bd0e16485374684b500a57d4",
@@ -741,10 +741,10 @@
     },
     "Container/Container.php#Container#make": {
         "php_hash": "da16175648724fec9febb33fad8fea06fc7aa817",
-        "ts_hash": "4156564f4dec2b7230d0525b3e7a2a66f7ac4916",
+        "ts_hash": "5fd6be147fb3b2e87b902aac36e9445b8fdb291f",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. Ported the empty-array default (= []) literally instead of a bare optional, closing the erased-default gap; parameter-overrides (normalizeParameters at the public edge)."
+        "note": "Mirrored. Ported the empty-array default (= []) literally instead of a bare optional, closing the erased-default gap; parameters cast straight to ParameterOverrides at the call site (see ParameterList's docblock)."
     },
     "Container/Container.php#Container#makeWith": {
         "php_hash": "d0eeec7fd61dc2c60cd28fd00b7dfe2df80e500a",
@@ -759,13 +759,6 @@
         "status": "pending",
         "proposed_at": "2026-08-31",
         "note": "Mirrored. collection-ops initializer; assoc-array: keyed access only, so a plain Map (a bare table at runtime). Nests target -> method per the resolved pair-keying decision."
-    },
-    "Container/Container.php#Container#normalizeParameters": {
-        "php_hash": null,
-        "ts_hash": "45ffaaf9c3f4d74374fda4ba8254e7482cd7fdf7",
-        "status": "pending",
-        "proposed_at": "2026-08-31",
-        "note": "Port-only: the public edge of parameter-overrides. A plain list becomes 1-based positional keys -- 1-based because a Map holding only the key 1 IS the one-element list as far as Luau can tell, so the two forms mean the same thing."
     },
     "Container/Container.php#Container#notInstantiable": {
         "php_hash": "50a96b29208c93bc40961935ddc7d2b92eef2fc3",

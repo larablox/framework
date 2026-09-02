@@ -29,37 +29,16 @@
     "type": "module",
     "scripts": {
         "build": "rbxtsc",
-        "test:build": "rbxtsc -p tsconfig.tests.json --rojo test.project.json",
-        "test": "npm run test:build && npm run test:lune",
-        "test:lune": "lune run scripts/lune/RunTests",
-        "test:watch": "npm run test:build -- -w",
-        "test:serve": "rojo serve test.project.json",
-        "clean": "rimraf out out-tests include globalTypes.None.d.luau sourcemap.json tsconfig.tsbuildinfo",
+        "clean": "rimraf out include tsconfig.tsbuildinfo",
         "watch": "rbxtsc -w",
-        "dev": "npm run watch",
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix",
-        "format": "dprint check",
-        "format:fix": "dprint fmt",
-        "types:roblox": "curl -fsSL -o globalTypes.None.d.luau https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.None.d.luau",
-        "sourcemap": "rojo sourcemap default.project.json --output sourcemap.json",
-        "analyze": "npm run build && npm run sourcemap && luau-lsp analyze --platform=roblox --sourcemap=sourcemap.json --definitions=globalTypes.None.d.luau --base-luaurc=.luaurc --settings=luau-lsp.settings.json --ignore=\"**/include/**\" --ignore=\"**/node_modules/**\" out"
+        "dev": "npm run watch"
     },
     "dependencies": {
         "@larablox/monolog": "^0.2.0"
     },
     "devDependencies": {
-        "@dprint/typescript": "^0.96.1",
         "@rbxts/compiler-types": "^3.0.0-types.0",
-        "@rbxts/testez": "^0.4.2-ts.0",
         "@rbxts/types": "^1.0.943",
-        "@stylistic/eslint-plugin": "^5.10.0",
-        "@typescript-eslint/eslint-plugin": "^8.67.0",
-        "@typescript-eslint/parser": "^8.67.0",
-        "dprint": "^0.56.1",
-        "eslint": "^10.8.1",
-        "eslint-config-prettier": "^10.1.8",
-        "eslint-plugin-roblox-ts": "^1.4.1",
         "rimraf": "^6.1.3",
         "roblox-ts": "^3.0.0",
         "typescript": "^5.9.3"

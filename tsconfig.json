@@ -24,7 +24,7 @@
 		// The package ships these: a consumer deep-importing
 		// `@larablox/framework/out/Illuminate/...` gets `TS2307` for every
 		// import without them. Mixins need a named return type for this to
-		// compile -- see `agent_docs/roblox-ts-constraints.md`.
+		// compile.
 		"declaration": true,
 		"incremental": true,
 		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"

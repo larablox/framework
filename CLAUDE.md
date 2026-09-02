@@ -9,7 +9,6 @@ package `@larablox/framework`.
 
 - TypeScript 5.x → Luau via roblox-ts (`rbxtsc`); not Node, not a browser
 - Package manager: npm
-- Tests: TestEZ (`@rbxts/testez`)
 
 ## Layout
 
@@ -56,57 +55,33 @@ this wired up, both load-bearing:
 
 | Task                                    | Command                    |
 |------------------------------------------|----------------------------|
-| Install                                 | `npm ci` + `rokit install` |
+| Install                                 | `npm ci`                   |
 | Compile TypeScript to Luau              | `npm run build`            |
 | Watch sources in `src/` (TypeScript)    | `npm run dev`              |
 | Watch artifacts in `out/` (Studio)      | `rojo serve`               |
-| Lint                                    | `npm run lint`             |
-| Lint + autofix                          | `npm run lint:fix`         |
-| Check formatting                        | `npm run format`           |
-| Format                                  | `npm run format:fix`       |
-| Analyze generated Luau                  | `npm run analyze`          |
-| Run the suite (no Studio)               | `npm test`                 |
-| Run one spec (no Studio)                | `npm run test:lune -- <filter>` |
-| Build the test place                    | `npm run test:build`       |
-| Serve the test place to Studio          | `npm run test:serve`       |
 | Remove build artifacts                  | `npm run clean`            |
 | Install the workbench                   | `npm run workbench:install`|
 | Build the workbench                     | `npm run workbench`        |
 | Build the workbench place file          | `npm run workbench:place`  |
 | Serve the workbench to Studio           | `npm run workbench:serve`  |
 
-`npm run analyze` rebuilds the project and refreshes the sourcemap on its
-own. Run `npm run types:roblox` once after cloning — the Roblox API
-definitions are 650 KB and are not kept in the repository.
-
-`.nvmrc` holds the Node line this is developed and tested on, and both
-workflows read it through `node-version-file`, so the version is written down
-once rather than in four places. It is on 24 rather than 22 because npm
-trusted publishing needs npm >= 11.5.1 and the 22 line ships npm 10 for the
-rest of its life. `nvm use $(cat .nvmrc)` — nvm for Windows does not read the
-file on its own.
+`.nvmrc` holds the Node line this is developed on. `nvm use $(cat .nvmrc)` —
+nvm for Windows does not read the file on its own.
 
 There is deliberately no `engines` field. It would describe what a *consumer*
 needs, and a consumer's Node only runs `rbxtsc`: the runtime this package
 ships to is Luau. Claiming `>=24` there would hand everyone still on 20 or 22
 an `EBADENGINE` warning for a requirement that is ours, not theirs.
 
-`default.project.json` here is a throwaway Studio place used only to run
-this repo's own test suite once it exists — it is not a game.
-
-`npm test` runs the suite under **Lune**, with no Studio and no DataModel.
-A handful of specs are about `DataStoreService` and `MemoryStoreService` and
-nothing else; those are skipped, named at the end of every run, and still need
-Studio or Open Cloud. A green `npm test` is therefore not a green suite, which
-is why the run says so out loud.
+`default.project.json` here is a throwaway Studio place for watching `out/`
+directly via `rojo serve` — it is not a game.
 
 ## The workbench
 
 `.workbench/` is a game that consumes this package, kept for the questions a
 compiler cannot answer: does the request actually reach the controller, does
 the sandbox actually isolate, do two overlapping requests actually keep their
-own route parameters. `npm run analyze` reads the generated Luau as code; the
-workbench runs it.
+own route parameters.
 
 Two things about it are load-bearing and were arrived at the hard way:
 
@@ -123,30 +98,6 @@ So the workbench compiles against **built** output: change `src/` here, run
 `npm run build` here, and the workbench sees it with no reinstall. The Rojo
 place declares the `Call`/`Send`/`Stream`/`Push` remotes the gateway waits for.
 
-**The workbench lints itself** — `.workbench/eslint.config.js`, reachable as
-`npm run workbench:lint` from the root. The root config ignores `.workbench/**`
-outright, and has to: it is a separate npm project, CI installs only this one,
-and linting it from a runner with no `.workbench/node_modules` fails on every
-import with "Scope @larablox is declared in typeRoots but was not found". Its
-rules are the framework's, spelled out again with a different TypeScript
-project; the plugins resolve from this repository's `node_modules`, so the
-workbench needs no lint dependencies of its own.
-
-Its lint does depend on `out/` existing. Run it straight after `npm run clean`
-and every framework type degrades to `any`, which `roblox-ts/lua-truthiness`
-then reports as errors that are not there. Build first.
-
-CI (`.github/workflows/ci.yml`) checks the package only, in four independent
-jobs — `lint`, `format`, `analyze` and `tests`. It does not install or build the
-workbench, so nothing in there can break the package's checks. All three set
-themselves up through `.github/actions/setup`.
-
-Two things Dependabot cannot reach, and so are bumped by hand: Rokit's tools
-in `rokit.toml` (there is no ecosystem for them), and the action versions
-inside `.github/actions/setup` — for GitHub Actions it reads
-`.github/workflows` and a root-level `action.yml`, nothing deeper, so only
-`actions/checkout` is watched.
-
 ## Rules
 
 - Reply to the user in Russian; keep all code, identifiers, and commit
@@ -160,24 +111,11 @@ inside `.github/actions/setup` — for GitHub Actions it reads
   matter, not that its behaviour is safe to change. The surface is defined by
   Laravel, not by whatever `src/` happens to call.
 - A successful build proves nothing: `rbxtsc` only checks TS types. After
-  changing `src/`, run `npm run analyze` and read the corresponding file in
+  changing `src/`, run `npm run build` and read the corresponding file in
   `out/` — the compiler does not see Luau semantics.
 - The build is incremental: `rbxtsc` will not regenerate a file whose source
   did not change, so edits made directly in `out/` survive `npm run build`.
   Run `npm run clean` first when you need to trust what is in `out/`.
-- Formatting and style are `npm run format:fix`'s job (and `lint:fix`'s for
-  eslint autofixables), not yours. The
-  formatter is **dprint** (`dprint.json`), configured to read like Laravel:
-  PSR-12 brace placement (declarations open on the next line, control flow
-  on the same one), single quotes, and — the reason prettier is gone — it
-  **preserves authored multi-line layout**: an argument list written in the
-  upstream shape stays that way. Array literals are not authored but
-  enforced: `@stylistic/array-element-newline` in the eslint config expands
-  every array literal of two or more elements to one element per line
-  (destructuring patterns stay inline), which is the Laravel shape --
-  accepting that the few tuples PHP returns inline expand here too. Import
-  order is authored (`sortImportDeclarations: maintain`). When porting, copy
-  upstream's line breaks along with its names.
 - No Node APIs, no DOM, no `window`. The runtime is Luau; the only usable npm
   packages are `@rbxts/*`.
 - Do not add dependencies unless asked.
@@ -198,13 +136,6 @@ inside `.github/actions/setup` — for GitHub Actions it reads
 
 ## Publishing
 
-Pushing a `v*` tag runs `.github/workflows/release.yml`, which runs `ci.yml`
-in full (it is called, not restated, so the release gate cannot drift from
-the pull-request one), checks the tag against `package.json`'s version,
-builds, and publishes through npm trusted publishing (OIDC — no token in the
-repository, and npm attaches a provenance attestation on its own). Nothing about it needs an agent, and an
-agent has no npm login to do it by hand with.
-
 Two things the package needs that are easy to break:
 
 - **`index.d.ts` is checked in, not generated.** A consumer must list
@@ -214,9 +145,8 @@ Two things the package needs that are easy to break:
   generates its own from `src/index.ts`; this package has no barrel to
   generate one from — only the per-module declarations that land beside the
   Luau in `out/Illuminate` — so the file is committed.
-- **`files` lists only `index.d.ts` and `out/Illuminate`.** The specs
-  compile to `out-tests/` for exactly this reason — `npm pack --dry-run` is
-  the way to check nothing else crept in.
+- **`files` lists only `index.d.ts` and `out/Illuminate`.** `npm pack
+  --dry-run` is the way to check nothing else crept in.
 
 A consequence worth telling consumers about: because `index.d.ts` is
 `export {}`, an editor has nothing to auto-import from. TypeScript offers

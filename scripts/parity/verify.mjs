@@ -126,6 +126,58 @@ function stripSignatureNoise(tokens)
     return out;
 }
 
+// `foreach ($list as $item)` and `for (const item of list)` hold the same
+// tokens in reversed order -- PHP names the collection first, TS/Luau name
+// the loop variable first, since there is no `foreach` there. Only the
+// simple single-variable form reorders: `as $key => $value` carries a second
+// binding TS spells a different way entirely (destructuring a Map entry),
+// and stays untouched here so it shows as the real residue it is.
+function reorderForeach(tokens)
+{
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if (tokens[i] === 'foreach' && tokens[i + 1] === '(') {
+            const openIndex = i + 1;
+            let depth = 0;
+            let closeIndex = -1;
+            for (let j = openIndex; j < tokens.length; j++) {
+                if (tokens[j] === '(') depth++;
+                else if (tokens[j] === ')') {
+                    depth--;
+                    if (depth === 0) {
+                        closeIndex = j;
+                        break;
+                    }
+                }
+            }
+            if (closeIndex !== -1) {
+                const inner = tokens.slice(openIndex + 1, closeIndex);
+                let asIndex = -1;
+                let innerDepth = 0;
+                for (let k = 0; k < inner.length; k++) {
+                    if (inner[k] === '(' || inner[k] === '[') innerDepth++;
+                    else if (inner[k] === ')' || inner[k] === ']') innerDepth--;
+                    else if (inner[k] === 'as' && innerDepth === 0) {
+                        asIndex = k;
+                        break;
+                    }
+                }
+                const afterAs = asIndex === -1 ? [] : inner.slice(asIndex + 1);
+                if (asIndex !== -1 && afterAs.length === 1) {
+                    const exprTokens = inner.slice(0, asIndex);
+                    out.push('for', '(', 'const', afterAs[0], 'of', ...exprTokens, ')');
+                    i = closeIndex + 1;
+                    continue;
+                }
+            }
+        }
+        out.push(tokens[i]);
+        i++;
+    }
+    return out;
+}
+
 function canonicalizePhp(tokens)
 {
     const out = [];
@@ -153,7 +205,7 @@ function canonicalizePhp(tokens)
     // A method declaration's `function` keyword; JS spells the name alone.
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
-    return stripSignatureNoise(out);
+    return reorderForeach(stripSignatureNoise(out));
 }
 
 function canonicalizeTs(tokens, renames)

@@ -1,27 +1,10 @@
 {
-	// src/'s shadow tree (.magic-dispatch/src/) and tests/'s own
-	// (.magic-dispatch/tests/) are two separate directories on disk, but
-	// `rootDirs` treats them as one for import resolution: a spec under
-	// .magic-dispatch/tests/Illuminate/Support/Traits/Conditionable.spec.ts
-	// can `import ... from "Illuminate/Support/Traits/Conditionable"` and
-	// have it resolve against .magic-dispatch/src/'s copy, as if the two
-	// directories' contents were interleaved in one. `rootDir` is their
-	// shared parent -- narrowly, just the directory holding those two and
-	// nothing else, or rbxtsc tries to copy the whole repo into out-tests/
-	// as "assets" (hit this: "Cannot copy '...' to a subdirectory of
-	// itself"). Compiles everything -- specs included -- into out-tests/,
-	// so a *.spec.luau never ships in the package (package.json's `files`
-	// only lists out/Illuminate).
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
 		"rootDir": ".magic-dispatch",
 		"rootDirs": [".magic-dispatch/src", ".magic-dispatch/tests"],
 		"baseUrl": ".magic-dispatch/src",
 		"outDir": "out-tests",
-		// Not inherited: the base config's tsBuildInfoFile is out/tsconfig.tsbuildinfo,
-		// same as tsconfig.magic-dispatch.json's -- sharing it silently broke
-		// this build (rbxtsc read the other config's incremental state and
-		// decided there was nothing to emit).
 		"tsBuildInfoFile": "out-tests/tsconfig.tsbuildinfo"
 	},
 	"include": [".magic-dispatch/src/**/*.ts", ".magic-dispatch/tests/**/*.ts"]

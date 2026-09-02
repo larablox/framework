@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		// required
 		"allowSyntheticDefaultImports": true,
 		"downlevelIteration": true,
 		"jsx": "react",
@@ -21,18 +20,11 @@
 		"rootDir": "src",
 		"outDir": "out",
 		"baseUrl": "src",
-		// The package ships these: a consumer deep-importing
-		// `@larablox/framework/out/Illuminate/...` gets `TS2307` for every
-		// import without them. Mixins need a named return type for this to
-		// compile.
+
 		"declaration": true,
 		"incremental": true,
 		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
 	},
-	// tests/ included alongside src/ so an editor (which defaults to the
-	// nearest tsconfig.json, unlike the build -- see tsconfig.magic-dispatch.json/
-	// tsconfig.tests.json) sees tests/globals.ts's ambient describe/it/expect
-	// declarations when a *.spec.ts file is open; without it, TS2582 ("Cannot
-	// find name 'describe'") is exactly what shows up.
+
 	"include": ["src/**/*.ts", "tests/**/*.ts"]
 }

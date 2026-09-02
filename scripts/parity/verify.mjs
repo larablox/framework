@@ -126,19 +126,21 @@ function stripSignatureNoise(tokens)
     return out;
 }
 
-// collection-ops: `unset -> .delete()`. PHP's unset() takes any number of
-// comma-separated targets in one call; the port has no such form and spells
-// each target as its own `.delete()` statement. Splits the (bracket-depth
-// aware) comma list and rewrites each `RECEIVER [ KEY ]` group into
-// `RECEIVER . delete ( KEY )`, matching the shape TS already reads in.
-// Bails out untouched (rather than guess) on anything that does not look
-// like a plain `X[Y]` target, so a real divergence there still shows.
-function expandUnset(tokens)
+// Shared machinery for `unset`/`isset`: both take any number of
+// comma-separated `RECEIVER [ KEY ]` targets in one PHP call, and the port
+// has no such form -- each becomes its own `RECEIVER . method ( KEY )`
+// expression, joined by `joiner` when there is more than one (unset's become
+// separate statements, so joiner is empty; isset's "all must be set" reads
+// as `&&`). Bails out (returns null) on anything that doesn't look like a
+// plain `X[Y]` target in every comma group, so a real divergence still shows
+// rather than being silently mangled.
+function expandBracketCall(tokens, callName, method, joiner)
 {
     const out = [];
     let i = 0;
+    let changed = false;
     while (i < tokens.length) {
-        if (tokens[i] === 'unset' && tokens[i + 1] === '(') {
+        if (tokens[i] === callName && tokens[i + 1] === '(') {
             const openIndex = i + 1;
             let depth = 0;
             let closeIndex = -1;
@@ -194,11 +196,13 @@ function expandUnset(tokens)
                     }
                     const receiver = group.slice(0, openBracket);
                     const key = group.slice(openBracket + 1, group.length - 1);
-                    rewritten.push(...receiver, '.', 'delete', '(', ...key, ')');
+                    if (rewritten.length > 0) rewritten.push(...joiner);
+                    rewritten.push(...receiver, '.', method, '(', ...key, ')');
                 }
                 if (ok) {
                     out.push(...rewritten);
                     i = closeIndex + 1;
+                    changed = true;
                     continue;
                 }
             }
@@ -206,7 +210,22 @@ function expandUnset(tokens)
         out.push(tokens[i]);
         i++;
     }
-    return out;
+    return changed ? out : tokens;
+}
+
+// collection-ops: `unset -> .delete()`.
+function expandUnset(tokens)
+{
+    return expandBracketCall(tokens, 'unset', 'delete', []);
+}
+
+// collection-ops: `isset -> .has()`. PHP's `isset($x[$k])` also becomes an
+// `!== undefined`/`=== undefined` test elsewhere in this file (the plain
+// `isset` structural rule) -- that shape is different from a bare
+// truthiness read and is not folded here, only the direct `.has()` case.
+function expandIsset(tokens)
+{
+    return expandBracketCall(tokens, 'isset', 'has', ['&&']);
 }
 
 // collection-ops: `end()/array_last() -> [size() - 1]`. Both PHP builtins
@@ -334,7 +353,7 @@ function canonicalizePhp(tokens)
     // A method declaration's `function` keyword; JS spells the name alone.
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
-    return stripPropertyNullDefault(foldArrayLast(expandUnset(reorderForeach(stripSignatureNoise(out)))));
+    return stripPropertyNullDefault(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out))))));
 }
 
 // The same erased-default problem stripSignatureNoise handles for a method

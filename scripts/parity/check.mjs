@@ -10,7 +10,7 @@
 // residue is strong evidence of a verbatim mirror; a non-empty one is a
 // worklist to justify by hand, not proof of a bug by itself.
 //
-// Usage: node scripts/parity/check.mjs <path/to/File.ts> [--out=report.csv]
+// Usage: node scripts/parity/check.mjs <path/to/File.ts> [--out=report.csv] [--show=memberName]
 import ts from 'typescript';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -23,18 +23,20 @@ function parseArgs(argv)
 {
     const positional = [];
     let out;
+    let show;
     for (const arg of argv) {
         if (arg.startsWith('--out=')) out = arg.slice('--out='.length);
+        else if (arg.startsWith('--show=')) show = arg.slice('--show='.length);
         else positional.push(arg);
     }
     if (positional.length !== 1) {
-        console.error('Usage: node scripts/parity/check.mjs <path/to/File.ts> [--out=report.csv]');
+        console.error('Usage: node scripts/parity/check.mjs <path/to/File.ts> [--out=report.csv] [--show=memberName]');
         process.exit(1);
     }
-    return { tsFile: path.resolve(positional[0]), out };
+    return { tsFile: path.resolve(positional[0]), out, show };
 }
 
-const { tsFile, out } = parseArgs(process.argv.slice(2));
+const { tsFile, out, show } = parseArgs(process.argv.slice(2));
 
 // ---------------------------------------------------------------------
 // PHP side: locate the class via Composer's own autoloader (robust against
@@ -155,7 +157,6 @@ const PHP_DROPPED = new Set([
     'private',
     'function',
     'fn',
-    '?',
     'mixed',
     'callable',
     'string',
@@ -169,6 +170,21 @@ const PHP_DROPPED = new Set([
     'self',
     'static',
 ]);
+
+// A bare `?` is the *exact same token* whether it's a nullable-type marker
+// (`?callable`) or the ternary operator (`$x ? $y : $z`) -- token_get_all
+// doesn't distinguish them, only position does. Dropping every `?`
+// unconditionally (this set's own approach for everything else) silently
+// ate real ternary operators too, which cost two whole tokens' worth of
+// fidelity on every ternary in this file before it was caught by reading
+// the actual --show residue, not the percentage alone. Only drop it when
+// the next token is a type name -- a nullable marker is always immediately
+// followed by one, a ternary's `?` never is.
+function isNullableTypeMarker(tokens, index)
+{
+    const next = tokens[index + 1];
+    return PHP_DROPPED.has(next) || (/^[A-Z]/.test(next ?? '') && tokens[index + 2]?.startsWith('$'));
+}
 
 // nullable-default (CONVENTIONS.md): a PHP `= null` parameter default has
 // nothing to match on the TS side -- an omitted argument already reads as
@@ -227,12 +243,18 @@ function foldFuncNumArgs(tokens)
 
 function canonicalizePhp(rawTokens)
 {
-    const tokens = foldFuncNumArgs(stripParamDefaults(rawTokens));
+    // Whitespace tokens (T_WHITESPACE carries its own text in the flat
+    // dump) have to go *before* the folds below, not after: `= null` in
+    // the source is actually three raw tokens, `=`, ` `, `null`, and a
+    // fold pattern-matching on adjacent token text would never see them
+    // as adjacent otherwise.
+    const withoutWhitespace = rawTokens.filter((t) => !/^\s+$/.test(t));
+    const tokens = foldFuncNumArgs(stripParamDefaults(withoutWhitespace));
     const out = [];
     for (let i = 0; i < tokens.length; i++) {
         let token = tokens[i];
         if (token === ';' || PHP_DROPPED.has(token)) continue;
-        if (/^\s+$/.test(token)) continue; // whitespace tokens from the flat dump
+        if (token === '?' && isNullableTypeMarker(tokens, i)) continue;
         // A class-name type hint (`ReflectionParameter $parameter`) is
         // erased the same way the primitive names above already are.
         if (/^[A-Z]/.test(token) && tokens[i + 1]?.startsWith('$')) continue;
@@ -261,6 +283,40 @@ function canonicalizePhp(rawTokens)
                 continue;
             }
         }
+        // `elseif` is one PHP token; TS only has `else` `if` as two --
+        // same construct, just never spelled as one word there.
+        if (token === 'elseif') {
+            out.push('else', 'if');
+            continue;
+        }
+        // `(new X(...))->method()`: the outer parens exist only because
+        // Laravel's own style always wraps a `new` expression before
+        // chaining off of it (older PHP required this to chain at all);
+        // `new X(...).method()` chains directly in TS/JS, no parens
+        // needed. Stripped only in front of `->`/`::` specifically, not
+        // every parenthesized `new` (a `(new X())` passed as a plain
+        // argument has nothing chained after it to make the parens
+        // redundant).
+        if (token === '(' && tokens[i + 1] === 'new') {
+            let newDepth = 0;
+            let newClose = -1;
+            for (let j = i; j < tokens.length; j++) {
+                if (tokens[j] === '(') newDepth++;
+                else if (tokens[j] === ')') {
+                    newDepth--;
+                    if (newDepth === 0) {
+                        newClose = j;
+                        break;
+                    }
+                }
+            }
+            if (newClose !== -1 && (tokens[newClose + 1] === '->' || tokens[newClose + 1] === '::')) {
+                const inner = canonicalizePhp(tokens.slice(i + 1, newClose));
+                out.push(...inner);
+                i = newClose;
+                continue;
+            }
+        }
         if (isStringToken(token)) {
             out.push(canonicalString(token));
             continue;
@@ -285,14 +341,17 @@ function canonicalizePhp(rawTokens)
 }
 
 // A leading underscore is this port's one general escape hatch
-// (CONVENTIONS.md: reserved words, property/method name collisions, and
-// __call all take it) -- stripping exactly one from every TS identifier
-// covers all three without needing a specific rule per case, since PHP's
-// own `__call` already carries two underscores and the port's `___call`
-// carries one more than that.
+// (CONVENTIONS.md: reserved words and property/method name collisions
+// both take it, one underscore -- `_default`, `_condition`). `__call`
+// takes it too, but PHP's own magic methods already spell themselves with
+// two underscores (`__get`, `__call`), so a name that already has exactly
+// two must be left alone -- stripping one from `__get` would wrongly turn
+// it into `_get`, matching nothing. Only one leading underscore (-> zero)
+// or three (-> two, `___call` -> `__call`) are this port's own doing.
 function unRename(token)
 {
-    return token.startsWith('_') && token.length > 1 ? token.slice(1) : token;
+    const leading = token.match(/^_+/)?.[0].length ?? 0;
+    return leading === 1 || leading === 3 ? token.slice(1) : token;
 }
 
 // Collects [start, end) character ranges (into sourceFile.text) that are
@@ -385,13 +444,44 @@ function stripTypesFromText(node, sourceFile)
 // Matches PHP_DROPPED's own unconditional 'static' drop (not just a leading
 // modifier position -- neither PHP nor TS ever lets 'static' be a plain
 // identifier, so dropping every occurrence is safe on both sides).
-const TS_DROPPED = new Set(['public', 'private', 'protected', 'readonly', 'static']);
+// 'const'/'let' too: PHP has no local-variable-declaration keyword at all
+// (the first assignment doubles as the declaration), so a statement-level
+// one never has anything on the PHP side to line up against.
+const TS_DROPPED = new Set(['public', 'private', 'protected', 'readonly', 'static', 'const', 'let']);
 
 function canonicalizeTs(tokens)
 {
     const out = [];
-    for (const token of tokens) {
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
         if (token === ';' || TS_DROPPED.has(token)) continue;
+        // truthiness (CONVENTIONS.md territory, if not yet written down
+        // there): `truthy(X)` exists purely to replicate PHP's own
+        // implicit bool coercion in a condition position -- PHP never
+        // spells that coercion as a function call, so unwrapping it here
+        // is normalizing the spelling of one accepted convention, not
+        // inferring anywhere-truthy() *should* have been used but wasn't
+        // (a call to it has to already be there in the tokens for this to
+        // fire at all).
+        if (token === 'truthy' && tokens[i + 1] === '(') {
+            let depth = 0;
+            let close = -1;
+            for (let j = i + 1; j < tokens.length; j++) {
+                if (tokens[j] === '(') depth++;
+                else if (tokens[j] === ')') {
+                    depth--;
+                    if (depth === 0) {
+                        close = j;
+                        break;
+                    }
+                }
+            }
+            if (close !== -1) {
+                out.push(...canonicalizeTs(tokens.slice(i + 2, close)));
+                i = close;
+                continue;
+            }
+        }
         if (isStringToken(token)) {
             out.push(canonicalString(token));
             continue;
@@ -423,6 +513,58 @@ function mirrorFidelity(phpTokens, tsTokens)
     const common = lcsLength(phpTokens, tsTokens);
     const longer = Math.max(phpTokens.length, tsTokens.length);
     return Math.round((common / longer) * 1000) / 10;
+}
+
+// --show=<member> diagnostic: prints the two canonicalized token streams
+// aligned as runs of tokens present on only one side (an LCS backtrack, not
+// just the length lcsLength returns), so it's visible exactly what a fold
+// would need to bridge instead of guessing from the percentage alone.
+function printResidue(name, phpTokens, tsTokens)
+{
+    const dp = Array.from({ length: phpTokens.length + 1 }, () => new Array(tsTokens.length + 1).fill(0));
+    for (let i = 1; i <= phpTokens.length; i++) {
+        for (let j = 1; j <= tsTokens.length; j++) {
+            dp[i][j] = phpTokens[i - 1] === tsTokens[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+        }
+    }
+
+    const runs = [];
+    let phpBuf = [];
+    let tsBuf = [];
+    const flush = () => {
+        if (phpBuf.length || tsBuf.length) runs.unshift({ php: phpBuf, ts: tsBuf });
+        phpBuf = [];
+        tsBuf = [];
+    };
+    let i = phpTokens.length;
+    let j = tsTokens.length;
+    while (i > 0 && j > 0) {
+        if (phpTokens[i - 1] === tsTokens[j - 1]) {
+            flush();
+            i--;
+            j--;
+        } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+            phpBuf.unshift(phpTokens[i - 1]);
+            i--;
+        } else {
+            tsBuf.unshift(tsTokens[j - 1]);
+            j--;
+        }
+    }
+    while (i > 0) {
+        phpBuf.unshift(phpTokens[--i]);
+    }
+    while (j > 0) {
+        tsBuf.unshift(tsTokens[--j]);
+    }
+    flush();
+
+    console.error(`--- residue for ${name} ---`);
+    for (const run of runs) {
+        if (run.php.length) console.error(`  php: ${run.php.join(' ')}`);
+        if (run.ts.length) console.error(`  ts : ${run.ts.join(' ')}`);
+    }
+    console.error('');
 }
 
 // ---------------------------------------------------------------------
@@ -462,6 +604,8 @@ for (const phpMember of phpData.members) {
     matchedTsMembers.add(tsMember);
     const tsText = stripTypesFromText(tsMember.node, sourceFile);
     const tsTokens = canonicalizeTs(tokenizeJs(tsText));
+
+    if (show === phpMember.name) printResidue(phpMember.name, phpTokens, tsTokens);
 
     rows.push({
         laravel_path: path.relative(upstreamRoot, phpData.file),

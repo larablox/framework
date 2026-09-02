@@ -1,9 +1,0 @@
-{
-    "description": "Pinned laravel/framework checkout used as the parity reference for src/Illuminate. Install with `composer install` (the parity runner does it on demand); update with `composer update laravel/framework`.",
-    "require": {
-        "laravel/framework": "13.24.0"
-    },
-    "config": {
-        "platform-check": false
-    }
-}

@@ -38,7 +38,6 @@
         "watch": "rbxtsc -w",
         "dev": "npm run watch",
         "lint": "eslint .",
-        "parity": "node scripts/parity/run.mjs",
         "lint:fix": "eslint . --fix",
         "format": "dprint check",
         "format:fix": "dprint fmt",

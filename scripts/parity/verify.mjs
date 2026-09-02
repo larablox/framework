@@ -313,6 +313,61 @@ function foldIsNull(tokens)
     return out;
 }
 
+// collection-ops: `array_pop -> .pop()`. Same single-argument function-call
+// shape as array_last/is_null above; unlike them, .pop() takes no argument
+// to duplicate or negate, so the fold is a plain suffix rewrite.
+function foldArrayPop(tokens)
+{
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if (tokens[i] === 'array_pop' && tokens[i + 1] === '(') {
+            const matched = matchCallArgs(tokens, i + 1);
+            if (matched && matched.args.length === 1) {
+                out.push(...matched.args[0], '.', 'pop', '(', ')');
+                i = matched.closeIndex + 1;
+                continue;
+            }
+        }
+        out.push(tokens[i]);
+        i++;
+    }
+    return out;
+}
+
+// `empty(x)` spells as `x.isEmpty()`; `! empty(x)` as `x.isEmpty() ===
+// false` -- a suffix comparison rather than a leading `!`, specifically so
+// the fold never needs to reach backward past however many tokens make up
+// `x` (unlike is_null's bare `x`, `x` here is often a whole dotted path,
+// e.g. `$this->abstractAliases[$abstract]`). The TS side reaches for two
+// different spellings of the same negated check depending on the method
+// (`!x.isEmpty()` in notInstantiable(), `x.size() > 0` in resolve()) --
+// only the `.size() > 0` one folds to match here for the same reason: it is
+// a suffix, so it needs no backward reach either. `!x.isEmpty()` still
+// shows as residue; unified handling would need real expression-boundary
+// tracking this tokenizer does not have.
+function foldEmpty(tokens)
+{
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if (tokens[i] === 'empty' && tokens[i + 1] === '(') {
+            const matched = matchCallArgs(tokens, i + 1);
+            if (matched && matched.args.length === 1) {
+                const negated = out[out.length - 1] === '!';
+                if (negated) out.pop();
+                out.push(...matched.args[0], '.', 'isEmpty', '(', ')');
+                if (negated) out.push('===', 'false');
+                i = matched.closeIndex + 1;
+                continue;
+            }
+        }
+        out.push(tokens[i]);
+        i++;
+    }
+    return out;
+}
+
 // `foreach ($list as $item)` and `for (const item of list)` hold the same
 // tokens in reversed order -- PHP names the collection first, TS/Luau name
 // the loop variable first, since there is no `foreach` there. Only the
@@ -407,7 +462,9 @@ function canonicalizePhp(tokens)
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
     return stripPropertyNullDefault(
-        foldIsNull(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out)))))),
+        foldEmpty(
+            foldArrayPop(foldIsNull(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out))))))),
+        ),
     );
 }
 
@@ -512,6 +569,18 @@ function canonicalizeTs(tokens, renames)
         if (token === '.' && tokens[index + 1] === 'clear' && tokens[index + 2] === '(' && tokens[index + 3] === ')') {
             out.push('=', '[', ']');
             index += 3;
+            continue;
+        }
+        // `!empty(x)` reads as `x.size() > 0` at this one call site (resolve());
+        // folds toward the same `x.isEmpty() === false` foldEmpty already
+        // produces on the PHP side, a pure suffix rewrite so it needs no
+        // backward reach into however many tokens make up the receiver.
+        if (
+            token === '.' && tokens[index + 1] === 'size' && tokens[index + 2] === '(' && tokens[index + 3] === ')'
+            && tokens[index + 4] === '>' && tokens[index + 5] === '0'
+        ) {
+            out.push('.', 'isEmpty', '(', ')', '===', 'false');
+            index += 5;
             continue;
         }
         // collection-ops: a keyed read (`.get(k)`) spells `[ k ]` -- same

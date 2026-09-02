@@ -33,9 +33,6 @@
         "watch": "rbxtsc -w",
         "dev": "npm run watch"
     },
-    "dependencies": {
-        "@larablox/monolog": "^0.2.0"
-    },
     "devDependencies": {
         "@rbxts/compiler-types": "^3.0.0-types.0",
         "@rbxts/types": "^1.0.943",

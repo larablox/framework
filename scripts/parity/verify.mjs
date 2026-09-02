@@ -61,12 +61,16 @@ function canonicalString(token)
 
 // PHP-side noise with no JS counterpart: visibility (verified by its own CSV
 // columns), parameter/catch type hints (types are erased in the transpiled
-// JS), and the `fn` keyword (an arrow spells itself with `=>` alone).
+// JS), and the `fn`/`function` keywords (an arrow spells itself with `=>`
+// alone, whether standing in for a short closure or a full one -- the
+// member's own top-level `function` is already gone by the time this set is
+// consulted, dropped the same way).
 const PHP_DROPPED = new Set([
     'public',
     'protected',
     'private',
     'fn',
+    'function',
     'Closure',
     '\\Closure',
     'Throwable',

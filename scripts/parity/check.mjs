@@ -170,8 +170,64 @@ const PHP_DROPPED = new Set([
     'static',
 ]);
 
-function canonicalizePhp(tokens)
+// nullable-default (CONVENTIONS.md): a PHP `= null` parameter default has
+// nothing to match on the TS side -- an omitted argument already reads as
+// `undefined` there, so the port doesn't write a default at all (here, it
+// doesn't even keep the parameter as its own named binding; see the
+// func_num_args() fold below). Scoped to the member's own top-level
+// parameter list specifically (not just any `= null` -- a body-level
+// assignment is a real statement TS should still have *something* to match).
+function stripParamDefaults(tokens)
 {
+    const openIndex = tokens.indexOf('(');
+    if (openIndex === -1) return tokens;
+    let depth = 0;
+    let closeIndex = -1;
+    for (let i = openIndex; i < tokens.length; i++) {
+        if (tokens[i] === '(') depth++;
+        else if (tokens[i] === ')') {
+            depth--;
+            if (depth === 0) {
+                closeIndex = i;
+                break;
+            }
+        }
+    }
+    if (closeIndex === -1) return tokens;
+
+    const out = [];
+    for (let i = 0; i < tokens.length; i++) {
+        if (i > openIndex && i < closeIndex && tokens[i] === '=' && tokens[i + 1] === 'null') {
+            i++;
+            continue;
+        }
+        out.push(tokens[i]);
+    }
+    return out;
+}
+
+// func_num_args() has no TS counterpart (there is no `arguments` object --
+// roblox-ts rejects it outright: "`arguments` is not supported!") -- this
+// port's own stand-in, threading a `...args: unknown[]` rest parameter
+// through instead of named ones, reads its length with `args.size()`. Both
+// answer the exact same question, just spelled differently.
+function foldFuncNumArgs(tokens)
+{
+    const out = [];
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === 'func_num_args' && tokens[i + 1] === '(' && tokens[i + 2] === ')') {
+            out.push('args', '.', 'size', '(', ')');
+            i += 2;
+            continue;
+        }
+        out.push(tokens[i]);
+    }
+    return out;
+}
+
+function canonicalizePhp(rawTokens)
+{
+    const tokens = foldFuncNumArgs(stripParamDefaults(rawTokens));
     const out = [];
     for (let i = 0; i < tokens.length; i++) {
         let token = tokens[i];

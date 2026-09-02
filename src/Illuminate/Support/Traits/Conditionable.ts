@@ -23,7 +23,11 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
         ): unknown;
         public when(...args: unknown[]): unknown
         {
-            let value = args[0];
+            let [value, callback, _default] = args as [
+                unknown,
+                ((instance: this, value: unknown) => unknown)?,
+                ((instance: this, value: unknown) => unknown)?,
+            ];
             value = typeIs(value, 'function') ? (value as (instance: this) => unknown)(this) : value;
 
             if (args.size() === 0) {
@@ -34,13 +38,10 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
                 return new HigherOrderWhenProxy(this).condition(value);
             }
 
-            const callback = args[1] as (instance: this, value: unknown) => unknown;
-            const _default = args[2] as ((instance: this, value: unknown) => unknown) | undefined;
-
             if (truthy(value)) {
-                return callback(this, value) ?? this;
+                return callback!(this, value) ?? this;
             } else if (truthy(_default)) {
-                return (_default as (instance: this, value: unknown) => unknown)(this, value) ?? this;
+                return _default!(this, value) ?? this;
             }
 
             return this;
@@ -61,7 +62,11 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
         ): unknown;
         public unless(...args: unknown[]): unknown
         {
-            let value = args[0];
+            let [value, callback, _default] = args as [
+                unknown,
+                ((instance: this, value: unknown) => unknown)?,
+                ((instance: this, value: unknown) => unknown)?,
+            ];
             value = typeIs(value, 'function') ? (value as (instance: this) => unknown)(this) : value;
 
             if (args.size() === 0) {
@@ -72,13 +77,10 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
                 return new HigherOrderWhenProxy(this).condition(!truthy(value));
             }
 
-            const callback = args[1] as (instance: this, value: unknown) => unknown;
-            const _default = args[2] as ((instance: this, value: unknown) => unknown) | undefined;
-
             if (!truthy(value)) {
-                return callback(this, value) ?? this;
+                return callback!(this, value) ?? this;
             } else if (truthy(_default)) {
-                return (_default as (instance: this, value: unknown) => unknown)(this, value) ?? this;
+                return _default!(this, value) ?? this;
             }
 
             return this;

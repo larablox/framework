@@ -180,8 +180,44 @@ function canonicalizePhp(tokens)
         // A class-name type hint (`ReflectionParameter $parameter`) is
         // erased the same way the primitive names above already are.
         if (/^[A-Z]/.test(token) && tokens[i + 1]?.startsWith('$')) continue;
+        // `->{EXPR}` (dynamic property/method access by variable name)
+        // spells as `[EXPR]` -- there is no TS equivalent of PHP's curly-
+        // brace member syntax, only bracket indexing, so this reads the
+        // same as any other keyed access. Depth-tracked (not a fixed token
+        // count) since EXPR itself could be more than one token.
+        if (token === '->' && tokens[i + 1] === '{') {
+            let depth = 0;
+            let close = -1;
+            for (let j = i + 1; j < tokens.length; j++) {
+                if (tokens[j] === '{') depth++;
+                else if (tokens[j] === '}') {
+                    depth--;
+                    if (depth === 0) {
+                        close = j;
+                        break;
+                    }
+                }
+            }
+            if (close !== -1) {
+                const inner = canonicalizePhp(tokens.slice(i + 2, close));
+                out.push('[', ...inner, ']');
+                i = close;
+                continue;
+            }
+        }
         if (isStringToken(token)) {
             out.push(canonicalString(token));
+            continue;
+        }
+        // instanceof-closure: `$x instanceof Closure` spells as
+        // `typeIs(x, 'function')` -- a closure is a bare function value.
+        // Only the single-token receiver this file's one occurrence has is
+        // handled (the last token already pushed); a multi-token receiver
+        // would need popping more than one, which nothing here needs yet.
+        if (token === 'instanceof' && tokens[i + 1] === 'Closure') {
+            const receiver = out.pop();
+            out.push('typeIs', '(', receiver, ',', 'str:function', ')');
+            i++; // consume 'Closure' too
             continue;
         }
         if (token.startsWith('$')) token = token.slice(1);
@@ -254,6 +290,14 @@ function collectTypeRanges(node, sourceFile, ranges)
         }
         if (ts.isNonNullExpression(n)) {
             ranges.push([n.expression.getEnd(), n.getEnd()]);
+        }
+        // `(x as Y)(...)`/`(x as Y).z` -- parens exist only so the cast can
+        // be called/accessed; once the cast itself is stripped above they
+        // are redundant (`value(this)` parses the same as `(value)(this)`)
+        // and PHP never had a matching pair to line up against anyway.
+        if (ts.isParenthesizedExpression(n) && ts.isAsExpression(n.expression)) {
+            ranges.push([n.getStart(sourceFile), n.getStart(sourceFile) + 1]);
+            ranges.push([n.getEnd() - 1, n.getEnd()]);
         }
         ts.forEachChild(n, visit);
     }

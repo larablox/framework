@@ -784,8 +784,13 @@ function canonicalizeTs(tokens, renames)
         // (`this.call`, `BoundMethod.call`) sharing the identifier by
         // coincidence, not the call_user_func stand-in, and token 0 is
         // always the member's own declared name (Container::call, here),
-        // never a reference to anything -- neither must canonicalize into one.
-        if (tsToCanon.has(token) && index !== 0 && tokens[index - 1] !== '.') {
+        // never a reference to anything -- neither must canonicalize into
+        // one. A static method keeps its `static` modifier at token 0 (the
+        // PHP side does too, once canonicalizePhp strips `function` back to
+        // `static <name>`), so the declared name itself sits at token 1
+        // there instead.
+        const nameIndex = tokens[0] === 'static' ? 1 : 0;
+        if (tsToCanon.has(token) && index !== nameIndex && tokens[index - 1] !== '.') {
             out.push(tsToCanon.get(token));
             continue;
         }

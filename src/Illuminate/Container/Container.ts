@@ -190,9 +190,9 @@ export class Container implements ContainerContract
             return false;
         }
 
-        const scopedType = this.getScopedTyped(abstract);
+        let scopedType: ScopedType;
 
-        if (scopedType === false) {
+        if ((scopedType = this.getScopedTyped(abstract)) === false) {
             return false;
         }
 
@@ -531,9 +531,9 @@ export class Container implements ContainerContract
     /** Fire the "rebound" callbacks for the given abstract type. */
     protected rebound(abstract: Abstract): void
     {
-        const callbacks = this.getReboundCallbacks(abstract);
+        let callbacks: Array<ReboundCallback>;
 
-        if (callbacks.isEmpty()) {
+        if ((callbacks = this.getReboundCallbacks(abstract)).isEmpty()) {
             return;
         }
 
@@ -567,9 +567,9 @@ export class Container implements ContainerContract
     {
         let pushedToBuildStack = false;
 
-        const className = this.getClassForCallable(callback);
+        let className: Abstract | undefined;
 
-        if (className !== undefined && !this.buildStack.includes(className)) {
+        if ((className = this.getClassForCallable(callback)) !== undefined && !this.buildStack.includes(className)) {
             this.buildStack.push(className);
 
             pushedToBuildStack = true;
@@ -799,9 +799,9 @@ export class Container implements ContainerContract
     /** Get the contextual concrete binding for the given abstract. */
     protected getContextualConcrete(abstract: Abstract): ContextualImplementation | undefined
     {
-        const binding = this.findInContextualBindings(abstract);
+        let binding: ContextualImplementation | undefined;
 
-        if (binding !== undefined) {
+        if ((binding = this.findInContextualBindings(abstract)) !== undefined) {
             return binding;
         }
 
@@ -815,10 +815,8 @@ export class Container implements ContainerContract
         }
 
         for (const alias of aliases) {
-            const aliasBinding = this.findInContextualBindings(alias);
-
-            if (aliasBinding !== undefined) {
-                return aliasBinding;
+            if ((binding = this.findInContextualBindings(alias)) !== undefined) {
+                return binding;
             }
         }
 
@@ -969,10 +967,9 @@ export class Container implements ContainerContract
             }
 
             let result: unknown;
+            let attribute: ParameterAttribute | undefined;
 
-            const attribute = Util.getContextualAttributeFromDependency(dependency);
-
-            if (attribute !== undefined) {
+            if ((attribute = Util.getContextualAttributeFromDependency(dependency)) !== undefined) {
                 result = this.resolveFromAttribute(attribute);
             }
 
@@ -1088,9 +1085,9 @@ export class Container implements ContainerContract
     /** Resolve a non-class hinted primitive dependency. */
     protected resolvePrimitive(parameter: Abstract, variadic = false): unknown
     {
-        const concrete = this.getContextualConcrete(parameter);
+        let concrete: ContextualImplementation | undefined;
 
-        if (concrete !== undefined) {
+        if ((concrete = this.getContextualConcrete(parameter)) !== undefined) {
             return Util.unwrapIfClosure(concrete, this);
         }
 
@@ -1133,9 +1130,9 @@ export class Container implements ContainerContract
     protected resolveVariadicClass(parameter: Abstract): unknown
     {
         const abstract = this.getAlias(parameter);
-        const concrete = this.getContextualConcrete(abstract);
+        let concrete: ContextualImplementation | undefined;
 
-        if (!Util.isArray(concrete)) {
+        if (!Util.isArray(concrete = this.getContextualConcrete(abstract))) {
             // PHP returns `$this->make($className)` as-is, and deliberately:
             // a contextual binding registered through `giveTagged()` is a
             // closure, not a list, so this branch is the one it takes, and

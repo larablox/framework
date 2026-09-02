@@ -340,10 +340,10 @@
     },
     "Container/Container.php#Container#call": {
         "php_hash": "c1190e9a2324ecb35e36948e00e102321133fd6a",
-        "ts_hash": "2261b38009b4cbd5649ad9a438fd815b88259cc3",
+        "ts_hash": "dc7b4d2697171cec776d62958885b20744d8b917",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. hoisted-assignment for the className condition; parameters cast straight to ParameterOverrides at the call site (see ParameterList's docblock: Map/Array compile to the same bare table here, so the cast is not a conversion); collection-ops (in_array/array_pop); getClassForCallable carries its own note on the closure-scope boundary."
+        "note": "Mirrored. The className condition now assigns inline (`(className = this.getClassForCallable(callback)) !== undefined && ...`) instead of hoisting: rbxtsc lowers an assignment-expression to the identical `local className; className = ...` Luau either way (verified by comparing compiled output), so this is not a behavior change, just closer to upstream's own `if (($className = ...) && ...)`. parameters cast straight to ParameterOverrides at the call site (see ParameterList's docblock: Map/Array compile to the same bare table here, so the cast is not a conversion); collection-ops (in_array/array_pop); getClassForCallable carries its own note on the closure-scope boundary."
     },
     "Container/Container.php#Container#callMethodBinding": {
         "php_hash": "8aca99187621a6b9bd0e16485374684b500a57d4",
@@ -617,10 +617,10 @@
     },
     "Container/Container.php#Container#getContextualConcrete": {
         "php_hash": "de627e1ffdd1c981d89f591105b47eb2448e905b",
-        "ts_hash": "ff69b0403ab7130f37abfa32b6542969c6d45faa",
+        "ts_hash": "ffcde0068f5014a9a859a5a0b4f212e1214201c6",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops; the implicit PHP null returns spell explicit return undefined."
+        "note": "Mirrored. collection-ops; the implicit PHP null returns spell explicit return undefined. Both is_null($binding = ...) checks now assign inline instead of hoisting -- rbxtsc lowers the assignment to the same Luau either way (verified), so this is purely closer to upstream's own shape, not a behavior change. binding is reused across both occurrences, matching PHP's single $binding."
     },
     "Container/Container.php#Container#getExtenders": {
         "php_hash": "5720951e5f3fbd4d6db9708d8f935cacca63adb1",
@@ -767,10 +767,10 @@
     },
     "Container/Container.php#Container#isShared": {
         "php_hash": "df6690098ea95b40364b4e7178ce3258a3ab8f29",
-        "ts_hash": "aa7e423818f05778f892607da59b4fb885ee86bf",
+        "ts_hash": "9e7b69964b998a805787751fa0d51db52d9c4869",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. collection-ops; class_exists -> Util.isClass (rename); ScopedType's false spells PHP's null."
+        "note": "Mirrored. collection-ops; class_exists -> Util.isClass (rename); ScopedType's false spells PHP's null. The scopedType condition now assigns inline ((scopedType = this.getScopedTyped(abstract)) === false) instead of hoisting -- verified rbxtsc lowers it to the same Luau either way, so this is not a behavior change."
     },
     "Container/Container.php#Container#make": {
         "php_hash": "da16175648724fec9febb33fad8fea06fc7aa817",
@@ -850,10 +850,10 @@
     },
     "Container/Container.php#Container#rebound": {
         "php_hash": "27e0c5a10879d146c33fe6070f24f6663fda221c",
-        "ts_hash": "55131177702b107e5bf2920ad485828e730719e3",
+        "ts_hash": "73dd705750c25411641ad3ab0d2c39ccdfaf8066",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. Fires (container, instance) exactly as upstream after the review fix; the !$callbacks truthiness spells isEmpty."
+        "note": "Mirrored. Fires (container, instance) exactly as upstream after the review fix; the !$callbacks truthiness spells isEmpty, now called directly on the inline assignment ((callbacks = this.getReboundCallbacks(abstract)).isEmpty()) instead of a hoisted const -- verified rbxtsc lowers the assignment to the same Luau local either way, so this is not a behavior change."
     },
     "Container/Container.php#Container#reboundCallbacks@property": {
         "php_hash": "e7a6b1bda0df0c12a99112bdceb36981ab73beca",
@@ -923,10 +923,10 @@
     },
     "Container/Container.php#Container#resolveDependencies": {
         "php_hash": "74da6b0cbfb2a90ca915e19ae522f4b3d68e7ba0",
-        "ts_hash": "69798ca794b8f7fa0236995bca8b3f44fab2a3f0",
+        "ts_hash": "490db02c4ac7869e8c96ee8f1bf17b612359b547",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored through reflection-registry and parameter-overrides: ReflectionParameter -> ParameterDependency, the name-keyed override -> abstract-or-1-based-position, the is_null(getParameterClassName) fork -> resolveDeclaredDependency. The variadic merge spells through arrayWrap; foreach with an index because the position is an override key."
+        "note": "Mirrored through reflection-registry and parameter-overrides: ReflectionParameter -> ParameterDependency, the name-keyed override -> abstract-or-1-based-position, the is_null(getParameterClassName) fork -> resolveDeclaredDependency. The variadic merge spells through arrayWrap; foreach with an index because the position is an override key. The attribute assignment now happens inline ((attribute = Util.getContextualAttributeFromDependency(dependency)) !== undefined) instead of hoisting -- verified rbxtsc lowers it to the same Luau either way."
     },
     "Container/Container.php#Container#resolveEnvironmentUsing": {
         "php_hash": "96f14992556b8998c6f464835da9af946d38ae35",
@@ -945,17 +945,17 @@
     },
     "Container/Container.php#Container#resolvePrimitive": {
         "php_hash": "767eab7969b707ae9b627b615cab3cc3a394fe38",
-        "ts_hash": "184e023a24c1bce9c400ed2a7172ce72ed17a936",
+        "ts_hash": "b4fd7597a89c4889bf31d701040001e7cfe2e292",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored where the platform reaches: the contextual '$name' lookup (unwrapIfClosure included) and the variadic [] survive. isDefaultValueAvailable/getDefaultValue and hasType/allowsNull read reflection that was erased -- a default is honored by leaving the trailing parameter unannotated (Inject.ts collect()), and nullability is unknowable."
+        "note": "Mirrored where the platform reaches: the contextual '$name' lookup (unwrapIfClosure included) and the variadic [] survive. isDefaultValueAvailable/getDefaultValue and hasType/allowsNull read reflection that was erased -- a default is honored by leaving the trailing parameter unannotated (Inject.ts collect()), and nullability is unknowable. The concrete assignment now happens inline ((concrete = this.getContextualConcrete(parameter)) !== undefined) instead of hoisting -- verified rbxtsc lowers it to the same Luau either way."
     },
     "Container/Container.php#Container#resolveVariadicClass": {
         "php_hash": "60c14b107bbf6e7b272523c49b0bc46acdbb4097",
-        "ts_hash": "e40b67cba17afcb7a27316d772443573346614a4",
+        "ts_hash": "eff63e45b6c7adfb3e0de1ab6d701fd15903782c",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. getParameterClassName collapses -- the parameter IS the abstract here; is_array -> Util.isArray; array_map -> the resolve loop. The non-list branch deliberately returns make() raw: a giveTagged closure yields the whole list there."
+        "note": "Mirrored. getParameterClassName collapses -- the parameter IS the abstract here; is_array -> Util.isArray; array_map -> the resolve loop. The non-list branch deliberately returns make() raw: a giveTagged closure yields the whole list there. The concrete assignment now happens inline (!Util.isArray(concrete = this.getContextualConcrete(abstract))) instead of hoisting -- verified rbxtsc lowers it to the same Luau either way."
     },
     "Container/Container.php#Container#resolving": {
         "php_hash": "fceefa0745b92b339c406afdd315443b10941f9c",

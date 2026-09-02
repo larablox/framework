@@ -377,6 +377,32 @@ function foldEmpty(tokens)
     return out;
 }
 
+// `is_string(x)` spells as `typeIs(x, 'string')` -- direct, same polarity,
+// unlike `is_string($abstract)` elsewhere in Container.php, which spells as
+// `!typeIs(abstract, 'function')` (a domain generalization over Abstract's
+// closed string|class union, not this builtin's own meaning) and is left
+// alone: applying this fold there would not create a false match (the
+// negation and the target type both still differ), only reshape residue
+// that was already real.
+function foldIsString(tokens)
+{
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if (tokens[i] === 'is_string' && tokens[i + 1] === '(') {
+            const matched = matchCallArgs(tokens, i + 1);
+            if (matched && matched.args.length === 1) {
+                out.push('typeIs', '(', ...matched.args[0], ',', 'str:string', ')');
+                i = matched.closeIndex + 1;
+                continue;
+            }
+        }
+        out.push(tokens[i]);
+        i++;
+    }
+    return out;
+}
+
 // `foreach ($list as $item)` and `for (const item of list)` hold the same
 // tokens in reversed order -- PHP names the collection first, TS/Luau name
 // the loop variable first, since there is no `foreach` there. Only the
@@ -508,8 +534,12 @@ function canonicalizePhp(tokens, declName)
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
     return stripPropertyNullDefault(
-        foldEmpty(
-            foldArrayPop(foldIsNull(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out))))))),
+        foldIsString(
+            foldEmpty(
+                foldArrayPop(
+                    foldIsNull(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out)))))),
+                ),
+            ),
         ),
     );
 }

@@ -1,4 +1,5 @@
-import { HigherOrderWhenProxy, PendingHigherOrderWhenProxy, ResolvedHigherOrderWhenProxy, truthy } from 'Illuminate/Support/HigherOrderWhenProxy';
+import { truthy } from 'Illuminate/Support/helpers';
+import { HigherOrderWhenProxy, PendingHigherOrderWhenProxy, ResolvedHigherOrderWhenProxy } from 'Illuminate/Support/HigherOrderWhenProxy';
 
 // TS2545: a mixin base's constructor must accept a single `any[]` rest parameter.
 type AnyConstructor<T = object> = new (...args: any[]) => T;

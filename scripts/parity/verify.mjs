@@ -55,16 +55,16 @@ function canonicalString(token)
         // class-name-in-message: an Abstract interpolated into a message
         // spells as `Reflector.className(x)` -- a bare table would
         // interpolate as an address -- so the port always wraps it where
-        // PHP just names the variable. Every use here wraps a single
-        // identifier, standing in for a bare PHP `$var` interpolation (no
-        // braces needed there); a TS template literal has no un-braced
-        // interpolation syntax at all, so `${Reflector.className(x)}`
-        // always carries braces PHP's own simple form never had. Stripped
-        // together when they wrap the substitution -- when PHP's own
-        // interpolation is a braced complex expression instead
-        // (`{$x->getY()}`), the content still differs regardless of these
-        // braces, so this can only close a gap, never paper over one.
-        .replace(/\{Reflector\.className\(([^)]*)\)\}/g, '$1')
+        // PHP just names the variable. NOT also stripping the braces
+        // around it: tried that once and it regressed alias()/getAlias(),
+        // whose PHP source writes `{$abstract}` (braced) for a plain
+        // variable by simple author style, not because the expression
+        // needs it -- PHP's braced-vs-bare choice for a one-token variable
+        // is not something the compiled TS side can predict, so leaving
+        // both sides' braces alone is the only sound default. Verified
+        // safe in both directions before landing this, same as everywhere
+        // else in this file -- the earlier attempt looked safe by the same
+        // reasoning and was not.
         .replace(/Reflector\.className\(([^)]*)\)/g, '$1');
 }
 
@@ -447,13 +447,18 @@ function canonicalizePhp(tokens, declName)
         // Late static binding (`static::`, `new static`) and `self::` both
         // name this declaration -- the port has no such indirection and
         // just writes the class literally, so this only ever needs the
-        // declaration's own name, never a subclass's. Excludes the
-        // `static` that marks a static method itself (always the token
-        // right before `function`), which the post-processing below still
-        // needs to see. `new static;` also gains the `()` PHP's
-        // optional-parens shorthand omits, since a same-shaped `new X()` on
-        // the TS side always writes it.
-        if ((token === 'static' || token === 'self') && tokens[index + 1] !== 'function' && declName) {
+        // declaration's own name, never a subclass's. Positively matched
+        // (followed by `::`, or directly after `new`) rather than excluding
+        // known modifier positions one at a time: `static` is also a
+        // method modifier (`static function`) *and* a property modifier
+        // (`protected static $instance`), and excluding only the first one
+        // once regressed the second. `new static;` also gains the `()`
+        // PHP's optional-parens shorthand omits, since a same-shaped
+        // `new X()` on the TS side always writes it.
+        if (
+            (token === 'static' || token === 'self') && declName
+            && (tokens[index + 1] === '::' || out[out.length - 1] === 'new')
+        ) {
             const afterNew = out[out.length - 1] === 'new';
             out.push(declName);
             if (afterNew && tokens[index + 1] !== '(') out.push('(', ')');

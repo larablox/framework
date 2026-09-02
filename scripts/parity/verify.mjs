@@ -55,7 +55,16 @@ function canonicalString(token)
         // class-name-in-message: an Abstract interpolated into a message
         // spells as `Reflector.className(x)` -- a bare table would
         // interpolate as an address -- so the port always wraps it where
-        // PHP just names the variable.
+        // PHP just names the variable. Every use here wraps a single
+        // identifier, standing in for a bare PHP `$var` interpolation (no
+        // braces needed there); a TS template literal has no un-braced
+        // interpolation syntax at all, so `${Reflector.className(x)}`
+        // always carries braces PHP's own simple form never had. Stripped
+        // together when they wrap the substitution -- when PHP's own
+        // interpolation is a braced complex expression instead
+        // (`{$x->getY()}`), the content still differs regardless of these
+        // braces, so this can only close a gap, never paper over one.
+        .replace(/\{Reflector\.className\(([^)]*)\)\}/g, '$1')
         .replace(/Reflector\.className\(([^)]*)\)/g, '$1');
 }
 

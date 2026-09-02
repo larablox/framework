@@ -43,7 +43,7 @@ export class BoundMethod
     private static callClass(
         container: Container,
         target: string,
-        parameters: ParameterOverrides,
+        parameters: ParameterOverrides = new Map(),
         defaultMethod?: string,
     ): unknown
     {

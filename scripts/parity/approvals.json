@@ -153,10 +153,10 @@
     },
     "Container/BoundMethod.php#BoundMethod#callClass": {
         "php_hash": "d2b372666712a057d734d5b63463c4c0f77214c0",
-        "ts_hash": "259e487966f5c34e398b46675392e6afaffe3eab",
+        "ts_hash": "aa5fee361fffcb1f709c89039b611fa8e798c1bd",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. explode -> Str.explode (rename); collection-ops (count -> size); is_null -> undefined; hoisted-assignment."
+        "note": "Mirrored. explode -> Str.explode (rename); collection-ops (count -> size); is_null -> undefined; hoisted-assignment. Ported the empty-array default (= []) literally instead of a required parameter -- the one call site always passes parameters anyway, so this is not a behavior change, just closer to upstream's own array $parameters = []."
     },
     "Container/BoundMethod.php#BoundMethod#classOfTarget": {
         "php_hash": null,

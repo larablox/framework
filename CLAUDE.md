@@ -9,7 +9,7 @@ package `@larablox/framework`.
 
 - TypeScript 5.x → Luau via roblox-ts (`rbxtsc`); not Node, not a browser
 - Package manager: npm
-- Tests: TestEZ (`@rbxts/testez`) -- see `agent_docs/testing.md`
+- Tests: TestEZ (`@rbxts/testez`)
 
 ## Layout
 
@@ -70,7 +70,6 @@ this wired up, both load-bearing:
 | Build the test place                    | `npm run test:build`       |
 | Serve the test place to Studio          | `npm run test:serve`       |
 | Remove build artifacts                  | `npm run clean`            |
-| Parity report against Laravel           | `npm run parity`           |
 | Install the workbench                   | `npm run workbench:install`|
 | Build the workbench                     | `npm run workbench`        |
 | Build the workbench place file          | `npm run workbench:place`  |
@@ -95,65 +94,11 @@ an `EBADENGINE` warning for a requirement that is ours, not theirs.
 `default.project.json` here is a throwaway Studio place used only to run
 this repo's own test suite once it exists — it is not a game.
 
-`npm test` runs the suite under **Lune**, with no Studio and no DataModel —
-1096 of the suite's 1141 tests in about 13 seconds. The other 45 live in five
-spec files that are about `DataStoreService` and `MemoryStoreService` and
+`npm test` runs the suite under **Lune**, with no Studio and no DataModel.
+A handful of specs are about `DataStoreService` and `MemoryStoreService` and
 nothing else; those are skipped, named at the end of every run, and still need
 Studio or Open Cloud. A green `npm test` is therefore not a green suite, which
-is why the run says so out loud. `agent_docs/testing.md` has how the harness
-works and why the two services are not faked.
-
-## Parity tooling
-
-`npm run parity` compares `src/Illuminate` against a pinned `laravel/framework`
-checkout file to file and member to member, and writes `reports/parity/`
-(`files.csv`, `members.csv`, `summary.md`; gitignored). The reference lives in
-`.upstream/` — committed `composer.json`/`composer.lock`, installed by the
-runner via the developer's own `composer` (PHP CLI is also required).
-
-The summary carries two ratios. **Fidelity**: of what was ported, how much
-matches. **Coverage**: of what is portable at all, how much has been ported.
-Waivers are typed for exactly that split — `impossible` (the platform
-boundary; never counts as lag), `deferred` (real backlog; drags Coverage
-down), `port-only` (this port's own additions). Every waiver **starts as
-`deferred`**: `impossible` is written per case, by hand, with the proof in
-its reason — never presumed up front. Do not reclassify to `impossible`
-without that examination. Do not stub missing upstream
-API to raise the numbers: an absent member fails the consumer at compile
-time, a throwing stub at run time, and the report would count the stub as
-ported.
-
-The registries next to the scripts are committed and are the point of the tool:
-`aliases.json` (deliberate renames: `RedisQueue` → `MemoryStoreQueue`, ...;
-a leading underscore needs no alias — `_x` matches `x` by convention for
-names TS cannot use as-is), `exclusions.json` (typed waivers with reasons),
-`approvals.json` (per-member "implementation reviewed" marks keyed to
-hashes of **both** sides — method bodies, and declaration hashes for
-properties and consts — so editing the port or bumping Laravel flips the
-mark to stale automatically; non-method keys carry an `@kind` suffix, and
-port-only extras are recorded with `php_hash: null`). Review loop:
-`--list stale|unreviewed|pending`, `--show "<key>"` (both bodies side by
-side, then the recorded review note and waiver, if any), `--propose "<key>"` / `--propose-file` (a review lands at
-**pending** — the agent's approval of a perfect mirror, note tagged
-`Verbatim.`/`Mirrored.`), `--decision "<key>"` (a divergence awaiting the
-user's call, note tagged `DECISION:`), `--reject "<key>"` (the review found
-the port wrong, note tagged `REJECTED:`), `--approve "<key>"` /
-`--approve-file` (promotion to **approved** is a person's call — the user
-runs it, or Claude runs it only on the user's explicit instruction),
-`--verify "<key>"` (diffs the normalized token streams against
-`conventions.json` — the machine-readable register of renames and
-structural conventions — before a `Verbatim.`/`Mirrored.` tag is earned),
-`--approve-pending` (the user's batch promotion of the whole pending
-queue), `--refresh-cosmetic` (re-pins `ts_hash` on stales whose
-`php_hash` is unchanged), `--check` (non-zero exit on anything stale).
-The comparator also tracks heritage: every `uses:` trait, `implements`
-interface and `extends` parent is a members.csv row (`missing_mixin` /
-`missing_interface` / `missing_parent` when absent, waivable in
-`exclusions.json`'s `traits`/`heritage`), and a marker interface without
-its validating decorator (`conventions.json` `markerDecorators`) reads
-`missing_decorator`. A proposal asserts a mirror —
-record any verdict only after actually reading both bodies; approval
-asserts a human looked too.
+is why the run says so out loud.
 
 ## The workbench
 
@@ -237,27 +182,18 @@ inside `.github/actions/setup` — for GitHub Actions it reads
   packages are `@rbxts/*`.
 - Do not add dependencies unless asked.
 - `"declaration": true` is **on**, and has to stay on: without the `.d.ts`
-  it emits, a consumer gets TS2307 on every deep import. It only compiles
-  because each mixin with non-public members declares its own return type —
-  `export declare class <Name>Shape` next to the factory (exported, and
-  *not* through `export type { ... }` — roblox-ts leaves that one in the
-  compiled module table), `as never` on the returned class expression.
-  Without it, declaration emit fails with
-  TS4094 ("Property of exported class expression may not be private or
-  protected") on `Conditionable`, `ForwardsCalls`, `InteractsWithData`,
-  `ResolvesRouteDependencies` and everything extending them (`Request`,
-  `Stringable`, `Response`, `PendingRequest`, the dispatchers). The
-  **public** half of each shape is checked against the trait in both
-  directions and will fail the build if the two drift; the `private` and
-  `protected` members cannot be (nothing in the type system reaches across
-  two declarations), so those seven are on the honour system — change one
-  and change its shape. A class extending such a mixin also needs an explicit
-  `import type` of the shape, or its `.d.ts` keeps a baseUrl path no
-  consumer can resolve; `grep 'import("Illuminate/' out --include='*.d.ts'`
-  must come back empty. `roblox-ts-constraints.md` has the full pattern and
-  the reasoning behind both. Do not
-  "simplify" it by dropping `private`/`protected` on those members: that
-  clears TS4094 too, but it is a real encapsulation change, it diverges from
+  it emits, a consumer gets TS2307 on every deep import. A mixin with
+  non-public members will need its own declared return type to satisfy
+  this — `export declare class <Name>Shape` next to the factory (exported,
+  and *not* through `export type { ... }` — roblox-ts leaves that one in the
+  compiled module table), `as never` on the returned class expression —
+  or declaration emit fails with TS4094 ("Property of exported class
+  expression may not be private or protected"). A class extending such a
+  mixin also needs an explicit `import type` of the shape, or its `.d.ts`
+  keeps a baseUrl path no consumer can resolve; `grep 'import("Illuminate/'
+  out --include='*.d.ts'` must come back empty. Do not "simplify" it by
+  dropping `private`/`protected` on the mixin's members: that clears
+  TS4094 too, but it is a real encapsulation change, it diverges from
   Laravel, and anonymous-class emit erases `this` types on the way out.
 
 ## Publishing
@@ -300,24 +236,6 @@ so they are all in the program from the start:
 ]
 ```
 
-`.workbench/tsconfig.json` does this; verified with `tsc --listFiles` (303
-declaration files in the program, `Facades/Log.d.ts` among them, with nothing
-importing it).
-
-## Topic details
-
-Read the relevant file when a task touches it:
-
-- `agent_docs/porting-plan.md` — current state, gaps inside ported
-  components, what to port next; start here when picking up work
-- `agent_docs/laravel-parity.md` — what is ported and how it maps to Laravel
-- `agent_docs/framework-boot.md` — Application, ServiceProvider,
-  register/boot. Written from a consuming game's point of view (its code
-  examples, e.g. `server/bootstrap/app.ts`, live in the game repo, not here)
-- `agent_docs/roblox-ts-constraints.md` — transpilation limits, tsconfig
-- `agent_docs/routing-design.md` — routing over remotes: request envelope,
-  Request/Response, route registration, client side. A consuming game must
-  declare the `Call`/`Send`/`Stream`/`Push` remotes this depends on in its
-  own `default.project.json`.
-- `agent_docs/testing.md` — how the TestEZ suite under `tests/` is set up,
-  the two-`tsconfig` build split, and how to run it in Studio.
+`.workbench/tsconfig.json` does this; verify with `tsc --listFiles` that the
+declarations under `node_modules/@larablox/framework/out/Illuminate` are in
+the program, with nothing importing them yet.

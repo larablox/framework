@@ -68,6 +68,7 @@ const PHP_DROPPED = new Set([
     'private',
     'fn',
     'Closure',
+    '\\Closure',
     'Throwable',
     '?',
     'mixed',
@@ -456,11 +457,17 @@ function canonicalizeTs(tokens, renames)
             continue;
         }
         // collection-ops: a keyed read (`.get(k)`) spells `[ k ]` -- same
-        // receiver-stays-put reasoning as `.set`/`.push` below.
+        // receiver-stays-put reasoning as `.set`/`.push` below. Each
+        // argument is itself run back through canonicalizeTs before
+        // splicing in -- matchCallArgs jumps straight past a call's whole
+        // argument list, so a nested `.get(...)`/`.set(...)` inside one
+        // (extend's `closure(this.instances.get(abstract) as never, this)`
+        // is both a write and a read of the same target in one statement)
+        // would otherwise never reach these checks at all.
         if (token === '.' && tokens[index + 1] === 'get' && tokens[index + 2] === '(') {
             const matched = matchCallArgs(tokens, index + 2);
             if (matched && matched.args.length === 1) {
-                out.push('[', ...matched.args[0], ']');
+                out.push('[', ...canonicalizeTs(matched.args[0], renames), ']');
                 index = matched.closeIndex;
                 continue;
             }
@@ -479,17 +486,25 @@ function canonicalizeTs(tokens, renames)
             if (matched) {
                 const { closeIndex, args } = matched;
                 if (tokens[index + 1] === 'set' && args.length === 2) {
-                    out.push('[', ...args[0], ']', '=', ...args[1]);
+                    out.push('[', ...canonicalizeTs(args[0], renames), ']', '=', ...canonicalizeTs(args[1], renames));
                     index = closeIndex;
                     continue;
                 }
                 if (tokens[index + 1] === 'push' && args.length === 1) {
-                    out.push('[', ']', '=', ...args[0]);
+                    out.push('[', ']', '=', ...canonicalizeTs(args[0], renames));
                     index = closeIndex;
                     continue;
                 }
                 if (tokens[index + 1] === 'push' && args.length === 2) {
-                    out.push('[', ...args[0], ']', '[', ']', '=', ...args[1]);
+                    out.push(
+                        '[',
+                        ...canonicalizeTs(args[0], renames),
+                        ']',
+                        '[',
+                        ']',
+                        '=',
+                        ...canonicalizeTs(args[1], renames),
+                    );
                     index = closeIndex;
                     continue;
                 }
@@ -508,12 +523,31 @@ function canonicalizeTs(tokens, renames)
             if (matched) {
                 const { closeIndex, args } = matched;
                 if (tokens[index + 2] === 'pushInto' && args.length === 3) {
-                    out.push(...args[0], '[', ...args[1], ']', '[', ']', '=', ...args[2]);
+                    out.push(
+                        ...canonicalizeTs(args[0], renames),
+                        '[',
+                        ...canonicalizeTs(args[1], renames),
+                        ']',
+                        '[',
+                        ']',
+                        '=',
+                        ...canonicalizeTs(args[2], renames),
+                    );
                     index = closeIndex;
                     continue;
                 }
                 if (tokens[index + 2] === 'setInto' && args.length === 4) {
-                    out.push(...args[0], '[', ...args[1], ']', '[', ...args[2], ']', '=', ...args[3]);
+                    out.push(
+                        ...canonicalizeTs(args[0], renames),
+                        '[',
+                        ...canonicalizeTs(args[1], renames),
+                        ']',
+                        '[',
+                        ...canonicalizeTs(args[2], renames),
+                        ']',
+                        '=',
+                        ...canonicalizeTs(args[3], renames),
+                    );
                     index = closeIndex;
                     continue;
                 }

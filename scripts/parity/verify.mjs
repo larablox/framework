@@ -25,7 +25,7 @@ function tokenizePhp(scriptDir, file, lines)
 
 // A small JS lexer, enough for transpiled member bodies.
 const JS_TOKEN =
-    /\/\/[^\n]*|\/\*[\s\S]*?\*\/|`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[A-Za-z_$][\w$]*|\d[\w.]*|===|!==|\?\?|\*\*=?|=>|\.\.\.|&&|\|\||\+\+|--|[+\-*/%<>=!&|^]=|<=|>=|[{}()[\].,;:?<>+\-*/%=!&|^~]/g;
+    /\/\/[^\n]*|\/\*[\s\S]*?\*\/|`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[A-Za-z_$][\w$]*|\d[\w.]*|===|!==|\?\?=|\?\?|\*\*=?|=>|\.\.\.|&&|\|\||\+\+|--|[+\-*/%<>=!&|^]=|<=|>=|[{}()[\].,;:?<>+\-*/%=!&|^~]/g;
 
 function tokenizeJs(text)
 {
@@ -420,12 +420,36 @@ function reorderForeach(tokens)
     return out;
 }
 
-function canonicalizePhp(tokens)
+function canonicalizePhp(tokens, declName)
 {
     const out = [];
     for (let index = 0; index < tokens.length; index++) {
         let token = tokens[index];
         if (token === ';' || PHP_DROPPED.has(token)) continue;
+        // A class-name type hint -- a parameter's (`ReflectionParameter
+        // $parameter`), a catch clause's (`catch (Exception $e)`) -- is
+        // type-erased same as the primitive names PHP_DROPPED already
+        // covers, but there are too many distinct class names to enumerate
+        // there. PHP syntax has no legal construct where a bare identifier
+        // directly precedes a `$variable` other than a type hint, so this is
+        // unconditional: an identifier immediately followed by one is always
+        // dropped, never a value read.
+        if (/^[A-Z]/.test(token) && tokens[index + 1]?.startsWith('$')) continue;
+        // Late static binding (`static::`, `new static`) and `self::` both
+        // name this declaration -- the port has no such indirection and
+        // just writes the class literally, so this only ever needs the
+        // declaration's own name, never a subclass's. Excludes the
+        // `static` that marks a static method itself (always the token
+        // right before `function`), which the post-processing below still
+        // needs to see. `new static;` also gains the `()` PHP's
+        // optional-parens shorthand omits, since a same-shaped `new X()` on
+        // the TS side always writes it.
+        if ((token === 'static' || token === 'self') && tokens[index + 1] !== 'function' && declName) {
+            const afterNew = out[out.length - 1] === 'new';
+            out.push(declName);
+            if (afterNew && tokens[index + 1] !== '(') out.push('(', ')');
+            continue;
+        }
         // A closure's `use ($a, $b)` capture list has no JS counterpart.
         if (token === 'use' && tokens[index - 1] === ')') {
             while (index < tokens.length && tokens[index] !== ')') index++;
@@ -762,11 +786,11 @@ function residueOf(phpTokens, tsTokens)
  * Verifies one member pair. Returns { residue, matched, total } where residue
  * is a list of { php: [...], ts: [...] } runs the streams disagree on.
  */
-export function verifyMember({ scriptDir, phpFile, phpLines, tsFile, tsLines, conventions })
+export function verifyMember({ scriptDir, phpFile, phpLines, tsFile, tsLines, conventions, declName })
 {
     const renames = conventions.renames ?? {};
 
-    const phpTokens = canonicalizePhp(tokenizePhp(scriptDir, phpFile, phpLines));
+    const phpTokens = canonicalizePhp(tokenizePhp(scriptDir, phpFile, phpLines), declName);
 
     const tsSource = readFileSync(tsFile, 'utf8').split(/\r?\n/)
         .slice(tsLines[0] - 1, tsLines[1])

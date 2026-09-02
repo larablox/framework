@@ -195,6 +195,7 @@ function computeMirrorFidelity(php, ts, aliases, conventions, rows)
                 tsFile: join(portSrc, tsFound.path),
                 tsLines: tsFound.member.lines,
                 conventions,
+                declName: row.declaration,
             });
             entry = { disagreeing, total };
             cache[cacheKey] = entry;
@@ -418,6 +419,7 @@ function main()
             tsFile: join(portSrc, tsFound.path),
             tsLines: tsFound.member.lines,
             conventions,
+            declName: phpFound.decl.name,
         });
         if (residue.length === 0) {
             console.log(`VERBATIM: token streams align (${total} tokens) -- 100% mirrored`);

@@ -43,8 +43,13 @@ sees it: `view.name` -> `view.__get('name')`, `view.touch(x)` ->
 `__get(key: string)`/`___call(method: string, parameters: unknown[])`
 methods -- the transform only recovers the routing decision, not the bodies.
 
-`HigherOrderWhenProxy` does *not* use this: its `__get`/`___call` both
-forward 1:1 onto a `target` object, so a plain runtime `typeIs()` check on
-`target[key]` is enough there, no build step required. Reach for
-`MagicDispatch<T>` only when a class's magic methods, like Eloquent's
-`Model`, resolve unrelated things and no such check is possible.
+`HigherOrderWhenProxy` uses it too, even though its `__get`/`___call` both
+forward 1:1 onto a `target` object and a plain runtime `typeIs()` check on
+`target[key]` would have been enough on its own: the compile-time rewrite
+made an actual runtime proxy (`setmetatable`, a hand-rolled `__index`,
+swapping `this` back in for the wrapper on every "keep chaining" return)
+unnecessary, not just an alternative -- `when()`/`unless()` return a plain
+`new HigherOrderWhenProxy(target)` and the transform makes `.save()`/
+`.isAdmin` on it route to the real methods directly. Reach for it any time a
+`MagicDispatch<T>`-typed value needs the same, whether or not a runtime
+check happens to be available -- it's simpler either way.

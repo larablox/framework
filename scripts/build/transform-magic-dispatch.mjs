@@ -30,75 +30,117 @@ function isMagicDispatchType(checker, type)
     return checker.getPropertyOfType(type, MARKER_PROPERTY) !== undefined;
 }
 
-function transformSourceFile(checker, sourceFile)
+// Returns { text, changed } for `node`: its own rewritten form if it's
+// itself a magic-dispatch access, otherwise its original text with any
+// rewritten *descendants* spliced back in. Recursive and bottom-up --
+// `receiver`/`args` are run back through this before being embedded, so a
+// chain like `model.when().isActive().activate(x)` gets every link rewritten,
+// not just the outermost one (the bug in the first version of this script:
+// it grabbed the receiver's raw getText() instead of transforming it too).
+function transformNode(checker, sourceFile, node)
 {
-    const edits = [];
+    // `receiver.method(args)` -- a genuine call, decided by the `(`
+    // actually present in this source -- routes to ___call, args and all.
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
+        const propertyAccess = node.expression;
+        const receiverType = checker.getTypeAtLocation(propertyAccess.expression);
 
-    function visit(node)
-    {
-        // `receiver.method(args)` -- a genuine call, decided by the `(`
-        // actually present in this source -- routes to ___call, args and all.
-        if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
-            const propertyAccess = node.expression;
-            const receiverType = checker.getTypeAtLocation(propertyAccess.expression);
+        if (isMagicDispatchType(checker, receiverType)) {
+            const receiverText = transformNode(checker, sourceFile, propertyAccess.expression).text;
+            const method = propertyAccess.name.getText(sourceFile);
+            const args = node.arguments.map((argument) => transformNode(checker, sourceFile, argument).text).join(', ');
 
-            if (isMagicDispatchType(checker, receiverType)) {
-                const receiver = propertyAccess.expression.getText(sourceFile);
-                const method = propertyAccess.name.getText(sourceFile);
-                const args = node.arguments.map((argument) => argument.getText(sourceFile)).join(', ');
-
-                // `rbxtsc` re-typechecks this file from scratch -- a real
-                // ts.TransformerFactory rewrites already-checked AST nodes
-                // and is never re-validated, but a shadow-copy-and-recompile
-                // pipeline (rbxtsc has no transformer hook to run inside)
-                // doesn't get that luxury. `receiver`'s own declared type
-                // (MagicDispatch<View>) has no ___call member, so the cast
-                // below targets a fresh, unrelated structural type instead.
-                edits.push({
-                    start: node.getStart(sourceFile),
-                    end: node.getEnd(),
-                    text:
-                        `(${receiver} as unknown as { ___call(method: string, parameters: unknown[]): unknown }).___call('${method}', [${args}])`,
-                });
-
-                return;
-            }
+            // rbxtsc re-typechecks the shadow tree from scratch -- a real
+            // ts.TransformerFactory rewrites already-checked AST nodes and
+            // is never re-validated, but a shadow-copy-and-recompile
+            // pipeline (rbxtsc has no transformer hook to run inside)
+            // doesn't get that luxury. `receiver`'s own declared type
+            // (MagicDispatch<View>) has no ___call member, so the cast
+            // below targets a fresh, unrelated structural type instead.
+            return {
+                text:
+                    `(${receiverText} as unknown as { ___call(method: string, parameters: unknown[]): unknown }).___call('${method}', [${args}])`,
+                changed: true,
+            };
         }
-
-        // `receiver.key`, bare -- no `(` anywhere in this source -- routes to __get.
-        if (ts.isPropertyAccessExpression(node)) {
-            const isCallee = ts.isCallExpression(node.parent) && node.parent.expression === node;
-
-            if (!isCallee) {
-                const receiverType = checker.getTypeAtLocation(node.expression);
-
-                if (isMagicDispatchType(checker, receiverType)) {
-                    const receiver = node.expression.getText(sourceFile);
-                    const key = node.name.getText(sourceFile);
-
-                    edits.push({
-                        start: node.getStart(sourceFile),
-                        end: node.getEnd(),
-                        text: `(${receiver} as unknown as { __get(key: string): unknown }).__get('${key}')`,
-                    });
-
-                    return;
-                }
-            }
-        }
-
-        ts.forEachChild(node, visit);
     }
 
-    visit(sourceFile);
+    // `receiver.key`, bare -- no `(` anywhere in this source -- routes to __get.
+    if (ts.isPropertyAccessExpression(node)) {
+        const isCallee = ts.isCallExpression(node.parent) && node.parent.expression === node;
 
-    let text = sourceFile.getFullText();
+        if (!isCallee) {
+            const receiverType = checker.getTypeAtLocation(node.expression);
+
+            if (isMagicDispatchType(checker, receiverType)) {
+                const receiverText = transformNode(checker, sourceFile, node.expression).text;
+                const key = node.name.getText(sourceFile);
+
+                return {
+                    text: `(${receiverText} as unknown as { __get(key: string): unknown }).__get('${key}')`,
+                    changed: true,
+                };
+            }
+        }
+    }
+
+    // Not a magic-dispatch access itself -- keep this node's own text, but
+    // splice in any rewritten descendants (recursing all the way down).
+    const start = node.getStart(sourceFile);
+    const original = sourceFile.text.slice(start, node.getEnd());
+
+    const childEdits = [];
+    let anyChanged = false;
+    ts.forEachChild(node, (child) => {
+        const result = transformNode(checker, sourceFile, child);
+        if (result.changed) {
+            anyChanged = true;
+            childEdits.push({
+                start: child.getStart(sourceFile) - start,
+                end: child.getEnd() - start,
+                text: result.text,
+            });
+        }
+    });
+
+    if (!anyChanged) return { text: original, changed: false };
+
+    childEdits.sort((first, second) => second.start - first.start);
+    let text = original;
+    for (const edit of childEdits) {
+        text = text.slice(0, edit.start) + edit.text + text.slice(edit.end);
+    }
+
+    return { text, changed: true };
+}
+
+function transformSourceFile(checker, sourceFile)
+{
+    let totalEdits = 0;
+    const originalText = sourceFile.getFullText();
+    const edits = [];
+
+    ts.forEachChild(sourceFile, (topLevelNode) => {
+        const result = transformNode(checker, sourceFile, topLevelNode);
+        if (result.changed) {
+            // Count individual magic-dispatch call sites for the summary
+            // line, not just top-level statements touched.
+            totalEdits += (result.text.match(/\.(___call|__get)\(/g) ?? []).length;
+            edits.push({
+                start: topLevelNode.getStart(sourceFile),
+                end: topLevelNode.getEnd(),
+                text: result.text,
+            });
+        }
+    });
+
     edits.sort((first, second) => second.start - first.start);
+    let text = originalText;
     for (const edit of edits) {
         text = text.slice(0, edit.start) + edit.text + text.slice(edit.end);
     }
 
-    return { text, editCount: edits.length };
+    return { text, editCount: totalEdits };
 }
 
 function run()

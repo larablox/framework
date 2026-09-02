@@ -1,4 +1,4 @@
-import { HigherOrderWhenProxy, PendingHigherOrderWhenProxy, ResolvedHigherOrderWhenProxy, truthy, wrapHigherOrderWhenProxy } from 'Illuminate/Support/HigherOrderWhenProxy';
+import { HigherOrderWhenProxy, PendingHigherOrderWhenProxy, ResolvedHigherOrderWhenProxy, truthy } from 'Illuminate/Support/HigherOrderWhenProxy';
 
 // TS2545: a mixin base's constructor must accept a single `any[]` rest parameter.
 type AnyConstructor<T = object> = new (...args: any[]) => T;
@@ -20,11 +20,11 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
             value = typeIs(value, 'function') ? (value as (instance: this) => unknown)(this) : value;
 
             if (args.size() === 0) {
-                return wrapHigherOrderWhenProxy(this, new HigherOrderWhenProxy(this));
+                return new HigherOrderWhenProxy(this);
             }
 
             if (args.size() === 1) {
-                return wrapHigherOrderWhenProxy(this, new HigherOrderWhenProxy(this).condition(value));
+                return new HigherOrderWhenProxy(this).condition(value);
             }
 
             const callback = args[1] as (instance: this, value: unknown) => unknown;
@@ -52,11 +52,11 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
             value = typeIs(value, 'function') ? (value as (instance: this) => unknown)(this) : value;
 
             if (args.size() === 0) {
-                return wrapHigherOrderWhenProxy(this, new HigherOrderWhenProxy(this).negateConditionOnCapture());
+                return new HigherOrderWhenProxy(this).negateConditionOnCapture();
             }
 
             if (args.size() === 1) {
-                return wrapHigherOrderWhenProxy(this, new HigherOrderWhenProxy(this).condition(!truthy(value)));
+                return new HigherOrderWhenProxy(this).condition(!truthy(value));
             }
 
             const callback = args[1] as (instance: this, value: unknown) => unknown;

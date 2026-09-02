@@ -205,8 +205,34 @@ function canonicalizePhp(tokens)
     // A method declaration's `function` keyword; JS spells the name alone.
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
-    return reorderForeach(stripSignatureNoise(out));
+    return stripPropertyNullDefault(reorderForeach(stripSignatureNoise(out)));
 }
+
+// The same erased-default problem stripSignatureNoise handles for a method
+// parameter, but for a property: `protected $environmentResolver = null;`
+// has no `(` at all for that function to anchor on, and TS spells it
+// `environmentResolver?: EnvironmentResolver;` -- no initializer survives
+// compiling that away. A body (any `{`) means this is a method, not a
+// property declaration, and its `= null` statements are real assignments,
+// never stripped.
+function stripPropertyNullDefault(tokens)
+{
+    if (tokens.includes('{')) return tokens;
+    if (tokens.length < 2 || tokens[tokens.length - 2] !== '=' || tokens[tokens.length - 1] !== 'null') return tokens;
+    return tokens.slice(0, -2);
+}
+
+// conventions.json's collection-ops rule, last clause: a PHP `= []` property
+// initializer spells as `new Map()`/`new Array()`/`new OrderedMap()` by the
+// store's kind -- generics are type-only and never survive `transpileModule`,
+// so a zero-argument construction of one of these three is indistinguishable
+// from an empty PHP array to a caller. Only zero-argument: seeding a Map with
+// entries is a real difference PHP's bare `[]` never had.
+const EMPTY_COLLECTION_CTORS = new Set([
+    'Map',
+    'Array',
+    'OrderedMap',
+]);
 
 function canonicalizeTs(tokens, renames)
 {
@@ -220,6 +246,14 @@ function canonicalizeTs(tokens, renames)
         if (token === ';') continue;
         if (isStringToken(token)) {
             out.push(canonicalString(token));
+            continue;
+        }
+        if (
+            token === 'new' && EMPTY_COLLECTION_CTORS.has(tokens[index + 1]) && tokens[index + 2] === '('
+            && tokens[index + 3] === ')'
+        ) {
+            out.push('[', ']');
+            index += 3;
             continue;
         }
         // `A.b` may canonicalize as one dotted name (Arr.reverse -> array_reverse).

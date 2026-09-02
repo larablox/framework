@@ -177,7 +177,14 @@ function canonicalizeTs(tokens, renames)
             index += 2;
             continue;
         }
-        if (tsToCanon.has(token)) {
+        // A bare rename (no dot in its own value, unlike Arr.reverse above)
+        // names a standalone helper -- `call`, `methodExists`, `isCallable`
+        // are always called free. A dot-prefixed `call` is a method access
+        // (`this.call`, `BoundMethod.call`) sharing the identifier by
+        // coincidence, not the call_user_func stand-in, and token 0 is
+        // always the member's own declared name (Container::call, here),
+        // never a reference to anything -- neither must canonicalize into one.
+        if (tsToCanon.has(token) && index !== 0 && tokens[index - 1] !== '.') {
             out.push(tsToCanon.get(token));
             continue;
         }
@@ -252,12 +259,16 @@ export function verifyMember({ scriptDir, phpFile, phpLines, tsFile, tsLines, co
     const transpiled = ts.transpileModule(`class __V {\n${tsSource}\n}`, {
         compilerOptions: { target: ts.ScriptTarget.ESNext, removeComments: true },
     }).outputText;
-    const tsTokens = canonicalizeTs(tokenizeJs(transpiled), renames);
-    // Drop the `class __V { ... }` wrapper tokens.
-    if (tsTokens[0] === 'class' && tsTokens[1] === '__V') {
-        tsTokens.splice(0, 3);
-        tsTokens.pop();
+    // Drop the `class __V { ... }` wrapper tokens before canonicalizing --
+    // canonicalizeTs treats index 0 as the member's own declared name (never
+    // a reference to a renamed helper), which is only true once the wrapper
+    // is gone; canonicalizePhp's output already starts there natively.
+    const rawTsTokens = tokenizeJs(transpiled);
+    if (rawTsTokens[0] === 'class' && rawTsTokens[1] === '__V') {
+        rawTsTokens.splice(0, 3);
+        rawTsTokens.pop();
     }
+    const tsTokens = canonicalizeTs(rawTsTokens, renames);
 
     const residue = residueOf(phpTokens, tsTokens);
     const disagreeing = residue.reduce((sum, run) => sum + run.php.length + run.ts.length, 0);

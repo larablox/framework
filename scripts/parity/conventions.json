@@ -9,6 +9,7 @@
         "method_exists": "methodExists",
         "is_callable": "isCallable",
         "class_exists": "Util.isClass",
+        "is_array": "Util.isArray",
         "iterator_to_array": "toArray",
         "null": "undefined"
     },

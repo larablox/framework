@@ -322,18 +322,20 @@ function foldIsNull(tokens)
     return out;
 }
 
-// collection-ops: `array_pop -> .pop()`. Same single-argument function-call
-// shape as array_last/is_null above; unlike them, .pop() takes no argument
-// to duplicate or negate, so the fold is a plain suffix rewrite.
-function foldArrayPop(tokens)
+// Shared machinery for a single-argument PHP builtin that spells as a
+// zero-argument suffix method call on the port's side: `array_pop(x) ->
+// x.pop()`, `count(x) -> x.size()`. Same single-argument function-call
+// shape as array_last/is_null above; unlike them, the method takes no
+// argument to duplicate or negate, so the fold is a plain suffix rewrite.
+function foldToSuffixCall(tokens, callName, method)
 {
     const out = [];
     let i = 0;
     while (i < tokens.length) {
-        if (tokens[i] === 'array_pop' && tokens[i + 1] === '(') {
+        if (tokens[i] === callName && tokens[i + 1] === '(') {
             const matched = matchCallArgs(tokens, i + 1);
             if (matched && matched.args.length === 1) {
-                out.push(...matched.args[0], '.', 'pop', '(', ')');
+                out.push(...matched.args[0], '.', method, '(', ')');
                 i = matched.closeIndex + 1;
                 continue;
             }
@@ -342,6 +344,17 @@ function foldArrayPop(tokens)
         i++;
     }
     return out;
+}
+
+function foldArrayPop(tokens)
+{
+    return foldToSuffixCall(tokens, 'array_pop', 'pop');
+}
+
+// collection-ops: `count() -> .size()`.
+function foldCount(tokens)
+{
+    return foldToSuffixCall(tokens, 'count', 'size');
 }
 
 // `empty(x)` spells as `x.isEmpty()`; `! empty(x)` as `x.isEmpty() ===
@@ -536,8 +549,10 @@ function canonicalizePhp(tokens, declName)
     return stripPropertyNullDefault(
         foldIsString(
             foldEmpty(
-                foldArrayPop(
-                    foldIsNull(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out)))))),
+                foldCount(
+                    foldArrayPop(
+                        foldIsNull(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out)))))),
+                    ),
                 ),
             ),
         ),

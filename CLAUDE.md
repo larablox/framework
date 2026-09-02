@@ -13,6 +13,9 @@ Mirrors [`laravel/framework`](https://github.com/laravel/framework):
 
 - `src/Illuminate/` — the framework core, one directory per component, same names as upstream Laravel
 - `out/` — generated Luau, a build artifact; never edit by hand
+- `.magic-dispatch/` — a generated shadow copy of `src/`, rewritten by
+  `npm run build`/`watch` before `rbxtsc` compiles it; see CONVENTIONS.md's
+  "Magic dispatch" entry. Never edit by hand either.
 
 ## Rules
 

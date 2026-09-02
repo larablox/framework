@@ -1,0 +1,13 @@
+{
+	// Compiles the shadow tree `scripts/build/transform-magic-dispatch.mjs`
+	// writes to `.magic-dispatch/` (a mirror of `src/`, gitignored, generated
+	// on every build) instead of `src/` directly -- rootDir/baseUrl retargeted
+	// so imports like "Illuminate/Support/..." still resolve, everything else
+	// inherited as-is.
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"rootDir": ".magic-dispatch",
+		"baseUrl": ".magic-dispatch"
+	},
+	"include": [".magic-dispatch/**/*.ts"]
+}

@@ -11,3 +11,6 @@
 /out
 /include
 *.tsbuildinfo
+
+# transform-magic-dispatch shadow tree (generated from src/, see scripts/build)
+/.magic-dispatch

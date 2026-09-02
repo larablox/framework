@@ -28,9 +28,9 @@
     "types": "index.d.ts",
     "type": "module",
     "scripts": {
-        "build": "rbxtsc",
-        "clean": "rimraf out include tsconfig.tsbuildinfo",
-        "watch": "rbxtsc -w",
+        "build": "node scripts/build/transform-magic-dispatch.mjs && rbxtsc -p tsconfig.magic-dispatch.json",
+        "clean": "rimraf out include tsconfig.tsbuildinfo .magic-dispatch",
+        "watch": "node scripts/build/watch.mjs",
         "dev": "npm run watch"
     },
     "devDependencies": {

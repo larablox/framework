@@ -390,6 +390,33 @@ function foldEmpty(tokens)
     return out;
 }
 
+// collection-ops: `array_key_exists(k, arr)` spells as `arr.has(k)` --
+// same suffix-comparison reasoning as `empty()` above for the negated form
+// (`! array_key_exists(...)` -> `arr.has(k) === false`), since `arr` is
+// often a dotted receiver (`$this->checkedForSingletonOrScopedAttributes`)
+// this fold must not reach backward past.
+function foldArrayKeyExists(tokens)
+{
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if (tokens[i] === 'array_key_exists' && tokens[i + 1] === '(') {
+            const matched = matchCallArgs(tokens, i + 1);
+            if (matched && matched.args.length === 2) {
+                const negated = out[out.length - 1] === '!';
+                if (negated) out.pop();
+                out.push(...matched.args[1], '.', 'has', '(', ...matched.args[0], ')');
+                if (negated) out.push('===', 'false');
+                i = matched.closeIndex + 1;
+                continue;
+            }
+        }
+        out.push(tokens[i]);
+        i++;
+    }
+    return out;
+}
+
 // `is_string(x)` spells as `typeIs(x, 'string')` -- direct, same polarity,
 // unlike `is_string($abstract)` elsewhere in Container.php, which spells as
 // `!typeIs(abstract, 'function')` (a domain generalization over Abstract's
@@ -547,11 +574,15 @@ function canonicalizePhp(tokens, declName)
     if (out[0] === 'function') out.shift();
     else if (out[0] === 'static' && out[1] === 'function') out.splice(1, 1);
     return stripPropertyNullDefault(
-        foldIsString(
-            foldEmpty(
-                foldCount(
-                    foldArrayPop(
-                        foldIsNull(foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out)))))),
+        foldArrayKeyExists(
+            foldIsString(
+                foldEmpty(
+                    foldCount(
+                        foldArrayPop(
+                            foldIsNull(
+                                foldArrayLast(expandIsset(expandUnset(reorderForeach(stripSignatureNoise(out))))),
+                            ),
+                        ),
                     ),
                 ),
             ),

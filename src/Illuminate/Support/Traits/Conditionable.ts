@@ -1,67 +1,101 @@
+import { HigherOrderWhenProxy, makeHigherOrderWhenProxy, ResolvedHigherOrderWhenProxy, truthy } from 'Illuminate/Support/HigherOrderWhenProxy';
+
 // TS2545: a mixin base's constructor must accept a single `any[]` rest parameter.
 type AnyConstructor<T = object> = new (...args: any[]) => T;
 
-/**
- * PHP's bare `if ($value)` also coerces 0, '', '0' and [] to false; only the
- * scalar cases are handled here to keep this trait free of any dependency --
- * an empty Array/Map/OrderedMap passed as `value` reads as truthy, unlike
- * PHP.
- */
-function truthy(value: unknown): boolean
-{
-    return value !== undefined && value !== false && value !== 0 && value !== '' && value !== '0';
-}
-
-/**
- * Add conditional applicability to any class.
- *
- * PHP's `when()`/`unless()` return a `HigherOrderWhenProxy` when called with
- * fewer than two arguments, forwarding whatever method is chained onto it
- * next (`$this->when($cond)->save()`) through `__call`/`__get`. roblox-ts
- * reserves the `__index` metamethod for its own class emission, and exposes
- * no `setmetatable` to build one by hand, so there is no way to intercept an
- * arbitrary, statically-unknown member name the way PHP does -- that
- * proxying form is not ported. `callback` is required here instead of
- * optional for the same reason.
- */
+/** Add conditional applicability to any class. */
 export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
 {
     return class extends Base
     {
+        /** Get a higher order proxy that applies the next call only if the given "value" is truthy. */
+        public when(): HigherOrderWhenProxy<this>;
+        /** Get a higher order proxy that applies the next call only if the given "value" resolves to truthy. */
+        public when<TValue>(value: TValue | ((instance: this) => TValue)): ResolvedHigherOrderWhenProxy<this>;
         /** Apply the callback if the given "value" is (or resolves to) truthy. */
         public when<TValue, TReturn = this>(
             value: TValue | ((instance: this) => TValue),
             callback: (instance: this, value: TValue) => TReturn | void,
             defaultCallback?: (instance: this, value: TValue) => TReturn | void,
-        ): this | TReturn
+        ): this | TReturn;
+        public when(...args: unknown[]): unknown
         {
-            const resolved = (typeIs(value, 'function') ? (value as (instance: this) => TValue)(this) : value) as TValue;
-
-            if (truthy(resolved)) {
-                return (callback(this, resolved) ?? this) as this | TReturn;
-            } else if (defaultCallback !== undefined) {
-                return (defaultCallback(this, resolved) ?? this) as this | TReturn;
+            if (args.size() === 0) {
+                return makeHigherOrderWhenProxy(this, {
+                    hasCondition: false,
+                    condition: false,
+                    negateConditionOnCapture: false,
+                });
             }
 
-            return this;
+            const resolved = resolveConditionValue(this, args[0]);
+
+            if (args.size() === 1) {
+                return makeHigherOrderWhenProxy(this, {
+                    hasCondition: true,
+                    condition: truthy(resolved),
+                    negateConditionOnCapture: false,
+                });
+            }
+
+            return applyCondition(this, truthy(resolved), resolved, args[1] as ConditionCallback, args[2] as ConditionCallback | undefined);
         }
 
+        /** Get a higher order proxy that applies the next call only if the given "value" is falsy. */
+        public unless(): HigherOrderWhenProxy<this>;
+        /** Get a higher order proxy that applies the next call only if the given "value" resolves to falsy. */
+        public unless<TValue>(value: TValue | ((instance: this) => TValue)): ResolvedHigherOrderWhenProxy<this>;
         /** Apply the callback if the given "value" is (or resolves to) falsy. */
         public unless<TValue, TReturn = this>(
             value: TValue | ((instance: this) => TValue),
             callback: (instance: this, value: TValue) => TReturn | void,
             defaultCallback?: (instance: this, value: TValue) => TReturn | void,
-        ): this | TReturn
+        ): this | TReturn;
+        public unless(...args: unknown[]): unknown
         {
-            const resolved = (typeIs(value, 'function') ? (value as (instance: this) => TValue)(this) : value) as TValue;
-
-            if (!truthy(resolved)) {
-                return (callback(this, resolved) ?? this) as this | TReturn;
-            } else if (defaultCallback !== undefined) {
-                return (defaultCallback(this, resolved) ?? this) as this | TReturn;
+            if (args.size() === 0) {
+                return makeHigherOrderWhenProxy(this, {
+                    hasCondition: false,
+                    condition: false,
+                    negateConditionOnCapture: true,
+                });
             }
 
-            return this;
+            const resolved = resolveConditionValue(this, args[0]);
+
+            if (args.size() === 1) {
+                return makeHigherOrderWhenProxy(this, {
+                    hasCondition: true,
+                    condition: !truthy(resolved),
+                    negateConditionOnCapture: false,
+                });
+            }
+
+            return applyCondition(this, !truthy(resolved), resolved, args[1] as ConditionCallback, args[2] as ConditionCallback | undefined);
         }
     };
+}
+
+type ConditionCallback = (instance: unknown, value: unknown) => unknown;
+
+function resolveConditionValue(instance: unknown, value: unknown): unknown
+{
+    return typeIs(value, 'function') ? (value as (instance: unknown) => unknown)(instance) : value;
+}
+
+function applyCondition(
+    instance: unknown,
+    matched: boolean,
+    resolved: unknown,
+    callback: ConditionCallback,
+    defaultCallback: ConditionCallback | undefined,
+): unknown
+{
+    if (matched) {
+        return callback(instance, resolved) ?? instance;
+    } else if (defaultCallback !== undefined) {
+        return defaultCallback(instance, resolved) ?? instance;
+    }
+
+    return instance;
 }

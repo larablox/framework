@@ -550,7 +550,7 @@ export class Container implements ContainerContract
     }
 
     /** Wrap the given closure such that its dependencies will be injected when executed. */
-    public wrap(callback: Callback, parameters?: ParameterList): () => unknown
+    public wrap(callback: Callback, parameters: ParameterList = []): () => unknown
     {
         return () => this.call(callback, parameters);
     }

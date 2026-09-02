@@ -1034,10 +1034,10 @@
     },
     "Container/Container.php#Container#wrap": {
         "php_hash": "a901a03c69597c4beb4c94d33c2e7566f70f7dd4",
-        "ts_hash": "d4875c225611c54e22298b4af7e4349c1ff1e6d6",
+        "ts_hash": "1a8e2c41da434084323936665669633abe149347",
         "status": "pending",
         "proposed_at": "2026-08-31",
-        "note": "Mirrored. nullable-default. The php-call/ts-call_user_func run is the verifier's rename table biting its own tail on the member named call."
+        "note": "Mirrored. Ported the empty-array default (= []) literally instead of a bare optional. The php-call/ts-call_user_func run is the verifier's rename table biting its own tail on the member named call."
     },
     "Container/ContextualBindingBuilder.php#ContextualBindingBuilder#__construct": {
         "php_hash": "13e21d08074441b8608d31c8b46c26c92d64d190",

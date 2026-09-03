@@ -62,6 +62,49 @@ function isMagicDispatchType(checker, type)
     return checker.getPropertyOfType(type, MARKER_PROPERTY) !== undefined;
 }
 
+// Hand-written, non-.ts files (a raw .luau module and its .d.ts twin --
+// see src/Illuminate/Support/TableArgs.*) live under src/ too, but never
+// pass through ts.Program.getSourceFiles() below: TypeScript only loads a
+// .d.ts to resolve types from it, and a .luau file isn't a TS construct at
+// all. rbxtsc itself copies any non-.ts file it finds under its own rootDir
+// straight through to out/ -- but rbxtsc's rootDir is the *shadow* tree,
+// not the real one, so without this pass those files would exist in src/
+// and simply never reach out/. Walked directly off disk, independent of
+// the TS program, so it needs no help identifying what "the rest of src/"
+// contains.
+function copyNonTsAssets(root, expected)
+{
+    if (!fs.existsSync(root.real)) return;
+
+    walkFiles(root.real, (fullPath) => {
+        // A real .ts source file (not .d.ts) is already handled via
+        // ts.Program above -- but .d.ts itself ends in ".ts" too, and
+        // ts.Program deliberately skips copying declaration files (they're
+        // only loaded to resolve types from), so it needs to be included
+        // here or it reaches neither pass.
+        if (fullPath.endsWith('.ts') && !fullPath.endsWith('.d.ts')) return;
+
+        const relative = path.relative(root.real, fullPath);
+        expected.add(relative);
+
+        const outPath = path.join(root.shadow, relative);
+        const content = fs.readFileSync(fullPath);
+        if (!fs.existsSync(outPath) || !fs.readFileSync(outPath).equals(content)) {
+            fs.mkdirSync(path.dirname(outPath), { recursive: true });
+            fs.writeFileSync(outPath, content);
+        }
+    });
+}
+
+function walkFiles(dir, callback)
+{
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) walkFiles(fullPath, callback);
+        else callback(fullPath);
+    }
+}
+
 // Returns { text, changed } for `node`: its own rewritten form if it's
 // itself a magic-dispatch access, otherwise its original text with any
 // rewritten *descendants* spliced back in. Recursive and bottom-up --
@@ -225,6 +268,8 @@ function run()
         }
     }
 
+    for (const root of roots) copyNonTsAssets(root, expectedRelativePathsByShadow.get(root.shadow));
+
     for (const [shadow, expected] of expectedRelativePathsByShadow) removeStaleFiles(shadow, expected);
 
     console.log(`transform-magic-dispatch: ${fileCount} file(s), ${totalEdits} magic-dispatch access site(s) rewritten.`);
@@ -263,7 +308,7 @@ if (process.argv.includes('--watch')) {
     // otherwise never reach a listener that isn't attached yet.
     let debounce;
     const onChange = (filename) => {
-        if (!filename.endsWith('.ts')) return;
+        if (!filename.endsWith('.ts') && !filename.endsWith('.luau')) return;
         // A single save reliably fires more than one watch event; without
         // this, that was three overlapping run()s -- of a function that
         // mkdirs/writes files -- racing each other.

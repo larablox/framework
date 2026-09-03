@@ -54,6 +54,62 @@ unnecessary, not just an alternative -- `when()`/`unless()` return a plain
 `MagicDispatch<T>`-typed value needs the same, whether or not a runtime
 check happens to be available -- it's simpler either way.
 
+## `func_num_args()` (`Conditionable::when`/`unless`)
+
+PHP's `func_num_args()` distinguishes an omitted argument from an explicit
+`null` one -- `when()` (0 arguments) and `when(null)` (1 argument) reach
+different branches upstream, even though `$value` is falsy either way. No
+TypeScript-compiled function body can recover this: `rbxtsc` always lowers a
+`...args: T[]` rest parameter to `local args = { ... }` before any of that
+body's own code runs, and a Luau table built that way has the same length
+(`#`) whether it was built from a trailing `nil` vararg or from none at all
+-- confirmed by direct compilation, and true of every counting method tried
+(`args.size()`, `select('#', unpack(args))`, `table.pack(...)` called from
+inside the already-collapsed body). The count is only ever recoverable by
+running `select('#', ...)` on the *original*, still-live varargs, before any
+TS-compiled body gets a chance to collapse them.
+
+`Illuminate/Support/helpers.ts` exports a `func_num_args(args: PackedArgs):
+number` wrapper (just `args.n`) so call sites read closer to PHP's own
+`func_num_args()` -- it still has to take `args` as a real parameter, unlike
+PHP's zero-argument, ambient-call-frame version, since nothing here can
+introspect "the current call" without being handed it explicitly.
+
+`src/Illuminate/Support/TableArgs.luau` -- the only hand-written Luau in the
+framework core, everything else here is TS compiled by `rbxtsc` -- supplies
+that missing earlier step: `installTableArgs(cls, methodName)` wraps the
+already-compiled method in a raw function that receives the real call
+untouched, packs it itself (`table.pack(...)`, whose `.n` field is exactly
+`func_num_args()`), and hands off to the original method with the packed
+table prepended as a hidden first parameter. `Conditionable`'s `when`/
+`unless` call it themselves, right after building their class, rather than
+via `@decorator` syntax: both are mixin factories returning a class
+*expression* (`return class extends Base {...}`), and TypeScript's legacy
+decorators (`experimentalDecorators`) can only target a method inside a
+class *declaration* -- confirmed by direct compilation (`TS1206: Decorators
+are not valid here`).
+
+The wrapped method's own implementation signature types its parameters
+`any`, not their real types: TypeScript requires an implementation to be
+assignable-compatible with every overload above it, and a closure-typed
+overload (`when(value: (instance: this) => unknown)`) isn't satisfiable by
+a plainly-`unknown`-typed parameter (checked contravariantly) once `value`
+stops being folded into a rest parameter's untyped array -- `any`
+sidesteps that check the same way casting a rest-parameter array with `as`
+already did. `rbxtsc` itself then refuses to let an `any`-typed value be
+*used* (only declared), so the body immediately re-destructures into
+properly typed locals before doing anything else -- see `Conditionable.ts`.
+
+A hand-authored `.luau` file (paired with a `.d.ts` twin for the TS side)
+sits directly under `src/Illuminate/Support/` like any other file here and
+gets pulled into the build the same way: `rbxtsc` copies any non-`.ts` file
+under its own project root straight through to `out/` unchanged.
+`scripts/build/transform-magic-dispatch.mjs` needed a matching fix to copy
+such files into its `.magic-dispatch/` shadow tree too, since its main pass
+only walks `ts.Program.getSourceFiles()` -- which a `.luau` file was never
+part of, and which explicitly skips `.d.ts` files (loaded only to resolve
+types from, never meant to be re-emitted).
+
 ## Testing under Lune
 
 `rbxtsc`'s compiled output always resolves other modules the Roblox way --

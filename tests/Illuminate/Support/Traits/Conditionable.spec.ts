@@ -36,7 +36,7 @@ export = (): void => {
             it('calls the callback when the value is truthy', () => {
                 const subject = new Subject();
 
-                const result = subject.when(true, (target, value) => (target as Subject).activate(`v=${value}`));
+                const result = subject.when(true, (target, value) => target.activate(`v=${value}`));
 
                 expect(result).to.equal('activated:v=true');
             });
@@ -46,8 +46,8 @@ export = (): void => {
 
                 const result = subject.when(
                     false,
-                    (target) => (target as Subject).activate('x'),
-                    (target) => (target as Subject).deactivate('y'),
+                    (target) => target.activate('x'),
+                    (target) => target.deactivate('y'),
                 );
 
                 expect(result).to.equal('deactivated:y');
@@ -56,7 +56,7 @@ export = (): void => {
             it('returns the subject when the value is falsy and there is no default', () => {
                 const subject = new Subject();
 
-                const result = subject.when(false, (target) => (target as Subject).activate('x'));
+                const result = subject.when(false, (target) => target.activate('x'));
 
                 expect(result).to.equal(subject);
             });
@@ -66,8 +66,8 @@ export = (): void => {
                 subject.active = false;
 
                 const result = subject.when(
-                    (target) => (target as Subject).isActive(),
-                    (target) => (target as Subject).activate('closure'),
+                    (target) => target.isActive(),
+                    (target) => target.activate('closure'),
                 );
 
                 expect(result).to.equal(subject);
@@ -113,13 +113,26 @@ export = (): void => {
 
                 expect(result).to.equal(subject);
             });
+
+            // An explicit `undefined` is 1 real argument, matching upstream
+            // PHP's func_num_args() seeing when(null) as 1 -- distinct from
+            // when() (0 arguments). See TableArgs.luau for how this port
+            // recovers that count despite it, which is exactly what a
+            // args.size()-based implementation could not do.
+            it('an explicit undefined 1-arg value resolves immediately to a falsy condition, unlike the 0-arg form', () => {
+                const subject = new Subject();
+
+                const result = subject.when(undefined).activate('explicit-undefined');
+
+                expect(result).to.equal(subject);
+            });
         });
 
         describe('unless()', () => {
             it('calls the callback when the value is falsy', () => {
                 const subject = new Subject();
 
-                const result = subject.unless(false, (target, value) => (target as Subject).activate(`v=${value}`));
+                const result = subject.unless(false, (target, value) => target.activate(`v=${value}`));
 
                 expect(result).to.equal('activated:v=false');
             });
@@ -127,7 +140,7 @@ export = (): void => {
             it('returns the subject when the value is truthy and there is no default', () => {
                 const subject = new Subject();
 
-                const result = subject.unless(true, (target) => (target as Subject).activate('x'));
+                const result = subject.unless(true, (target) => target.activate('x'));
 
                 expect(result).to.equal(subject);
             });
@@ -148,6 +161,14 @@ export = (): void => {
                 const result = subject.unless().isActive().activate('zero-arg');
 
                 expect(result).to.equal(subject);
+            });
+
+            it('an explicit undefined 1-arg value negates immediately, unlike the 0-arg form', () => {
+                const subject = new Subject();
+
+                const result = subject.unless(undefined).activate('explicit-undefined');
+
+                expect(result).to.equal('activated:explicit-undefined');
             });
         });
     });

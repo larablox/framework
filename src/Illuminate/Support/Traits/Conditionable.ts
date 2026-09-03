@@ -1,40 +1,42 @@
-import { truthy } from 'Illuminate/Support/helpers';
+import { func_num_args, truthy } from 'Illuminate/Support/helpers';
 import { HigherOrderWhenProxy, PendingHigherOrderWhenProxy, ResolvedHigherOrderWhenProxy } from 'Illuminate/Support/HigherOrderWhenProxy';
+import { decoratePackedArgs } from 'Illuminate/Support/TableArgs';
 
 // TS2545: a mixin base's constructor must accept a single `any[]` rest parameter.
 type AnyConstructor<T = object> = new (...args: any[]) => T;
 
 export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
 {
-    return class extends Base
+    const _class = class extends Base
     {
+        /** Apply the callback if the given "value" is (or resolves to) truthy. */
         public when(): PendingHigherOrderWhenProxy<this>;
-        public when(value: (instance: this) => unknown): ResolvedHigherOrderWhenProxy<this>;
+        public when<TWhenParameter>(value: (instance: this) => TWhenParameter): ResolvedHigherOrderWhenProxy<this>;
         public when(value: unknown): ResolvedHigherOrderWhenProxy<this>;
+        public when<TWhenParameter, TWhenReturnType>(
+            value: (instance: this) => TWhenParameter,
+            callback: (instance: this, value: TWhenParameter) => TWhenReturnType,
+            _default?: (instance: this, value: TWhenParameter) => TWhenReturnType,
+        ): this | TWhenReturnType;
+        public when<TWhenParameter, TWhenReturnType>(
+            value: TWhenParameter,
+            callback: (instance: this, value: TWhenParameter) => TWhenReturnType,
+            _default?: (instance: this, value: TWhenParameter) => TWhenReturnType,
+        ): this | TWhenReturnType;
         public when(
-            value: (instance: this) => unknown,
-            callback: (instance: this, value: unknown) => unknown,
+            _args?: any,
+            value?: unknown,
+            callback?: (instance: this, value: unknown) => unknown,
             _default?: (instance: this, value: unknown) => unknown,
-        ): unknown;
-        public when(
-            value: unknown,
-            callback: (instance: this, value: unknown) => unknown,
-            _default?: (instance: this, value: unknown) => unknown,
-        ): unknown;
-        public when(...args: unknown[]): unknown
+        ): unknown
         {
-            let [value, callback, _default] = args as [
-                unknown,
-                ((instance: this, value: unknown) => unknown)?,
-                ((instance: this, value: unknown) => unknown)?,
-            ];
-            value = typeIs(value, 'function') ? (value as (instance: this) => unknown)(this) : value;
+            value = typeIs(value, 'function') ? value(this) : value;
 
-            if (args.size() === 0) {
+            if (func_num_args(_args) === 0) {
                 return new HigherOrderWhenProxy(this);
             }
 
-            if (args.size() === 1) {
+            if (func_num_args(_args) === 1) {
                 return new HigherOrderWhenProxy(this).condition(value);
             }
 
@@ -47,33 +49,34 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
             return this;
         }
 
+        /** Apply the callback if the given "value" is (or resolves to) falsy. */
         public unless(): PendingHigherOrderWhenProxy<this>;
-        public unless(value: (instance: this) => unknown): ResolvedHigherOrderWhenProxy<this>;
+        public unless<TUnlessParameter>(value: (instance: this) => TUnlessParameter): ResolvedHigherOrderWhenProxy<this>;
         public unless(value: unknown): ResolvedHigherOrderWhenProxy<this>;
+        public unless<TUnlessParameter, TUnlessReturnType>(
+            value: (instance: this) => TUnlessParameter,
+            callback: (instance: this, value: TUnlessParameter) => TUnlessReturnType,
+            _default?: (instance: this, value: TUnlessParameter) => TUnlessReturnType,
+        ): this | TUnlessReturnType;
+        public unless<TUnlessParameter, TUnlessReturnType>(
+            value: TUnlessParameter,
+            callback: (instance: this, value: TUnlessParameter) => TUnlessReturnType,
+            _default?: (instance: this, value: TUnlessParameter) => TUnlessReturnType,
+        ): this | TUnlessReturnType;
         public unless(
-            value: (instance: this) => unknown,
-            callback: (instance: this, value: unknown) => unknown,
+            _args?: any,
+            value?: unknown,
+            callback?: (instance: this, value: unknown) => unknown,
             _default?: (instance: this, value: unknown) => unknown,
-        ): unknown;
-        public unless(
-            value: unknown,
-            callback: (instance: this, value: unknown) => unknown,
-            _default?: (instance: this, value: unknown) => unknown,
-        ): unknown;
-        public unless(...args: unknown[]): unknown
+        ): unknown
         {
-            let [value, callback, _default] = args as [
-                unknown,
-                ((instance: this, value: unknown) => unknown)?,
-                ((instance: this, value: unknown) => unknown)?,
-            ];
-            value = typeIs(value, 'function') ? (value as (instance: this) => unknown)(this) : value;
+            value = typeIs(value, 'function') ? value(this) : value;
 
-            if (args.size() === 0) {
+            if (func_num_args(_args) === 0) {
                 return new HigherOrderWhenProxy(this).negateConditionOnCapture();
             }
 
-            if (args.size() === 1) {
+            if (func_num_args(_args) === 1) {
                 return new HigherOrderWhenProxy(this).condition(!truthy(value));
             }
 
@@ -86,4 +89,12 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
             return this;
         }
     };
+
+    // Not a decorator: `_class` is a class *expression* (every mixin
+    // factory produces one), and TypeScript's legacy decorators cannot
+    // target a method inside one -- only inside a class declaration.
+    decoratePackedArgs(_class, 'when');
+    decoratePackedArgs(_class, 'unless');
+
+    return _class;
 }

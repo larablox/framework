@@ -188,11 +188,10 @@ function isNullableTypeMarker(tokens, index)
 
 // nullable-default (CONVENTIONS.md): a PHP `= null` parameter default has
 // nothing to match on the TS side -- an omitted argument already reads as
-// `undefined` there, so the port doesn't write a default at all (here, it
-// doesn't even keep the parameter as its own named binding; see the
-// func_num_args() fold below). Scoped to the member's own top-level
-// parameter list specifically (not just any `= null` -- a body-level
-// assignment is a real statement TS should still have *something* to match).
+// `undefined` there, so the port doesn't write a default at all. Scoped to
+// the member's own top-level parameter list specifically (not just any
+// `= null` -- a body-level assignment is a real statement TS should still
+// have *something* to match).
 function stripParamDefaults(tokens)
 {
     const openIndex = tokens.indexOf('(');
@@ -222,17 +221,23 @@ function stripParamDefaults(tokens)
     return out;
 }
 
-// func_num_args() has no TS counterpart (there is no `arguments` object --
-// roblox-ts rejects it outright: "`arguments` is not supported!") -- this
-// port's own stand-in, threading a `...args: unknown[]` rest parameter
-// through instead of named ones, reads its length with `args.size()`. Both
-// answer the exact same question, just spelled differently.
-function foldFuncNumArgs(tokens)
+// func_num_args() (CONVENTIONS.md): PHP calls it with zero arguments,
+// reading the current call frame implicitly -- there is no Luau equivalent
+// (confirmed: `arguments`/`arguments.length` is rejected outright by
+// roblox-ts, and `select('#', ...)` only sees the true count *before* a
+// `...args: T[]` rest parameter collapses it, which happens unconditionally
+// before any TS-compiled body runs). This port's own func_num_args() must
+// be handed the packed-args table explicitly instead. Canonicalized to the
+// shape the TS side actually has -- `func_num_args(args)`, `args` because
+// canonicalizeTs's unRename already strips `_args`'s leading underscore --
+// so this necessary, documented divergence doesn't cost fidelity on every
+// call site.
+function foldFuncNumArgsCall(tokens)
 {
     const out = [];
     for (let i = 0; i < tokens.length; i++) {
         if (tokens[i] === 'func_num_args' && tokens[i + 1] === '(' && tokens[i + 2] === ')') {
-            out.push('args', '.', 'size', '(', ')');
+            out.push('func_num_args', '(', 'args', ')');
             i += 2;
             continue;
         }
@@ -241,7 +246,22 @@ function foldFuncNumArgs(tokens)
     return out;
 }
 
-function canonicalizePhp(rawTokens)
+// Companion to the func_num_args() call-site fold above, for the *signature*
+// side of the same divergence: a member TableArgs.luau's decorator wraps
+// (see findPackedArgsDecoratedMembers) carries one extra leading TS-only
+// parameter -- the packed-args table -- that PHP's own signature has no
+// counterpart for at all (unlike func_num_args()'s call sites, there's no
+// PHP token here to fold *from*; one has to be synthesized). Matches
+// canonicalizeTs's post-unRename spelling (`args`, no leading underscore).
+function foldPackedArgsParam(tokens)
+{
+    const openIndex = tokens.indexOf('(');
+    if (openIndex === -1) return tokens;
+    const insertion = tokens[openIndex + 1] === ')' ? ['args'] : ['args', ','];
+    return [...tokens.slice(0, openIndex + 1), ...insertion, ...tokens.slice(openIndex + 1)];
+}
+
+function canonicalizePhp(rawTokens, hasPackedArgsParam)
 {
     // Whitespace tokens (T_WHITESPACE carries its own text in the flat
     // dump) have to go *before* the folds below, not after: `= null` in
@@ -249,7 +269,8 @@ function canonicalizePhp(rawTokens)
     // fold pattern-matching on adjacent token text would never see them
     // as adjacent otherwise.
     const withoutWhitespace = rawTokens.filter((t) => !/^\s+$/.test(t));
-    const tokens = foldFuncNumArgs(stripParamDefaults(withoutWhitespace));
+    let tokens = foldFuncNumArgsCall(stripParamDefaults(withoutWhitespace));
+    if (hasPackedArgsParam) tokens = foldPackedArgsParam(tokens);
     const out = [];
     for (let i = 0; i < tokens.length; i++) {
         let token = tokens[i];
@@ -455,6 +476,15 @@ function canonicalizeTs(tokens)
     for (let i = 0; i < tokens.length; i++) {
         const token = tokens[i];
         if (token === ';' || TS_DROPPED.has(token)) continue;
+        // trailing-comma: a `,` immediately before a `)` is syntactically
+        // optional and semantically a no-op in JS/TS -- this port's own
+        // multi-line parameter lists always write one (matching the rest
+        // of the file's formatting convention), but a single-line PHP
+        // signature never has anywhere to put one. Dropped unconditionally
+        // rather than scoped to parameter-list position specifically: it's
+        // a no-op everywhere it can legally appear, so there's nothing to
+        // lose by not scoping this.
+        if (token === ',' && tokens[i + 1] === ')') continue;
         // truthiness (CONVENTIONS.md territory, if not yet written down
         // there): `truthy(X)` exists purely to replicate PHP's own
         // implicit bool coercion in a condition position -- PHP never
@@ -577,6 +607,48 @@ function tsNameCandidates(tsMember)
     return [tsMember.name, unRename(tsMember.name)];
 }
 
+// Finds every member name passed as the 2nd argument to a real call of
+// whatever local name TableArgs.d.ts's `decoratePackedArgs` export is
+// imported/aliased as in this file -- rather than hardcoding that name, in
+// case it's renamed again (as it already has been once). Driven by actual
+// call sites, not a fixed list, so foldPackedArgsParam only ever applies to
+// members genuinely wrapped this way.
+function findPackedArgsDecoratedMembers(sourceFile)
+{
+    let localName;
+    ts.forEachChild(sourceFile, (node) => {
+        if (!ts.isImportDeclaration(node) || !node.moduleSpecifier.getText(sourceFile).includes('TableArgs')) return;
+        const namedBindings = node.importClause?.namedBindings;
+        if (!namedBindings || !ts.isNamedImports(namedBindings)) return;
+        for (const element of namedBindings.elements) {
+            if ((element.propertyName ?? element.name).text === 'decoratePackedArgs') {
+                localName = element.name.text;
+            }
+        }
+    });
+
+    const decorated = new Set();
+    if (!localName) return decorated;
+
+    const visit = (node) => {
+        if (
+            ts.isCallExpression(node) &&
+            ts.isIdentifier(node.expression) &&
+            node.expression.text === localName &&
+            node.arguments.length === 2 &&
+            ts.isStringLiteralLike(node.arguments[1])
+        ) {
+            decorated.add(node.arguments[1].text);
+        }
+        ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+
+    return decorated;
+}
+
+const packedArgsDecoratedMembers = findPackedArgsDecoratedMembers(sourceFile);
+
 const rows = [];
 const matchedTsMembers = new Set();
 
@@ -585,17 +657,15 @@ for (const phpMember of phpData.members) {
         (m) => !matchedTsMembers.has(m) && m.kind === phpMember.kind && tsNameCandidates(m).includes(phpMember.name),
     );
 
-    const phpTokens = canonicalizePhp(phpMemberTokens(phpMember));
+    const phpTokens = canonicalizePhp(phpMemberTokens(phpMember), packedArgsDecoratedMembers.has(phpMember.name));
 
     if (!tsMember) {
         rows.push({
             laravel_path: path.relative(upstreamRoot, phpData.file),
+            ts_path: path.relative(projectRoot, tsFile),
             declaration: fqcn.split('\\').pop(),
             member: phpMember.name,
             kind: phpMember.kind,
-            status: 'missing',
-            php_line: phpMember.startLine,
-            ts_line: '',
             mirror_fidelity: 0,
         });
         continue;
@@ -609,12 +679,10 @@ for (const phpMember of phpData.members) {
 
     rows.push({
         laravel_path: path.relative(upstreamRoot, phpData.file),
+        ts_path: path.relative(projectRoot, tsFile),
         declaration: fqcn.split('\\').pop(),
         member: phpMember.name,
         kind: phpMember.kind,
-        status: 'both',
-        php_line: phpMember.startLine,
-        ts_line: sourceFile.getLineAndCharacterOfPosition(tsMember.node.getStart(sourceFile)).line + 1,
         mirror_fidelity: mirrorFidelity(phpTokens, tsTokens),
     });
 }
@@ -623,12 +691,10 @@ for (const tsMember of tsMembers) {
     if (matchedTsMembers.has(tsMember)) continue;
     rows.push({
         laravel_path: path.relative(upstreamRoot, phpData.file),
+        ts_path: path.relative(projectRoot, tsFile),
         declaration: fqcn.split('\\').pop(),
         member: tsMember.name,
         kind: tsMember.kind,
-        status: 'port-only',
-        php_line: '',
-        ts_line: sourceFile.getLineAndCharacterOfPosition(tsMember.node.getStart(sourceFile)).line + 1,
         mirror_fidelity: '',
     });
 }
@@ -643,7 +709,7 @@ function csvField(value)
     return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
-const header = ['laravel_path', 'declaration', 'member', 'kind', 'status', 'php_line', 'ts_line', 'mirror_fidelity'];
+const header = ['declaration', 'member', 'kind', 'mirror_fidelity', 'laravel_path', 'ts_path'];
 const csvLines = [header.join(','), ...rows.map((row) => header.map((key) => csvField(row[key])).join(','))];
 const csv = csvLines.join('\n') + '\n';
 

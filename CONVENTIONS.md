@@ -82,6 +82,20 @@ with a literal name. `__get` has no such divergence - it only *reads*
 `target[key]`, never calls it, so there's no receiver to bind in the first
 place.
 
+Where the cast that makes `this.target[method]` legal lives depends on the
+PHP field's visibility. A target that is `protected`/`private` upstream
+(`HigherOrderWhenProxy`) is typed `T & Record<string, unknown>` and cast
+once, in the constructor, so no body-level `as` is needed. A target that is
+`public` upstream (`HigherOrderTapProxy`) stays `T` and casts at its one
+use site (`(this.target as T & Record<string, unknown>)[method]`): declared
+on a public field, the intersection becomes part of the class's API, and
+while reading `proxy.target` as a `Subject` still works, assigning one back
+does not - `proxy.target = new Subject()` fails with `TS2322: Type 'Subject'
+is not assignable to type 'Subject & Record<string, unknown>'` (confirmed
+with a scratch probe). Type assertions are stripped before the parity
+comparison, so both spellings score the same; only the public surface
+differs.
+
 ## `func_num_args()` (`Conditionable::when`/`unless`)
 
 PHP's `func_num_args()` distinguishes an omitted argument from an explicit

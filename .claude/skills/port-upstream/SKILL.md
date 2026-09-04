@@ -168,20 +168,39 @@ as "the class". Anything you must attach after construction
 
 ### 2.3 Magic dispatch (`__get`/`__call`)
 
-Follow `HigherOrderWhenProxy.ts` exactly:
+Follow `HigherOrderWhenProxy.ts` exactly; `HigherOrderTapProxy.ts` is the
+reference for the two places a proxy can legitimately differ from it (a
+`public` target, a one-state view):
 - literal `__get(key: string): unknown` and `___call(method: string,
   parameters: unknown[]): unknown` methods;
-- the target field typed `T & Record<string, unknown>` and cast **once, in
-  the constructor** - then `this.target[key]` needs no cast anywhere else;
+- a target field that is `protected`/`private` in the PHP is typed
+  `T & Record<string, unknown>` and cast **once, in the constructor** -
+  then `this.target[key]` needs no cast anywhere else. A field that is
+  `public` in the PHP keeps its declared type `T`: on a public field the
+  intersection leaks into the API, and `proxy.target = new Subject()`
+  against `public target: T & Record<string, unknown>` fails with
+  `TS2322: Type 'Subject' is not assignable to type 'Subject &
+  Record<string, unknown>'` (scratch probe, FEEDBACK.md). Cast at the
+  single use site instead:
+  `((this.target as T & Record<string, unknown>)[method] as Callable)(this.target, ...parameters)`.
+  Type assertions are stripped by the checker, so this costs no fidelity.
+  `HigherOrderWhenProxy` (`protected`) and `HigherOrderTapProxy` (`public`)
+  are the two references;
 - a dynamically-named call must re-pass its receiver:
   `(this.target[method] as Callable)(this.target, ...parameters)`. Luau's
   `:` self-call syntax needs a literal method name, so `obj[name](...)`
   compiles to a plain call with no `self`. `Callable` is in
   `Illuminate/Support/types`. The checker already folds this;
-- export `Resolved…`/`Pending…` `MagicDispatch<...>` view types for the
-  proxy's callers, as HigherOrderWhenProxy does, so
+- export `MagicDispatch<...>` view types for the proxy's callers so
   `scripts/build/transform-magic-dispatch.mjs` can rewrite `.foo`/`.foo()`
-  on them into `__get`/`___call` calls.
+  on them into `__get`/`___call` calls. Name them by how many states the
+  proxy has: two states export `Pending<Class><T>` and `Resolved<Class><T>`
+  (`PendingHigherOrderWhenProxy`, `ResolvedHigherOrderWhenProxy`); one
+  state exports `<Class>View<T>` (`HigherOrderTapProxyView`). A view for a
+  proxy that has `___call` but no `__get` keeps only function-typed members
+  (the `as` clause on `HigherOrderTapProxyView`'s mapped type), so a bare
+  property read has nothing to route to and is left out of the view rather
+  than rewritten into a `__get` that does not exist.
 
 Do **not** widen the class's generic constraint to `Record<string,
 unknown>` to avoid the cast - class instances have no index signature and
@@ -230,11 +249,11 @@ Read them and classify every run:
    `scripts/parity/canonicalize.mjs` in the existing fold style, a case in
    `scripts/parity/canonicalize.test.mjs`, and re-run.
 3. **A divergence the platform genuinely forces**: prove it before
-   documenting it - compile a scratch probe, or read the emitted
-   `out/Illuminate/.../Y.luau` and point at the exact line. Then, in this
-   order: the `CONVENTIONS.md` entry (what, why, evidence), the fold in
-   `canonicalize.mjs`, its unit test. A divergence without all three is
-   not done.
+   documenting it - compile a scratch probe (for a typing claim, §3.1), or
+   read the emitted `out/Illuminate/.../Y.luau` and point at the exact
+   line. Then, in this order: the `CONVENTIONS.md` entry (what, why,
+   evidence), the fold in `canonicalize.mjs`, its unit test. A divergence
+   without all three is not done.
 
 Prefer type-level fixes. `as`, `!`, `: Type`, `<T>`, `?` are all stripped
 before comparison, so they never cost fidelity; a runtime helper, wrapper
@@ -248,6 +267,33 @@ Then run the whole tree - other files must still score what they scored:
 ```bash
 npm run parity          # writes reports/parity/all.csv, prints every member below 100%
 ```
+
+### 3.1 Type-level checks
+
+A typing claim is proven the way a fidelity claim is - from a command's
+output, not from reading the types:
+
+- **Positive** ("this compiles, with these types"): only `npm run build`
+  and `npm test`. Both run `rbxtsc` over the `.magic-dispatch/` shadow
+  tree, which is the only place the rewritten `__get`/`___call` calls
+  exist to be checked at all.
+- **Negative** ("this must *not* compile"): a `// @ts-expect-error` line
+  inside the spec itself, directly above the access that has to fail (a
+  wrong arity, a wrong argument type, a non-method key, a wrong result
+  type). `npm run test:build` fails on an unused directive
+  (`TS2578: Unused '@ts-expect-error' directive`), so an expected error
+  that stops occurring is caught by the next `npm test` with no separate
+  probe to keep alive. The transform splices its rewrites into the
+  original text, so the directive stays attached to the line it guards.
+- Never run bare `npx tsc` over `src/`. `tsconfig.json` is `noLib` with
+  `@rbxts` typings, and outside `rbxtsc` that reports a dozen errors
+  unrelated to anything you changed (`Global type 'Iterable' must have 3
+  type parameter(s)`, `Cannot find name 'CustomMatchers'`); a
+  "compiles"/"fails" read off that output means nothing. If a scratch
+  probe is unavoidable, filter the output on the probe's own path, and
+  first inject a deliberate error into the probe to prove it is being
+  checked at all - a probe that never made it into the program passes
+  silently.
 
 ## 4. Tests
 
@@ -306,6 +352,20 @@ What goes where:
   *Applied* in your entry): anything the port *required* to reach 100% -
   a `CONVENTIONS.md` entry, a `canonicalize.mjs` fold with its test, a fix
   to a factually wrong command or path in this skill.
+- **Shared infrastructure counts as applied only with a test.** A change
+  to `scripts/build/transform-magic-dispatch.mjs`,
+  `src/Illuminate/Support/MagicDispatch.ts`, anything under
+  `scripts/parity/`, or `src/Illuminate/Support/TableArgs.*` is *Applied*
+  only if the same change carries an automated test: a `node:test` file
+  (`*.test.mjs`) beside the script under `scripts/` for build/parity
+  tooling - and check that `npm run test:parity`'s glob in `package.json`
+  actually reaches it - or a spec under `tests/` for runtime or type
+  behavior (§3.1). Without the test it is not applied: stop, report, and
+  list it under *Proposed*. Every port compiles through these files, so a
+  bug in one is a bug in every port: the `unknown`-typed magic-call result
+  (FEEDBACK.md, second entry) lived in the transform undetected because
+  nothing tested the transform, and was caught only because a tap proxy's
+  whole purpose is handing back a typed result.
 - **Proposed, for the maintainer** (under *Proposed*): changes to this
   skill's workflow or wording, new translation-table rows, tooling ideas,
   anything you were unsure about. One line of rationale each.
@@ -322,6 +382,7 @@ What goes where:
 - [ ] `check.mjs` reports 100 for every member; no unmatched (blank) rows
 - [ ] `npm run parity` clean across the whole tree
 - [ ] Every new divergence has all three: `CONVENTIONS.md` entry, `canonicalize.mjs` fold, unit test
+- [ ] Every change to shared infrastructure (`transform-magic-dispatch.mjs`, `MagicDispatch.ts`, `scripts/parity/`, `TableArgs.*`) ships with its automated test, or is listed under *Proposed* instead of applied
 - [ ] No new `any`; prose dashes are `-`
 - [ ] `npm run build` and `npm test` green, output actually read
 - [ ] FEEDBACK.md entry appended; summary in the final message
@@ -331,11 +392,21 @@ What goes where:
 - `rbxtsc --noEmit -p .` does nothing and reports nothing useful. Use
   `npm run build`. Filtering build output through `grep` can hide the
   failure line entirely.
+- Bare `npx tsc` over `src/` is noise, not a check: `tsconfig.json` is
+  `noLib` with `@rbxts` typings and reports a dozen unrelated errors
+  (`Global type 'Iterable' must have 3 type parameter(s)`, `Cannot find
+  name 'CustomMatchers'`). Prove types with `npm run build`/`npm test` and
+  a `@ts-expect-error` in the spec (§3.1).
 - Luau `:` calls need a literal name. `obj[name](...)` drops `self`; pass
   the receiver explicitly (already folded by the checker).
 - `T extends Record<string, unknown>` as a generic constraint breaks every
   caller (`this` has no index signature). Keep `T extends object`, cast
   the field once.
+- `public target: T & Record<string, unknown>` leaks the intersection into
+  the API: `proxy.target = new Subject()` fails with `TS2322: Type
+  'Subject' is not assignable to type 'Subject & Record<string, unknown>'`.
+  Only a `protected`/`private` field takes the cast-once type; a `public`
+  one stays `T` and casts at its one use site (§2.3).
 - `as unknown as X` is only needed when `X` and the source don't overlap;
   `x as T & Record<string, unknown>` is a single legal cast because the
   intersection is assignable to `T`.

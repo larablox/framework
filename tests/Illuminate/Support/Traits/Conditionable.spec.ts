@@ -1,7 +1,7 @@
 import { Conditionable } from 'Illuminate/Support/Traits/Conditionable';
 
 // Adapted, not ported: `.upstream/` is a `composer install` of the
-// laravel/framework *package* only, with no PHPUnit test files -- there is
+// laravel/framework *package* only, with no PHPUnit test files - there is
 // no `ConditionableTest.php` here to port literally. These cases are
 // reconstructed from Conditionable's own behavior (and from the manual
 // scratch runs this port was verified against while it was being built),
@@ -115,7 +115,7 @@ export = (): void => {
             });
 
             // An explicit `undefined` is 1 real argument, matching upstream
-            // PHP's func_num_args() seeing when(null) as 1 -- distinct from
+            // PHP's func_num_args() seeing when(null) as 1 - distinct from
             // when() (0 arguments). See TableArgs.luau for how this port
             // recovers that count despite it, which is exactly what a
             // args.size()-based implementation could not do.

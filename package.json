@@ -28,13 +28,15 @@
     "types": "index.d.ts",
     "type": "module",
     "scripts": {
-        "build": "node scripts/build/transform-magic-dispatch.mjs && rbxtsc -p tsconfig.magic-dispatch.json",
-        "clean": "rimraf out out-tests include tsconfig.tsbuildinfo .magic-dispatch",
+        "build": "node scripts/lint/check-packed-args.mjs && node scripts/build/transform-magic-dispatch.mjs && rbxtsc -p tsconfig.magic-dispatch.json",
+        "clean": "rimraf out out-tests include tsconfig.tsbuildinfo .magic-dispatch reports",
         "watch": "node scripts/build/watch.mjs",
         "dev": "npm run watch",
         "test:build": "node scripts/build/transform-magic-dispatch.mjs && rbxtsc -p tsconfig.tests.json --rojo test.project.json && node scripts/lune/patch-requires.mjs",
         "test:lune": "lune run scripts/lune/RunTests",
-        "test": "npm run test:build && npm run test:lune"
+        "test:parity": "node --test scripts/parity/*.test.mjs",
+        "parity": "node scripts/parity/aggregate.mjs --out=reports/parity/all.csv",
+        "test": "npm run test:parity && npm run test:build && npm run test:lune"
     },
     "devDependencies": {
         "@rbxts/compiler-types": "^3.0.0-types.0",

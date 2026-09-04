@@ -1,6 +1,6 @@
 <?php
 // Locates a PHP class/trait/interface via Composer's autoloader (so it
-// resolves regardless of any mismatch between namespace and file layout --
+// resolves regardless of any mismatch between namespace and file layout -
 // e.g. Illuminate\Support\Traits\Conditionable physically lives under
 // .upstream's Illuminate/Conditionable/, not Illuminate/Support/) and lists
 // its own (non-inherited) methods and properties with their exact source
@@ -39,7 +39,7 @@ foreach ($reflection->getMethods() as $method) {
     ];
 }
 
-// ReflectionProperty has no getStartLine()/getEndLine() -- find each
+// ReflectionProperty has no getStartLine()/getEndLine() - find each
 // property's declaration by scanning tokens for its T_VARIABLE, since
 // property declarations in this codebase are always single statements
 // (`[modifiers] $name[ = default];`) that don't span multiple lines.
@@ -71,7 +71,7 @@ foreach ($tokens as $index => $token) {
     if ($token[0] === T_VARIABLE) {
         $name = ltrim($token[1], '$');
         if (isset($propertyNames[$name]) && $propertyNames[$name]['startLine'] === null) {
-            // Only a property *declaration* -- the previous non-whitespace
+            // Only a property *declaration* - the previous non-whitespace
             // token must be a visibility/static modifier, not `->` (a use)
             // or `(`/`,` (a parameter).
             for ($j = $index - 1; $j >= 0; $j--) {
@@ -98,7 +98,7 @@ foreach ($propertyNames as $property) {
 // [startLine, endLine] without re-tokenizing a bare fragment (token_get_all
 // needs the full `<?php ...` source to make sense of context; a method
 // body alone isn't valid PHP on its own). Line tracked by hand, from each
-// token's own text, rather than trusting token_get_all's line field --
+// token's own text, rather than trusting token_get_all's line field -
 // that's only attached to array-form tokens, and a single-char token
 // (`;`, `{`, ...) right after a *multi-line* whitespace gap would otherwise
 // borrow the wrong line if the fallback just copied the previous token's.

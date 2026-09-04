@@ -1,5 +1,6 @@
 import { truthy } from 'Illuminate/Support/helpers';
-import { Callable, MagicDispatch } from 'Illuminate/Support/MagicDispatch';
+import { MagicDispatch } from 'Illuminate/Support/MagicDispatch';
+import { Callable } from 'Illuminate/Support/types';
 
 export class HigherOrderWhenProxy<T extends object>
 {

@@ -92,7 +92,7 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
 
     // Not a decorator: `_class` is a class *expression* (every mixin
     // factory produces one), and TypeScript's legacy decorators cannot
-    // target a method inside one -- only inside a class declaration.
+    // target a method inside one - only inside a class declaration.
     decoratePackedArgs(_class, 'when');
     decoratePackedArgs(_class, 'unless');
 

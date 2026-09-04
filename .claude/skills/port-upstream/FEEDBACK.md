@@ -44,7 +44,7 @@ entry's *Friction* - a second hit is what moves it up the list.
   that writes one needs a guard or a rewrite plus a test.
 - `scripts/parity/check.mjs` shells out to `php` once per file; batch the
   extraction (one PHP process dumping every class) once `npm run parity`
-  covers enough files to feel slow. Not worth it at three.
+  covers enough files to feel slow. Not worth it at five.
 - A fold in `canonicalize.mjs` whose rule no current port hits is invisible
   to `npm run parity`; an automated check that every pass has a case in
   `canonicalize.test.mjs` would keep the "every fold has a test" rule from
@@ -60,7 +60,7 @@ run; `--show=tap` prints an empty residue. `npm run parity`: 15 rows from
 node tests, 71 TestEZ cases (57 before, +8 `Tappable.spec.ts`, +6
 `helpers.spec.ts`). The trait's one dependency, the global `tap()` helper,
 was ported into `Illuminate/Support/helpers.ts` as part of this task (small
-helper, §1) - `check.mjs` cannot measure it (see Friction).
+helper, §1).
 
 **Applied:**
 - `CONVENTIONS.md` "Traits": trait -> mixin factory, `AnyConstructor`'s `any`
@@ -84,12 +84,6 @@ helper, §1) - `check.mjs` cannot measure it (see Friction).
   upstream's `helpers.php`; the comment says so.
 
 **Friction:**
-- `check.mjs` only compares class members (`findClassNode` /
-  `collectClassMembers`), so a Laravel helper ported into `helpers.ts` is
-  never scored: `node scripts/parity/check.mjs src/Illuminate/Support/helpers.ts`
-  -> `Could not autoload Illuminate\Support\helpers` is what it prints
-  (the FQCN it derives from the path is not a class at all), and
-  `aggregate.mjs` skips the file by design. `tap()`'s 100% is by eye only.
 - SKILL.md §0 ("The only two exceptions are already documented in
   CONVENTIONS.md (the mixin AnyConstructor ...)") was wrong about the
   first one - grep found `AnyConstructor` only in `Conditionable.ts` and
@@ -116,11 +110,6 @@ helper, §1) - `check.mjs` cannot measure it (see Friction).
   not "restore" a file that never moved.
 
 **Proposed:**
-- Extend `check.mjs` to score top-level `export function`s in `helpers.ts`
-  against upstream `helpers.php` (Composer's `files` autoload already loads
-  it; `new ReflectionFunction('tap')` gives the line span the same way
-  `ReflectionMethod` does). Every future helper (`value()`, `with()`,
-  `collect()`, ...) is otherwise unmeasured.
 - Translation-table rows: `is_null($x)` -> `x === undefined`; `null`
   (value) -> `undefined`; `trait Foo` -> see CONVENTIONS.md "Traits".
 - SKILL.md §2.2: the `const _class = ...; return _class;` shape is only

@@ -1,7 +1,8 @@
 // Small TS-AST helpers shared between scripts/parity/check.mjs,
 // scripts/parity/aggregate.mjs and scripts/lint/check-packed-args.mjs - all
-// three need to find "the class" in a ported file and its members the same
-// way, so that logic lives in one place rather than being copied.
+// three need to find "the class" in a ported file (or, for a ported
+// helpers.php, its top-level functions) and its members the same way, so
+// that logic lives in one place rather than being copied.
 import ts from 'typescript';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -56,6 +57,22 @@ export function collectClassMembers(classNode, sourceFile)
         }
     }
     return members;
+}
+
+// Lists a file's top-level function declarations with their name and AST
+// node - the shape a ported helpers.php takes (`export function tap(...)`),
+// which has no class for findClassNode to find. Overload signatures (no
+// body) are skipped exactly as collectClassMembers skips them; nested
+// functions and arrow-function consts are not top-level declarations and
+// are never listed.
+export function collectTopLevelFunctions(sourceFile)
+{
+    const functions = [];
+    for (const statement of sourceFile.statements) {
+        if (!ts.isFunctionDeclaration(statement) || !statement.body || !statement.name) continue;
+        functions.push({ name: statement.name.text, kind: 'function', node: statement });
+    }
+    return functions;
 }
 
 // Finds every member name passed as the 2nd argument to a real call of

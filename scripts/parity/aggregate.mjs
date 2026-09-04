@@ -8,15 +8,14 @@
 // everything" loop on top, spawning one `node check.mjs <file>` per
 // candidate so check.mjs's own CLI/exit-code behavior needs no changes.
 //
-// A .ts file with no class at all (helpers.ts - free functions) is skipped
-// before ever invoking check.mjs: it would refuse to run on such a file
-// anyway, and that's expected here, not a bug to report. That does mean a
-// helper ported from upstream's helpers.php (tap()) goes unmeasured -
-// check.mjs only compares class members. A file
-// that DOES declare a class but check.mjs still can't match an upstream PHP
-// twin for (no such class in .upstream, or a namespace/path mismatch) is
-// reported separately, as something to look at - it produced no rows, so
-// there's nothing to fold into the CSV.
+// A candidate is a .ts file declaring a class, or one with top-level
+// functions (a ported helpers.php - check.mjs's functions mode). A file
+// with neither has nothing check.mjs could compare and is skipped before
+// ever invoking it - expected, not a bug to report (there is no such file
+// under src/Illuminate today). A candidate check.mjs still can't match an
+// upstream PHP twin for (no such class in .upstream, or a namespace/path
+// mismatch) is reported separately, as something to look at - it produced
+// no rows, so there's nothing to fold into the CSV.
 //
 // Prints to stdout by default, matching check.mjs's own convention - pass
 // --out=<path> to write to a file instead (`npm run parity` does, into
@@ -28,7 +27,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
-import { findClassNode, findTsFiles } from './ts-ast-utils.mjs';
+import { collectTopLevelFunctions, findClassNode, findTsFiles } from './ts-ast-utils.mjs';
 
 const projectRoot = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
 const srcRoot = path.join(projectRoot, 'src', 'Illuminate');
@@ -46,14 +45,14 @@ function parseArgs(argv)
 
 const { out } = parseArgs(process.argv.slice(2));
 
-function hasClass(file)
+function isCandidate(file)
 {
     const text = fs.readFileSync(file, 'utf8');
     const sourceFile = ts.createSourceFile(file, text, ts.ScriptTarget.ESNext, true);
-    return Boolean(findClassNode(sourceFile));
+    return Boolean(findClassNode(sourceFile)) || collectTopLevelFunctions(sourceFile).length > 0;
 }
 
-const candidates = findTsFiles(srcRoot).filter(hasClass).sort();
+const candidates = findTsFiles(srcRoot).filter(isCandidate).sort();
 
 let header = defaultHeader;
 const rows = [];
@@ -102,7 +101,7 @@ if (attention.length > 0) {
 }
 
 if (unmatchedFiles.length > 0) {
-    console.error(`\n${unmatchedFiles.length} file(s) with a class but no matched upstream PHP twin:`);
+    console.error(`\n${unmatchedFiles.length} file(s) with no matched upstream PHP twin:`);
     for (const { file, reason } of unmatchedFiles) {
         console.error(`  ${file}: ${reason}`);
     }

@@ -427,10 +427,11 @@ export function collectTypeRanges(node, sourceFile, ranges)
         if (
             ts.isParameter(n) || ts.isPropertyDeclaration(n) || ts.isMethodDeclaration(n)
             || ts.isConstructorDeclaration(n) || ts.isGetAccessorDeclaration(n) || ts.isSetAccessorDeclaration(n)
+            || ts.isFunctionDeclaration(n)
         ) {
             withType(n);
         }
-        if ((ts.isMethodDeclaration(n) || ts.isConstructorDeclaration(n)) && n.typeParameters?.length) {
+        if ((ts.isMethodDeclaration(n) || ts.isConstructorDeclaration(n) || ts.isFunctionDeclaration(n)) && n.typeParameters?.length) {
             const first = n.typeParameters[0];
             const last = n.typeParameters[n.typeParameters.length - 1];
             const lt = text.lastIndexOf('<', first.getStart(sourceFile));
@@ -484,8 +485,13 @@ export function stripTypesFromText(node, sourceFile)
 // identifier, so dropping every occurrence is safe on both sides).
 // 'const'/'let' too: PHP has no local-variable-declaration keyword at all
 // (the first assignment doubles as the declaration), so a statement-level
-// one never has anything on the PHP side to line up against.
-const TS_DROPPED = new Set(['public', 'private', 'protected', 'readonly', 'static', 'const', 'let']);
+// one never has anything on the PHP side to line up against. 'function' is
+// the mirror image of PHP_DROPPED's own 'function' drop - a method never
+// spells it in TS, a free function (helpers.ts) spells it on both sides -
+// and 'export' is what makes a TS free function reachable at all, where
+// PHP's global function simply is (the `function_exists()` guard upstream
+// wraps it in sits outside the function's own line span).
+const TS_DROPPED = new Set(['public', 'private', 'protected', 'readonly', 'static', 'const', 'let', 'function', 'export']);
 
 function dropTsNoise(tokens)
 {

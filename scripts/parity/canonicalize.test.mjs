@@ -10,7 +10,16 @@
 // checked without needing a real PHP/TS file pair for every rule.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canonicalizePhp, canonicalizeTs, foldExplicitDynamicDispatchReceiver, mirrorFidelity, unRename } from './canonicalize.mjs';
+import ts from 'typescript';
+import {
+    canonicalizePhp,
+    canonicalizeTs,
+    foldExplicitDynamicDispatchReceiver,
+    mirrorFidelity,
+    stripTypesFromText,
+    tokenizeJs,
+    unRename,
+} from './canonicalize.mjs';
 
 test('drops PHP visibility/type keywords and the statement terminator', () => {
     assert.deepEqual(canonicalizePhp(['public', 'function', 'foo', '(', ')', ';']), ['foo', '(', ')']);
@@ -57,9 +66,6 @@ test('canonicalizes a PHP string literal, interpolation braces included', () => 
     assert.deepEqual(canonicalizePhp(['"{$x}"']), ['str:{x}']);
 });
 
-// Not exercised by any currently-checked member either: the one `is_null()`
-// in the port so far is in tap() (Illuminate/Support/helpers.ts), a free
-// function check.mjs never measures.
 test('folds an is_null() check into a strict undefined comparison', () => {
     assert.deepEqual(canonicalizePhp(['is_null', '(', '$callback', ')']), ['callback', '===', 'undefined']);
     assert.deepEqual(canonicalizePhp(['if', '(', 'is_null', '(', '$this', '->', 'target', ')', ')']), ['if', '(', 'this', '.', 'target', '===', 'undefined', ')']);
@@ -82,6 +88,31 @@ test('synthesizes the packed-args leading parameter for a decorated member', () 
 
 test('drops TS visibility/readonly/const/let and the statement terminator', () => {
     assert.deepEqual(canonicalizeTs(['public', 'readonly', 'const', 'x', '=', '1', ';']), ['x', '=', '1']);
+});
+
+// The free-function shape (helpers.ts): `export function` has no PHP
+// counterpart on the signature line, and PHP's own `function` is already
+// dropped on its side.
+test('drops a free function\'s `export function` prefix', () => {
+    assert.deepEqual(canonicalizeTs(['export', 'function', 'tap', '(', 'value', ')']), ['tap', '(', 'value', ')']);
+    assert.deepEqual(canonicalizePhp(['function', 'tap', '(', '$value', ')']), ['tap', '(', 'value', ')']);
+});
+
+// stripTypesFromText works off the AST, so it needs a real parse; the
+// method/constructor shapes are covered end-to-end by check.mjs on the
+// ported classes, the free-function shape only by this.
+function stripFunctionTypes(source)
+{
+    const sourceFile = ts.createSourceFile('fixture.ts', source, ts.ScriptTarget.ESNext, true);
+    const fn = sourceFile.statements.find((s) => ts.isFunctionDeclaration(s) && s.body);
+    return canonicalizeTs(tokenizeJs(stripTypesFromText(fn, sourceFile)));
+}
+
+test('strips a function declaration\'s type parameters, annotations, `?` and casts', () => {
+    assert.deepEqual(
+        stripFunctionTypes('export function tap<TValue>(value: TValue, callback?: (value: TValue) => unknown): unknown { return value as TValue & object; }'),
+        ['tap', '(', 'value', ',', 'callback', ')', '{', 'return', 'value', '}'],
+    );
 });
 
 test('drops a trailing comma before a closing paren', () => {

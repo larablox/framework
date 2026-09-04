@@ -1,6 +1,6 @@
 ---
 name: port-upstream
-description: Port a Laravel PHP class/trait/interface (or a whole component directory) from .upstream/ into src/Illuminate/ as roblox-ts TypeScript, letter-for-letter, to 100% mirror fidelity per scripts/parity/check.mjs. Use whenever asked to port, mirror, bring over, or "add" an upstream Laravel file or directory to this framework.
+description: Port a Laravel PHP class/trait/interface, a global helper function, or a whole component directory from .upstream/ into src/Illuminate/ as roblox-ts TypeScript, letter-for-letter, to 100% mirror fidelity per scripts/parity/check.mjs. Use whenever asked to port, mirror, bring over, or "add" an upstream Laravel file or directory to this framework.
 argument-hint: '<PHP FQCN | path under .upstream | directory>'
 ---
 
@@ -73,6 +73,15 @@ it through Composer's autoloader, so the TS file must sit where the PHP
 
 Get this wrong and `check.mjs` reports "Could not autoload" instead of a
 score.
+
+**A global helper** (`tap()`, `value()`, `with()`, ... in
+`Illuminate/Support/helpers.php`, `Illuminate/Collections/helpers.php`) has
+no namespace to derive from: it ports as an `export function` in the TS
+file at the same *physical* path (`src/Illuminate/Support/helpers.ts`), and
+`check.mjs` scores it against the upstream file at that path, function by
+function (`kind` = `function`). Port only the helpers the target needs -
+upstream functions with no TS twin yet are counted on stderr, not scored,
+so a helpers file is never "incomplete" the way a half-ported class is.
 
 **Nothing without an upstream twin goes under `src/Illuminate/`.** A helper,
 type, or runtime piece the port itself needs and Laravel has no file for

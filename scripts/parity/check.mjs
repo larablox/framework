@@ -6,6 +6,10 @@
 // (visibility keywords, PHP variable sigils, the leading-underscore rename
 // convention, type annotations and casts TS/PHP don't share, etc).
 //
+// A file with no class but top-level functions (a ported helpers.php) is
+// compared function by function against the upstream file at the same
+// path instead - see "functions mode" below for the one way it differs.
+//
 // This is advisory, the same way the deleted parity tool was: an empty
 // residue is strong evidence of a verbatim mirror; a non-empty one is a
 // worklist to justify by hand, not proof of a bug by itself.
@@ -20,7 +24,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
-import { collectClassMembers, findClassNode, findPackedArgsDecoratedMembers } from './ts-ast-utils.mjs';
+import { collectClassMembers, collectTopLevelFunctions, findClassNode, findPackedArgsDecoratedMembers } from './ts-ast-utils.mjs';
 import {
     canonicalizePhp,
     canonicalizeTs,
@@ -53,26 +57,51 @@ function parseArgs(argv)
 const { tsFile, out, show } = parseArgs(process.argv.slice(2));
 
 // ---------------------------------------------------------------------
+// TS side: find the "main" class and list its own members with their exact
+// source text - or, with no class at all, the file's top-level functions
+// (functions mode: a ported helpers.php).
+// ---------------------------------------------------------------------
+
+const tsSourceText = fs.readFileSync(tsFile, 'utf8');
+const sourceFile = ts.createSourceFile(tsFile, tsSourceText, ts.ScriptTarget.ESNext, true);
+
+const classNode = findClassNode(sourceFile);
+const tsMembers = classNode ? collectClassMembers(classNode, sourceFile) : collectTopLevelFunctions(sourceFile);
+const functionsMode = !classNode;
+
+if (functionsMode && tsMembers.length === 0) {
+    console.error(`Could not find a class declaration/expression or a top-level function in ${tsFile}`);
+    process.exit(1);
+}
+
+// ---------------------------------------------------------------------
 // PHP side: locate the class via Composer's own autoloader (robust against
 // any mismatch between namespace and physical file layout - e.g.
 // Illuminate\Support\Traits\Conditionable actually lives under this
-// upstream's Illuminate/Conditionable/), then list its own members.
+// upstream's Illuminate/Conditionable/), then list its own members. A
+// helpers file has no namespace to resolve through, so functions mode maps
+// the TS path onto the physical upstream path instead
+// (src/Illuminate/Support/helpers.ts -> Illuminate/Support/helpers.php).
 // ---------------------------------------------------------------------
 
 const srcRoot = path.join(projectRoot, 'src');
 const relativeToSrc = path.relative(srcRoot, tsFile).replace(/\.ts$/, '');
 const fqcn = relativeToSrc.split(path.sep).join('\\');
 const upstreamRoot = path.join(projectRoot, '.upstream');
+const upstreamPhpFile = path.join('vendor/laravel/framework/src', relativeToSrc.split(path.sep).join('/') + '.php');
+
+const phpTarget = functionsMode ? `--functions=${upstreamPhpFile}` : fqcn;
+const declaration = functionsMode ? path.basename(relativeToSrc) : fqcn.split('\\').pop();
 
 let phpData;
 try {
-    const stdout = execFileSync('php', [path.join(projectRoot, 'scripts/parity/extract-php.php'), upstreamRoot, fqcn], {
+    const stdout = execFileSync('php', [path.join(projectRoot, 'scripts/parity/extract-php.php'), upstreamRoot, phpTarget], {
         encoding: 'utf8',
         maxBuffer: 32 * 1024 * 1024,
     });
     phpData = JSON.parse(stdout);
 } catch (error) {
-    console.error(`Could not extract PHP member data for ${fqcn}:`);
+    console.error(`Could not extract PHP member data for ${functionsMode ? upstreamPhpFile : fqcn}:`);
     console.error(error.stderr ?? error.message);
     process.exit(1);
 }
@@ -83,22 +112,6 @@ function phpMemberTokens(member)
         .filter((t) => t.line >= member.startLine && t.line <= member.endLine)
         .map((t) => t.text);
 }
-
-// ---------------------------------------------------------------------
-// TS side: find the "main" class and list its own members with their exact
-// source text.
-// ---------------------------------------------------------------------
-
-const tsSourceText = fs.readFileSync(tsFile, 'utf8');
-const sourceFile = ts.createSourceFile(tsFile, tsSourceText, ts.ScriptTarget.ESNext, true);
-
-const classNode = findClassNode(sourceFile);
-if (!classNode) {
-    console.error(`Could not find a class declaration/expression in ${tsFile}`);
-    process.exit(1);
-}
-
-const tsMembers = collectClassMembers(classNode, sourceFile);
 
 // --show=<member> diagnostic: prints the two canonicalized token streams
 // aligned as runs of tokens present on only one side (an LCS backtrack, not
@@ -169,6 +182,7 @@ const packedArgsDecoratedMembers = findPackedArgsDecoratedMembers(sourceFile);
 
 const rows = [];
 const matchedTsMembers = new Set();
+let unportedFunctions = 0;
 
 for (const phpMember of phpData.members) {
     const tsMember = tsMembers.find(
@@ -178,10 +192,22 @@ for (const phpMember of phpData.members) {
     const phpTokens = canonicalizePhp(phpMemberTokens(phpMember), packedArgsDecoratedMembers.has(phpMember.name));
 
     if (!tsMember) {
+        // A class is ported whole, so a PHP member with no TS twin is a
+        // hole in the port and scores 0. A helpers file is not a unit: its
+        // functions are ported one at a time, as whatever needs them gets
+        // ported (tap() for Tappable), the way classes in a directory are.
+        // An upstream class nobody has ported yet is no row in the report,
+        // so an upstream function nobody has ported yet isn't either - it
+        // is counted on stderr instead, not scored.
+        if (functionsMode) {
+            unportedFunctions++;
+            continue;
+        }
+
         rows.push({
             laravel_path: path.relative(upstreamRoot, phpData.file),
             ts_path: path.relative(projectRoot, tsFile),
-            declaration: fqcn.split('\\').pop(),
+            declaration,
             member: phpMember.name,
             kind: phpMember.kind,
             mirror_fidelity: 0,
@@ -198,7 +224,7 @@ for (const phpMember of phpData.members) {
     rows.push({
         laravel_path: path.relative(upstreamRoot, phpData.file),
         ts_path: path.relative(projectRoot, tsFile),
-        declaration: fqcn.split('\\').pop(),
+        declaration,
         member: phpMember.name,
         kind: phpMember.kind,
         mirror_fidelity: mirrorFidelity(phpTokens, tsTokens),
@@ -210,11 +236,15 @@ for (const tsMember of tsMembers) {
     rows.push({
         laravel_path: path.relative(upstreamRoot, phpData.file),
         ts_path: path.relative(projectRoot, tsFile),
-        declaration: fqcn.split('\\').pop(),
+        declaration,
         member: tsMember.name,
         kind: tsMember.kind,
         mirror_fidelity: '',
     });
+}
+
+if (unportedFunctions > 0) {
+    console.error(`${path.relative(upstreamRoot, phpData.file)}: ${unportedFunctions} upstream function(s) not ported yet, not scored`);
 }
 
 // ---------------------------------------------------------------------

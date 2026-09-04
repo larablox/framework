@@ -126,6 +126,8 @@ as PSR-12 upstream does. 4-space indent.
 | `protected $flag = false;`                   | `protected flag = false;`                               | |
 | type hints (`callable $cb`, `?string`, `mixed`, `ReflectionParameter $p`) | TS annotation; never a runtime check | all type syntax is stripped before comparing |
 | `$cb = null` parameter default               | `cb?: T` - no default written                           | "nullable-default" in CONVENTIONS.md |
+| `is_null($x)`                                | `x === undefined`                                       | folded by the checker; CONVENTIONS.md "`null`" |
+| `null` as a value (`return null;`, `= null`) | `undefined`                                             | roblox-ts has no `null` at all; folded by the checker |
 | `$this->x` / `X::y` / `self::y`              | `this.x` / `X.y`                                        | both spell as `.` |
 | `$this->target->{$key}`                      | `this.target[key]`                                      | see §2.3 for the call form |
 | `elseif`                                     | `else if`                                               | |
@@ -184,7 +186,9 @@ export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
 
 The checker finds the class expression the factory returns and treats it
 as "the class". Anything you must attach after construction
-(`decoratePackedArgs`) goes between the expression and the `return`.
+(`decoratePackedArgs`) goes between the expression and the `return`. With
+nothing to attach, skip the temporary and `return class extends Base
+{...};` directly (`Tappable.ts`).
 
 ### 2.3 Magic dispatch (`__get`/`__call`)
 
@@ -467,3 +471,20 @@ What goes where:
   in `canonicalize.test.mjs`. Add yours.
 - Reflowed prose wraps `--` onto a line start or end; a `s/ -- / - /`
   pass misses those. Grep `^--` and `--$` too, but not in `.luau` files.
+- A method whose PHP parameter is `$callback = null` and that hands it on
+  (`tap($this, $callback)`) matches neither a `f(x)` nor an `f(x, cb)`
+  overload on the callee: an optional parameter's type is `F | undefined`.
+  Add a third overload on both, `cb?: F` returning the union of the two
+  results (`HigherOrderTapProxyView<T> | T`) - that is exactly PHP's own
+  nullable-argument contract. Never `cb!`, which lies about the runtime.
+- `transform-magic-dispatch.mjs` refuses, at build time, four access
+  shapes on a magic-dispatch value and fails `npm run build`/`npm test`
+  with `file:line:col`: `view['key']`, `(view.m)(x)`, `view?.key` /
+  `view?.m(x)`, and any access on a union with a magic constituent
+  (`HigherOrderTapProxyView<T> | T`, the optional-callback overload's
+  result). Write the plain `view.key` / `view.m(x)`; for the union,
+  narrow or cast first (the specs cast to `HigherOrderTapProxy<T>` and
+  read `.target`).
+- The harness may report a file "changed on disk" with a diff `git status`
+  does not show. Check `git status`/`git diff` before "restoring" anything;
+  the notice can be stale and the file already at HEAD.

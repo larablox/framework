@@ -20,7 +20,7 @@ import assert from 'node:assert/strict';
 import ts from 'typescript';
 import path from 'node:path';
 import url from 'node:url';
-import { transformSourceFile } from './magic-dispatch-rewrite.mjs';
+import { MagicDispatchShapeError, transformSourceFile } from './magic-dispatch-rewrite.mjs';
 
 const projectRoot = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
 
@@ -183,6 +183,76 @@ const key = plain.__get('active');
 
     assert.equal(text, source);
     assert.equal(editCount, 0);
+});
+
+// A spec's whole body is one `export = () => {...}` statement, so a
+// hand-written explicit call there shares a statement with real rewrites;
+// the count has to come from the rewrite sites, not from the output text.
+test('counts only real rewrites, not a hand-written ___call/__get in the same statement', () => {
+    const { text, editCount } = rewrite(PRELUDE + `
+const both = [view.active, view.___call('activate', ['explicit']), view.__get('active')];
+`);
+
+    assert.equal(text, PRELUDE + `
+const both = [view.__get('active'), view.___call('activate', ['explicit']), view.__get('active')];
+`);
+    assert.equal(editCount, 1);
+});
+
+// Shapes the rewrite refuses outright (a MagicDispatchShapeError, which the
+// CLI turns into a failed build pointing at the line): each would otherwise
+// compile to a plain access on the proxy and fail as a nil call at runtime.
+function refusalOf(source)
+{
+    try {
+        rewrite(PRELUDE + source);
+    } catch (error) {
+        if (!(error instanceof MagicDispatchShapeError)) throw error;
+        return error.message.slice(error.message.indexOf('fixture.ts:'));
+    }
+    assert.fail('expected the rewrite to refuse this shape');
+}
+
+test('refuses element access on a magic value', () => {
+    assert.match(refusalOf(`
+const active = view['active'];
+`), /^fixture\.ts:\d+:16: element access on a magic-dispatch value is not routed/);
+    assert.match(refusalOf(`
+const activated = view['activate']('x');
+`), /^fixture\.ts:\d+:19: element access on a magic-dispatch value is not routed/);
+});
+
+test('refuses a parenthesized callee on a magic value', () => {
+    assert.match(refusalOf(`
+const activated = (view.activate)('x');
+`), /^fixture\.ts:\d+:19: a parenthesized callee on a magic-dispatch value is not routed/);
+});
+
+test('refuses optional chaining on a magic value', () => {
+    assert.match(refusalOf(`
+const active = view?.active;
+`), /^fixture\.ts:\d+:16: optional chaining on a magic-dispatch value is not routed/);
+    assert.match(refusalOf(`
+const activated = view?.activate('x');
+`), /^fixture\.ts:\d+:19: optional chaining on a magic-dispatch value is not routed/);
+});
+
+test('refuses an access on a union with a magic constituent until it is narrowed or cast', () => {
+    assert.match(refusalOf(`
+declare const either: View | Plain;
+const active = either.active;
+`), /^fixture\.ts:\d+:16: an access on a union with a magic-dispatch constituent cannot be routed/);
+    assert.match(refusalOf(`
+declare const maybe: View | undefined;
+const checked = maybe?.isActive();
+`), /^fixture\.ts:\d+:17: an access on a union with a magic-dispatch constituent cannot be routed/);
+
+    const { text, editCount } = rewrite(PRELUDE + `
+declare const either: View | Plain;
+const active = (either as View).active;
+`);
+    assert.ok(text.endsWith(`const active = (either as View).__get('active');\n`));
+    assert.equal(editCount, 1);
 });
 
 test('reports zero edits and byte-identical text for a file with nothing to rewrite', () => {

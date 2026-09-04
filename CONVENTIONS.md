@@ -113,6 +113,18 @@ whose only job is handing the target back for further use). A `__get`/
 explicit form and is left alone rather than re-routed into a magic call
 *named* `___call`.
 
+The transform routes exactly two shapes, `view.key` and `view.method(args)`,
+and refuses the others at build time (a `file:line:col` error, the build
+fails) rather than passing them through: element access (`view['key']`),
+a parenthesized callee (`(view.m)(x)`), optional chaining (`view?.key`,
+`view?.m(x)`), and any access on a union with a magic constituent
+(`HigherOrderTapProxyView<T> | T`, which `tap(value, callback?)` returns -
+a union is not magic itself, since `getPropertyOfType()` only reports a
+property every constituent has). Passed through, each would compile to a
+plain Luau access on the proxy, which has no such member, and fail as a
+`nil` call at runtime with nothing pointing back at the source. The fix is
+always to write the plain form, or to narrow/cast the union first.
+
 `HigherOrderWhenProxy` uses it too, even though its `__get`/`___call` both
 forward 1:1 onto a `target` object and a plain runtime `typeIs()` check on
 `target[key]` would have been enough on its own: the compile-time rewrite

@@ -29,7 +29,7 @@ import ts from 'typescript';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
-import { transformSourceFile } from './magic-dispatch-rewrite.mjs';
+import { MagicDispatchShapeError, transformSourceFile } from './magic-dispatch-rewrite.mjs';
 
 const projectRoot = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
 
@@ -142,7 +142,19 @@ function run()
         const root = rootFor(sourceFile.fileName);
         if (!root) continue;
 
-        const { text, editCount } = transformSourceFile(checker, sourceFile);
+        let text;
+        let editCount;
+        try {
+            ({ text, editCount } = transformSourceFile(checker, sourceFile));
+        } catch (error) {
+            // An access shape the rewrite refuses (see magic-dispatch-rewrite.mjs):
+            // reported like a type error, against the real source, and the
+            // build fails - the shadow tree is left as it was.
+            if (!(error instanceof MagicDispatchShapeError)) throw error;
+            process.stderr.write(`${error.message.replace(projectRoot + path.sep, '')}\n`);
+            process.exitCode = 1;
+            return;
+        }
         totalEdits += editCount;
         fileCount++;
 

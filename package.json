@@ -35,8 +35,9 @@
         "test:build": "node scripts/build/transform-magic-dispatch.mjs && rbxtsc -p tsconfig.tests.json --rojo test.project.json && node scripts/lune/patch-requires.mjs",
         "test:lune": "lune run scripts/lune/RunTests",
         "test:parity": "node --test scripts/parity/*.test.mjs",
+        "test:transform": "node --test scripts/build/*.test.mjs",
         "parity": "node scripts/parity/aggregate.mjs --out=reports/parity/all.csv",
-        "test": "npm run test:parity && npm run test:build && npm run test:lune"
+        "test": "npm run test:parity && npm run test:transform && npm run test:build && npm run test:lune"
     },
     "devDependencies": {
         "@rbxts/compiler-types": "^3.0.0-types.0",

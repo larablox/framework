@@ -18,3 +18,6 @@
 
 # scripts/parity/check.mjs --out= reports
 /reports
+
+# Agent tool worktrees
+/.claude/worktrees/

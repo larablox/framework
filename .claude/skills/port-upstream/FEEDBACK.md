@@ -137,3 +137,48 @@ Conditionable 2/2 stayed at 100%.
 - `HigherOrderWhenProxy` still has no spec of its own (only Conditionable's
   covers it indirectly); the definition-of-done checkbox would fail on it
   today.
+
+## 2026-09-04 - maintenance batch, not a port (four parallel agents folding the entry above)
+
+**Result:** entry 2's Proposed items absorbed: SKILL.md §2.3 (public vs
+protected target field, view naming), §3.1 (type-level checks), §6 (shared
+infrastructure needs a test) + Definition of done; CONVENTIONS.md (cast
+placement by visibility); `HigherOrderTapProxy.target` back to bare `T`;
+`HigherOrderWhenProxy.spec.ts` (31 cases); `transform-magic-dispatch.mjs`
+split into `magic-dispatch-rewrite.mjs` + 10 `node:test` cases
+(`npm run test:transform`). Whole tree: 19 + 10 unit tests, 57 TestEZ,
+14/14 members at 100%.
+
+**Friction:**
+- `// @ts-expect-error` is rejected by roblox-ts outright (`Usage of
+  @ts-ignore, @ts-expect-error, and @ts-nocheck are not supported!`), so the
+  "negative type check in the spec" recipe first written into §3.1 was
+  impossible. Two agents hit it independently; replaced by the `Same<A, B> =
+  true` assertion pattern (now in §3.1, reference in
+  `HigherOrderTapProxy.spec.ts`).
+- `npm run build` never compiles `tests/`, so a spec-only mistake shows up
+  only in `npm test`. Now stated in §4.
+- Agent worktrees: the Agent tool's `isolation: worktree` cuts from `main`,
+  which shares nothing with `fresh-port-attempt`; agents cannot `git reset`
+  (classifier). Fixed from the main session with `git -C <worktree> reset
+  --hard fresh-port-attempt`. In a worktree `.upstream/` is the tracked
+  directory (composer.json/lock), so `check.mjs`/`npm run parity` need
+  `.upstream/vendor` linked to the main checkout's (`/.upstream/vendor/` in
+  .gitignore matches a directory, not a symlink - unlink before committing).
+- `transform-magic-dispatch.mjs`'s "N access site(s) rewritten" over-counts:
+  it regexes the whole rewritten top-level statement, so hand-written
+  `___call`s in a spec's single `export = () => {...}` are counted too
+  (22 real became 79 with `HigherOrderWhenProxy.spec.ts`). Cosmetic; the
+  fix is counting at the rewrite site in `transformNode`.
+- rbxtsc keeps a `ParenthesizedExpression` on an element-access receiver:
+  `(this.target as T & Record<string, unknown>)[method]` emits
+  `(self.target)[method](...)` where the constructor-cast form emitted
+  `self.target[method](...)`. Same Luau semantics; accepted so the code
+  matches the §2.3 rule rather than the other way round.
+
+**Proposed:**
+- Fix the transform's summary counter (one-liner, needs a test case with a
+  hand-written `___call` in the same top-level statement as a rewrite).
+- The transform silently passes through `view['key']` (element access),
+  `(view.m)(x)` (parenthesized callee) and would drop `?.` on a magic
+  receiver - none occur yet; worth a guard or a test the day one does.

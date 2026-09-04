@@ -21,12 +21,17 @@ works but scores 94% is unfinished.
 2. Read `.claude/skills/port-upstream/FEEDBACK.md`. Previous agents' entries
    are the freshest list of traps; the last one may describe exactly the
    construct you are about to hit.
-3. Read the two golden references end to end, source and spec:
+3. Read the golden references end to end, source and spec:
    - `src/Illuminate/Support/HigherOrderWhenProxy.ts` (a class with magic
-     `__get`/`__call`)
+     `__get`/`__call`, a `protected` target, two view states) and
+     `tests/Illuminate/Support/HigherOrderWhenProxy.spec.ts`
+   - `src/Illuminate/Support/HigherOrderTapProxy.ts` (`__call` only, a
+     `public` target, one view state) and
+     `tests/Illuminate/Support/HigherOrderTapProxy.spec.ts` (also the
+     reference for type-level assertions, §3.1)
    - `src/Illuminate/Support/Traits/Conditionable.ts` (a trait as a mixin,
-     overloads, `func_num_args()`)
-   - `tests/Illuminate/Support/Traits/Conditionable.spec.ts`
+     overloads, `func_num_args()`) and
+     `tests/Illuminate/Support/Traits/Conditionable.spec.ts`
    Match their layout, brace style, docblock style, naming - exactly.
 4. Ground rules that are not negotiable:
    - Everything in English: code, identifiers, comments, commit messages.
@@ -277,14 +282,27 @@ output, not from reading the types:
   and `npm test`. Both run `rbxtsc` over the `.magic-dispatch/` shadow
   tree, which is the only place the rewritten `__get`/`___call` calls
   exist to be checked at all.
-- **Negative** ("this must *not* compile"): a `// @ts-expect-error` line
-  inside the spec itself, directly above the access that has to fail (a
-  wrong arity, a wrong argument type, a non-method key, a wrong result
-  type). `npm run test:build` fails on an unused directive
-  (`TS2578: Unused '@ts-expect-error' directive`), so an expected error
-  that stops occurring is caught by the next `npm test` with no separate
-  probe to keep alive. The transform splices its rewrites into the
-  original text, so the directive stays attached to the line it guards.
+- **Negative** ("this must *not* compile"): NOT `// @ts-expect-error` -
+  roblox-ts refuses the directive outright, used or unused (`error TS
+  roblox-ts: Usage of @ts-ignore, @ts-expect-error, and @ts-nocheck are not
+  supported! roblox-ts needs type and symbol info to compile correctly.`),
+  and it only surfaces in `npm test`'s `test:build`, not in `npm run
+  build`. Write the negative claim as a type-level assertion the spec
+  *positively* compiles instead - a `const` whose annotation collapses to
+  `false` the moment the claim stops holding:
+
+  ```ts
+  type Same<A, B> = (<X>() => X extends A ? 1 : 2) extends (<X>() => X extends B ? 1 : 2) ? true : false;
+
+  const targetIsExactlySubject: Same<HigherOrderTapProxy<Subject>['target'], Subject> = true;
+  const stringIsRejected: string extends HigherOrderTapProxy<Subject>['target'] ? false : true = true;
+  ```
+
+  (`HigherOrderTapProxy.spec.ts` is the reference.) Prove it live once,
+  in both directions: break the source so the claim is false, watch
+  `npm test` fail on exactly that line, restore. A typed `const` fed by a
+  rewritten magic call (`const name: string = view.rename('x')`) is the
+  same idea for "the result is typed, not `unknown`".
 - Never run bare `npx tsc` over `src/`. `tsconfig.json` is `noLib` with
   `@rbxts` typings, and outside `rbxtsc` that reports a dozen errors
   unrelated to anything you changed (`Global type 'Iterable' must have 3
@@ -322,6 +340,18 @@ Keep that header honest: say which upstream test names the cases mirror
 and which are reconstructed. Cover every branch the PHP has (both `if`
 arms, the 0/1/n-argument forms, closures vs plain values, truthy vs falsy
 edges the `truthy()` helper is meant to replicate).
+
+Three things about the harness that are not obvious from the template:
+- `npm run build` never compiles `tests/`; a spec is type-checked and run
+  only by `npm test`. A spec that "builds" has not been checked yet.
+- `expect(x).to.equal(y)` is Luau `==` - reference equality for tables. To
+  assert what a method was called with, record calls as strings (`'activate:x'`)
+  and compare those, not arrays or objects; see the `calls` log in the
+  existing specs.
+- A magic proxy is single-use by design (one capture hop, then one resolve
+  hop, mirroring PHP). Build a fresh proxy per chain in a test; reusing one
+  makes the second chain's first access a *resolve* and the failure
+  (`attempt to index boolean with '__get'`) looks like a transform bug.
 
 ## 5. Finish
 
@@ -396,7 +426,11 @@ What goes where:
   `noLib` with `@rbxts` typings and reports a dozen unrelated errors
   (`Global type 'Iterable' must have 3 type parameter(s)`, `Cannot find
   name 'CustomMatchers'`). Prove types with `npm run build`/`npm test` and
-  a `@ts-expect-error` in the spec (§3.1).
+  a `Same<A, B> = true` assertion in the spec (§3.1).
+- `// @ts-expect-error` (and `@ts-ignore`, `@ts-nocheck`) is rejected by
+  roblox-ts as a whole, used or not - it cannot be a negative type check
+  anywhere under `src/` or `tests/`. It only fails in `npm test`, because
+  `npm run build` never compiles `tests/` at all.
 - Luau `:` calls need a literal name. `obj[name](...)` drops `self`; pass
   the receiver explicitly (already folded by the checker).
 - `T extends Record<string, unknown>` as a generic constraint breaks every

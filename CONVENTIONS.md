@@ -22,6 +22,42 @@ only where TypeScript/roblox-ts/Luau genuinely forces it.
   `$obj->foo()`). Takes one more leading underscore than PHP's own two:
   `___call`. `__get` has no such collision and keeps its literal name.
 
+## Traits
+
+A PHP `trait` has no TS counterpart - a class can `extends` exactly one
+thing, and there is no way to splice a second set of members into it. A
+trait is ported as a mixin factory instead: a function taking a base
+constructor and returning a class *expression* that extends it, declaring
+the trait's members exactly as the PHP does
+(`export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
+{ return class extends Base { ... }; }`). The consumer spells `use Foo;` as
+`class X extends Foo(Base) {}` (or `Foo(class { ... })` when there is no
+base of its own). The parity checker treats the returned class expression
+as "the class".
+
+The factory's constraint is one of the port's two accepted uses of `any`:
+`type AnyConstructor<T = object> = new (...args: any[]) => T;`. TypeScript
+requires it literally - a mixin whose base type is constrained to `new
+(...args: unknown[]) => T` is refused with `TS2545: A mixin class must have
+a constructor with a single rest parameter of type 'any[]'` (confirmed with
+a scratch probe through `npm run build`). The alias lives once, in
+`Illuminate/Support/types.ts` next to `Callable`, and every trait imports
+it from there - the shared home for types the port itself needs and Laravel
+has no file for. This section is where the `any` is justified; a trait file
+does not restate it.
+
+## `null`
+
+roblox-ts has no `null` at all: `TS roblox-ts: \`null\` is not supported!
+Suggestion: Use \`undefined\` instead.` (confirmed with a scratch probe through
+`npm run build`). PHP's `null` is `undefined` throughout the port - a `= null`
+parameter default is an omitted `?` parameter with no default written
+("nullable-default", see `canonicalize.mjs`), a `return null` is `return
+undefined`, and `is_null($x)` is `x === undefined` (`tap()` in
+`Illuminate/Support/helpers.ts`). The parity checker folds a PHP-side
+`is_null(EXPR)` into `EXPR === undefined` and any other bare `null` into
+`undefined`, so neither spelling costs fidelity.
+
 ## Magic dispatch (`__get`/`__call`)
 
 PHP decides between `__get` (property read) and `__call` (method call) from

@@ -1,9 +1,7 @@
 import { func_num_args, truthy } from 'Illuminate/Support/helpers';
 import { HigherOrderWhenProxy, PendingHigherOrderWhenProxy, ResolvedHigherOrderWhenProxy } from 'Illuminate/Support/HigherOrderWhenProxy';
 import { decoratePackedArgs } from 'Illuminate/Support/TableArgs';
-
-// TS2545: a mixin base's constructor must accept a single `any[]` rest parameter.
-type AnyConstructor<T = object> = new (...args: any[]) => T;
+import { AnyConstructor } from 'Illuminate/Support/types';
 
 export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
 {

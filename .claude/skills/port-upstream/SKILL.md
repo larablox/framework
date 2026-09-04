@@ -149,8 +149,7 @@ callers real types (see `when()`'s five overloads).
 ### 2.2 A trait is a mixin factory
 
 ```ts
-// TS2545: a mixin base's constructor must accept a single `any[]` rest parameter.
-type AnyConstructor<T = object> = new (...args: any[]) => T;
+import { AnyConstructor } from 'Illuminate/Support/types';
 
 export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
 {

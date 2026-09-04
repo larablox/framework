@@ -57,6 +57,20 @@ test('canonicalizes a PHP string literal, interpolation braces included', () => 
     assert.deepEqual(canonicalizePhp(['"{$x}"']), ['str:{x}']);
 });
 
+// Not exercised by any currently-checked member either: the one `is_null()`
+// in the port so far is in tap() (Illuminate/Support/helpers.ts), a free
+// function check.mjs never measures.
+test('folds an is_null() check into a strict undefined comparison', () => {
+    assert.deepEqual(canonicalizePhp(['is_null', '(', '$callback', ')']), ['callback', '===', 'undefined']);
+    assert.deepEqual(canonicalizePhp(['if', '(', 'is_null', '(', '$this', '->', 'target', ')', ')']), ['if', '(', 'this', '.', 'target', '===', 'undefined', ')']);
+});
+
+test('rewrites a bare `null` value to `undefined`, but not a parameter default', () => {
+    assert.deepEqual(canonicalizePhp(['return', 'null', ';']), ['return', 'undefined']);
+    assert.deepEqual(canonicalizePhp(['$this', '->', 'x', '=', 'NULL', ';']), ['this', '.', 'x', '=', 'undefined']);
+    assert.deepEqual(canonicalizePhp(['function', 'foo', '(', '$x', '=', 'null', ')']), ['foo', '(', 'x', ')']);
+});
+
 test('folds a zero-arg func_num_args() call to the packed-args shape', () => {
     assert.deepEqual(canonicalizePhp(['func_num_args', '(', ')']), ['func_num_args', '(', 'args', ')']);
 });

@@ -11,12 +11,13 @@
 // entry, not a new branch threaded through shared loop state.
 //
 // Pass ORDER matters in a few places, called out on the passes themselves:
-// mainly, the two passes with a recursive `canonicalizePhp`/`canonicalizeTs`
-// call (foldDynamicMemberAccess, stripRedundantNewParens, unwrapTruthyCalls)
-// must run before anything that would alter the raw tokens they slice out -
-// their recursive call re-derives full canonicalization for that slice from
-// scratch, the same way the original single-loop implementation always saw
-// unmodified tokens for it regardless of loop position.
+// mainly, the passes with a recursive `canonicalizePhp`/`canonicalizeTs`
+// call (foldDynamicMemberAccess, stripRedundantNewParens, foldIsNullCalls,
+// unwrapTruthyCalls) must run before anything that would alter the raw
+// tokens they slice out - their recursive call re-derives full
+// canonicalization for that slice from scratch, the same way the original
+// single-loop implementation always saw unmodified tokens for it regardless
+// of loop position.
 import ts from 'typescript';
 
 export const JS_TOKEN =
@@ -189,6 +190,41 @@ function stripRedundantNewParens(tokens)
     return out;
 }
 
+// `null` (CONVENTIONS.md): roblox-ts has no `null` at all, so PHP's
+// `is_null(EXPR)` spells as `EXPR === undefined` - the one strict check
+// that means "this is nil" there. Depth-tracked like foldDynamicMemberAccess
+// (EXPR can be more than one token), and like it re-canonicalizes the slice
+// it lifts out, so it must run before the token-altering passes - see the
+// module docblock.
+function foldIsNullCalls(tokens)
+{
+    const out = [];
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === 'is_null' && tokens[i + 1] === '(') {
+            let depth = 0;
+            let close = -1;
+            for (let j = i + 1; j < tokens.length; j++) {
+                if (tokens[j] === '(') depth++;
+                else if (tokens[j] === ')') {
+                    depth--;
+                    if (depth === 0) {
+                        close = j;
+                        break;
+                    }
+                }
+            }
+            if (close !== -1) {
+                const inner = canonicalizePhp(tokens.slice(i + 2, close));
+                out.push(...inner, '===', 'undefined');
+                i = close;
+                continue;
+            }
+        }
+        out.push(tokens[i]);
+    }
+    return out;
+}
+
 function stripVariableSigils(tokens)
 {
     return tokens.map((token) => (token.startsWith('$') ? token.slice(1) : token));
@@ -226,6 +262,16 @@ function rewriteMemberAccessOperators(tokens)
 function renameConstructorToken(tokens)
 {
     return tokens.map((token) => (token === '__construct' ? 'constructor' : token));
+}
+
+// The same `null` convention for a bare value use (`return null;`,
+// `$this->x = null;`): `undefined` is the only spelling roblox-ts accepts.
+// A `= null` parameter default never reaches this - stripParamDefaults has
+// already erased it, matching the TS side writing no default at all.
+// Case-insensitive, as PHP's own keyword is.
+function renameNullToUndefined(tokens)
+{
+    return tokens.map((token) => (token.toLowerCase() === 'null' ? 'undefined' : token));
 }
 
 // nullable-default (CONVENTIONS.md): a PHP `= null` parameter default has
@@ -319,6 +365,7 @@ export function canonicalizePhp(rawTokens, hasPackedArgsParam)
         foldDynamicMemberAccess,
         foldElseif,
         stripRedundantNewParens,
+        foldIsNullCalls,
         dropNullableTypeMarkers,
         dropClassNameTypeHints,
         dropPhpNoise,
@@ -327,6 +374,7 @@ export function canonicalizePhp(rawTokens, hasPackedArgsParam)
         foldInstanceofClosure,
         rewriteMemberAccessOperators,
         renameConstructorToken,
+        renameNullToUndefined,
     ]);
 }
 

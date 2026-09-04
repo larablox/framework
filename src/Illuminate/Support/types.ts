@@ -6,3 +6,10 @@
  * `callable` type hint, which carries exactly as little.
  */
 export type Callable = (...args: unknown[]) => unknown;
+
+/**
+ * The base a trait's mixin factory accepts. TS2545: a mixin base's
+ * constructor must accept a single `any[]` rest parameter - the `any` is
+ * required literally, see CONVENTIONS.md "Traits".
+ */
+export type AnyConstructor<T = object> = new (...args: any[]) => T;

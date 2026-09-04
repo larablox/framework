@@ -1,14 +1,14 @@
 --[[
 	Runs every *.spec.luau under out-tests/ through the vendored TestEZ core
-	(scripts/lune/testez/ -- see its README for why @rbxts/testez's own
+	(scripts/lune/testez/ - see its README for why @rbxts/testez's own
 	files can't be required as-is under Lune) and prints the results.
 
 	Bypasses TestEZ's own TestBootstrap:run(), which discovers specs by
 	walking a real Roblox Instance tree (root:GetDescendants(), then
-	require(moduleScriptInstance)) -- Lune has neither: no DataModel, and
+	require(moduleScriptInstance)) - Lune has neither: no DataModel, and
 	its own require() rejects an Instance outright. TestPlanner.createPlan()
 	is the lower-level entry point TestBootstrap itself is built on, and it
-	only wants a plain list of {method, path, pathStringForSorting} -- exactly
+	only wants a plain list of {method, path, pathStringForSorting} - exactly
 	what walking out-tests/ on disk can build by hand.
 
 	Run from the project root: `lune run scripts/lune/RunTests`.
@@ -28,7 +28,7 @@ local function stripSpecSuffix(name)
 end
 
 -- Finds every *.spec.luau under `dir`, returning {diskPath, pathSegments}
--- pairs -- pathSegments is the directory chain (leaf first) TestPlan uses to
+-- pairs - pathSegments is the directory chain (leaf first) TestPlan uses to
 -- build nested describe() groups purely from where a spec sits on disk,
 -- mirroring how Roblox/testez's own getPath() reads it from the Instance
 -- tree instead.
@@ -58,7 +58,7 @@ local specs = findSpecs(OUT_TESTS)
 local modulesList = {}
 for _, spec in specs do
 	-- require() is relative to *this* script, not the process cwd fs.*
-	-- uses -- this script lives at scripts/lune/, two levels below the
+	-- uses - this script lives at scripts/lune/, two levels below the
 	-- project root that out-tests/ sits in.
 	local relativePath = "../../" .. spec.diskPath:gsub("%.luau$", "")
 	local method = require(relativePath)

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // `npm run build` is one shot: transform then compile. Watch mode needs both
-// running continuously and cooperating -- the transform rewrites src/ into
+// running continuously and cooperating - the transform rewrites src/ into
 // .magic-dispatch/ on every change, and rbxtsc -w watches .magic-dispatch/
 // itself, so a src/ edit has to reach rbxtsc through that shadow copy.
-// No new dependency for this (CLAUDE.md: don't add one unless asked) --
+// No new dependency for this (CLAUDE.md: don't add one unless asked) -
 // spawning both and forwarding signals is a dozen lines of child_process.
 import { execFileSync, spawn } from 'node:child_process';
 import path from 'node:path';

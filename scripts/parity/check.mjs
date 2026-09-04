@@ -40,7 +40,7 @@ const { tsFile, out, show } = parseArgs(process.argv.slice(2));
 
 // ---------------------------------------------------------------------
 // PHP side: locate the class via Composer's own autoloader (robust against
-// any mismatch between namespace and physical file layout -- e.g.
+// any mismatch between namespace and physical file layout - e.g.
 // Illuminate\Support\Traits\Conditionable actually lives under this
 // upstream's Illuminate/Conditionable/), then list its own members.
 // ---------------------------------------------------------------------
@@ -71,9 +71,9 @@ function phpMemberTokens(member)
 }
 
 // ---------------------------------------------------------------------
-// TS side: find the "main" class -- a plain `export class X {}` or, for a
+// TS side: find the "main" class - a plain `export class X {}` or, for a
 // trait ported as a mixin, the `class extends Base {}` expression a mixin
-// factory function returns -- and list its own members with their exact
+// factory function returns - and list its own members with their exact
 // source text.
 // ---------------------------------------------------------------------
 
@@ -117,10 +117,10 @@ function tsMemberInfo(member)
 const tsMembers = [];
 for (const member of classNode.members) {
     if (ts.isConstructorDeclaration(member)) {
-        if (!member.body) continue; // overload signature, no body -- skip
+        if (!member.body) continue; // overload signature, no body - skip
         tsMembers.push({ name: '__construct', kind: 'method', node: member, ...tsMemberInfo(member) });
     } else if (ts.isMethodDeclaration(member)) {
-        if (!member.body) continue; // overload signature -- the implementation carries the real body
+        if (!member.body) continue; // overload signature - the implementation carries the real body
         tsMembers.push({ name: member.name.getText(sourceFile), kind: 'method', node: member, ...tsMemberInfo(member) });
     } else if (ts.isPropertyDeclaration(member)) {
         tsMembers.push({ name: member.name.getText(sourceFile), kind: 'property', node: member, ...tsMemberInfo(member) });
@@ -172,13 +172,13 @@ const PHP_DROPPED = new Set([
 ]);
 
 // A bare `?` is the *exact same token* whether it's a nullable-type marker
-// (`?callable`) or the ternary operator (`$x ? $y : $z`) -- token_get_all
+// (`?callable`) or the ternary operator (`$x ? $y : $z`) - token_get_all
 // doesn't distinguish them, only position does. Dropping every `?`
 // unconditionally (this set's own approach for everything else) silently
 // ate real ternary operators too, which cost two whole tokens' worth of
 // fidelity on every ternary in this file before it was caught by reading
 // the actual --show residue, not the percentage alone. Only drop it when
-// the next token is a type name -- a nullable marker is always immediately
+// the next token is a type name - a nullable marker is always immediately
 // followed by one, a ternary's `?` never is.
 function isNullableTypeMarker(tokens, index)
 {
@@ -187,10 +187,10 @@ function isNullableTypeMarker(tokens, index)
 }
 
 // nullable-default (CONVENTIONS.md): a PHP `= null` parameter default has
-// nothing to match on the TS side -- an omitted argument already reads as
+// nothing to match on the TS side - an omitted argument already reads as
 // `undefined` there, so the port doesn't write a default at all. Scoped to
 // the member's own top-level parameter list specifically (not just any
-// `= null` -- a body-level assignment is a real statement TS should still
+// `= null` - a body-level assignment is a real statement TS should still
 // have *something* to match).
 function stripParamDefaults(tokens)
 {
@@ -222,14 +222,14 @@ function stripParamDefaults(tokens)
 }
 
 // func_num_args() (CONVENTIONS.md): PHP calls it with zero arguments,
-// reading the current call frame implicitly -- there is no Luau equivalent
+// reading the current call frame implicitly - there is no Luau equivalent
 // (confirmed: `arguments`/`arguments.length` is rejected outright by
 // roblox-ts, and `select('#', ...)` only sees the true count *before* a
 // `...args: T[]` rest parameter collapses it, which happens unconditionally
 // before any TS-compiled body runs). This port's own func_num_args() must
 // be handed the packed-args table explicitly instead. Canonicalized to the
-// shape the TS side actually has -- `func_num_args(args)`, `args` because
-// canonicalizeTs's unRename already strips `_args`'s leading underscore --
+// shape the TS side actually has - `func_num_args(args)`, `args` because
+// canonicalizeTs's unRename already strips `_args`'s leading underscore -
 // so this necessary, documented divergence doesn't cost fidelity on every
 // call site.
 function foldFuncNumArgsCall(tokens)
@@ -249,7 +249,7 @@ function foldFuncNumArgsCall(tokens)
 // Companion to the func_num_args() call-site fold above, for the *signature*
 // side of the same divergence: a member TableArgs.luau's decorator wraps
 // (see findPackedArgsDecoratedMembers) carries one extra leading TS-only
-// parameter -- the packed-args table -- that PHP's own signature has no
+// parameter - the packed-args table - that PHP's own signature has no
 // counterpart for at all (unlike func_num_args()'s call sites, there's no
 // PHP token here to fold *from*; one has to be synthesized). Matches
 // canonicalizeTs's post-unRename spelling (`args`, no leading underscore).
@@ -280,7 +280,7 @@ function canonicalizePhp(rawTokens, hasPackedArgsParam)
         // erased the same way the primitive names above already are.
         if (/^[A-Z]/.test(token) && tokens[i + 1]?.startsWith('$')) continue;
         // `->{EXPR}` (dynamic property/method access by variable name)
-        // spells as `[EXPR]` -- there is no TS equivalent of PHP's curly-
+        // spells as `[EXPR]` - there is no TS equivalent of PHP's curly-
         // brace member syntax, only bracket indexing, so this reads the
         // same as any other keyed access. Depth-tracked (not a fixed token
         // count) since EXPR itself could be more than one token.
@@ -304,7 +304,7 @@ function canonicalizePhp(rawTokens, hasPackedArgsParam)
                 continue;
             }
         }
-        // `elseif` is one PHP token; TS only has `else` `if` as two --
+        // `elseif` is one PHP token; TS only has `else` `if` as two -
         // same construct, just never spelled as one word there.
         if (token === 'elseif') {
             out.push('else', 'if');
@@ -343,7 +343,7 @@ function canonicalizePhp(rawTokens, hasPackedArgsParam)
             continue;
         }
         // instanceof-closure: `$x instanceof Closure` spells as
-        // `typeIs(x, 'function')` -- a closure is a bare function value.
+        // `typeIs(x, 'function')` - a closure is a bare function value.
         // Only the single-token receiver this file's one occurrence has is
         // handled (the last token already pushed); a multi-token receiver
         // would need popping more than one, which nothing here needs yet.
@@ -363,10 +363,10 @@ function canonicalizePhp(rawTokens, hasPackedArgsParam)
 
 // A leading underscore is this port's one general escape hatch
 // (CONVENTIONS.md: reserved words and property/method name collisions
-// both take it, one underscore -- `_default`, `_condition`). `__call`
+// both take it, one underscore - `_default`, `_condition`). `__call`
 // takes it too, but PHP's own magic methods already spell themselves with
 // two underscores (`__get`, `__call`), so a name that already has exactly
-// two must be left alone -- stripping one from `__get` would wrongly turn
+// two must be left alone - stripping one from `__get` would wrongly turn
 // it into `_get`, matching nothing. Only one leading underscore (-> zero)
 // or three (-> two, `___call` -> `__call`) are this port's own doing.
 function unRename(token)
@@ -376,9 +376,9 @@ function unRename(token)
 }
 
 // Collects [start, end) character ranges (into sourceFile.text) that are
-// pure type syntax with nothing on the PHP side to line up against --
+// pure type syntax with nothing on the PHP side to line up against -
 // `: Type` annotations, `as Type`/`as unknown as Type` casts, a trailing
-// non-null `!`, a method's own `<T>` type parameter list -- so they can be
+// non-null `!`, a method's own `<T>` type parameter list - so they can be
 // cut before tokenizing at all.
 //
 // This used to be a token-level heuristic (skip forward from `:`/`as`
@@ -396,7 +396,7 @@ function collectTypeRanges(node, sourceFile, ranges)
     function withType(n)
     {
         // A bare `?` optionality marker (parameter or property) has nothing
-        // on the PHP side to match either -- same "nullable-default"
+        // on the PHP side to match either - same "nullable-default"
         // convention as a PHP `= null` default already erasing to nothing,
         // just spelled on the declaration instead of a default value.
         if (n.questionToken) ranges.push([n.questionToken.getStart(sourceFile), n.questionToken.getEnd()]);
@@ -427,7 +427,7 @@ function collectTypeRanges(node, sourceFile, ranges)
         if (ts.isNonNullExpression(n)) {
             ranges.push([n.expression.getEnd(), n.getEnd()]);
         }
-        // `(x as Y)(...)`/`(x as Y).z` -- parens exist only so the cast can
+        // `(x as Y)(...)`/`(x as Y).z` - parens exist only so the cast can
         // be called/accessed; once the cast itself is stripped above they
         // are redundant (`value(this)` parses the same as `(value)(this)`)
         // and PHP never had a matching pair to line up against anyway.
@@ -463,7 +463,7 @@ function stripTypesFromText(node, sourceFile)
 }
 
 // Matches PHP_DROPPED's own unconditional 'static' drop (not just a leading
-// modifier position -- neither PHP nor TS ever lets 'static' be a plain
+// modifier position - neither PHP nor TS ever lets 'static' be a plain
 // identifier, so dropping every occurrence is safe on both sides).
 // 'const'/'let' too: PHP has no local-variable-declaration keyword at all
 // (the first assignment doubles as the declaration), so a statement-level
@@ -477,7 +477,7 @@ function canonicalizeTs(tokens)
         const token = tokens[i];
         if (token === ';' || TS_DROPPED.has(token)) continue;
         // trailing-comma: a `,` immediately before a `)` is syntactically
-        // optional and semantically a no-op in JS/TS -- this port's own
+        // optional and semantically a no-op in JS/TS - this port's own
         // multi-line parameter lists always write one (matching the rest
         // of the file's formatting convention), but a single-line PHP
         // signature never has anywhere to put one. Dropped unconditionally
@@ -487,7 +487,7 @@ function canonicalizeTs(tokens)
         if (token === ',' && tokens[i + 1] === ')') continue;
         // truthiness (CONVENTIONS.md territory, if not yet written down
         // there): `truthy(X)` exists purely to replicate PHP's own
-        // implicit bool coercion in a condition position -- PHP never
+        // implicit bool coercion in a condition position - PHP never
         // spells that coercion as a function call, so unwrapping it here
         // is normalizing the spelling of one accepted convention, not
         // inferring anywhere-truthy() *should* have been used but wasn't
@@ -521,8 +521,72 @@ function canonicalizeTs(tokens)
     return out;
 }
 
+// explicit dynamic-dispatch receiver (HigherOrderWhenProxy's `__call`, and
+// any future MagicDispatch-style forwarder): PHP's `$this->target->{$method}(...)`
+// binds `$method`'s receiver ($this->target) implicitly, the same way
+// Luau's own `:` self-call syntax would for a *literal* method name - but
+// `:` requires that literal, so a call whose method name is only known at
+// runtime can only ever compile to a plain, non-self Luau function call
+// (confirmed against the compiled .luau output:
+// `(self.target)[method](self.target, unpack(parameters))`). The port has
+// to re-pass the receiver as an explicit first call argument to get the
+// binding PHP/Luau give for free with a literal name - forced by the
+// platform, not a bug, so (matching func_num_args()'s own precedent) it
+// shouldn't cost fidelity either.
+function foldExplicitDynamicDispatchReceiver(tokens)
+{
+    const out = [];
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '[') {
+            let depth = 0;
+            let close = -1;
+            for (let j = i; j < tokens.length; j++) {
+                if (tokens[j] === '[') depth++;
+                else if (tokens[j] === ']') {
+                    depth--;
+                    if (depth === 0) {
+                        close = j;
+                        break;
+                    }
+                }
+            }
+            if (close !== -1 && tokens[close + 1] === '(') {
+                // The receiver is the dot-chain (`this . target`) already
+                // pushed to `out` immediately before this `[`.
+                let start = out.length;
+                let expectIdent = true;
+                while (start > 0) {
+                    const t = out[start - 1];
+                    if (expectIdent && /^[A-Za-z_$][\w$]*$/.test(t)) {
+                        start--;
+                        expectIdent = false;
+                    } else if (!expectIdent && t === '.') {
+                        start--;
+                        expectIdent = true;
+                    } else {
+                        break;
+                    }
+                }
+                const receiver = expectIdent ? [] : out.slice(start);
+                const argsStart = close + 2;
+                if (
+                    receiver.length > 0 &&
+                    receiver.every((t, k) => tokens[argsStart + k] === t) &&
+                    tokens[argsStart + receiver.length] === ','
+                ) {
+                    out.push(...tokens.slice(i, close + 2));
+                    i = argsStart + receiver.length; // skip the duplicated receiver and its comma
+                    continue;
+                }
+            }
+        }
+        out.push(tokens[i]);
+    }
+    return out;
+}
+
 // ---------------------------------------------------------------------
-// Longest common subsequence -- the residue is everything not part of it,
+// Longest common subsequence - the residue is everything not part of it,
 // aligned as runs of tokens present on only one side.
 // ---------------------------------------------------------------------
 
@@ -609,7 +673,7 @@ function tsNameCandidates(tsMember)
 
 // Finds every member name passed as the 2nd argument to a real call of
 // whatever local name TableArgs.d.ts's `decoratePackedArgs` export is
-// imported/aliased as in this file -- rather than hardcoding that name, in
+// imported/aliased as in this file - rather than hardcoding that name, in
 // case it's renamed again (as it already has been once). Driven by actual
 // call sites, not a fixed list, so foldPackedArgsParam only ever applies to
 // members genuinely wrapped this way.
@@ -673,7 +737,7 @@ for (const phpMember of phpData.members) {
 
     matchedTsMembers.add(tsMember);
     const tsText = stripTypesFromText(tsMember.node, sourceFile);
-    const tsTokens = canonicalizeTs(tokenizeJs(tsText));
+    const tsTokens = foldExplicitDynamicDispatchReceiver(canonicalizeTs(tokenizeJs(tsText)));
 
     if (show === phpMember.name) printResidue(phpMember.name, phpTokens, tsTokens);
 

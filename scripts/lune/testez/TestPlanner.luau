@@ -15,9 +15,9 @@ local TestPlanner = {}
 
 	Parameters:
 		- modulesList - list of tables describing test modules {
-			method, -- specification function described above
-			path, -- array of parent entires, first element is the leaf that owns `method`
-			pathStringForSorting -- a string representation of `path`, used for sorting of the test plan
+			method, - specification function described above
+			path, - array of parent entires, first element is the leaf that owns `method`
+			pathStringForSorting - a string representation of `path`, used for sorting of the test plan
 		}
 		- testNamePattern - Only tests matching this Lua pattern string will run. Pass empty or nil to run all tests
 		- extraEnvironment - Lua table holding additional functions and variables to be injected into the specification

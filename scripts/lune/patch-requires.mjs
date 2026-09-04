@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // rbxtsc's compiled output always calls into Roblox's Instance-based module
 // system (`TS.import(script, ancestor, ...segments)`, itself resting on
-// `local TS = _G[script]` and, transitively, on `require(instance)`) --
+// `local TS = _G[script]` and, transitively, on `require(instance)`) -
 // there is no compiler flag for anything else, because the *shipped
 // package* (out/) genuinely needs that: it runs inside a real Roblox
 // DataModel, where `script` exists and Roblox's own `require` accepts an
@@ -10,12 +10,12 @@
 // 'require' (string expected, got userdata)").
 //
 // Rather than emulate a DataModel under Lune (build a fake Instance tree,
-// override `require` globally, `loadstring` each module's source by hand --
+// override `require` globally, `loadstring` each module's source by hand -
 // all of it possible, per Lune's docs, but a lot of moving parts to keep
 // correct), this rewrites out-tests/ after the fact: every `TS.import(...)`
 // call, computed from test.project.json's own mount points, becomes a plain
 // relative `require("...")` Lune already knows how to resolve. Only
-// out-tests/ is touched -- out/ ships to real Roblox and must keep its
+// out-tests/ is touched - out/ ships to real Roblox and must keep its
 // Instance-based imports exactly as rbxtsc wrote them.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -56,11 +56,11 @@ function patchFile(filePath)
 {
     const diskDir = path.dirname(filePath);
     const ownLogical = toLogicalPath(filePath.replace(/\.luau$/, ''));
-    // Not every file sits under a mounted directory -- tests/globals.ts
+    // Not every file sits under a mounted directory - tests/globals.ts
     // (the ambient describe/it/expect type reference) lives outside
     // tests/Illuminate/ on purpose, is not part of test.project.json's
     // tree, and never needs a require() rewritten in it anyway (it has no
-    // TS.import calls -- it compiles to `return nil`).
+    // TS.import calls - it compiles to `return nil`).
     if (!ownLogical) return false;
     const ownLogicalSegments = ownLogical.split('/');
 
@@ -70,7 +70,7 @@ function patchFile(filePath)
     text = text.replace(TS_IMPORT_PATTERN, (whole, ancestorExpr, segmentsList) => {
         const parentHops = (ancestorExpr.match(/\.Parent/g) ?? []).length;
         // `script` alone (parentHops === 0) is the file itself, and the
-        // *first* `.Parent` already reaches its containing directory --
+        // *first* `.Parent` already reaches its containing directory -
         // ownLogicalSegments minus the file's own name (one slot) is that
         // directory, so it's `length - parentHops`, not `length - 1 -
         // parentHops` (caught this by hand-tracing the actual 4-`.Parent`

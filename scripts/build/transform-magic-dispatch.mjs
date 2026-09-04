@@ -4,7 +4,7 @@
 // call, before rbxtsc ever sees the source. rbxtsc has no
 // customTransformers/plugins hook, so this runs as its own pass, writing a
 // shadow copy that tsconfig.magic-dispatch.json/tsconfig.tests.json point
-// rbxtsc at instead -- every file is copied through, transformed or not, so
+// rbxtsc at instead - every file is copied through, transformed or not, so
 // the shadow tree always mirrors the real one and imports resolve the same
 // way in both.
 //
@@ -15,7 +15,7 @@
 // files there's no way to exclude "everything that came from tests/"
 // without matching by name, which doesn't generalize. tsconfig.tests.json
 // uses `rootDirs` to still resolve `import ... from "Illuminate/Support/..."`
-// in a spec file against src/'s shadow tree -- the same virtual-merge
+// in a spec file against src/'s shadow tree - the same virtual-merge
 // TypeScript feature this project's old (deleted) test setup used, per its
 // own since-removed comment: "src and tests are merged into one virtual
 // directory instead of [...]".
@@ -28,8 +28,8 @@ const projectRoot = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)
 const MARKER_PROPERTY = '__magicDispatch';
 
 // Both shadow trees nest under one shared parent (rather than sitting as
-// siblings of the project root) so tsconfig.tests.json's `rootDir` -- needed
-// for rbxtsc to compute out-tests/'s layout -- can be that shared parent
+// siblings of the project root) so tsconfig.tests.json's `rootDir` - needed
+// for rbxtsc to compute out-tests/'s layout - can be that shared parent
 // without also covering (and trying to copy as assets) the rest of the repo.
 const shadowRoot = path.join(projectRoot, '.magic-dispatch');
 const roots = [
@@ -48,7 +48,7 @@ function loadProgram()
     const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
     const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, projectRoot);
 
-    // tsconfig.json's own `include` only covers src/**/*.ts -- tests/ isn't
+    // tsconfig.json's own `include` only covers src/**/*.ts - tests/ isn't
     // a real compiler entry point (there is no tsconfig for it that rbxtsc
     // itself runs), so its files are found and added by hand here.
     const testsRoot = path.join(projectRoot, 'tests');
@@ -62,12 +62,12 @@ function isMagicDispatchType(checker, type)
     return checker.getPropertyOfType(type, MARKER_PROPERTY) !== undefined;
 }
 
-// Hand-written, non-.ts files (a raw .luau module and its .d.ts twin --
+// Hand-written, non-.ts files (a raw .luau module and its .d.ts twin -
 // see src/Illuminate/Support/TableArgs.*) live under src/ too, but never
 // pass through ts.Program.getSourceFiles() below: TypeScript only loads a
 // .d.ts to resolve types from it, and a .luau file isn't a TS construct at
 // all. rbxtsc itself copies any non-.ts file it finds under its own rootDir
-// straight through to out/ -- but rbxtsc's rootDir is the *shadow* tree,
+// straight through to out/ - but rbxtsc's rootDir is the *shadow* tree,
 // not the real one, so without this pass those files would exist in src/
 // and simply never reach out/. Walked directly off disk, independent of
 // the TS program, so it needs no help identifying what "the rest of src/"
@@ -78,7 +78,7 @@ function copyNonTsAssets(root, expected)
 
     walkFiles(root.real, (fullPath) => {
         // A real .ts source file (not .d.ts) is already handled via
-        // ts.Program above -- but .d.ts itself ends in ".ts" too, and
+        // ts.Program above - but .d.ts itself ends in ".ts" too, and
         // ts.Program deliberately skips copying declaration files (they're
         // only loaded to resolve types from), so it needs to be included
         // here or it reaches neither pass.
@@ -107,15 +107,15 @@ function walkFiles(dir, callback)
 
 // Returns { text, changed } for `node`: its own rewritten form if it's
 // itself a magic-dispatch access, otherwise its original text with any
-// rewritten *descendants* spliced back in. Recursive and bottom-up --
+// rewritten *descendants* spliced back in. Recursive and bottom-up -
 // `receiver`/`args` are run back through this before being embedded, so a
 // chain like `model.when().isActive().activate(x)` gets every link rewritten,
 // not just the outermost one (the bug in the first version of this script:
 // it grabbed the receiver's raw getText() instead of transforming it too).
 function transformNode(checker, sourceFile, node)
 {
-    // `receiver.method(args)` -- a genuine call, decided by the `(`
-    // actually present in this source -- routes to ___call, args and all.
+    // `receiver.method(args)` - a genuine call, decided by the `(`
+    // actually present in this source - routes to ___call, args and all.
     if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
         const propertyAccess = node.expression;
         const receiverType = checker.getTypeAtLocation(propertyAccess.expression);
@@ -125,7 +125,7 @@ function transformNode(checker, sourceFile, node)
             const method = propertyAccess.name.getText(sourceFile);
             const args = node.arguments.map((argument) => transformNode(checker, sourceFile, argument).text).join(', ');
 
-            // rbxtsc re-typechecks the shadow tree from scratch -- a real
+            // rbxtsc re-typechecks the shadow tree from scratch - a real
             // ts.TransformerFactory rewrites already-checked AST nodes and
             // is never re-validated, but a shadow-copy-and-recompile
             // pipeline (rbxtsc has no transformer hook to run inside)
@@ -140,7 +140,7 @@ function transformNode(checker, sourceFile, node)
         }
     }
 
-    // `receiver.key`, bare -- no `(` anywhere in this source -- routes to __get.
+    // `receiver.key`, bare - no `(` anywhere in this source - routes to __get.
     if (ts.isPropertyAccessExpression(node)) {
         const isCallee = ts.isCallExpression(node.parent) && node.parent.expression === node;
 
@@ -159,7 +159,7 @@ function transformNode(checker, sourceFile, node)
         }
     }
 
-    // Not a magic-dispatch access itself -- keep this node's own text, but
+    // Not a magic-dispatch access itself - keep this node's own text, but
     // splice in any rewritten descendants (recursing all the way down).
     const start = node.getStart(sourceFile);
     const original = sourceFile.text.slice(start, node.getEnd());
@@ -223,7 +223,7 @@ function run()
     const program = loadProgram();
 
     // Surface the developer's own type errors against the real source
-    // before rewriting anything -- a diagnostic pointing at a shadow tree
+    // before rewriting anything - a diagnostic pointing at a shadow tree
     // instead of src/tests would be useless.
     const diagnostics = ts.getPreEmitDiagnostics(program).filter((d) => d.file && rootFor(d.file.fileName));
     if (diagnostics.length > 0) {
@@ -245,7 +245,7 @@ function run()
     // No wholesale fs.rmSync(outRoot) up front: rbxtsc -w watches these same
     // directories concurrently in `npm run watch`, and a delete-then-rewrite
     // pass leaves a window where it sees a tree emptied but not yet
-    // refilled, mid-run -- caught this once as a bogus "MacroManager could
+    // refilled, mid-run - caught this once as a bogus "MacroManager could
     // not find symbol for Promise" error. Writing files in place (only
     // touching ones whose content actually changed) means a tree is never
     // observably incomplete; stale files get swept after.
@@ -276,7 +276,7 @@ function run()
 }
 
 // Deletes anything under a shadow tree that doesn't correspond to a current
-// source file -- handles a source file being renamed or removed between runs.
+// source file - handles a source file being renamed or removed between runs.
 function removeStaleFiles(dir, expectedRelativePaths, base = dir)
 {
     if (!fs.existsSync(dir)) return;
@@ -300,7 +300,7 @@ if (process.argv.includes('--watch')) {
     // that it reliably catches the *first* change under a watched directory
     // and then goes silent on Linux, no error, no further events.
     // ts.sys.watchDirectory is the same watch abstraction rbxtsc's own -w
-    // mode is built on -- already proven reliable for repeated changes in
+    // mode is built on - already proven reliable for repeated changes in
     // this same setup.
     //
     // Registered before the first run(), not after: run() rebuilds a whole
@@ -310,8 +310,8 @@ if (process.argv.includes('--watch')) {
     const onChange = (filename) => {
         if (!filename.endsWith('.ts') && !filename.endsWith('.luau')) return;
         // A single save reliably fires more than one watch event; without
-        // this, that was three overlapping run()s -- of a function that
-        // mkdirs/writes files -- racing each other.
+        // this, that was three overlapping run()s - of a function that
+        // mkdirs/writes files - racing each other.
         clearTimeout(debounce);
         debounce = setTimeout(() => {
             console.log(`transform-magic-dispatch: ${filename} changed, re-running...`);

@@ -54,6 +54,20 @@ unnecessary, not just an alternative -- `when()`/`unless()` return a plain
 `MagicDispatch<T>`-typed value needs the same, whether or not a runtime
 check happens to be available -- it's simpler either way.
 
+`___call`'s own body has one further forced divergence: PHP's
+`$this->target->{$method}(...$parameters)` binds `$method`'s receiver
+implicitly, the same way Luau's own `:` self-call syntax would for a
+*literal* method name -- but `:` requires that literal, so a call whose
+method name is only known at runtime (`method` is a parameter here) can
+only ever compile to a plain, non-self Luau function call. Confirmed
+against the compiled output: `(self.target)[method](self.target,
+unpack(parameters))`, not `(self.target):[method](unpack(parameters))`
+(not even valid Luau grammar). The port has to re-pass `this.target` as an
+explicit first call argument to get the binding PHP/Luau give for free
+with a literal name. `__get` has no such divergence -- it only *reads*
+`target[key]`, never calls it, so there's no receiver to bind in the first
+place.
+
 ## `func_num_args()` (`Conditionable::when`/`unless`)
 
 PHP's `func_num_args()` distinguishes an omitted argument from an explicit

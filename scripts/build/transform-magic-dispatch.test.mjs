@@ -4,7 +4,7 @@
 //
 // Each fixture is one small TS module compiled in memory - a CompilerHost
 // overlay over the real disk - so it imports the real
-// src/Illuminate/Support/MagicDispatch.ts the same way a spec file does.
+// src/Larablox/MagicDispatch.ts the same way a spec file does.
 // The project's own tsconfig (`noLib`, @rbxts typings) is unusable for a
 // plain ts.Program, so this uses its own minimal options with a real lib:
 // the rewrite only needs the checker to see the `__magicDispatch` brand,
@@ -70,7 +70,7 @@ function rewrite(text)
 // link. `Plain` has the same shape plus its own `__get`/`___call` and no
 // brand - HigherOrderWhenProxy/HigherOrderTapProxy *instances* look exactly
 // like this, and their explicit calls must stay explicit.
-const PRELUDE = `import { MagicDispatch } from 'Illuminate/Support/MagicDispatch';
+const PRELUDE = `import { MagicDispatch } from 'Larablox/MagicDispatch';
 
 type View = MagicDispatch<Subject>;
 

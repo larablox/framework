@@ -23,7 +23,8 @@
     },
     "files": [
         "index.d.ts",
-        "out/Illuminate"
+        "out/Illuminate",
+        "out/Larablox"
     ],
     "types": "index.d.ts",
     "type": "module",

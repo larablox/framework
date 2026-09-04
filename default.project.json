@@ -13,6 +13,9 @@
 			},
 			"Illuminate": {
 				"$path": "out/Illuminate"
+			},
+			"Larablox": {
+				"$path": "out/Larablox"
 			}
 		}
 	}

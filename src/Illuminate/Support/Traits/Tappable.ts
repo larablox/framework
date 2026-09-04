@@ -1,6 +1,6 @@
 import { tap } from 'Illuminate/Support/helpers';
 import { HigherOrderTapProxyView } from 'Illuminate/Support/HigherOrderTapProxy';
-import { AnyConstructor } from 'Illuminate/Support/types';
+import { AnyConstructor } from 'Larablox/types';
 
 export function Tappable<TBase extends AnyConstructor>(Base: TBase)
 {

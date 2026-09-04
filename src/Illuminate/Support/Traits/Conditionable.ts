@@ -1,7 +1,7 @@
-import { func_num_args, truthy } from 'Illuminate/Support/helpers';
 import { HigherOrderWhenProxy, PendingHigherOrderWhenProxy, ResolvedHigherOrderWhenProxy } from 'Illuminate/Support/HigherOrderWhenProxy';
-import { decoratePackedArgs } from 'Illuminate/Support/TableArgs';
-import { AnyConstructor } from 'Illuminate/Support/types';
+import { func_num_args, truthy } from 'Larablox/php';
+import { decoratePackedArgs } from 'Larablox/TableArgs';
+import { AnyConstructor } from 'Larablox/types';
 
 export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
 {

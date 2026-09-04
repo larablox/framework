@@ -1,7 +1,7 @@
 // Pure rewrite logic for scripts/build/transform-magic-dispatch.mjs: given a
 // type checker and one source file, produce that file's text with every
 // access on a `MagicDispatch<T>`-typed value (see
-// src/Illuminate/Support/MagicDispatch.ts) spelled as an explicit
+// src/Larablox/MagicDispatch.ts) spelled as an explicit
 // __get/___call call. No CLI/file/process side effects here on purpose -
 // this module is imported both by transform-magic-dispatch.mjs (which
 // walks the real project and writes the shadow tree) and by

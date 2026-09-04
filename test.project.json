@@ -19,6 +19,12 @@
 			},
 			"IlluminateTests": {
 				"$path": "out-tests/tests/Illuminate"
+			},
+			"Larablox": {
+				"$path": "out-tests/src/Larablox"
+			},
+			"LarabloxTests": {
+				"$path": "out-tests/tests/Larablox"
 			}
 		}
 	}

@@ -74,6 +74,13 @@ it through Composer's autoloader, so the TS file must sit where the PHP
 Get this wrong and `check.mjs` reports "Could not autoload" instead of a
 score.
 
+**Nothing without an upstream twin goes under `src/Illuminate/`.** A helper,
+type, or runtime piece the port itself needs and Laravel has no file for
+belongs in `src/Larablox/` (import path `Larablox/...`, spec under
+`tests/Larablox/`) - see CONVENTIONS.md "`src/Larablox/`". Before adding a
+file there, check whether `Larablox/php.ts` or `Larablox/types.ts` already
+has a home for it.
+
 **For a directory:** list every `.php` in it, read each file's `use`
 imports, and port in dependency order - leaves first (e.g.
 `HigherOrderWhenProxy` before `Conditionable`). A dependency that lives
@@ -115,7 +122,7 @@ as PSR-12 upstream does. 4-space indent.
 | `elseif`                                     | `else if`                                               | |
 | `(new X($a))->m()`                           | `new X(a).m()`                                          | outer parens dropped |
 | `$x instanceof Closure`                      | `typeIs(x, 'function')`                                 | |
-| `if ($x)` / `$x ? a : b` / `! $x` (PHP truthiness) | `if (truthy(x))` / `truthy(x) ? a : b` / `!truthy(x)` | `truthy` from `Illuminate/Support/helpers`; scalar cases only - an empty table is truthy, unlike PHP |
+| `if ($x)` / `$x ? a : b` / `! $x` (PHP truthiness) | `if (truthy(x))` / `truthy(x) ? a : b` / `!truthy(x)` | `truthy` from `Larablox/php` (PHP built-in stand-ins live there, never in `helpers.ts`, which mirrors `helpers.php`); scalar cases only - an empty table is truthy, unlike PHP |
 | `$a ?? $b`                                   | `a ?? b`                                                | |
 | `$cb($this, $v)` on a callable param         | `cb!(this, v)`                                          | `!` is stripped |
 | `return $this;`                              | `return this;` with return type `this`                  | |
@@ -149,7 +156,7 @@ callers real types (see `when()`'s five overloads).
 ### 2.2 A trait is a mixin factory
 
 ```ts
-import { AnyConstructor } from 'Illuminate/Support/types';
+import { AnyConstructor } from 'Larablox/types';
 
 export function Conditionable<TBase extends AnyConstructor>(Base: TBase)
 {
@@ -194,7 +201,7 @@ reference for the two places a proxy can legitimately differ from it (a
   `(this.target[method] as Callable)(this.target, ...parameters)`. Luau's
   `:` self-call syntax needs a literal method name, so `obj[name](...)`
   compiles to a plain call with no `self`. `Callable` is in
-  `Illuminate/Support/types`. The checker already folds this;
+  `Larablox/types`. The checker already folds this;
 - export `MagicDispatch<...>` view types for the proxy's callers so
   `scripts/build/transform-magic-dispatch.mjs` can rewrite `.foo`/`.foo()`
   on them into `__get`/`___call` calls. Name them by how many states the
@@ -383,8 +390,8 @@ What goes where:
   to a factually wrong command or path in this skill.
 - **Shared infrastructure counts as applied only with a test.** A change
   to `scripts/build/transform-magic-dispatch.mjs`,
-  `src/Illuminate/Support/MagicDispatch.ts`, anything under
-  `scripts/parity/`, or `src/Illuminate/Support/TableArgs.*` is *Applied*
+  `src/Larablox/MagicDispatch.ts`, anything under
+  `scripts/parity/`, or `src/Larablox/TableArgs.*` is *Applied*
   only if the same change carries an automated test: a `node:test` file
   (`*.test.mjs`) beside the script under `scripts/` for build/parity
   tooling - and check that `npm run test:parity`'s glob in `package.json`

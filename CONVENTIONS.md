@@ -41,10 +41,9 @@ requires it literally - a mixin whose base type is constrained to `new
 (...args: unknown[]) => T` is refused with `TS2545: A mixin class must have
 a constructor with a single rest parameter of type 'any[]'` (confirmed with
 a scratch probe through `npm run build`). The alias lives once, in
-`Illuminate/Support/types.ts` next to `Callable`, and every trait imports
-it from there - the shared home for types the port itself needs and Laravel
-has no file for. This section is where the `any` is justified; a trait file
-does not restate it.
+`Larablox/types.ts` next to `Callable`, and every trait imports it from
+there. This section is where the `any` is justified; a trait file does not
+restate it.
 
 ## `null`
 
@@ -58,6 +57,27 @@ undefined`, and `is_null($x)` is `x === undefined` (`tap()` in
 `is_null(EXPR)` into `EXPR === undefined` and any other bare `null` into
 `undefined`, so neither spelling costs fidelity.
 
+## `src/Larablox/`: the port's own runtime
+
+`src/Illuminate/` is the mirror of upstream's `src/Illuminate/` and holds
+nothing Laravel doesn't have. Everything the port itself needs and Laravel
+has no file for lives under `src/Larablox/` (specs under `tests/Larablox/`,
+import path `Larablox/...`), so the mirror never carries a file with no
+upstream twin and the parity walk never has to skip one:
+
+- `Larablox/php.ts` - stand-ins for PHP *language* built-ins: `truthy()`
+  for the implicit bool coercion of `if ($x)`, `func_num_args()`/
+  `func_get_arg()`/`func_get_args()` for the call-frame introspection
+  below. `Illuminate/Support/helpers.ts` holds ported Laravel helpers only
+  (`tap()`, ...), mirroring `Support/helpers.php`.
+- `Larablox/types.ts` - `Callable`, `AnyConstructor`.
+- `Larablox/MagicDispatch.ts` - the `MagicDispatch<T>` brand.
+- `Larablox/TableArgs.luau` + `.d.ts` - `decoratePackedArgs()`.
+
+A type derived from one specific Laravel class (`HigherOrderTapProxyView`,
+`PendingHigherOrderWhenProxy`) stays in that class's own file: it is part
+of porting that class, not shared runtime.
+
 ## Magic dispatch (`__get`/`__call`)
 
 PHP decides between `__get` (property read) and `__call` (method call) from
@@ -69,7 +89,7 @@ No runtime check is general enough to stand in for that (a class whose
 builder shares nothing between the two a value could be inspected for).
 
 The fix recovers the parentheses before they're gone: `MagicDispatch<T>`
-(`src/Illuminate/Support/MagicDispatch.ts`) marks a type as magic-dispatched,
+(`src/Larablox/MagicDispatch.ts`) marks a type as magic-dispatched,
 and `scripts/build/transform-magic-dispatch.mjs` - run automatically by
 `npm run build`/`watch`, since `rbxtsc` has no transformer hook to run
 inside - reads the real TypeScript AST and rewrites every access on a
@@ -147,14 +167,14 @@ inside the already-collapsed body). The count is only ever recoverable by
 running `select('#', ...)` on the *original*, still-live varargs, before any
 TS-compiled body gets a chance to collapse them.
 
-`Illuminate/Support/helpers.ts` exports a `func_num_args(args: PackedArgs):
-number` wrapper (just `args.n`) so call sites read closer to PHP's own
+`Larablox/php.ts` exports a `func_num_args(args: PackedArgs): number`
+wrapper (just `args.n`) so call sites read closer to PHP's own
 `func_num_args()` - it still has to take `args` as a real parameter, unlike
 PHP's zero-argument, ambient-call-frame version, since nothing here can
 introspect "the current call" without being handed it explicitly.
 
-`src/Illuminate/Support/TableArgs.luau` - the only hand-written Luau in the
-framework core, everything else here is TS compiled by `rbxtsc` - supplies
+`src/Larablox/TableArgs.luau` - the only hand-written Luau in the
+framework, everything else here is TS compiled by `rbxtsc` - supplies
 that missing earlier step: `installTableArgs(cls, methodName)` wraps the
 already-compiled method in a raw function that receives the real call
 untouched, packs it itself (`table.pack(...)`, whose `.n` field is exactly
@@ -179,8 +199,8 @@ already did. `rbxtsc` itself then refuses to let an `any`-typed value be
 properly typed locals before doing anything else - see `Conditionable.ts`.
 
 A hand-authored `.luau` file (paired with a `.d.ts` twin for the TS side)
-sits directly under `src/Illuminate/Support/` like any other file here and
-gets pulled into the build the same way: `rbxtsc` copies any non-`.ts` file
+sits under `src/Larablox/` like any other file here and gets pulled into
+the build the same way: `rbxtsc` copies any non-`.ts` file
 under its own project root straight through to `out/` unchanged.
 `scripts/build/transform-magic-dispatch.mjs` needed a matching fix to copy
 such files into its `.magic-dispatch/` shadow tree too, since its main pass

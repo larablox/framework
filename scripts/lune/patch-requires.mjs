@@ -29,6 +29,8 @@ const outTestsRoot = path.join(projectRoot, 'out-tests');
 const MOUNTS = [
     { logical: 'Illuminate', disk: path.join(outTestsRoot, 'src', 'Illuminate') },
     { logical: 'IlluminateTests', disk: path.join(outTestsRoot, 'tests', 'Illuminate') },
+    { logical: 'Larablox', disk: path.join(outTestsRoot, 'src', 'Larablox') },
+    { logical: 'LarabloxTests', disk: path.join(outTestsRoot, 'tests', 'Larablox') },
 ];
 
 function toLogicalPath(diskPath)

@@ -1,6 +1,6 @@
-import { truthy } from 'Illuminate/Support/helpers';
-import { MagicDispatch } from 'Illuminate/Support/MagicDispatch';
-import { Callable } from 'Illuminate/Support/types';
+import { MagicDispatch } from 'Larablox/MagicDispatch';
+import { truthy } from 'Larablox/php';
+import { Callable } from 'Larablox/types';
 
 export class HigherOrderWhenProxy<T extends object>
 {

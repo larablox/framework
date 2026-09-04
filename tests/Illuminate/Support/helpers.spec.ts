@@ -5,9 +5,9 @@ import { tap } from 'Illuminate/Support/helpers';
 // laravel/framework *package* only, with no PHPUnit test files - there is
 // no `SupportHelpersTest.php` here to port literally. Only `tap()` is
 // covered here, ported alongside `Tappable` (which delegates to it); the
-// port-invented PHP stand-ins in the same file (`truthy()`,
-// `func_num_args()`) are exercised through the proxies and traits that use
-// them. These cases are reconstructed from tap()'s own behavior, covering
+// port-invented PHP stand-ins (`truthy()`, `func_num_args()`, ...) live in
+// `Larablox/php.ts` and have their own spec. These cases are
+// reconstructed from tap()'s own behavior, covering
 // what upstream's `SupportHelpersTest::testTap` is known to name - the
 // callback form hands the value to the callback and returns the value, and
 // the proxy form (`tap($mock)->foo()`) reaches the target's method and

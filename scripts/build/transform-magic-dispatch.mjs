@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Rewrites every access on a `MagicDispatch<T>`-typed value (see
-// src/Illuminate/Support/MagicDispatch.ts) into an explicit __get/___call
+// src/Larablox/MagicDispatch.ts) into an explicit __get/___call
 // call, before rbxtsc ever sees the source. rbxtsc has no
 // customTransformers/plugins hook, so this runs as its own pass, writing a
 // shadow copy that tsconfig.magic-dispatch.json/tsconfig.tests.json point
@@ -64,7 +64,7 @@ function loadProgram()
 }
 
 // Hand-written, non-.ts files (a raw .luau module and its .d.ts twin -
-// see src/Illuminate/Support/TableArgs.*) live under src/ too, but never
+// see src/Larablox/TableArgs.*) live under src/ too, but never
 // pass through ts.Program.getSourceFiles() below: TypeScript only loads a
 // .d.ts to resolve types from it, and a .luau file isn't a TS construct at
 // all. rbxtsc itself copies any non-.ts file it finds under its own rootDir

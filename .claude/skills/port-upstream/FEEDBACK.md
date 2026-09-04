@@ -128,5 +128,3 @@ helper, §1) - `check.mjs` cannot measure it (see Friction).
   with nothing to attach returns the class expression directly
   (`Tappable.ts`). Worth one sentence so the next port does not copy the
   temporary variable for no reason.
-- `truthy()`, `func_num_args()`, `func_get_arg(s)()` still have no direct
-  spec; `helpers.spec.ts` covers `tap()` only and says so in its header.

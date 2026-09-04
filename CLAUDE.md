@@ -13,8 +13,9 @@ An in-house port of the Laravel framework to roblox-ts, as faithfully as the pla
 
 Mirrors [`laravel/framework`](https://github.com/laravel/framework):
 
-- `src/Illuminate/` - the framework core, one directory per component, same names as upstream Laravel
-- `tests/Illuminate/` - specs, one `*.spec.ts` per ported file, same layout as `src/`
+- `src/Illuminate/` - the framework core, one directory per component, same names as upstream Laravel; nothing without an upstream twin goes here
+- `src/Larablox/` - the port's own runtime with no Laravel counterpart (PHP built-in stand-ins, shared types, magic-dispatch brand, packed-args Luau); see `CONVENTIONS.md`
+- `tests/Illuminate/`, `tests/Larablox/` - specs, one `*.spec.ts` per file, same layout as `src/`
 - `out/` - generated Luau, a build artifact; never edit by hand
 - `out-tests/` - generated Luau for `npm test`; never edit by hand
 - `.magic-dispatch/` - a generated shadow copy of `src/` and `tests/`, rewritten by `npm run build`/`watch`/`test`; never edit by hand

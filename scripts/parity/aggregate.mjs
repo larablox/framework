@@ -1,17 +1,18 @@
 #!/usr/bin/env node
-// Runs check.mjs over every ported .ts file under src/ and merges the
-// results into one CSV, instead of invoking it by hand, file by file, as
+// Runs check.mjs over every ported .ts file under src/Illuminate/ - the
+// mirror of upstream; src/Larablox/ is the port's own runtime with no
+// Laravel twin and is never a candidate - and merges the results into one
+// CSV, instead of invoking it by hand, file by file, as
 // scripts/parity/check.mjs's own header comment still shows. check.mjs
 // itself stays a single-file tool - this only adds the "run it over
 // everything" loop on top, spawning one `node check.mjs <file>` per
 // candidate so check.mjs's own CLI/exit-code behavior needs no changes.
 //
-// A .ts file with no class at all (helpers.ts, types.ts, TableArgs.d.ts -
-// free functions, or project-invented TS infrastructure with no Laravel
-// file to mirror) is skipped before ever invoking check.mjs: it would
-// refuse to run on such a file anyway, and that's expected here, not a bug
-// to report. That does mean a helper ported from upstream's helpers.php
-// (tap()) goes unmeasured - check.mjs only compares class members. A file
+// A .ts file with no class at all (helpers.ts - free functions) is skipped
+// before ever invoking check.mjs: it would refuse to run on such a file
+// anyway, and that's expected here, not a bug to report. That does mean a
+// helper ported from upstream's helpers.php (tap()) goes unmeasured -
+// check.mjs only compares class members. A file
 // that DOES declare a class but check.mjs still can't match an upstream PHP
 // twin for (no such class in .upstream, or a namespace/path mismatch) is
 // reported separately, as something to look at - it produced no rows, so
@@ -30,7 +31,7 @@ import url from 'node:url';
 import { findClassNode, findTsFiles } from './ts-ast-utils.mjs';
 
 const projectRoot = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
-const srcRoot = path.join(projectRoot, 'src');
+const srcRoot = path.join(projectRoot, 'src', 'Illuminate');
 const checkScript = path.join(projectRoot, 'scripts/parity/check.mjs');
 const defaultHeader = 'declaration,member,kind,mirror_fidelity,laravel_path,ts_path';
 

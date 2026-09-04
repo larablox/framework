@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 // Locates a PHP class/trait/interface via Composer's autoloader (so it
 // resolves regardless of any mismatch between namespace and file layout -
 // e.g. Illuminate\Support\Traits\Conditionable physically lives under

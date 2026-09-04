@@ -8,7 +8,15 @@ import { HigherOrderTapProxy, HigherOrderTapProxyView } from 'Illuminate/Support
 // form (`tap($mock)->foo()` reaches the target's `foo()` and hands back
 // `$mock`, not `foo()`'s own result), plus the argument-forwarding and
 // receiver-binding edges the port's explicit dynamic-dispatch receiver
-// exists to get right.
+// exists to get right, and the `public $target` field being as assignable
+// from the outside as PHP's is (its declared type is the bare `T`, with the
+// index-signature cast kept inside `__call` where it is used).
+
+// `true` only when `A` and `B` are the same type, not merely mutually
+// assignable - the two generic signatures are compared structurally, and
+// `X extends A` and `X extends B` only agree for every `X` if `A` and `B`
+// are identical.
+type Same<A, B> = (<X>() => X extends A ? 1 : 2) extends (<X>() => X extends B ? 1 : 2) ? true : false;
 
 class Subject
 {
@@ -52,6 +60,36 @@ export = (): void => {
             const proxy = new HigherOrderTapProxy(subject);
 
             expect(proxy.target).to.equal(subject);
+        });
+
+        it('accepts a new target of the same type, and later calls reach it', () => {
+            const first = new Subject();
+            const second = new Subject();
+
+            const proxy = new HigherOrderTapProxy(first);
+            proxy.target = second;
+            const result = proxy.___call('activate', ['swapped']);
+
+            expect(proxy.target).to.equal(second);
+            expect(result).to.equal(second);
+            expect(second.calls[0]).to.equal('activate:swapped');
+            expect(first.calls.size()).to.equal(0);
+        });
+
+        it('rejects a target of the wrong type at compile time', () => {
+            // Directive-free stand-in for `@ts-expect-error` on
+            // `proxy.target = 'not a subject'` - roblox-ts refuses to compile
+            // a file carrying that directive at all. The field's declared type
+            // is exactly the `T` the proxy was built with (not the
+            // `T & Record<string, unknown>` intersection, which rejected
+            // `proxy.target = new Subject()`, and nothing wider either), so a
+            // string is not assignable to it. Either annotation collapses to
+            // `false` and stops compiling the moment that changes.
+            const targetIsExactlySubject: Same<HigherOrderTapProxy<Subject>['target'], Subject> = true;
+            const stringIsRejected: string extends HigherOrderTapProxy<Subject>['target'] ? false : true = true;
+
+            expect(targetIsExactlySubject).to.equal(true);
+            expect(stringIsRejected).to.equal(true);
         });
 
         describe('__call()', () => {

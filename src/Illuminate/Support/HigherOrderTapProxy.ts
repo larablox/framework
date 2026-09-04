@@ -4,18 +4,18 @@ import { Callable } from 'Illuminate/Support/types';
 export class HigherOrderTapProxy<T extends object>
 {
     /** The target being tapped. */
-    public target: T & Record<string, unknown>;
+    public target: T;
 
     /** Create a new tap proxy instance. */
     public constructor(target: T)
     {
-        this.target = target as T & Record<string, unknown>;
+        this.target = target;
     }
 
     /** Dynamically pass method calls to the target. */
     public ___call(method: string, parameters: unknown[]): unknown
     {
-        (this.target[method] as Callable)(this.target, ...parameters);
+        ((this.target as T & Record<string, unknown>)[method] as Callable)(this.target, ...parameters);
 
         return this.target;
     }

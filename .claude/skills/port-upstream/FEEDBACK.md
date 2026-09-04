@@ -1,10 +1,12 @@
 # port-upstream: feedback log
 
 Every agent that runs the `port-upstream` skill appends one entry here
-before finishing (see SKILL.md §6). Newest entry last. The maintainer
-folds *Proposed* items into SKILL.md / CONVENTIONS.md / the tooling and
-may prune entries once they are absorbed - until then, this file is the
-freshest list of traps, so read it before starting a port.
+before finishing (see SKILL.md §6). Newest entry last. The maintainer folds
+*Applied*/*Proposed* items into SKILL.md / CONVENTIONS.md / the tooling and
+then deletes the entry - what has been decided lives in those files, not
+here. So this file is short by design: only what is still open. Read it
+before starting a port; it is the freshest list of traps nobody has fixed
+yet.
 
 Entry template (copy it, keep the headings):
 
@@ -25,160 +27,25 @@ translation-table rows, tooling ideas - one line of rationale each>
 
 ---
 
-## 2026-09-04 - Illuminate\Support\HigherOrderWhenProxy (finishing pass; Conditionable already at 100%)
+## Open items (maintainer-curated, as of 2026-09-04)
 
-**Result:** 9/9 members at 100% (`__call` went 88.6% -> 100%);
-Conditionable 2/2 stayed at 100%.
+Known, not yet fixed. If one of these bites your port, say so in your
+entry's *Friction* - a second hit is what moves it up the list.
 
-**Applied:**
-- CONVENTIONS.md: "explicit dynamic-dispatch receiver" divergence under
-  Magic dispatch (Luau `:` needs a literal method name; `obj[m](...)`
-  drops `self`), with the emitted `.luau` line as evidence.
-- CONVENTIONS.md: `func_num_args()` <-> `decoratePackedArgs()` wiring rule,
-  now enforced by `scripts/lint/check-packed-args.mjs` on every build.
-- `canonicalize.mjs`: `foldExplicitDynamicDispatchReceiver`; the whole
-  canonicalization split out of `check.mjs` into an ordered list of
-  fold passes, each with a case in `canonicalize.test.mjs` (19 tests,
-  `npm run test:parity`).
-- `npm run parity` (`scripts/parity/aggregate.mjs`): whole-tree report to
-  `reports/parity/all.csv` plus a printed below-100% worklist.
-- `src/Illuminate/Support/types.ts` with `Callable`; HigherOrderWhenProxy's
-  target field typed `T & Record<string, unknown>` once in the
-  constructor, removing every body-level `as`.
-
-**Friction:**
-- `npx rbxtsc --noEmit -p .` printed only `Unknown argument: noEmit` and
-  exited; piped through `grep -i error` that line vanished and a fix was
-  reported as "compiles" when nothing had been checked. Only
-  `npm run build` is a real compile check.
-- The "class-name type hint" drop rule (`ReflectionParameter $p`) is not
-  exercised by either ported file, so a before/after CSV diff could not
-  have caught a regression in it during the checker refactor - found only
-  by writing a synthetic unit test. Every fold now has one.
-- A reflowed `--` at a line start/end (`CONVENTIONS.md` lines 80/128/137,
-  `extract-php.php` 3/101) survived a `s/ -- / - /` pass; `.luau` files
-  need their leading `--` comment marker left alone.
-
-**Proposed:**
-- SKILL.md §2.4 lists constructs with no convention yet; the first port to
-  hit `interface`/`enum`/class `const`/PHP arrays should turn its decision
-  into a translation-table row rather than leaving it in prose only.
-- `check.mjs` still shells out to `php` once per file; once `npm run
-  parity` covers dozens of files, batch the extraction (one PHP process
-  dumping every class) - not worth it at two files.
-- A fold in `canonicalize.mjs` whose rule current ports never hit is
-  invisible to `npm run parity`; consider a test that asserts each
-  exported pass is referenced by at least one test case, so the "every
-  fold has a test" rule can't drift.
-
-## 2026-09-04 - Illuminate\Support\HigherOrderTapProxy
-
-**Result:** 3/3 members at 100% (`__construct`, `__call`, `target`), empty
-`--show` residue for each on the first checker run; whole tree 14/14 at
-100% across 3 files. Spec: 9 TestEZ cases, all passing under Lune.
-
-**Applied:**
-- `src/Illuminate/Support/MagicDispatch.ts`: the `MagicDispatch<T>` brand
-  now declares typed `__get<K>(key: K): T[K]` and `___call<K>(method: K,
-  parameters)` members off the view's own `K`, so a rewritten magic call
-  keeps the return type the source access had.
-- `scripts/build/transform-magic-dispatch.mjs`: emits the plain
-  `receiver.___call('m', [args])` / `receiver.__get('k')` CONVENTIONS.md
-  already described, instead of casting the receiver to a throwaway
-  `{ ___call(...): unknown }`; a hand-written `__get`/`___call` on a
-  magic-typed value is now left alone instead of re-routed into a magic
-  call named `___call`.
-- CONVENTIONS.md, Magic dispatch: a paragraph on the typed rewrite and why
-  the cast had to go.
-- No new fold: the port matched the existing folds out of the box
-  (`foldDynamicMemberAccess`, `foldExplicitDynamicDispatchReceiver`,
-  `renameConstructorToken`, the type-range stripping).
-
-**Friction:**
-- `npm run build` passed, then `npm test` failed in `test:build` on the
-  spec's one chained call, `view.activate('chain').isActive()`:
-  `.magic-dispatch/tests/.../HigherOrderTapProxy.spec.ts:116:32 - error
-  TS2571: Object is of type 'unknown'.` The transform's rewrite typed every
-  magic-call result `unknown`, which no existing spec had ever noticed
-  because every result went straight into `expect()` or another magic hop
-  (which re-cast). A tap proxy exists only to hand the target back for
-  further use, so the first realistic use of it hit this immediately. Fixed
-  at the type level as listed under Applied; verified with a scratch
-  `tsc` probe that wrong arity, a wrong argument type, a non-method key,
-  and a wrong result type are all still errors after the rewrite (removing
-  one `@ts-expect-error` reported `Argument of type '[]' is not assignable
-  to parameter of type '[reason: string]'`).
-- A plain `npx tsc -p <probe tsconfig>` over `src/` plus a probe file
-  reports a dozen errors inside `node_modules/@rbxts/*` typings
-  (`Global type 'Iterable' must have 3 type parameter(s)`, `Cannot find
-  name 'CustomMatchers'`); those are environmental and unrelated to the
-  probe. Filter on the probe's own path and prove it is checked by
-  injecting a deliberate error first.
-- The PHP lives at `Illuminate/Support/HigherOrderTapProxy.php` and its
-  namespace matches, so the namespace-vs-physical-path table in §1 did not
-  come into play here.
-
-**Proposed:**
-- §2.3 says "export `Resolved…`/`Pending…` view types"; a proxy with one
-  state (tap) has no natural adjective, so this port exports
-  `HigherOrderTapProxyView<T>`. Suggest the skill name the single-state
-  spelling (`<Class>View<T>`) so the next one-state proxy doesn't guess.
-- §2.3's "cast once in the constructor" pattern types the field as
-  `T & Record<string, unknown>`; on a *public* field (this class, unlike
-  `HigherOrderWhenProxy`'s `protected` one) that intersection leaks into the
-  API: reading `proxy.target` as a `Subject` is fine, but assigning
-  `proxy.target = new Subject()` is not (scratch probe: `TS2322: Type
-  'Subject' is not assignable to type 'Subject & Record<string, unknown>'`).
-  Followed the reference as written; worth a sentence in §2.3 on whether
-  a public field should instead stay `T` and cast at the one use site.
-- Add a test to the transform for "result of a magic call used as a typed
-  value" (assignment to a typed `const`, a plain chained member) - this
-  port's spec is currently the only guard against a regression.
-- `HigherOrderWhenProxy` still has no spec of its own (only Conditionable's
-  covers it indirectly); the definition-of-done checkbox would fail on it
-  today.
-
-## 2026-09-04 - maintenance batch, not a port (four parallel agents folding the entry above)
-
-**Result:** entry 2's Proposed items absorbed: SKILL.md §2.3 (public vs
-protected target field, view naming), §3.1 (type-level checks), §6 (shared
-infrastructure needs a test) + Definition of done; CONVENTIONS.md (cast
-placement by visibility); `HigherOrderTapProxy.target` back to bare `T`;
-`HigherOrderWhenProxy.spec.ts` (31 cases); `transform-magic-dispatch.mjs`
-split into `magic-dispatch-rewrite.mjs` + 10 `node:test` cases
-(`npm run test:transform`). Whole tree: 19 + 10 unit tests, 57 TestEZ,
-14/14 members at 100%.
-
-**Friction:**
-- `// @ts-expect-error` is rejected by roblox-ts outright (`Usage of
-  @ts-ignore, @ts-expect-error, and @ts-nocheck are not supported!`), so the
-  "negative type check in the spec" recipe first written into §3.1 was
-  impossible. Two agents hit it independently; replaced by the `Same<A, B> =
-  true` assertion pattern (now in §3.1, reference in
-  `HigherOrderTapProxy.spec.ts`).
-- `npm run build` never compiles `tests/`, so a spec-only mistake shows up
-  only in `npm test`. Now stated in §4.
-- Agent worktrees: the Agent tool's `isolation: worktree` cuts from `main`,
-  which shares nothing with `fresh-port-attempt`; agents cannot `git reset`
-  (classifier). Fixed from the main session with `git -C <worktree> reset
-  --hard fresh-port-attempt`. In a worktree `.upstream/` is the tracked
-  directory (composer.json/lock), so `check.mjs`/`npm run parity` need
-  `.upstream/vendor` linked to the main checkout's (`/.upstream/vendor/` in
-  .gitignore matches a directory, not a symlink - unlink before committing).
-- `transform-magic-dispatch.mjs`'s "N access site(s) rewritten" over-counts:
-  it regexes the whole rewritten top-level statement, so hand-written
-  `___call`s in a spec's single `export = () => {...}` are counted too
-  (22 real became 79 with `HigherOrderWhenProxy.spec.ts`). Cosmetic; the
-  fix is counting at the rewrite site in `transformNode`.
-- rbxtsc keeps a `ParenthesizedExpression` on an element-access receiver:
-  `(this.target as T & Record<string, unknown>)[method]` emits
-  `(self.target)[method](...)` where the constructor-cast form emitted
-  `self.target[method](...)`. Same Luau semantics; accepted so the code
-  matches the §2.3 rule rather than the other way round.
-
-**Proposed:**
-- Fix the transform's summary counter (one-liner, needs a test case with a
-  hand-written `___call` in the same top-level statement as a rewrite).
-- The transform silently passes through `view['key']` (element access),
-  `(view.m)(x)` (parenthesized callee) and would drop `?.` on a magic
-  receiver - none occur yet; worth a guard or a test the day one does.
+- `scripts/build/transform-magic-dispatch.mjs` over-counts its "N access
+  site(s) rewritten" summary: `transformSourceFile` regexes the whole
+  rewritten top-level statement, so hand-written `___call`/`__get` calls in
+  a spec's single `export = () => {...}` are counted too. Cosmetic; the fix
+  is counting at the rewrite site in `transformNode`, with a test case that
+  puts a hand-written `___call` in the same statement as a real rewrite.
+- The transform silently passes through element access (`view['key']`), a
+  parenthesized callee (`(view.m)(x)`) and would drop `?.` on a magic
+  receiver - none of these shapes occur in current sources; the first port
+  that writes one needs a guard or a rewrite plus a test.
+- `scripts/parity/check.mjs` shells out to `php` once per file; batch the
+  extraction (one PHP process dumping every class) once `npm run parity`
+  covers enough files to feel slow. Not worth it at three.
+- A fold in `canonicalize.mjs` whose rule no current port hits is invisible
+  to `npm run parity`; an automated check that every pass has a case in
+  `canonicalize.test.mjs` would keep the "every fold has a test" rule from
+  drifting. Held by review discipline for now.

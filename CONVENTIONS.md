@@ -43,6 +43,20 @@ sees it: `view.name` -> `view.__get('name')`, `view.touch(x)` ->
 `__get(key: string)`/`___call(method: string, parameters: unknown[])`
 methods - the transform only recovers the routing decision, not the bodies.
 
+The rewritten call is typed, not just routed: `MagicDispatch<T>` itself
+declares `__get<K>(key: K): T[K]` and `___call<K>(method: K, parameters):
+...` off the view's own member `K`, so `view.___call('touch', [x])` keeps
+exactly the return type `view.touch(x)` had and anything the source chained
+or assigned from it (`tap(user).save().name`) still typechecks once
+`rbxtsc` re-checks the shadow tree. The transform used to cast the receiver
+to a throwaway `{ ___call(...): unknown }` instead, which typed every result
+`unknown` - invisible as long as no result was ever used as anything but an
+`expect()` argument, and caught the first time one was (`HigherOrderTapProxy`,
+whose only job is handing the target back for further use). A `__get`/
+`___call` written out by hand on a magic-dispatch value is already the
+explicit form and is left alone rather than re-routed into a magic call
+*named* `___call`.
+
 `HigherOrderWhenProxy` uses it too, even though its `__get`/`___call` both
 forward 1:1 onto a `target` object and a plain runtime `typeIs()` check on
 `target[key]` would have been enough on its own: the compile-time rewrite

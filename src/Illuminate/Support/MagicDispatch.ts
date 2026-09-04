@@ -20,7 +20,22 @@
  * methods - this only recovers the routing decision the language itself
  * has no way to make.
  *
- * The brand exists purely at the type level; casting to it
- * (`target as unknown as MagicDispatch<View>`) costs nothing at runtime.
+ * The `__get`/`___call` members declared here are what the rewritten call
+ * resolves against when `rbxtsc` re-typechecks the shadow tree: typed off
+ * the view's own member `K`, so `view.___call('touch', [x])` keeps exactly
+ * the return type `view.touch(x)` had, and whatever the source chained on
+ * that result (`tap(user).save().name`) still typechecks after the rewrite.
+ * They only ever describe the class's real methods (whose own signatures
+ * are the untyped `string`/`unknown[]` form above) - nothing here exists at
+ * runtime, and casting to this type (`target as unknown as
+ * MagicDispatch<View>`) costs nothing there either.
  */
-export type MagicDispatch<T> = T & { readonly __magicDispatch?: never };
+export type MagicDispatch<T> = T & {
+    readonly __magicDispatch?: never;
+    __get<K extends keyof T & string>(key: K): T[K];
+    ___call<K extends keyof T & string>(method: K, parameters: MagicDispatchParameters<T[K]>): MagicDispatchReturn<T[K]>;
+};
+
+type MagicDispatchParameters<TMember> = TMember extends (...args: infer TArgs) => unknown ? TArgs : never;
+
+type MagicDispatchReturn<TMember> = TMember extends (...args: never[]) => infer TReturn ? TReturn : never;

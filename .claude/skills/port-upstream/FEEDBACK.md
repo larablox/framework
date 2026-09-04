@@ -58,10 +58,6 @@ Conditionable 2/2 stayed at 100%.
 - A reflowed `--` at a line start/end (`CONVENTIONS.md` lines 80/128/137,
   `extract-php.php` 3/101) survived a `s/ -- / - /` pass; `.luau` files
   need their leading `--` comment marker left alone.
-- `Conditionable::when` read 99% with residue `php: ,` at one point and
-  100% later with no relevant checker change in between; the cause was
-  never isolated. Treat a 1-token residue on a decorated member as
-  suspicious and re-run rather than assume.
 
 **Proposed:**
 - SKILL.md §2.4 lists constructs with no convention yet; the first port to
@@ -74,3 +70,70 @@ Conditionable 2/2 stayed at 100%.
   invisible to `npm run parity`; consider a test that asserts each
   exported pass is referenced by at least one test case, so the "every
   fold has a test" rule can't drift.
+
+## 2026-09-04 - Illuminate\Support\HigherOrderTapProxy
+
+**Result:** 3/3 members at 100% (`__construct`, `__call`, `target`), empty
+`--show` residue for each on the first checker run; whole tree 14/14 at
+100% across 3 files. Spec: 9 TestEZ cases, all passing under Lune.
+
+**Applied:**
+- `src/Illuminate/Support/MagicDispatch.ts`: the `MagicDispatch<T>` brand
+  now declares typed `__get<K>(key: K): T[K]` and `___call<K>(method: K,
+  parameters)` members off the view's own `K`, so a rewritten magic call
+  keeps the return type the source access had.
+- `scripts/build/transform-magic-dispatch.mjs`: emits the plain
+  `receiver.___call('m', [args])` / `receiver.__get('k')` CONVENTIONS.md
+  already described, instead of casting the receiver to a throwaway
+  `{ ___call(...): unknown }`; a hand-written `__get`/`___call` on a
+  magic-typed value is now left alone instead of re-routed into a magic
+  call named `___call`.
+- CONVENTIONS.md, Magic dispatch: a paragraph on the typed rewrite and why
+  the cast had to go.
+- No new fold: the port matched the existing folds out of the box
+  (`foldDynamicMemberAccess`, `foldExplicitDynamicDispatchReceiver`,
+  `renameConstructorToken`, the type-range stripping).
+
+**Friction:**
+- `npm run build` passed, then `npm test` failed in `test:build` on the
+  spec's one chained call, `view.activate('chain').isActive()`:
+  `.magic-dispatch/tests/.../HigherOrderTapProxy.spec.ts:116:32 - error
+  TS2571: Object is of type 'unknown'.` The transform's rewrite typed every
+  magic-call result `unknown`, which no existing spec had ever noticed
+  because every result went straight into `expect()` or another magic hop
+  (which re-cast). A tap proxy exists only to hand the target back for
+  further use, so the first realistic use of it hit this immediately. Fixed
+  at the type level as listed under Applied; verified with a scratch
+  `tsc` probe that wrong arity, a wrong argument type, a non-method key,
+  and a wrong result type are all still errors after the rewrite (removing
+  one `@ts-expect-error` reported `Argument of type '[]' is not assignable
+  to parameter of type '[reason: string]'`).
+- A plain `npx tsc -p <probe tsconfig>` over `src/` plus a probe file
+  reports a dozen errors inside `node_modules/@rbxts/*` typings
+  (`Global type 'Iterable' must have 3 type parameter(s)`, `Cannot find
+  name 'CustomMatchers'`); those are environmental and unrelated to the
+  probe. Filter on the probe's own path and prove it is checked by
+  injecting a deliberate error first.
+- The PHP lives at `Illuminate/Support/HigherOrderTapProxy.php` and its
+  namespace matches, so the namespace-vs-physical-path table in §1 did not
+  come into play here.
+
+**Proposed:**
+- §2.3 says "export `Resolved…`/`Pending…` view types"; a proxy with one
+  state (tap) has no natural adjective, so this port exports
+  `HigherOrderTapProxyView<T>`. Suggest the skill name the single-state
+  spelling (`<Class>View<T>`) so the next one-state proxy doesn't guess.
+- §2.3's "cast once in the constructor" pattern types the field as
+  `T & Record<string, unknown>`; on a *public* field (this class, unlike
+  `HigherOrderWhenProxy`'s `protected` one) that intersection leaks into the
+  API: reading `proxy.target` as a `Subject` is fine, but assigning
+  `proxy.target = new Subject()` is not (scratch probe: `TS2322: Type
+  'Subject' is not assignable to type 'Subject & Record<string, unknown>'`).
+  Followed the reference as written; worth a sentence in §2.3 on whether
+  a public field should instead stay `T` and cast at the one use site.
+- Add a test to the transform for "result of a magic call used as a typed
+  value" (assignment to a typed `const`, a plain chained member) - this
+  port's spec is currently the only guard against a regression.
+- `HigherOrderWhenProxy` still has no spec of its own (only Conditionable's
+  covers it indirectly); the definition-of-done checkbox would fail on it
+  today.

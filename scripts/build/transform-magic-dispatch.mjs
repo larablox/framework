@@ -27,6 +27,11 @@ import url from 'node:url';
 const projectRoot = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
 const MARKER_PROPERTY = '__magicDispatch';
 
+// A `__get`/`___call` written out by hand on a magic-dispatch value is
+// already the explicit form this rewrite produces - left as is, rather than
+// re-routed into a magic call *named* `___call` (which nothing implements).
+const DISPATCH_METHODS = new Set(['__get', '___call']);
+
 // Both shadow trees nest under one shared parent (rather than sitting as
 // siblings of the project root) so tsconfig.tests.json's `rootDir` - needed
 // for rbxtsc to compute out-tests/'s layout - can be that shared parent
@@ -118,23 +123,28 @@ function transformNode(checker, sourceFile, node)
     // actually present in this source - routes to ___call, args and all.
     if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
         const propertyAccess = node.expression;
+        const method = propertyAccess.name.getText(sourceFile);
         const receiverType = checker.getTypeAtLocation(propertyAccess.expression);
 
-        if (isMagicDispatchType(checker, receiverType)) {
+        if (!DISPATCH_METHODS.has(method) && isMagicDispatchType(checker, receiverType)) {
             const receiverText = transformNode(checker, sourceFile, propertyAccess.expression).text;
-            const method = propertyAccess.name.getText(sourceFile);
             const args = node.arguments.map((argument) => transformNode(checker, sourceFile, argument).text).join(', ');
 
             // rbxtsc re-typechecks the shadow tree from scratch - a real
             // ts.TransformerFactory rewrites already-checked AST nodes and
             // is never re-validated, but a shadow-copy-and-recompile
             // pipeline (rbxtsc has no transformer hook to run inside)
-            // doesn't get that luxury. `receiver`'s own declared type
-            // (MagicDispatch<View>) has no ___call member, so the cast
-            // below targets a fresh, unrelated structural type instead.
+            // doesn't get that luxury. The rewritten call resolves against
+            // the `___call` member MagicDispatch<T> itself declares, typed
+            // off the view's own `method` entry, so its result keeps the
+            // exact type `receiver.method(args)` had - anything the source
+            // went on to chain or assign from it still typechecks. (An
+            // earlier version cast the receiver to a throwaway
+            // `{ ___call(...): unknown }` instead; that typed every result
+            // `unknown`, which held up only as long as no result was ever
+            // used as anything but an `expect()` argument.)
             return {
-                text:
-                    `(${receiverText} as unknown as { ___call(method: string, parameters: unknown[]): unknown }).___call('${method}', [${args}])`,
+                text: `${receiverText}.___call('${method}', [${args}])`,
                 changed: true,
             };
         }
@@ -143,16 +153,16 @@ function transformNode(checker, sourceFile, node)
     // `receiver.key`, bare - no `(` anywhere in this source - routes to __get.
     if (ts.isPropertyAccessExpression(node)) {
         const isCallee = ts.isCallExpression(node.parent) && node.parent.expression === node;
+        const key = node.name.getText(sourceFile);
 
-        if (!isCallee) {
+        if (!isCallee && !DISPATCH_METHODS.has(key)) {
             const receiverType = checker.getTypeAtLocation(node.expression);
 
             if (isMagicDispatchType(checker, receiverType)) {
                 const receiverText = transformNode(checker, sourceFile, node.expression).text;
-                const key = node.name.getText(sourceFile);
 
                 return {
-                    text: `(${receiverText} as unknown as { __get(key: string): unknown }).__get('${key}')`,
+                    text: `${receiverText}.__get('${key}')`,
                     changed: true,
                 };
             }
